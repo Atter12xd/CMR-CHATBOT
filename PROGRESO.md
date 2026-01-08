@@ -21,10 +21,20 @@
 - `OPENAI_API_KEY` ✅
 - `DATABASE_URL` ✅
 - `DIRECT_URL` ✅
+- `PUBLIC_APP_URL` ✅ (local: `http://localhost:4321`)
+
+**Deployment**:
+- ✅ Vercel: `cmr-chatbot-two.vercel.app`
+- ⬜ Variables de entorno en Vercel (agregar con `PUBLIC_APP_URL=https://cmr-chatbot-two.vercel.app`)
 
 ## 🔄 Próximos Pasos Inmediatos
 
-1. **Instalar dependencias**:
+1. **Agregar variables de entorno en Vercel**:
+   - Ir a Settings > Environment Variables
+   - Agregar todas las variables del `.env`
+   - IMPORTANTE: `PUBLIC_APP_URL=https://cmr-chatbot-two.vercel.app` (no localhost)
+
+2. **Instalar dependencias**:
    ```bash
    npm install @supabase/supabase-js @supabase/ssr zod
    ```

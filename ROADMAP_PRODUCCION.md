@@ -1,6 +1,6 @@
 # 🚀 CMR Chatbot - Roadmap a Producción
 
-## 📊 Estado Actual (Demo)
+## 📊 Estado Actual (Demo → Producción)
 
 ### ✅ Lo que Ya Tenemos
 - **Frontend completo** con Astro + React + TypeScript
@@ -10,11 +10,16 @@
 - **Dashboard con métricas** (ventas diarias/semanales/mensuales)
 - **Sistema de pagos** con detección de comprobantes
 - **Entrenamiento del bot** (interfaz para web + PDFs)
+- ✅ **Base de datos configurada** (Supabase con todas las tablas creadas)
+- ✅ **Variables de entorno configuradas** (local y Vercel listas)
+
+### 🔄 En Progreso
+- Base de datos persistente (tablas creadas, falta migrar código)
+- Instalación de dependencias (Supabase Client SDK)
 
 ### ❌ Lo que Falta (Funcionalidad Real)
-- Base de datos persistente
 - Autenticación de usuarios
-- Backend API
+- Backend API (Edge Functions)
 - Integración con OpenAI (bot inteligente)
 - WebSockets para tiempo real
 - Integraciones con Facebook Messenger y WhatsApp
@@ -307,17 +312,18 @@ PUBLIC_APP_URL=http://localhost:4321
 ### 🔵 FASE 1: Infraestructura Base (Semana 1)
 
 #### 1.1 Configuración de Supabase
-- [ ] Crear proyecto en Supabase
-- [ ] Configurar base de datos (crear todas las tablas)
-- [ ] Configurar Row Level Security (RLS)
+- [x] Crear proyecto en Supabase
+- [x] Configurar base de datos (crear todas las tablas) - ✅ SQL ejecutado
+- [x] Configurar Row Level Security (RLS) - ✅ Incluido en schema.sql
 - [ ] Configurar Storage buckets (product-images, payment-receipts, bot-training-files)
-- [ ] Obtener keys y agregar a `.env`
+- [x] Obtener keys y agregar a `.env` - ✅ Completado
 
 #### 1.2 Instalación de Dependencias
 ```bash
 npm install @supabase/supabase-js @supabase/ssr zod
 npm install --save-dev @types/node
 ```
+**Estado**: ⬜ Pendiente
 
 #### 1.3 Crear Cliente Supabase
 - [ ] Crear `src/lib/supabase.ts` (cliente del lado del cliente)
@@ -325,11 +331,11 @@ npm install --save-dev @types/node
 - [ ] Crear tipos TypeScript desde la BD con `supabase gen types typescript`
 
 #### 1.4 Configuración de Variables de Entorno
-- [ ] Crear `.env.example`
-- [ ] Configurar `.env` local
-- [ ] Documentar variables necesarias
+- [x] Configurar `.env` local - ✅ Completado
+- [x] Configurar variables en Vercel - ✅ Listo para agregar
+- [ ] Documentar variables necesarias (ya está en roadmap)
 
-**Resultado**: Base de datos configurada y conectada
+**Resultado**: ✅ Base de datos configurada | ⏳ Variables configuradas | ⬜ Pendiente: Storage buckets y cliente Supabase
 
 ---
 
@@ -642,4 +648,5 @@ src/
 
 **Última actualización**: [Fecha]
 **Versión del Roadmap**: 1.0
+
 

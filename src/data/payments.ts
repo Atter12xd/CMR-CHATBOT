@@ -125,3 +125,4 @@ export function fileToBase64(file: File): Promise<string> {
 // Datos de ejemplo para pruebas (opcional)
 export const mockPayments: Payment[] = [];
 
+

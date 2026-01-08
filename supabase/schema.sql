@@ -385,3 +385,4 @@ COMMENT ON TABLE payment_methods_config IS 'Configuración de métodos de pago p
 COMMENT ON TABLE bot_training_data IS 'Datos de entrenamiento del bot (web/PDFs)';
 COMMENT ON TABLE bot_context IS 'Contexto del bot para OpenAI';
 
+

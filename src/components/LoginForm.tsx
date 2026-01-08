@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { Mail, Lock, Loader2 } from 'lucide-react';
+import { Mail, Lock, Loader2, AlertCircle, ArrowRight } from 'lucide-react';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -38,35 +38,40 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Inicia sesión en CMR Chatbot
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            O{' '}
-            <a
-              href="/register"
-              className="font-medium text-primary-600 hover:text-primary-500"
-            >
-              crea una cuenta nueva
-            </a>
-          </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-              {error}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <div className="max-w-md w-full relative z-10">
+        {/* Card Container */}
+        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-8 sm:p-10 space-y-8">
+          {/* Header */}
+          <div className="text-center space-y-2">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 shadow-lg shadow-primary-500/25 mb-4">
+              <Lock className="h-8 w-8 text-white" />
             </div>
-          )}
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email
+            <h2 className="text-3xl font-bold text-gray-900 tracking-tight">
+              Bienvenido de vuelta
+            </h2>
+            <p className="text-sm text-gray-500">
+              Inicia sesión en tu cuenta para continuar
+            </p>
+          </div>
+
+          {/* Form */}
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-r-lg flex items-start space-x-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                <p className="text-sm font-medium">{error}</p>
+              </div>
+            )}
+
+            {/* Email Input */}
+            <div className="space-y-2">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Correo electrónico
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
@@ -77,17 +82,27 @@ export default function LoginForm() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none rounded-none relative block w-full px-10 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                  placeholder="Email"
+                  className="block w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                  placeholder="tu@email.com"
                 />
               </div>
             </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Contraseña
-              </label>
+
+            {/* Password Input */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  Contraseña
+                </label>
+                <a
+                  href="/forgot-password"
+                  className="text-sm font-medium text-primary-600 hover:text-primary-500 transition-colors"
+                >
+                  ¿Olvidaste tu contraseña?
+                </a>
+              </div>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
@@ -98,29 +113,17 @@ export default function LoginForm() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none rounded-none relative block w-full px-10 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                  placeholder="Contraseña"
+                  className="block w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                  placeholder="••••••••"
                 />
               </div>
             </div>
-          </div>
 
-          <div className="flex items-center justify-between">
-            <div className="text-sm">
-              <a
-                href="/forgot-password"
-                className="font-medium text-primary-600 hover:text-primary-500"
-              >
-                ¿Olvidaste tu contraseña?
-              </a>
-            </div>
-          </div>
-
-          <div>
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center px-4 py-3.5 border border-transparent rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-primary-500/25 hover:shadow-xl hover:shadow-primary-500/30 transform hover:-translate-y-0.5"
             >
               {loading ? (
                 <>
@@ -128,11 +131,34 @@ export default function LoginForm() {
                   Iniciando sesión...
                 </>
               ) : (
-                'Iniciar sesión'
+                <>
+                  Iniciar sesión
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </>
               )}
             </button>
+          </form>
+
+          {/* Footer */}
+          <div className="text-center pt-4 border-t border-gray-200">
+            <p className="text-sm text-gray-600">
+              ¿No tienes una cuenta?{' '}
+              <a
+                href="/register"
+                className="font-semibold text-primary-600 hover:text-primary-700 transition-colors inline-flex items-center group"
+              >
+                Crear cuenta
+                <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
+              </a>
+            </p>
           </div>
-        </form>
+        </div>
+
+        {/* Background decoration */}
+        <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+        </div>
       </div>
     </div>
   );

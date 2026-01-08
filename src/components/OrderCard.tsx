@@ -29,38 +29,38 @@ export default function OrderCard({ order, onClick }: OrderCardProps) {
   return (
     <div
       onClick={onClick}
-      className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
+      className="bg-white rounded-xl lg:rounded-lg border border-gray-200 p-4 lg:p-6 hover:shadow-md transition-shadow cursor-pointer active:scale-[0.98]"
     >
-      <div className="flex items-start justify-between mb-4">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">{order.id}</h3>
-          <p className="text-sm text-gray-500 mt-1">{order.customerName}</p>
+      <div className="flex items-start justify-between mb-3 lg:mb-4">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-base lg:text-lg font-semibold text-gray-900 truncate">{order.id}</h3>
+          <p className="text-sm text-gray-500 mt-1 truncate">{order.customerName}</p>
         </div>
-        <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1 ${statusConfig.color}`}>
-          <StatusIcon size={14} />
-          <span>{statusConfig.label}</span>
+        <span className={`px-2.5 lg:px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1 flex-shrink-0 ml-2 ${statusConfig.color}`}>
+          <StatusIcon size={12} className="lg:w-3.5 lg:h-3.5" />
+          <span className="hidden sm:inline">{statusConfig.label}</span>
         </span>
       </div>
 
-      <div className="space-y-2 mb-4">
+      <div className="space-y-2 mb-3 lg:mb-4">
         {order.items.map((item) => (
           <div key={item.id} className="flex justify-between text-sm">
-            <span className="text-gray-600">
+            <span className="text-gray-600 truncate flex-1 mr-2">
               {item.name} x{item.quantity}
             </span>
-            <span className="text-gray-900 font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+            <span className="text-gray-900 font-medium flex-shrink-0">${(item.price * item.quantity).toFixed(2)}</span>
           </div>
         ))}
       </div>
 
-      <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+      <div className="flex items-center justify-between pt-3 lg:pt-4 border-t border-gray-200">
         <div>
           <p className="text-xs text-gray-500">Creado</p>
           <p className="text-sm text-gray-700">{formatTime(order.createdAt)}</p>
         </div>
         <div className="text-right">
           <p className="text-xs text-gray-500">Total</p>
-          <p className="text-lg font-bold text-gray-900">${order.total.toFixed(2)}</p>
+          <p className="text-base lg:text-lg font-bold text-gray-900">${order.total.toFixed(2)}</p>
         </div>
       </div>
     </div>

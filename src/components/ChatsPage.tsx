@@ -7,15 +7,21 @@ import { generateBotResponse, getBotTypingDelay } from '../data/botResponses';
 import { initialProducts } from '../data/products';
 import { defaultPaymentMethods } from '../data/paymentMethods';
 import { addPayment, getAllPayments } from '../data/payments';
+import { ArrowLeft } from 'lucide-react';
 
 export default function ChatsPage() {
   const [chats, setChats] = useState<Chat[]>(mockChats);
   const [selectedChatId, setSelectedChatId] = useState<string | null>(chats[0]?.id || null);
+  const [showChatList, setShowChatList] = useState(true);
 
   const selectedChat = chats.find(chat => chat.id === selectedChatId) || null;
 
   const handleSelectChat = (chatId: string) => {
     setSelectedChatId(chatId);
+    // En móvil, ocultar la lista y mostrar el chat
+    if (window.innerWidth < 1024) {
+      setShowChatList(false);
+    }
     // Marcar mensajes como leídos
     setChats(prevChats =>
       prevChats.map(chat =>
@@ -24,6 +30,10 @@ export default function ChatsPage() {
           : chat
       )
     );
+  };
+
+  const handleBackToList = () => {
+    setShowChatList(true);
   };
 
   const handleSendMessage = (chatId: string, message: string, image?: string) => {
@@ -233,7 +243,8 @@ export default function ChatsPage() {
 
   return (
     <div className="h-full">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+      {/* Desktop: Grid layout */}
+      <div className="hidden lg:grid lg:grid-cols-3 gap-4 lg:gap-6 h-full">
         <div className="lg:col-span-1">
           <ChatList
             chats={chats}
@@ -248,6 +259,36 @@ export default function ChatsPage() {
             onToggleBot={handleToggleBot}
           />
         </div>
+      </div>
+
+      {/* Mobile: Toggle between list and chat */}
+      <div className="lg:hidden h-full">
+        {showChatList ? (
+          <ChatList
+            chats={chats}
+            selectedChatId={selectedChatId || undefined}
+            onSelectChat={handleSelectChat}
+          />
+        ) : (
+          <div className="h-full flex flex-col">
+            {/* Back button */}
+            <button
+              onClick={handleBackToList}
+              className="flex items-center space-x-2 px-4 py-3 bg-white border-b border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <ArrowLeft size={20} />
+              <span className="font-medium">Conversaciones</span>
+            </button>
+            {/* Chat window */}
+            <div className="flex-1 min-h-0">
+              <ChatWindow 
+                chat={selectedChat} 
+                onSendMessage={handleSendMessage}
+                onToggleBot={handleToggleBot}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

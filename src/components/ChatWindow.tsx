@@ -67,31 +67,31 @@ export default function ChatWindow({ chat, onSendMessage, onToggleBot }: ChatWin
   }
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-lg border border-gray-200">
+    <div className="flex flex-col h-full bg-white rounded-lg lg:rounded-lg border border-gray-200">
       {/* Chat Header */}
-      <div className="p-4 border-b border-gray-200 bg-gray-50">
+      <div className="p-3 lg:p-4 border-b border-gray-200 bg-gray-50 flex-shrink-0">
         <div className="flex items-center space-x-3">
           <img
             src={chat.customerAvatar}
             alt={chat.customerName}
-            className="w-10 h-10 rounded-full"
+            className="w-10 h-10 lg:w-11 lg:h-11 rounded-full flex-shrink-0"
           />
-          <div className="flex-1">
-            <div className="flex items-center space-x-2">
-              <h3 className="font-semibold text-gray-900">{chat.customerName}</h3>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center space-x-2 flex-wrap">
+              <h3 className="font-semibold text-gray-900 text-sm lg:text-base truncate">{chat.customerName}</h3>
               {chat.botActive && (
-                <span className="flex items-center space-x-1 text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full">
+                <span className="flex items-center space-x-1 text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full flex-shrink-0">
                   <Bot size={12} />
-                  <span>Bot Activo</span>
+                  <span className="hidden sm:inline">Bot Activo</span>
                 </span>
               )}
             </div>
-            <p className="text-sm text-gray-500">{chat.customerEmail}</p>
+            <p className="text-xs lg:text-sm text-gray-500 truncate">{chat.customerEmail}</p>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1.5 lg:space-x-2 flex-shrink-0">
             <button
               onClick={() => onToggleBot(chat.id)}
-              className={`flex items-center space-x-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex items-center space-x-1 px-2 lg:px-3 py-1.5 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
                 chat.botActive
                   ? 'bg-red-100 text-red-700 hover:bg-red-200'
                   : 'bg-green-100 text-green-700 hover:bg-green-200'
@@ -100,17 +100,17 @@ export default function ChatWindow({ chat, onSendMessage, onToggleBot }: ChatWin
             >
               {chat.botActive ? (
                 <>
-                  <Power size={16} />
-                  <span>Parar Bot</span>
+                  <Power size={14} className="lg:w-4 lg:h-4" />
+                  <span className="hidden sm:inline">Parar</span>
                 </>
               ) : (
                 <>
-                  <Bot size={16} />
-                  <span>Activar Bot</span>
+                  <Bot size={14} className="lg:w-4 lg:h-4" />
+                  <span className="hidden sm:inline">Activar</span>
                 </>
               )}
             </button>
-            <span className={`text-xs px-2 py-1 rounded ${
+            <span className={`text-xs px-2 py-1 rounded hidden sm:inline ${
               chat.status === 'active' ? 'bg-green-100 text-green-700' :
               chat.status === 'waiting' ? 'bg-yellow-100 text-yellow-700' :
               'bg-gray-100 text-gray-700'
@@ -123,14 +123,14 @@ export default function ChatWindow({ chat, onSendMessage, onToggleBot }: ChatWin
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-3 lg:p-4 space-y-3 lg:space-y-4 bg-gray-50">
         {chat.messages.map((msg) => (
           <div
             key={msg.id}
             className={`flex ${msg.sender === 'agent' || msg.sender === 'bot' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+              className={`max-w-[85%] sm:max-w-xs lg:max-w-md px-3 lg:px-4 py-2 rounded-xl lg:rounded-lg ${
                 msg.sender === 'agent'
                   ? 'bg-primary-500 text-white'
                   : msg.sender === 'bot'
@@ -181,7 +181,7 @@ export default function ChatWindow({ chat, onSendMessage, onToggleBot }: ChatWin
       </div>
 
       {/* Message Input */}
-      <div className="p-4 border-t border-gray-200 bg-white">
+      <div className="p-3 lg:p-4 border-t border-gray-200 bg-white flex-shrink-0">
         {selectedImage && (
           <div className="mb-3 relative inline-block">
             <div className="relative rounded-lg overflow-hidden border-2 border-primary-500">
@@ -200,7 +200,7 @@ export default function ChatWindow({ chat, onSendMessage, onToggleBot }: ChatWin
             <p className="text-xs text-gray-500 mt-1">📸 Imagen seleccionada (se detectará como comprobante de pago)</p>
           </div>
         )}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-end space-x-2">
           <input
             type="file"
             ref={fileInputRef}
@@ -211,26 +211,26 @@ export default function ChatWindow({ chat, onSendMessage, onToggleBot }: ChatWin
           />
           <label
             htmlFor="image-upload"
-            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+            className="p-2.5 lg:p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl lg:rounded-lg transition-colors cursor-pointer flex-shrink-0"
             title="Subir imagen/comprobante"
           >
-            <ImageIcon size={20} />
+            <ImageIcon size={20} className="lg:w-5 lg:h-5" />
           </label>
           <input
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-            placeholder={selectedImage ? "Agregar mensaje (opcional)..." : "Escribe un mensaje..."}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            placeholder={selectedImage ? "Agregar mensaje..." : "Escribe un mensaje..."}
+            className="flex-1 px-3 lg:px-4 py-2.5 lg:py-2 text-sm lg:text-base border border-gray-300 rounded-xl lg:rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           />
           <button
             onClick={handleSend}
             disabled={!message.trim() && !selectedImage}
-            className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 lg:px-4 py-2.5 lg:py-2 bg-primary-500 text-white rounded-xl lg:rounded-lg hover:bg-primary-600 transition-colors flex items-center space-x-1.5 lg:space-x-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
           >
-            <Send size={18} />
-            <span>Enviar</span>
+            <Send size={18} className="lg:w-5 lg:h-5" />
+            <span className="hidden sm:inline text-sm lg:text-base">Enviar</span>
           </button>
         </div>
       </div>

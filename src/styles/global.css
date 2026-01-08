@@ -44,6 +44,16 @@ body {
   background: #94a3b8;
 }
 
+/* Ocultar scrollbar en móvil para filtros horizontales */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Animaciones para páginas de autenticación */
 @keyframes blob {
   0%, 100% {

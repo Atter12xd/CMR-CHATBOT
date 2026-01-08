@@ -32,13 +32,34 @@ export function useAuth() {
     // Escuchar cambios en la autenticación
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (!mounted) return;
-      setAuthState({
-        user: session?.user ?? null,
-        loading: false,
-        error: null,
-      });
+      
+      // Manejar evento de SIGNED_OUT
+      if (event === 'SIGNED_OUT') {
+        setAuthState({
+          user: null,
+          loading: false,
+          error: null,
+        });
+        return;
+      }
+
+      // Solo actualizar si hay una sesión válida
+      if (session?.user) {
+        setAuthState({
+          user: session.user,
+          loading: false,
+          error: null,
+        });
+      } else {
+        // Si no hay sesión, limpiar estado
+        setAuthState({
+          user: null,
+          loading: false,
+          error: null,
+        });
+      }
     });
 
     return () => {
@@ -94,15 +115,54 @@ export function useAuth() {
 
   const signOut = async () => {
     setAuthState((prev) => ({ ...prev, loading: true }));
-    const { error } = await supabase.auth.signOut();
     
-    setAuthState({
-      user: null,
-      loading: false,
-      error: error?.message ?? null,
-    });
+    try {
+      // Cerrar sesión en Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      // Limpiar estado inmediatamente
+      setAuthState({
+        user: null,
+        loading: false,
+        error: error?.message ?? null,
+      });
 
-    return { error };
+      // Limpiar cualquier dato local almacenado relacionado con Supabase
+      if (typeof window !== 'undefined') {
+        // Limpiar localStorage relacionado con auth
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.includes('supabase') || key.includes('auth'))) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach(key => {
+          try {
+            localStorage.removeItem(key);
+          } catch (e) {
+            // Ignorar errores al limpiar
+          }
+        });
+
+        // También limpiar sessionStorage
+        try {
+          sessionStorage.clear();
+        } catch (e) {
+          // Ignorar errores
+        }
+      }
+
+      return { error };
+    } catch (error: any) {
+      // Asegurarse de limpiar el estado incluso si hay error
+      setAuthState({
+        user: null,
+        loading: false,
+        error: error?.message ?? 'Error al cerrar sesión',
+      });
+      return { error };
+    }
   };
 
   const resetPassword = async (email: string) => {

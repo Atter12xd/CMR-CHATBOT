@@ -7,8 +7,19 @@ export default function Header() {
   const { user, signOut } = useAuth();
 
   const handleSignOut = async () => {
-    await signOut();
-    window.location.href = '/login';
+    setShowMenu(false);
+    try {
+      const { error } = await signOut();
+      if (error) {
+        console.error('Error al cerrar sesión:', error);
+      }
+      // Forzar redirección y limpiar cualquier estado
+      window.location.replace('/login');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+      // Redirigir de todas formas
+      window.location.replace('/login');
+    }
   };
 
   const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'Usuario';

@@ -26,11 +26,11 @@ export default function RegisterForm() {
       return;
     }
 
-    const { error } = await signUp(email, password, name);
+    const { data, error } = await signUp(email, password, name);
     
     if (error) {
-      setError(error);
-    } else {
+      setError(error.message || 'Error al crear la cuenta');
+    } else if (data?.user) {
       setSuccess(true);
       // Mostrar mensaje de verificación de email
     }

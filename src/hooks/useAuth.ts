@@ -17,8 +17,11 @@ export function useAuth() {
   const supabase = createClient();
 
   useEffect(() => {
+    let mounted = true;
+
     // Obtener sesión actual
     supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (!mounted) return;
       setAuthState({
         user: session?.user ?? null,
         loading: false,
@@ -30,6 +33,7 @@ export function useAuth() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
       setAuthState({
         user: session?.user ?? null,
         loading: false,
@@ -37,7 +41,10 @@ export function useAuth() {
       });
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {

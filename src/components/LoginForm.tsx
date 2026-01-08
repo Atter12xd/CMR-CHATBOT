@@ -6,19 +6,27 @@ export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const { signIn, loading } = useAuth();
+  const { signIn, loading, isAuthenticated } = useAuth();
+
+  // Si ya está autenticado, redirigir
+  if (isAuthenticated && typeof window !== 'undefined') {
+    window.location.href = '/';
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    const { error } = await signIn(email, password);
+    const { data, error } = await signIn(email, password);
     
     if (error) {
-      setError(error);
-    } else {
-      // Redirigir será manejado por el hook
-      window.location.href = '/';
+      setError(error.message || 'Error al iniciar sesión');
+    } else if (data?.user) {
+      // Redirigir después de login exitoso
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 100);
     }
   };
 

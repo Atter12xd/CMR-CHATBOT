@@ -54,11 +54,19 @@ export function useAuth() {
       password,
     });
     
-    setAuthState({
-      user: data.user,
-      loading: false,
-      error: error?.message ?? null,
-    });
+    if (error) {
+      setAuthState({
+        user: null,
+        loading: false,
+        error: error.message,
+      });
+    } else {
+      setAuthState({
+        user: data.user,
+        loading: false,
+        error: null,
+      });
+    }
 
     return { data, error };
   };

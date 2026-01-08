@@ -21,7 +21,14 @@ export default function LoginForm() {
     const { data, error } = await signIn(email, password);
     
     if (error) {
-      setError(error.message || 'Error al iniciar sesión');
+      // Mensajes de error más descriptivos
+      if (error.message.includes('Invalid login credentials')) {
+        setError('Email o contraseña incorrectos');
+      } else if (error.message.includes('Email not confirmed')) {
+        setError('Por favor verifica tu email antes de iniciar sesión. Revisa tu bandeja de entrada.');
+      } else {
+        setError(error.message || 'Error al iniciar sesión');
+      }
     } else if (data?.user) {
       // Redirigir después de login exitoso
       setTimeout(() => {

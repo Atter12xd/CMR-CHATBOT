@@ -1,0 +1,13 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AppLayout from '../components/Layout';
+import ProductsPage from '../components/ProductsPage';
+---
+
+<Layout title="Productos - CMR Chatbot">
+  <AppLayout client:load>
+    <ProductsPage client:only="react" />
+  </AppLayout>
+</Layout>
+
+

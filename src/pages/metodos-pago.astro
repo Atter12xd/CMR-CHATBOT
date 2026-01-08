@@ -1,0 +1,23 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AppLayout from '../components/Layout';
+import PaymentMethodsConfig from '../components/PaymentMethodsConfig';
+import { defaultPaymentMethods } from '../data/paymentMethods';
+---
+
+<Layout title="Métodos de Pago - CMR Chatbot">
+  <AppLayout client:load>
+    <PaymentMethodsConfig 
+      client:only="react"
+      methods={defaultPaymentMethods}
+      onSave={(methods) => {
+        // Aquí se guardaría en la base de datos
+        console.log('Guardando métodos de pago:', methods);
+        // Por ahora solo mostramos un mensaje
+        alert('Métodos de pago guardados (en producción se guardaría en BD)');
+      }}
+    />
+  </AppLayout>
+</Layout>
+
+

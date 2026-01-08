@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AppLayout from '../components/Layout';
+import DashboardContent from '../components/DashboardContent';
+---
+
+<Layout title="Dashboard - CMR Chatbot">
+  <AppLayout client:only="react">
+    <DashboardContent client:only="react" />
+  </AppLayout>
+</Layout>

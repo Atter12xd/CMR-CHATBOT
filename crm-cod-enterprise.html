@@ -1,0 +1,2319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM COD Enterprise - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #004C99;
+            --secondary: #1E293B;
+            --success: #059669;
+            --warning: #D97706;
+            --danger: #DC2626;
+            --info: #0891B2;
+            --bg-main: #F8FAFC;
+            --bg-secondary: #FFFFFF;
+            --border: #E2E8F0;
+            --text-primary: #0F172A;
+            --text-secondary: #64748B;
+            --sidebar-bg: #1E293B;
+            --sidebar-active: #334155;
+        }
+        
+        body {
+            font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        .layout {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background: var(--sidebar-bg);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: -0.02em;
+        }
+        
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+        
+        .nav-section {
+            padding: 12px 8px 8px;
+        }
+        
+        .nav-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #94A3B8;
+            font-weight: 600;
+            padding: 0 12px 8px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            color: #CBD5E1;
+            text-decoration: none;
+            transition: all 0.15s;
+            margin-bottom: 2px;
+            font-size: 13px;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+        }
+        
+        .nav-item.active {
+            background: var(--sidebar-active);
+            color: #fff;
+            font-weight: 500;
+        }
+        
+        .nav-item i {
+            width: 16px;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .nav-badge {
+            margin-left: auto;
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .sidebar-user {
+            margin-top: auto;
+            padding: 12px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+        
+        .user-details {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .user-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .user-role {
+            font-size: 11px;
+            color: #94A3B8;
+        }
+        
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* Topbar */
+        .topbar {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            height: 56px;
+            gap: 16px;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+        
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .breadcrumb-sep {
+            color: #CBD5E1;
+        }
+        
+        .breadcrumb-current {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .search-box {
+            position: relative;
+            width: 320px;
+            margin-left: auto;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 8px 12px 8px 36px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            background: var(--bg-main);
+            transition: all 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #fff;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+        
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+        }
+        
+        .icon-btn:hover {
+            background: var(--bg-main);
+            color: var(--text-primary);
+        }
+        
+        .notification-dot {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 6px;
+            height: 6px;
+            background: var(--danger);
+            border-radius: 50%;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* Content Area */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .view-section {
+            display: none;
+        }
+        
+        .view-section.active {
+            display: block;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+        
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .stat-trend.positive {
+            color: var(--success);
+        }
+        
+        .stat-trend.negative {
+            color: var(--danger);
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        
+        .stat-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        /* Table */
+        .table-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .table-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-secondary:hover {
+            background: var(--bg-main);
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table thead {
+            background: #F8FAFC;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .data-table th {
+            padding: 10px 16px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .data-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+        
+        .data-table tbody tr:hover {
+            background: #F8FAFC;
+        }
+        
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Status Badges */
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+        
+        .status-new { background: #DBEAFE; color: #1E40AF; }
+        .status-new .status-dot { background: #1E40AF; }
+        
+        .status-pending { background: #FEF3C7; color: #92400E; }
+        .status-pending .status-dot { background: #92400E; }
+        
+        .status-confirmed { background: #D1FAE5; color: #065F46; }
+        .status-confirmed .status-dot { background: #065F46; }
+        
+        .status-shipped { background: #E0E7FF; color: #3730A3; }
+        .status-shipped .status-dot { background: #3730A3; }
+        
+        .status-delivered { background: #D1FAE5; color: #065F46; }
+        .status-delivered .status-dot { background: #065F46; }
+        
+        .status-rto { background: #FEE2E2; color: #991B1B; }
+        .status-rto .status-dot { background: #991B1B; }
+        
+        /* Risk Scores */
+        .risk-score {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .risk-low { background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; }
+        .risk-medium { background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; }
+        .risk-high { background: #FEE2E2; color: #B91C1C; border: 1px solid #FECACA; }
+        
+        /* WhatsApp Interface */
+        .chat-layout {
+            display: grid;
+            grid-template-columns: 320px 1fr 280px;
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            height: calc(100vh - 176px);
+        }
+        
+        .chat-list {
+            background: var(--bg-secondary);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-list-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .chat-search {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        
+        .chat-items {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .chat-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        
+        .chat-item:hover {
+            background: #F8FAFC;
+        }
+        
+        .chat-item.active {
+            background: #EFF6FF;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .chat-item-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        
+        .chat-name {
+            font-weight: 600;
+            font-size: 13px;
+        }
+        
+        .chat-time {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        
+        .chat-preview {
+            font-size: 12px;
+            color: var(--text-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .chat-window {
+            background: #ECE5DD;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            background: #F0F2F5;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .message {
+            display: flex;
+            margin-bottom: 12px;
+        }
+        
+        .message.received {
+            justify-content: flex-start;
+        }
+        
+        .message.sent {
+            justify-content: flex-end;
+        }
+        
+        .message-bubble {
+            max-width: 65%;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        
+        .message.received .message-bubble {
+            background: #fff;
+            border-radius: 8px 8px 8px 2px;
+        }
+        
+        .message.sent .message-bubble {
+            background: #DCF8C6;
+            border-radius: 8px 8px 2px 8px;
+        }
+        
+        .message-time {
+            font-size: 11px;
+            color: #667781;
+            margin-top: 4px;
+            text-align: right;
+        }
+        
+        .chat-input-area {
+            background: #F0F2F5;
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .chat-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 13px;
+        }
+        
+        .chat-sidebar {
+            background: var(--bg-secondary);
+            padding: 16px;
+            overflow-y: auto;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+        }
+        
+        .info-label {
+            color: var(--text-secondary);
+        }
+        
+        .info-value {
+            font-weight: 500;
+            text-align: right;
+        }
+        
+        /* Pipeline */
+        .pipeline-container {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding-bottom: 16px;
+        }
+        
+        .pipeline-column {
+            min-width: 280px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        
+        .pipeline-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .pipeline-title {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        
+        .pipeline-count {
+            background: var(--bg-main);
+            color: var(--text-secondary);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .pipeline-cards {
+            padding: 8px;
+            max-height: calc(100vh - 280px);
+            overflow-y: auto;
+        }
+        
+        .pipeline-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .pipeline-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .card-id {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        
+        .card-customer {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .card-product {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+        }
+        
+        .card-amount {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        /* Charts */
+        .chart-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        
+        .chart-filters {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .filter-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            background: transparent;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .filter-btn.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+        
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            height: 200px;
+        }
+        
+        .bar-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .bar {
+            width: 100%;
+            background: var(--primary);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .bar:hover {
+            opacity: 0.8;
+        }
+        
+        .bar-value {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .bar-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        /* Grid Layout */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .pagination-info {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .pagination-buttons {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .page-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            background: transparent;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .page-btn:hover {
+            background: var(--bg-main);
+        }
+        
+        .page-btn.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+        
+        /* Metrics Panel */
+        .metrics-panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .metric-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .metric-value {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .metric-number {
+            font-size: 16px;
+            font-weight: 700;
+        }
+        
+        .metric-bar {
+            width: 120px;
+            height: 6px;
+            background: #E2E8F0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .metric-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.3s;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">C</div>
+                    <div>CRM COD</div>
+                </div>
+            </div>
+            
+            <nav style="flex: 1; overflow-y: auto;">
+                <div class="nav-section">
+                    <div class="nav-label">Overview</div>
+                    <a href="#" class="nav-item active" onclick="showView('dashboard')">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showView('analytics')">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-label">Operations</div>
+                    <a href="#" class="nav-item" onclick="showView('orders')">
+                        <i class="fas fa-box"></i>
+                        <span>Orders</span>
+                        <span class="nav-badge">127</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showView('pipeline')">
+                        <i class="fas fa-stream"></i>
+                        <span>Pipeline</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showView('whatsapp')">
+                        <i class="fab fa-whatsapp"></i>
+                        <span>WhatsApp</span>
+                        <span class="nav-badge">23</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-users"></i>
+                        <span>Customers</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-label">Intelligence</div>
+                    <a href="#" class="nav-item" onclick="showView('scoring')">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Risk Scoring</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showView('automation')">
+                        <i class="fas fa-robot"></i>
+                        <span>Automation</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-flask"></i>
+                        <span>A/B Testing</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-label">Configuration</div>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-plug"></i>
+                        <span>Integrations</span>
+                    </a>
+                </div>
+            </nav>
+            
+            <div class="sidebar-user">
+                <div class="user-info">
+                    <img src="https://ui-avatars.com/api/?name=Nicol+Perez&background=0066CC&color=fff&bold=true" class="user-avatar" />
+                    <div class="user-details">
+                        <div class="user-name">Nicol Perez</div>
+                        <div class="user-role">Administrator</div>
+                    </div>
+                    <i class="fas fa-ellipsis-v" style="color: #94A3B8; cursor: pointer;"></i>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="breadcrumb">
+                    <div class="breadcrumb-item">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <span class="breadcrumb-sep">/</span>
+                    <div class="breadcrumb-item">
+                        <span id="breadcrumb-section">Dashboard</span>
+                    </div>
+                </div>
+                
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Search orders, customers, SKUs..." />
+                </div>
+                
+                <div class="topbar-actions">
+                    <button class="icon-btn">
+                        <i class="far fa-bell"></i>
+                        <span class="notification-dot"></span>
+                    </button>
+                    <button class="icon-btn">
+                        <i class="far fa-question-circle"></i>
+                    </button>
+                    <button class="btn-primary">
+                        <i class="fas fa-plus"></i>
+                        New Order
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Content -->
+            <div class="content">
+                <!-- Dashboard View -->
+                <div id="view-dashboard" class="view-section active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">Orders Today</span>
+                                <span class="stat-trend positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    12.5%
+                                </span>
+                            </div>
+                            <div class="stat-value">387</div>
+                            <div class="stat-meta">vs 344 yesterday</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">Confirmation Rate</span>
+                                <span class="stat-trend positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    5.2%
+                                </span>
+                            </div>
+                            <div class="stat-value">84.7%</div>
+                            <div class="stat-meta">Target: 85%</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">RTO Rate</span>
+                                <span class="stat-trend positive">
+                                    <i class="fas fa-arrow-down"></i>
+                                    3.8%
+                                </span>
+                            </div>
+                            <div class="stat-value">21.3%</div>
+                            <div class="stat-meta">vs 25.1% last week</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">GMV (Delivered)</span>
+                                <span class="stat-trend positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    18.3%
+                                </span>
+                            </div>
+                            <div class="stat-value">$24,847</div>
+                            <div class="stat-meta">MTD: $347,291</div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid-2">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <div class="chart-title">Confirmation Rate Trend</div>
+                                <div class="chart-filters">
+                                    <button class="filter-btn active">7D</button>
+                                    <button class="filter-btn">30D</button>
+                                    <button class="filter-btn">90D</button>
+                                </div>
+                            </div>
+                            <div class="bar-chart">
+                                <div class="bar-item">
+                                    <div class="bar" style="height: 78%;">
+                                        <span class="bar-value">78%</span>
+                                    </div>
+                                    <div class="bar-label">Mon</div>
+                                </div>
+                                <div class="bar-item">
+                                    <div class="bar" style="height: 82%;">
+                                        <span class="bar-value">82%</span>
+                                    </div>
+                                    <div class="bar-label">Tue</div>
+                                </div>
+                                <div class="bar-item">
+                                    <div class="bar" style="height: 85%;">
+                                        <span class="bar-value">85%</span>
+                                    </div>
+                                    <div class="bar-label">Wed</div>
+                                </div>
+                                <div class="bar-item">
+                                    <div class="bar" style="height: 81%;">
+                                        <span class="bar-value">81%</span>
+                                    </div>
+                                    <div class="bar-label">Thu</div>
+                                </div>
+                                <div class="bar-item">
+                                    <div class="bar" style="height: 87%;">
+                                        <span class="bar-value">87%</span>
+                                    </div>
+                                    <div class="bar-label">Fri</div>
+                                </div>
+                                <div class="bar-item">
+                                    <div class="bar" style="height: 79%;">
+                                        <span class="bar-value">79%</span>
+                                    </div>
+                                    <div class="bar-label">Sat</div>
+                                </div>
+                                <div class="bar-item">
+                                    <div class="bar" style="height: 73%;">
+                                        <span class="bar-value">73%</span>
+                                    </div>
+                                    <div class="bar-label">Sun</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="metrics-panel">
+                            <div style="font-size: 15px; font-weight: 600; margin-bottom: 16px;">RTO by Traffic Source</div>
+                            <div class="metric-row">
+                                <span class="metric-label">TikTok Ads</span>
+                                <div class="metric-value">
+                                    <span class="metric-number" style="color: #DC2626;">28.4%</span>
+                                    <div class="metric-bar">
+                                        <div class="metric-bar-fill" style="width: 28.4%; background: #DC2626;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Meta Ads</span>
+                                <div class="metric-value">
+                                    <span class="metric-number" style="color: #D97706;">22.1%</span>
+                                    <div class="metric-bar">
+                                        <div class="metric-bar-fill" style="width: 22.1%; background: #D97706;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">WhatsApp Direct</span>
+                                <div class="metric-value">
+                                    <span class="metric-number" style="color: #0891B2;">16.7%</span>
+                                    <div class="metric-bar">
+                                        <div class="metric-bar-fill" style="width: 16.7%; background: #0891B2;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Instagram</span>
+                                <div class="metric-value">
+                                    <span class="metric-number" style="color: #059669;">13.2%</span>
+                                    <div class="metric-bar">
+                                        <div class="metric-bar-fill" style="width: 13.2%; background: #059669;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Google Ads</span>
+                                <div class="metric-value">
+                                    <span class="metric-number" style="color: #059669;">11.8%</span>
+                                    <div class="metric-bar">
+                                        <div class="metric-bar-fill" style="width: 11.8%; background: #059669;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <div class="table-header">
+                            <div class="table-title">Recent High-Risk Orders</div>
+                            <div class="table-actions">
+                                <button class="btn-secondary">
+                                    <i class="fas fa-filter"></i>
+                                    Filter
+                                </button>
+                                <button class="btn-secondary">
+                                    <i class="fas fa-download"></i>
+                                    Export
+                                </button>
+                            </div>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ORDER ID</th>
+                                    <th>CUSTOMER</th>
+                                    <th>PRODUCT</th>
+                                    <th>AMOUNT</th>
+                                    <th>SOURCE</th>
+                                    <th>RISK SCORE</th>
+                                    <th>STATUS</th>
+                                    <th>ASSIGNED</th>
+                                    <th>CREATED</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>#ORD-7821</strong></td>
+                                    <td>
+                                        <div style="font-weight: 500;">Pedro Silva Mendoza</div>
+                                        <div style="font-size: 11px; color: #64748B;">+51 923 456 789</div>
+                                    </td>
+                                    <td>Pre-Workout Ultimate</td>
+                                    <td><strong>$38.00</strong></td>
+                                    <td><i class="fab fa-tiktok" style="color: #000;"></i> TikTok</td>
+                                    <td><span class="risk-score risk-high">HIGH 67</span></td>
+                                    <td><span class="status status-pending"><span class="status-dot"></span>PENDING</span></td>
+                                    <td>M. Rodriguez</td>
+                                    <td>2m ago</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>#ORD-7820</strong></td>
+                                    <td>
+                                        <div style="font-weight: 500;">Ana Martinez Lopez</div>
+                                        <div style="font-size: 11px; color: #64748B;">+51 998 765 432</div>
+                                    </td>
+                                    <td>BCAA Recovery (3x)</td>
+                                    <td><strong>$67.00</strong></td>
+                                    <td><i class="fab fa-whatsapp" style="color: #25D366;"></i> WhatsApp</td>
+                                    <td><span class="risk-score risk-medium">MED 45</span></td>
+                                    <td><span class="status status-confirmed"><span class="status-dot"></span>CONFIRMED</span></td>
+                                    <td>L. Torres</td>
+                                    <td>8m ago</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>#ORD-7819</strong></td>
+                                    <td>
+                                        <div style="font-weight: 500;">Carlos Ruiz Diaz</div>
+                                        <div style="font-size: 11px; color: #64748B;">+51 912 345 678</div>
+                                    </td>
+                                    <td>Creatine Monohydrate + Shaker</td>
+                                    <td><strong>$45.00</strong></td>
+                                    <td><i class="fab fa-facebook" style="color: #1877F2;"></i> Meta</td>
+                                    <td><span class="risk-score risk-high">HIGH 58</span></td>
+                                    <td><span class="status status-pending"><span class="status-dot"></span>PENDING</span></td>
+                                    <td>System</td>
+                                    <td>12m ago</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>#ORD-7818</strong></td>
+                                    <td>
+                                        <div style="font-weight: 500;">Laura Torres Vega</div>
+                                        <div style="font-size: 11px; color: #64748B;">+51 956 123 789</div>
+                                    </td>
+                                    <td>Marine Collagen (2x)</td>
+                                    <td><strong>$72.00</strong></td>
+                                    <td><i class="fab fa-instagram" style="color: #E4405F;"></i> Instagram</td>
+                                    <td><span class="risk-score risk-medium">MED 42</span></td>
+                                    <td><span class="status status-shipped"><span class="status-dot"></span>SHIPPED</span></td>
+                                    <td>A. Santos</td>
+                                    <td>18m ago</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>#ORD-7817</strong></td>
+                                    <td>
+                                        <div style="font-weight: 500;">Roberto Fernandez</div>
+                                        <div style="font-size: 11px; color: #64748B;">+51 987 234 567</div>
+                                    </td>
+                                    <td>Vitamin D3 5000IU</td>
+                                    <td><strong>$28.00</strong></td>
+                                    <td><i class="fab fa-google" style="color: #4285F4;"></i> Google</td>
+                                    <td><span class="risk-score risk-high">HIGH 71</span></td>
+                                    <td><span class="status status-new"><span class="status-dot"></span>NEW</span></td>
+                                    <td>Unassigned</td>
+                                    <td>24m ago</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="pagination">
+                            <div class="pagination-info">Showing 1-5 of 47 high-risk orders</div>
+                            <div class="pagination-buttons">
+                                <button class="page-btn">←</button>
+                                <button class="page-btn active">1</button>
+                                <button class="page-btn">2</button>
+                                <button class="page-btn">3</button>
+                                <button class="page-btn">→</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Orders View -->
+                <div id="view-orders" class="view-section">
+                    <div style="margin-bottom: 16px; display: flex; gap: 12px;">
+                        <button class="btn-secondary">
+                            <i class="fas fa-filter"></i>
+                            All Statuses
+                        </button>
+                        <button class="btn-secondary">
+                            <i class="fas fa-chart-pie"></i>
+                            All Sources
+                        </button>
+                        <button class="btn-secondary">
+                            <i class="fas fa-calendar"></i>
+                            Last 7 days
+                        </button>
+                        <div style="margin-left: auto; display: flex; gap: 8px;">
+                            <button class="btn-secondary">
+                                <i class="fas fa-file-excel"></i>
+                                Export
+                            </button>
+                            <button class="btn-primary">
+                                <i class="fas fa-plus"></i>
+                                Create Order
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" /></th>
+                                    <th>ORDER ID</th>
+                                    <th>CUSTOMER</th>
+                                    <th>PRODUCT</th>
+                                    <th>AMOUNT</th>
+                                    <th>SOURCE</th>
+                                    <th>ZONE</th>
+                                    <th>RISK</th>
+                                    <th>STATUS</th>
+                                    <th>CREATED</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="checkbox" /></td>
+                                    <td><strong>#ORD-7821</strong></td>
+                                    <td>
+                                        <div style="font-weight: 500;">Pedro Silva</div>
+                                        <div style="font-size: 11px; color: #64748B;">+51 923 456 789</div>
+                                    </td>
+                                    <td>Pre-Workout</td>
+                                    <td><strong>$38.00</strong></td>
+                                    <td><i class="fab fa-tiktok"></i> TikTok</td>
+                                    <td>San Juan Lurig.</td>
+                                    <td><span class="risk-score risk-high">67</span></td>
+                                    <td><span class="status status-pending"><span class="status-dot"></span>PENDING</span></td>
+                                    <td>2m ago</td>
+                                    <td><button class="icon-btn"><i class="fas fa-ellipsis-v"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" /></td>
+                                    <td><strong>#ORD-7820</strong></td>
+                                    <td>
+                                        <div style="font-weight: 500;">Ana Martinez</div>
+                                        <div style="font-size: 11px; color: #64748B;">+51 998 765 432</div>
+                                    </td>
+                                    <td>BCAA (3x)</td>
+                                    <td><strong>$67.00</strong></td>
+                                    <td><i class="fab fa-whatsapp"></i> WhatsApp</td>
+                                    <td>Miraflores</td>
+                                    <td><span class="risk-score risk-medium">45</span></td>
+                                    <td><span class="status status-confirmed"><span class="status-dot"></span>CONFIRMED</span></td>
+                                    <td>8m ago</td>
+                                    <td><button class="icon-btn"><i class="fas fa-ellipsis-v"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" /></td>
+                                    <td><strong>#ORD-7819</strong></td>
+                                    <td>
+                                        <div style="font-weight: 500;">Carlos Ruiz</div>
+                                        <div style="font-size: 11px; color: #64748B;">+51 912 345 678</div>
+                                    </td>
+                                    <td>Creatine + Shaker</td>
+                                    <td><strong>$45.00</strong></td>
+                                    <td><i class="fab fa-facebook"></i> Meta</td>
+                                    <td>San Isidro</td>
+                                    <td><span class="risk-score risk-high">58</span></td>
+                                    <td><span class="status status-pending"><span class="status-dot"></span>PENDING</span></td>
+                                    <td>12m ago</td>
+                                    <td><button class="icon-btn"><i class="fas fa-ellipsis-v"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" /></td>
+                                    <td><strong>#ORD-7818</strong></td>
+                                    <td>
+                                        <div style="font-weight: 500;">Laura Torres</div>
+                                        <div style="font-size: 11px; color: #64748B;">+51 956 123 789</div>
+                                    </td>
+                                    <td>Collagen (2x)</td>
+                                    <td><strong>$72.00</strong></td>
+                                    <td><i class="fab fa-instagram"></i> Instagram</td>
+                                    <td>Surco</td>
+                                    <td><span class="risk-score risk-medium">42</span></td>
+                                    <td><span class="status status-shipped"><span class="status-dot"></span>SHIPPED</span></td>
+                                    <td>18m ago</td>
+                                    <td><button class="icon-btn"><i class="fas fa-ellipsis-v"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" /></td>
+                                    <td><strong>#ORD-7817</strong></td>
+                                    <td>
+                                        <div style="font-weight: 500;">Roberto Fernandez</div>
+                                        <div style="font-size: 11px; color: #64748B;">+51 987 234 567</div>
+                                    </td>
+                                    <td>Vitamin D3</td>
+                                    <td><strong>$28.00</strong></td>
+                                    <td><i class="fab fa-google"></i> Google</td>
+                                    <td>Villa El Salvador</td>
+                                    <td><span class="risk-score risk-high">71</span></td>
+                                    <td><span class="status status-new"><span class="status-dot"></span>NEW</span></td>
+                                    <td>24m ago</td>
+                                    <td><button class="icon-btn"><i class="fas fa-ellipsis-v"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" /></td>
+                                    <td><strong>#ORD-7816</strong></td>
+                                    <td>
+                                        <div style="font-weight: 500;">Sofia Castro</div>
+                                        <div style="font-size: 11px; color: #64748B;">+51 945 678 901</div>
+                                    </td>
+                                    <td>Omega-3</td>
+                                    <td><strong>$42.00</strong></td>
+                                    <td><i class="fab fa-tiktok"></i> TikTok</td>
+                                    <td>La Molina</td>
+                                    <td><span class="risk-score risk-low">18</span></td>
+                                    <td><span class="status status-delivered"><span class="status-dot"></span>DELIVERED</span></td>
+                                    <td>1h ago</td>
+                                    <td><button class="icon-btn"><i class="fas fa-ellipsis-v"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" /></td>
+                                    <td><strong>#ORD-7815</strong></td>
+                                    <td>
+                                        <div style="font-weight: 500;">Diego Ramirez</div>
+                                        <div style="font-size: 11px; color: #64748B;">+51 934 567 890</div>
+                                    </td>
+                                    <td>Mass Gainer</td>
+                                    <td><strong>$89.00</strong></td>
+                                    <td><i class="fab fa-facebook"></i> Meta</td>
+                                    <td>Ate</td>
+                                    <td><span class="risk-score risk-medium">52</span></td>
+                                    <td><span class="status status-rto"><span class="status-dot"></span>RTO</span></td>
+                                    <td>2h ago</td>
+                                    <td><button class="icon-btn"><i class="fas fa-ellipsis-v"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="pagination">
+                            <div class="pagination-info">Showing 1-7 of 387 orders</div>
+                            <div class="pagination-buttons">
+                                <button class="page-btn">←</button>
+                                <button class="page-btn active">1</button>
+                                <button class="page-btn">2</button>
+                                <button class="page-btn">3</button>
+                                <button class="page-btn">...</button>
+                                <button class="page-btn">28</button>
+                                <button class="page-btn">→</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pipeline View -->
+                <div id="view-pipeline" class="view-section">
+                    <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 15px; font-weight: 600;">Pipeline Overview - 387 orders ($24,847 total value)</div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-secondary">Today</button>
+                            <button class="btn-secondary">This Week</button>
+                            <button class="btn-secondary">This Month</button>
+                        </div>
+                    </div>
+                    
+                    <div class="pipeline-container">
+                        <div class="pipeline-column">
+                            <div class="pipeline-header">
+                                <div class="pipeline-title">New</div>
+                                <div class="pipeline-count">42</div>
+                            </div>
+                            <div class="pipeline-cards">
+                                <div class="pipeline-card" style="border-left: 3px solid #3B82F6;">
+                                    <div class="card-id">#ORD-7821</div>
+                                    <div class="card-customer">Pedro Silva</div>
+                                    <div class="card-product">Pre-Workout Ultimate</div>
+                                    <div class="card-footer">
+                                        <div class="card-amount">$38.00</div>
+                                        <span class="risk-score risk-high" style="font-size: 10px; padding: 2px 6px;">67</span>
+                                    </div>
+                                </div>
+                                <div class="pipeline-card" style="border-left: 3px solid #3B82F6;">
+                                    <div class="card-id">#ORD-7817</div>
+                                    <div class="card-customer">Roberto Fernandez</div>
+                                    <div class="card-product">Vitamin D3 5000IU</div>
+                                    <div class="card-footer">
+                                        <div class="card-amount">$28.00</div>
+                                        <span class="risk-score risk-high" style="font-size: 10px; padding: 2px 6px;">71</span>
+                                    </div>
+                                </div>
+                                <div class="pipeline-card" style="border-left: 3px solid #3B82F6;">
+                                    <div class="card-id">#ORD-7813</div>
+                                    <div class="card-customer">Julia Ramos</div>
+                                    <div class="card-product">Multivitamin Complex</div>
+                                    <div class="card-footer">
+                                        <div class="card-amount">$35.00</div>
+                                        <span class="risk-score risk-low" style="font-size: 10px; padding: 2px 6px;">22</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pipeline-column">
+                            <div class="pipeline-header">
+                                <div class="pipeline-title">Pending Confirm</div>
+                                <div class="pipeline-count">87</div>
+                            </div>
+                            <div class="pipeline-cards">
+                                <div class="pipeline-card" style="border-left: 3px solid #F59E0B;">
+                                    <div class="card-id">#ORD-7819</div>
+                                    <div class="card-customer">Carlos Ruiz</div>
+                                    <div class="card-product">Creatine + Shaker</div>
+                                    <div class="card-footer">
+                                        <div class="card-amount">$45.00</div>
+                                        <span class="risk-score risk-high" style="font-size: 10px; padding: 2px 6px;">58</span>
+                                    </div>
+                                </div>
+                                <div class="pipeline-card" style="border-left: 3px solid #F59E0B;">
+                                    <div class="card-id">#ORD-7812</div>
+                                    <div class="card-customer">Monica Vargas</div>
+                                    <div class="card-product">Protein Bar (12x)</div>
+                                    <div class="card-footer">
+                                        <div class="card-amount">$54.00</div>
+                                        <span class="risk-score risk-medium" style="font-size: 10px; padding: 2px 6px;">43</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pipeline-column">
+                            <div class="pipeline-header">
+                                <div class="pipeline-title">Confirmed</div>
+                                <div class="pipeline-count">124</div>
+                            </div>
+                            <div class="pipeline-cards">
+                                <div class="pipeline-card" style="border-left: 3px solid #10B981;">
+                                    <div class="card-id">#ORD-7820</div>
+                                    <div class="card-customer">Ana Martinez</div>
+                                    <div class="card-product">BCAA Recovery (3x)</div>
+                                    <div class="card-footer">
+                                        <div class="card-amount">$67.00</div>
+                                        <span class="risk-score risk-medium" style="font-size: 10px; padding: 2px 6px;">45</span>
+                                    </div>
+                                </div>
+                                <div class="pipeline-card" style="border-left: 3px solid #10B981;">
+                                    <div class="card-id">#ORD-7809</div>
+                                    <div class="card-customer">Patricia Gomez</div>
+                                    <div class="card-product">Whey Protein 2kg</div>
+                                    <div class="card-footer">
+                                        <div class="card-amount">$92.00</div>
+                                        <span class="risk-score risk-low" style="font-size: 10px; padding: 2px 6px;">15</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pipeline-column">
+                            <div class="pipeline-header">
+                                <div class="pipeline-title">Shipped</div>
+                                <div class="pipeline-count">78</div>
+                            </div>
+                            <div class="pipeline-cards">
+                                <div class="pipeline-card" style="border-left: 3px solid #6366F1;">
+                                    <div class="card-id">#ORD-7818</div>
+                                    <div class="card-customer">Laura Torres</div>
+                                    <div class="card-product">Marine Collagen (2x)</div>
+                                    <div class="card-footer">
+                                        <div class="card-amount">$72.00</div>
+                                        <span class="risk-score risk-medium" style="font-size: 10px; padding: 2px 6px;">42</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pipeline-column">
+                            <div class="pipeline-header">
+                                <div class="pipeline-title">Delivered</div>
+                                <div class="pipeline-count">34</div>
+                            </div>
+                            <div class="pipeline-cards">
+                                <div class="pipeline-card" style="border-left: 3px solid #059669;">
+                                    <div class="card-id">#ORD-7816</div>
+                                    <div class="card-customer">Sofia Castro</div>
+                                    <div class="card-product">Omega-3 Premium</div>
+                                    <div class="card-footer">
+                                        <div class="card-amount">$42.00</div>
+                                        <span class="risk-score risk-low" style="font-size: 10px; padding: 2px 6px;">18</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pipeline-column">
+                            <div class="pipeline-header">
+                                <div class="pipeline-title">RTO</div>
+                                <div class="pipeline-count">22</div>
+                            </div>
+                            <div class="pipeline-cards">
+                                <div class="pipeline-card" style="border-left: 3px solid #DC2626;">
+                                    <div class="card-id">#ORD-7815</div>
+                                    <div class="card-customer">Diego Ramirez</div>
+                                    <div class="card-product">Mass Gainer 3kg</div>
+                                    <div class="card-footer">
+                                        <div class="card-amount">$89.00</div>
+                                        <span class="risk-score risk-medium" style="font-size: 10px; padding: 2px 6px;">52</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- WhatsApp View -->
+                <div id="view-whatsapp" class="view-section">
+                    <div class="chat-layout">
+                        <div class="chat-list">
+                            <div class="chat-list-header">
+                                <input type="text" class="chat-search" placeholder="Search conversations..." />
+                            </div>
+                            <div class="chat-items">
+                                <div class="chat-item active">
+                                    <div class="chat-item-header">
+                                        <div class="chat-name">Ana Martinez</div>
+                                        <div class="chat-time">10:45</div>
+                                    </div>
+                                    <div class="chat-preview">Perfecto, confirmo el pedido ✅</div>
+                                    <div style="margin-top: 6px;">
+                                        <span class="status status-confirmed" style="font-size: 10px; padding: 2px 6px;">#ORD-7820</span>
+                                    </div>
+                                </div>
+                                <div class="chat-item">
+                                    <div class="chat-item-header">
+                                        <div class="chat-name">Carlos Ruiz</div>
+                                        <div class="chat-time">10:33</div>
+                                    </div>
+                                    <div class="chat-preview">¿Cuánto demora el envío?</div>
+                                    <div style="margin-top: 6px;">
+                                        <span class="status status-pending" style="font-size: 10px; padding: 2px 6px;">#ORD-7819</span>
+                                    </div>
+                                </div>
+                                <div class="chat-item">
+                                    <div class="chat-item-header">
+                                        <div class="chat-name">Pedro Silva</div>
+                                        <div class="chat-time">09:15</div>
+                                    </div>
+                                    <div class="chat-preview">Hola, quiero hacer un pedido</div>
+                                    <div style="margin-top: 6px;">
+                                        <span class="status status-new" style="font-size: 10px; padding: 2px 6px;">NEW</span>
+                                    </div>
+                                </div>
+                                <div class="chat-item">
+                                    <div class="chat-item-header">
+                                        <div class="chat-name">Laura Torres</div>
+                                        <div class="chat-time">08:47</div>
+                                    </div>
+                                    <div class="chat-preview">✓✓ Gracias!</div>
+                                    <div style="margin-top: 6px;">
+                                        <span class="status status-shipped" style="font-size: 10px; padding: 2px 6px;">#ORD-7818</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-window">
+                            <div class="chat-header">
+                                <img src="https://ui-avatars.com/api/?name=Ana+Martinez&background=10B981&color=fff" class="chat-avatar" />
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; font-size: 14px;">Ana Martinez</div>
+                                    <div style="font-size: 12px; color: #64748B;">+51 998 765 432 • Online</div>
+                                </div>
+                                <span class="status status-confirmed">#ORD-7820</span>
+                            </div>
+                            
+                            <div class="chat-messages">
+                                <div style="text-align: center; margin-bottom: 20px;">
+                                    <div style="background: rgba(0,0,0,0.05); display: inline-block; padding: 6px 12px; border-radius: 12px; font-size: 11px;">
+                                        <i class="fas fa-info-circle"></i> Order auto-created from TikTok Click-to-WhatsApp
+                                    </div>
+                                </div>
+                                
+                                <div class="message received">
+                                    <div class="message-bubble">
+                                        <div>Hola! Vi el anuncio de los BCAAs 💪</div>
+                                        <div class="message-time">10:30</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="message sent">
+                                    <div class="message-bubble">
+                                        <div>¡Hola Ana! 👋 Tenemos stock disponible. Son $22 c/u, ¿cuántos necesitas?</div>
+                                        <div class="message-time">10:31 ✓✓</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="message received">
+                                    <div class="message-bubble">
+                                        <div>Quiero 3 unidades. ¿Cuánto con envío a Miraflores?</div>
+                                        <div class="message-time">10:32</div>
+                                    </div>
+                                </div>
+                                
+                                <div style="text-align: center; margin: 16px 0;">
+                                    <div style="background: #E0F2FE; display: inline-block; padding: 6px 12px; border-radius: 12px; font-size: 11px; color: #0369A1;">
+                                        <i class="fas fa-robot"></i> Bot created order #ORD-7820 automatically
+                                    </div>
+                                </div>
+                                
+                                <div class="message sent">
+                                    <div class="message-bubble">
+                                        <div style="background: rgba(255,255,255,0.3); padding: 8px; border-radius: 6px; margin-bottom: 8px; font-size: 12px;">
+                                            <div style="font-weight: 600; margin-bottom: 4px;">📦 Order Summary</div>
+                                            <div>• BCAA Recovery x3</div>
+                                            <div>• Delivery: Miraflores</div>
+                                            <div style="font-weight: 700; margin-top: 4px;">Total: $67.00</div>
+                                        </div>
+                                        <div>¿Confirmas? Te llega en 24-48 hrs</div>
+                                        <div class="message-time">10:33 ✓✓</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="message received">
+                                    <div class="message-bubble">
+                                        <div>Perfecto, confirmo el pedido ✅</div>
+                                        <div class="message-time">10:45</div>
+                                    </div>
+                                </div>
+                                
+                                <div style="text-align: center; margin: 16px 0;">
+                                    <div style="background: #D1FAE5; display: inline-block; padding: 6px 12px; border-radius: 12px; font-size: 11px; color: #065F46;">
+                                        <i class="fas fa-check-circle"></i> Order confirmed automatically - Status updated
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="chat-input-area">
+                                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                                    <button class="btn-secondary" style="font-size: 11px; padding: 4px 8px;">👋 Greeting</button>
+                                    <button class="btn-secondary" style="font-size: 11px; padding: 4px 8px;">📦 Shipping Info</button>
+                                    <button class="btn-secondary" style="font-size: 11px; padding: 4px 8px;">✅ Confirm</button>
+                                    <button class="btn-secondary" style="font-size: 11px; padding: 4px 8px;">🔄 Tracking</button>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <input type="text" class="chat-input" placeholder="Type a message..." />
+                                    <button class="btn-primary">Send</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-sidebar">
+                            <div class="sidebar-section">
+                                <div class="sidebar-section-title">Customer Info</div>
+                                <div class="info-row">
+                                    <span class="info-label">Name</span>
+                                    <span class="info-value">Ana Martinez Lopez</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Phone</span>
+                                    <span class="info-value">+51 998 765 432</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Zone</span>
+                                    <span class="info-value">Miraflores</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Total Orders</span>
+                                    <span class="info-value">3</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">LTV</span>
+                                    <span class="info-value">$187.00</span>
+                                </div>
+                            </div>
+                            
+                            <div class="sidebar-section">
+                                <div class="sidebar-section-title">Order #ORD-7820</div>
+                                <div class="info-row">
+                                    <span class="info-label">Product</span>
+                                    <span class="info-value">BCAA x3</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Amount</span>
+                                    <span class="info-value">$67.00</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Source</span>
+                                    <span class="info-value">WhatsApp</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Risk Score</span>
+                                    <span class="info-value"><span class="risk-score risk-medium">45</span></span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Status</span>
+                                    <span class="info-value"><span class="status status-confirmed"><span class="status-dot"></span>CONFIRMED</span></span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Assigned</span>
+                                    <span class="info-value">L. Torres</span>
+                                </div>
+                            </div>
+                            
+                            <div class="sidebar-section">
+                                <div class="sidebar-section-title">Actions</div>
+                                <button class="btn-secondary" style="width: 100%; margin-bottom: 8px; justify-content: center;">
+                                    <i class="fas fa-user"></i>
+                                    View Customer
+                                </button>
+                                <button class="btn-secondary" style="width: 100%; margin-bottom: 8px; justify-content: center;">
+                                    <i class="fas fa-box"></i>
+                                    View Order
+                                </button>
+                                <button class="btn-secondary" style="width: 100%; justify-content: center;">
+                                    <i class="fas fa-flag"></i>
+                                    Flag Conversation
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Scoring View -->
+                <div id="view-scoring" class="view-section">
+                    <div class="grid-2">
+                        <div class="metrics-panel">
+                            <div style="font-size: 15px; font-weight: 600; margin-bottom: 16px;">Scoring Model Performance</div>
+                            <div class="metric-row">
+                                <span class="metric-label">Prediction Accuracy</span>
+                                <div class="metric-value">
+                                    <span class="metric-number" style="color: #059669;">89.4%</span>
+                                </div>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">False Positives</span>
+                                <div class="metric-value">
+                                    <span class="metric-number" style="color: #D97706;">8.3%</span>
+                                </div>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">False Negatives</span>
+                                <div class="metric-value">
+                                    <span class="metric-number" style="color: #DC2626;">2.3%</span>
+                                </div>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Orders Analyzed</span>
+                                <div class="metric-value">
+                                    <span class="metric-number">8,432</span>
+                                </div>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Model Version</span>
+                                <div class="metric-value">
+                                    <span class="metric-number">v2.4.1</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="metrics-panel">
+                            <div style="font-size: 15px; font-weight: 600; margin-bottom: 16px;">Risk Distribution</div>
+                            <div class="metric-row">
+                                <span class="metric-label">Low Risk (0-30)</span>
+                                <div class="metric-value">
+                                    <span class="metric-number" style="color: #059669;">82.4%</span>
+                                    <div class="metric-bar">
+                                        <div class="metric-bar-fill" style="width: 82.4%; background: #059669;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Medium Risk (31-60)</span>
+                                <div class="metric-value">
+                                    <span class="metric-number" style="color: #D97706;">13.8%</span>
+                                    <div class="metric-bar">
+                                        <div class="metric-bar-fill" style="width: 13.8%; background: #D97706;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">High Risk (61-100)</span>
+                                <div class="metric-value">
+                                    <span class="metric-number" style="color: #DC2626;">3.8%</span>
+                                    <div class="metric-bar">
+                                        <div class="metric-bar-fill" style="width: 3.8%; background: #DC2626;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container" style="margin-top: 16px;">
+                        <div class="table-header">
+                            <div class="table-title">Scoring Factors Configuration</div>
+                            <button class="btn-secondary">
+                                <i class="fas fa-edit"></i>
+                                Edit Weights
+                            </button>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>FACTOR</th>
+                                    <th>WEIGHT</th>
+                                    <th>LOW RISK</th>
+                                    <th>MEDIUM RISK</th>
+                                    <th>HIGH RISK</th>
+                                    <th>STATUS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Delivery Zone</strong></td>
+                                    <td><strong>30%</strong></td>
+                                    <td>Premium zones (-20pts)</td>
+                                    <td>Standard zones (0pts)</td>
+                                    <td>High RTO zones (+25pts)</td>
+                                    <td><span class="status status-confirmed" style="font-size: 10px;"><span class="status-dot"></span>ACTIVE</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Customer History</strong></td>
+                                    <td><strong>35%</strong></td>
+                                    <td>Repeat customer (-30pts)</td>
+                                    <td>New customer (+10pts)</td>
+                                    <td>Previous RTO (+35pts)</td>
+                                    <td><span class="status status-confirmed" style="font-size: 10px;"><span class="status-dot"></span>ACTIVE</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Order Value</strong></td>
+                                    <td><strong>15%</strong></td>
+                                    <td>High ticket >$80 (-15pts)</td>
+                                    <td>Medium $40-80 (0pts)</td>
+                                    <td>Low ticket <$40 (+20pts)</td>
+                                    <td><span class="status status-confirmed" style="font-size: 10px;"><span class="status-dot"></span>ACTIVE</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Behavior AI Analysis</strong></td>
+                                    <td><strong>20%</strong></td>
+                                    <td>Positive signals (-25pts)</td>
+                                    <td>Neutral (0pts)</td>
+                                    <td>Negative signals (+30pts)</td>
+                                    <td><span class="status status-confirmed" style="font-size: 10px;"><span class="status-dot"></span>ACTIVE</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Automation View -->
+                <div id="view-automation" class="view-section">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">Bot Response Rate</span>
+                                <span class="stat-trend positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    8.2%
+                                </span>
+                            </div>
+                            <div class="stat-value">76.3%</div>
+                            <div class="stat-meta">of conversations handled automatically</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">Avg Response Time</span>
+                                <span class="stat-trend positive">
+                                    <i class="fas fa-arrow-down"></i>
+                                    42s
+                                </span>
+                            </div>
+                            <div class="stat-value">2.3min</div>
+                            <div class="stat-meta">vs 4.8min manual</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">Agent Time Saved</span>
+                                <span class="stat-trend positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    24h
+                                </span>
+                            </div>
+                            <div class="stat-value">147hrs</div>
+                            <div class="stat-meta">this month</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">Cost Savings</span>
+                                <span class="stat-trend positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    18%
+                                </span>
+                            </div>
+                            <div class="stat-value">$2,847</div>
+                            <div class="stat-meta">in operational costs</div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container" style="margin-top: 16px;">
+                        <div class="table-header">
+                            <div class="table-title">Active Automation Rules</div>
+                            <button class="btn-primary">
+                                <i class="fas fa-plus"></i>
+                                New Rule
+                            </button>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>RULE NAME</th>
+                                    <th>TRIGGER</th>
+                                    <th>ACTION</th>
+                                    <th>EXECUTIONS</th>
+                                    <th>SUCCESS RATE</th>
+                                    <th>STATUS</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Auto-Confirm COD</strong></td>
+                                    <td>Customer replies with confirmation keyword</td>
+                                    <td>Update order status + Send tracking info</td>
+                                    <td>1,247</td>
+                                    <td><strong style="color: #059669;">94.2%</strong></td>
+                                    <td><span class="status status-confirmed" style="font-size: 10px;"><span class="status-dot"></span>ACTIVE</span></td>
+                                    <td><button class="icon-btn"><i class="fas fa-cog"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Send Reminder 1</strong></td>
+                                    <td>No response after 2 hours</td>
+                                    <td>Send 1st confirmation reminder</td>
+                                    <td>423</td>
+                                    <td><strong style="color: #059669;">87.3%</strong></td>
+                                    <td><span class="status status-confirmed" style="font-size: 10px;"><span class="status-dot"></span>ACTIVE</span></td>
+                                    <td><button class="icon-btn"><i class="fas fa-cog"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Send Reminder 2</strong></td>
+                                    <td>No response after 6 hours</td>
+                                    <td>Send 2nd confirmation reminder</td>
+                                    <td>187</td>
+                                    <td><strong style="color: #D97706;">72.8%</strong></td>
+                                    <td><span class="status status-confirmed" style="font-size: 10px;"><span class="status-dot"></span>ACTIVE</span></td>
+                                    <td><button class="icon-btn"><i class="fas fa-cog"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>High Risk Alert</strong></td>
+                                    <td>Risk score > 60</td>
+                                    <td>Assign to senior agent + Notify manager</td>
+                                    <td>94</td>
+                                    <td><strong style="color: #059669;">98.1%</strong></td>
+                                    <td><span class="status status-confirmed" style="font-size: 10px;"><span class="status-dot"></span>ACTIVE</span></td>
+                                    <td><button class="icon-btn"><i class="fas fa-cog"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>FAQ Responder</strong></td>
+                                    <td>Message matches FAQ pattern</td>
+                                    <td>Send automated response</td>
+                                    <td>2,341</td>
+                                    <td><strong style="color: #059669;">91.7%</strong></td>
+                                    <td><span class="status status-confirmed" style="font-size: 10px;"><span class="status-dot"></span>ACTIVE</span></td>
+                                    <td><button class="icon-btn"><i class="fas fa-cog"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Analytics View -->
+                <div id="view-analytics" class="view-section">
+                    <div class="chart-container" style="margin-bottom: 16px;">
+                        <div class="chart-header">
+                            <div class="chart-title">ROAS: Reported vs Actual (Last 30 Days)</div>
+                            <div class="chart-filters">
+                                <button class="filter-btn">TikTok</button>
+                                <button class="filter-btn">Meta</button>
+                                <button class="filter-btn active">All Channels</button>
+                            </div>
+                        </div>
+                        <div style="padding: 20px;">
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                                <div style="text-align: center; padding: 16px; background: #F8FAFC; border-radius: 8px;">
+                                    <div style="font-size: 11px; color: #64748B; margin-bottom: 4px;">Platform Reported</div>
+                                    <div style="font-size: 24px; font-weight: 700; color: #10B981;">4.2x</div>
+                                </div>
+                                <div style="text-align: center; padding: 16px; background: #F8FAFC; border-radius: 8px;">
+                                    <div style="font-size: 11px; color: #64748B; margin-bottom: 4px;">Actual Delivered</div>
+                                    <div style="font-size: 24px; font-weight: 700; color: #0066CC;">3.1x</div>
+                                </div>
+                                <div style="text-align: center; padding: 16px; background: #F8FAFC; border-radius: 8px;">
+                                    <div style="font-size: 11px; color: #64748B; margin-bottom: 4px;">Difference</div>
+                                    <div style="font-size: 24px; font-weight: 700; color: #DC2626;">-26%</div>
+                                </div>
+                                <div style="text-align: center; padding: 16px; background: #F8FAFC; border-radius: 8px;">
+                                    <div style="font-size: 11px; color: #64748B; margin-bottom: 4px;">Lost Revenue</div>
+                                    <div style="font-size: 24px; font-weight: 700; color: #DC2626;">$8.4K</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <div class="table-header">
+                            <div class="table-title">Campaign Performance Breakdown</div>
+                            <button class="btn-secondary">
+                                <i class="fas fa-download"></i>
+                                Export Report
+                            </button>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>CAMPAIGN</th>
+                                    <th>CHANNEL</th>
+                                    <th>SPEND</th>
+                                    <th>ORDERS</th>
+                                    <th>DELIVERED</th>
+                                    <th>RTO%</th>
+                                    <th>REPORTED ROAS</th>
+                                    <th>ACTUAL ROAS</th>
+                                    <th>DELTA</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Q1-Protein-Premium</strong></td>
+                                    <td><i class="fab fa-tiktok"></i> TikTok</td>
+                                    <td>$2,847</td>
+                                    <td>342</td>
+                                    <td>241</td>
+                                    <td><strong style="color: #DC2626;">29.5%</strong></td>
+                                    <td><strong style="color: #10B981;">4.8x</strong></td>
+                                    <td><strong style="color: #0066CC;">3.4x</strong></td>
+                                    <td><strong style="color: #DC2626;">-29%</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Jan-Supplements-LAL</strong></td>
+                                    <td><i class="fab fa-facebook"></i> Meta</td>
+                                    <td>$1,923</td>
+                                    <td>287</td>
+                                    <td>223</td>
+                                    <td><strong style="color: #D97706;">22.3%</strong></td>
+                                    <td><strong style="color: #10B981;">4.2x</strong></td>
+                                    <td><strong style="color: #0066CC;">3.3x</strong></td>
+                                    <td><strong style="color: #DC2626;">-21%</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>IG-Story-Collagen</strong></td>
+                                    <td><i class="fab fa-instagram"></i> Instagram</td>
+                                    <td>$1,247</td>
+                                    <td>198</td>
+                                    <td>171</td>
+                                    <td><strong style="color: #059669;">13.6%</strong></td>
+                                    <td><strong style="color: #10B981;">5.1x</strong></td>
+                                    <td><strong style="color: #0066CC;">4.4x</strong></td>
+                                    <td><strong style="color: #D97706;">-14%</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Google-Search-Brand</strong></td>
+                                    <td><i class="fab fa-google"></i> Google</td>
+                                    <td>$847</td>
+                                    <td>124</td>
+                                    <td>112</td>
+                                    <td><strong style="color: #059669;">9.7%</strong></td>
+                                    <td><strong style="color: #10B981;">6.2x</strong></td>
+                                    <td><strong style="color: #0066CC;">5.6x</strong></td>
+                                    <td><strong style="color: #D97706;">-10%</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function showView(viewName) {
+            // Hide all views
+            document.querySelectorAll('.view-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected view
+            document.getElementById('view-' + viewName).classList.add('active');
+            
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Update breadcrumb
+            const titles = {
+                'dashboard': 'Dashboard',
+                'analytics': 'Analytics',
+                'orders': 'Orders',
+                'pipeline': 'Pipeline',
+                'whatsapp': 'WhatsApp',
+                'scoring': 'Risk Scoring',
+                'automation': 'Automation'
+            };
+            
+            document.getElementById('breadcrumb-section').textContent = titles[viewName] || viewName;
+        }
+    </script>
+</body>
+</html>

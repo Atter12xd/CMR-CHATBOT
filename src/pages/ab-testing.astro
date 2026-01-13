@@ -1,0 +1,12 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AppLayout from '../components/Layout';
+import ABTestingPage from '../components/ABTestingPage';
+---
+
+<Layout title="A/B Testing - CRM COD">
+  <AppLayout client:only="react">
+    <ABTestingPage client:only="react" />
+  </AppLayout>
+</Layout>
+

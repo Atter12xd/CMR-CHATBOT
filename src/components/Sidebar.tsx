@@ -57,31 +57,31 @@ export default function Sidebar() {
       section: 'Overview',
       items: [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', badge: undefined },
-        { icon: BarChart3, label: 'Analytics', path: '/dashboard', badge: undefined },
+        { icon: BarChart3, label: 'Analytics', path: '/analytics', badge: undefined },
       ],
     },
     {
       section: 'Operations',
       items: [
         { icon: Package, label: 'Orders', path: '/pedidos', badge: '127' },
-        { icon: Workflow, label: 'Pipeline', path: '/pedidos', badge: undefined },
+        { icon: Workflow, label: 'Pipeline', path: '/pipeline', badge: undefined },
         { icon: MessageSquare, label: 'WhatsApp', path: '/chats', badge: '23' },
-        { icon: Users, label: 'Customers', path: '/chats', badge: undefined },
+        { icon: Users, label: 'Customers', path: '/customers', badge: undefined },
       ],
     },
     {
       section: 'Intelligence',
       items: [
-        { icon: Shield, label: 'Risk Scoring', path: '/dashboard', badge: undefined },
+        { icon: Shield, label: 'Risk Scoring', path: '/risk-scoring', badge: undefined },
         { icon: Bot, label: 'Automation', path: '/entrenar-bot', badge: undefined },
-        { icon: FlaskConical, label: 'A/B Testing', path: '/dashboard', badge: undefined },
+        { icon: FlaskConical, label: 'A/B Testing', path: '/ab-testing', badge: undefined },
       ],
     },
     {
       section: 'Configuration',
       items: [
         { icon: Settings, label: 'Settings', path: '/configuracion', badge: undefined },
-        { icon: Plug, label: 'Integrations', path: '/configuracion', badge: undefined },
+        { icon: Plug, label: 'Integrations', path: '/integrations', badge: undefined },
       ],
     },
   ];

@@ -1,0 +1,12 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AppLayout from '../components/Layout';
+import RiskScoringPage from '../components/RiskScoringPage';
+---
+
+<Layout title="Risk Scoring - CRM COD">
+  <AppLayout client:only="react">
+    <RiskScoringPage client:only="react" />
+  </AppLayout>
+</Layout>
+

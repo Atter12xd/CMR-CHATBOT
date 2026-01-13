@@ -1,0 +1,12 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AppLayout from '../components/Layout';
+import IntegrationsPage from '../components/IntegrationsPage';
+---
+
+<Layout title="Integrations - CRM COD">
+  <AppLayout client:only="react">
+    <IntegrationsPage client:only="react" />
+  </AppLayout>
+</Layout>
+

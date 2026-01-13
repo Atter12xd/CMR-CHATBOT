@@ -1,0 +1,12 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AppLayout from '../components/Layout';
+import AnalyticsPage from '../components/AnalyticsPage';
+---
+
+<Layout title="Analytics - CRM COD">
+  <AppLayout client:only="react">
+    <AnalyticsPage client:only="react" />
+  </AppLayout>
+</Layout>
+

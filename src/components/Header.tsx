@@ -24,10 +24,16 @@ export default function Header() {
   const getBreadcrumb = () => {
     const path = currentPath;
     if (path === '/dashboard' || path === '/') return 'Dashboard';
+    if (path.startsWith('/analytics')) return 'Analytics';
     if (path.startsWith('/chats')) return 'WhatsApp';
     if (path.startsWith('/pedidos')) return 'Orders';
+    if (path.startsWith('/pipeline')) return 'Pipeline';
+    if (path.startsWith('/customers')) return 'Customers';
+    if (path.startsWith('/risk-scoring')) return 'Risk Scoring';
+    if (path.startsWith('/ab-testing')) return 'A/B Testing';
     if (path.startsWith('/productos')) return 'Products';
     if (path.startsWith('/configuracion')) return 'Settings';
+    if (path.startsWith('/integrations')) return 'Integrations';
     if (path.startsWith('/entrenar-bot')) return 'Automation';
     if (path.startsWith('/metodos-pago')) return 'Payment Methods';
     return 'Dashboard';

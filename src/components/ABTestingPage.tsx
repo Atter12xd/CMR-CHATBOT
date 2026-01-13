@@ -83,25 +83,25 @@ export default function ABTestingPage() {
 
       {/* Tests Table */}
       <div className="bg-white border border-[#E2E8F0] rounded-lg overflow-hidden">
-        <div className="p-4 border-b border-[#E2E8F0] flex items-center justify-between">
-          <h2 className="text-[15px] font-semibold text-[#0F172A]">
+        <div className="p-3 sm:p-4 border-b border-[#E2E8F0]">
+          <h2 className="text-sm sm:text-[15px] font-semibold text-[#0F172A]">
             {filteredTests.length} test(s)
           </h2>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto -mx-3 sm:-mx-4 md:-mx-5 px-3 sm:px-4 md:px-5">
+          <table className="w-full min-w-[900px]">
             <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0]">
               <tr>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">TEST NAME</th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">VARIANT A</th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">VARIANT B</th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">PARTICIPANTS</th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">CONVERSION A</th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">CONVERSION B</th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">WINNER</th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">STATUS</th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#64748B] uppercase tracking-wider"></th>
+                <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">TEST NAME</th>
+                <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">VARIANT A</th>
+                <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">VARIANT B</th>
+                <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">PARTICIPANTS</th>
+                <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">CONVERSION A</th>
+                <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">CONVERSION B</th>
+                <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">WINNER</th>
+                <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">STATUS</th>
+                <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E2E8F0]">
@@ -147,7 +147,6 @@ export default function ABTestingPage() {
               ))}
             </tbody>
           </table>
-          </div>
         </div>
       </div>
     </div>

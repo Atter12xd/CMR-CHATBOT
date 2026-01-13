@@ -160,7 +160,6 @@ export default function RiskScoringPage() {
               </tr>
             </tbody>
           </table>
-          </div>
         </div>
       </div>
     </div>

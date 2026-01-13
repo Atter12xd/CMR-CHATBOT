@@ -10,12 +10,18 @@ import {
   FlaskConical, 
   Settings, 
   Plug,
-  MoreVertical
+  MoreVertical,
+  X
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useState, useEffect } from 'react';
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const { user } = useAuth();
   const [currentPath, setCurrentPath] = useState(
     typeof window !== 'undefined' ? window.location.pathname : '/'
@@ -102,16 +108,28 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-[220px] bg-secondary-800 text-white flex flex-col border-r border-white/10">
-      {/* Logo */}
-      <div className="px-4 py-4 border-b border-white/10">
-        <div className="flex items-center gap-2.5 font-bold text-[15px] tracking-tight">
-          <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center font-bold text-white">
-            C
+    <>
+      {/* Overlay para móvil */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-[280px] bg-secondary-800 text-white flex flex-col border-r border-white/10 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:z-auto ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        {/* Logo y botón cerrar (móvil) */}
+        <div className="px-4 py-4 border-b border-white/10 flex items-center justify-between">
+          <div className="flex items-center gap-2.5 font-bold text-[15px] tracking-tight">
+            <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center font-bold text-white">
+              C
+            </div>
+            <div>CRM COD</div>
           </div>
-          <div>CRM COD</div>
+          <button
+            onClick={onClose}
+            className="lg:hidden p-1.5 hover:bg-white/10 rounded-md transition-colors"
+          >
+            <X size={20} />
+          </button>
         </div>
-      </div>
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-3">
@@ -163,6 +181,7 @@ export default function Sidebar() {
           <MoreVertical size={16} className="text-slate-400 cursor-pointer flex-shrink-0" />
         </div>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

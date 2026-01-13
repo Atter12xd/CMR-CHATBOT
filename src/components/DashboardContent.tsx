@@ -25,13 +25,13 @@ export default function DashboardContent() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">Resumen de tu centro de atención al cliente</p>
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-[#0F172A]">Dashboard</h1>
+        <p className="text-sm sm:text-base text-[#64748B] mt-1 sm:mt-2">Resumen de tu centro de atención al cliente</p>
       </div>
 
       {/* Métricas principales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
         <StatsCard
           title="Conversaciones Activas"
           value={mockChats.filter(c => c.status === 'active').length}
@@ -63,9 +63,9 @@ export default function DashboardContent() {
       </div>
 
       {/* Ventas por período */}
-      <div className="mb-8">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">📊 Ventas Registradas</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="mb-6 sm:mb-8">
+        <h2 className="text-lg sm:text-xl font-bold text-[#0F172A] mb-3 sm:mb-4">📊 Ventas Registradas</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           <StatsCard
             title="Ventas de Hoy"
             value={formatCurrency(dailySales)}
@@ -103,9 +103,9 @@ export default function DashboardContent() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Conversaciones por Estado</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+        <div className="bg-white rounded-lg border border-[#E2E8F0] p-4 sm:p-6">
+          <h2 className="text-base sm:text-lg font-semibold text-[#0F172A] mb-3 sm:mb-4">Conversaciones por Estado</h2>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-gray-600">Activas</span>
@@ -128,8 +128,8 @@ export default function DashboardContent() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Pedidos por Estado</h2>
+        <div className="bg-white rounded-lg border border-[#E2E8F0] p-4 sm:p-6">
+          <h2 className="text-base sm:text-lg font-semibold text-[#0F172A] mb-3 sm:mb-4">Pedidos por Estado</h2>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-gray-600">Pendientes</span>
@@ -160,8 +160,8 @@ export default function DashboardContent() {
       </div>
 
       {/* Pagos por Cliente */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">💳 Pagos Registrados por Cliente</h2>
+      <div className="bg-white rounded-lg border border-[#E2E8F0] p-4 sm:p-6">
+        <h2 className="text-lg sm:text-xl font-semibold text-[#0F172A] mb-3 sm:mb-4">💳 Pagos Registrados por Cliente</h2>
         {allPayments.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <User size={48} className="mx-auto mb-2 opacity-50" />

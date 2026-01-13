@@ -53,24 +53,24 @@ export default function ABTestingPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
         <div>
-          <h1 className="text-3xl font-bold text-[#0F172A] mb-2">A/B Testing</h1>
-          <p className="text-[#64748B]">Optimize your conversion rates with data-driven tests</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#0F172A] mb-1 sm:mb-2">A/B Testing</h1>
+          <p className="text-sm sm:text-base text-[#64748B]">Optimize your conversion rates with data-driven tests</p>
         </div>
-        <button className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors flex items-center gap-2 font-medium">
-          <Plus size={18} />
+        <button className="px-3 sm:px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors flex items-center gap-2 font-medium text-sm sm:text-base w-full sm:w-auto justify-center">
+          <Plus size={16} className="sm:w-[18px] sm:h-[18px]" />
           New Test
         </button>
       </div>
 
       {/* Filters */}
-      <div className="mb-4 flex gap-2">
+      <div className="mb-4 flex flex-wrap gap-2 overflow-x-auto pb-2 -mx-3 sm:-mx-4 md:-mx-5 px-3 sm:px-4 md:px-5">
         {(['all', 'active', 'paused', 'completed'] as const).map((filter) => (
           <button
             key={filter}
             onClick={() => setActiveFilter(filter)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
               activeFilter === filter
                 ? 'bg-primary text-white'
                 : 'bg-white border border-[#E2E8F0] text-[#0F172A] hover:bg-[#F8FAFC]'
@@ -107,28 +107,28 @@ export default function ABTestingPage() {
             <tbody className="divide-y divide-[#E2E8F0]">
               {filteredTests.map((test) => (
                 <tr key={test.id} className="hover:bg-[#F8FAFC]">
-                  <td className="px-4 py-3">
-                    <div className="font-semibold text-[#0F172A]">{test.name}</div>
-                    <div className="text-xs text-[#64748B]">{test.description}</div>
+                  <td className="px-3 sm:px-4 py-2 sm:py-3">
+                    <div className="font-semibold text-xs sm:text-sm text-[#0F172A]">{test.name}</div>
+                    <div className="text-[10px] sm:text-xs text-[#64748B] truncate max-w-[150px] sm:max-w-none">{test.description}</div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-[#0F172A]">{test.variantA}</td>
-                  <td className="px-4 py-3 text-sm text-[#0F172A]">{test.variantB}</td>
-                  <td className="px-4 py-3 text-sm text-[#0F172A]">{test.participants.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-sm font-semibold text-[#0F172A]">{test.conversionA}%</td>
-                  <td className="px-4 py-3 text-sm font-semibold text-[#0F172A]">{test.conversionB}%</td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-[#0F172A] truncate max-w-[100px] sm:max-w-none">{test.variantA}</td>
+                  <td className="px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-[#0F172A] truncate max-w-[100px] sm:max-w-none">{test.variantB}</td>
+                  <td className="px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-[#0F172A]">{test.participants.toLocaleString()}</td>
+                  <td className="px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-[#0F172A]">{test.conversionA}%</td>
+                  <td className="px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-[#0F172A]">{test.conversionB}%</td>
+                  <td className="px-3 sm:px-4 py-2 sm:py-3">
                     {test.winner ? (
-                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                      <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-semibold ${
                         test.winner === 'A' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
                       }`}>
                         Variant {test.winner}
                       </span>
                     ) : (
-                      <span className="text-xs text-[#64748B]">In progress</span>
+                      <span className="text-[10px] sm:text-xs text-[#64748B]">In progress</span>
                     )}
                   </td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                  <td className="px-3 sm:px-4 py-2 sm:py-3">
+                    <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-semibold ${
                       test.status === 'active'
                         ? 'bg-green-100 text-green-700'
                         : test.status === 'completed'
@@ -138,15 +138,16 @@ export default function ABTestingPage() {
                       {test.status.charAt(0).toUpperCase() + test.status.slice(1)}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
-                    <button className="p-1.5 text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC] rounded">
-                      <Settings size={16} />
+                  <td className="px-3 sm:px-4 py-2 sm:py-3">
+                    <button className="p-1 sm:p-1.5 text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC] rounded">
+                      <Settings size={14} className="sm:w-4 sm:h-4" />
                     </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
     </div>

@@ -38,10 +38,10 @@ export default function OrdersPage() {
       </div>
 
       {/* Filters */}
-      <div className="mb-4 flex flex-wrap gap-2">
+      <div className="mb-4 flex flex-wrap gap-2 overflow-x-auto pb-2 -mx-3 sm:-mx-4 md:-mx-5 px-3 sm:px-4 md:px-5">
         <button
           onClick={() => setFilterStatus('all')}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+          className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
             filterStatus === 'all'
               ? 'bg-primary text-white'
               : 'bg-white border border-[#E2E8F0] text-[#0F172A] hover:bg-[#F8FAFC]'
@@ -53,7 +53,7 @@ export default function OrdersPage() {
           <button
             key={status}
             onClick={() => setFilterStatus(status as OrderStatus)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
               filterStatus === status
                 ? 'bg-primary text-white'
                 : 'bg-white border border-[#E2E8F0] text-[#0F172A] hover:bg-[#F8FAFC]'
@@ -66,42 +66,42 @@ export default function OrdersPage() {
 
       {/* Orders Table */}
       <div className="bg-white rounded-lg border border-[#E2E8F0] overflow-hidden">
-        <div className="p-4 border-b border-[#E2E8F0] flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-[#0F172A]">
+        <div className="p-3 sm:p-4 border-b border-[#E2E8F0] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <h2 className="text-base sm:text-lg font-semibold text-[#0F172A]">
             {filteredOrders.length} pedido(s)
           </h2>
           <div className="flex gap-2">
-            <button className="px-3 py-1.5 border border-[#E2E8F0] rounded-md text-sm text-[#0F172A] hover:bg-[#F8FAFC] flex items-center gap-2">
-              <Filter size={14} />
-              Filtrar
+            <button className="px-2 sm:px-3 py-1.5 border border-[#E2E8F0] rounded-md text-xs sm:text-sm text-[#0F172A] hover:bg-[#F8FAFC] flex items-center gap-1.5 sm:gap-2">
+              <Filter size={12} className="sm:w-[14px] sm:h-[14px]" />
+              <span className="hidden sm:inline">Filtrar</span>
             </button>
-            <button className="px-3 py-1.5 border border-[#E2E8F0] rounded-md text-sm text-[#0F172A] hover:bg-[#F8FAFC] flex items-center gap-2">
-              <Download size={14} />
-              Exportar
+            <button className="px-2 sm:px-3 py-1.5 border border-[#E2E8F0] rounded-md text-xs sm:text-sm text-[#0F172A] hover:bg-[#F8FAFC] flex items-center gap-1.5 sm:gap-2">
+              <Download size={12} className="sm:w-[14px] sm:h-[14px]" />
+              <span className="hidden sm:inline">Exportar</span>
             </button>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto -mx-3 sm:-mx-4 md:-mx-5 px-3 sm:px-4 md:px-5">
+          <table className="w-full min-w-[600px]">
             <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0]">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-[#64748B] uppercase tracking-wider">
+                <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-semibold text-[#64748B] uppercase tracking-wider">
                   ID
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-[#64748B] uppercase tracking-wider">
+                <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-semibold text-[#64748B] uppercase tracking-wider">
                   Cliente
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-[#64748B] uppercase tracking-wider">
+                <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-semibold text-[#64748B] uppercase tracking-wider">
                   Items
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-[#64748B] uppercase tracking-wider">
+                <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-semibold text-[#64748B] uppercase tracking-wider">
                   Total
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-[#64748B] uppercase tracking-wider">
+                <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-semibold text-[#64748B] uppercase tracking-wider">
                   Estado
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-[#64748B] uppercase tracking-wider">
+                <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-semibold text-[#64748B] uppercase tracking-wider">
                   Fecha
                 </th>
               </tr>
@@ -116,31 +116,31 @@ export default function OrdersPage() {
               ) : (
                 filteredOrders.map((order) => (
                   <tr key={order.id} className="hover:bg-[#F8FAFC]">
-                    <td className="px-4 py-3 text-sm font-semibold text-[#0F172A]">
+                    <td className="px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-[#0F172A]">
                       {order.id}
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="text-sm font-medium text-[#0F172A]">
+                    <td className="px-3 sm:px-4 py-2 sm:py-3">
+                      <div className="text-xs sm:text-sm font-medium text-[#0F172A]">
                         {order.customerName}
                       </div>
-                      <div className="text-xs text-[#64748B]">{order.customerEmail}</div>
+                      <div className="text-[10px] sm:text-xs text-[#64748B] truncate max-w-[120px] sm:max-w-none">{order.customerEmail}</div>
                     </td>
-                    <td className="px-4 py-3 text-sm text-[#0F172A]">
+                    <td className="px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-[#0F172A]">
                       {order.items.length} item(s)
                     </td>
-                    <td className="px-4 py-3 text-sm font-semibold text-[#0F172A]">
+                    <td className="px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-[#0F172A]">
                       ${order.total.toFixed(2)}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 sm:px-4 py-2 sm:py-3">
                       <span
-                        className={`px-2 py-1 rounded text-xs font-semibold ${
+                        className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-semibold ${
                           statusColors[order.status] || statusColors.pending
                         }`}
                       >
                         {statusLabels[order.status] || order.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm text-[#64748B]">
+                    <td className="px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-[#64748B]">
                       {formatTime(order.createdAt)}
                     </td>
                   </tr>

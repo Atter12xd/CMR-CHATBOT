@@ -1,7 +1,11 @@
-import { Home, Search, Bell, HelpCircle, Plus, X } from 'lucide-react';
+import { Home, Search, Bell, HelpCircle, Plus, X, Menu } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
-export default function Header() {
+interface HeaderProps {
+  onMenuClick?: () => void;
+}
+
+export default function Header({ onMenuClick }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPath, setCurrentPath] = useState(
     typeof window !== 'undefined' ? window.location.pathname : '/'
@@ -44,25 +48,33 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white border-b border-[#E2E8F0] px-5 flex items-center h-14 gap-4">
+    <header className="bg-white border-b border-[#E2E8F0] px-3 sm:px-4 md:px-5 flex items-center h-14 gap-2 sm:gap-3 md:gap-4">
+      {/* Menu Button (Mobile) */}
+      <button
+        onClick={onMenuClick}
+        className="lg:hidden p-2 -ml-2 text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC] rounded-md transition-colors"
+      >
+        <Menu size={20} />
+      </button>
+
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-[#64748B] text-[13px]">
-        <div className="flex items-center gap-2">
-          <Home size={14} />
+      <div className="flex items-center gap-1.5 sm:gap-2 text-[#64748B] text-xs sm:text-[13px] min-w-0 flex-shrink">
+        <div className="flex items-center gap-1 sm:gap-2">
+          <Home size={12} className="sm:w-[14px] sm:h-[14px]" />
         </div>
-        <span className="text-[#CBD5E1]">/</span>
-        <div className="flex items-center gap-2">
-          <span className="text-[#0F172A] font-semibold">{getBreadcrumb()}</span>
+        <span className="text-[#CBD5E1] hidden sm:inline">/</span>
+        <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+          <span className="text-[#0F172A] font-semibold truncate">{getBreadcrumb()}</span>
         </div>
       </div>
 
-      {/* Search */}
-      <div className="relative w-80 ml-auto">
+      {/* Search - Oculto en móvil muy pequeño */}
+      <div className="hidden sm:block relative flex-1 max-w-xs lg:max-w-sm xl:max-w-md ml-auto">
         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]" />
         <input
           type="text"
           className="w-full pl-9 pr-3 py-2 border border-[#E2E8F0] rounded-md text-[13px] bg-[#F8FAFC] transition-all focus:outline-none focus:border-primary focus:bg-white"
-          placeholder="Search orders, customers, SKUs..."
+          placeholder="Search orders, customers..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -77,20 +89,21 @@ export default function Header() {
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-2">
-        <button className="w-8 h-8 border-none bg-transparent rounded-md flex items-center justify-center text-[#64748B] cursor-pointer transition-all hover:bg-[#F8FAFC] hover:text-[#0F172A] relative">
-          <Bell size={16} />
+      <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+        <button className="w-8 h-8 sm:w-9 sm:h-9 border-none bg-transparent rounded-md flex items-center justify-center text-[#64748B] cursor-pointer transition-all hover:bg-[#F8FAFC] hover:text-[#0F172A] relative">
+          <Bell size={16} className="sm:w-4 sm:h-4" />
           <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-danger rounded-full"></span>
         </button>
-        <button className="w-8 h-8 border-none bg-transparent rounded-md flex items-center justify-center text-[#64748B] cursor-pointer transition-all hover:bg-[#F8FAFC] hover:text-[#0F172A]">
-          <HelpCircle size={16} />
+        <button className="hidden sm:flex w-8 h-8 sm:w-9 sm:h-9 border-none bg-transparent rounded-md items-center justify-center text-[#64748B] cursor-pointer transition-all hover:bg-[#F8FAFC] hover:text-[#0F172A]">
+          <HelpCircle size={16} className="sm:w-4 sm:h-4" />
         </button>
         <button
           onClick={handleNewOrder}
-          className="bg-primary text-white border-none px-4 py-2 rounded-md text-[13px] font-medium cursor-pointer flex items-center gap-1.5 transition-all hover:bg-primary-dark"
+          className="bg-primary text-white border-none px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-[13px] font-medium cursor-pointer flex items-center gap-1 sm:gap-1.5 transition-all hover:bg-primary-dark"
         >
-          <Plus size={14} />
-          New Order
+          <Plus size={14} className="sm:w-4 sm:h-4" />
+          <span className="hidden sm:inline">New Order</span>
+          <span className="sm:hidden">New</span>
         </button>
       </div>
     </header>

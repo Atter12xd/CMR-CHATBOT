@@ -74,52 +74,54 @@ export default function IntegrationsPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-[#0F172A] mb-2">Integrations</h1>
-        <p className="text-[#64748B]">Connect your favorite tools and platforms</p>
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-[#0F172A] mb-1 sm:mb-2">Integrations</h1>
+        <p className="text-sm sm:text-base text-[#64748B]">Connect your favorite tools and platforms</p>
       </div>
 
       {/* Integrations Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
         {integrations.map((integration) => {
           const Icon = integration.icon;
           
           return (
             <div
               key={integration.id}
-              className="bg-white border border-[#E2E8F0] rounded-lg p-5 hover:shadow-md transition-shadow"
+              className="bg-white border border-[#E2E8F0] rounded-lg p-4 sm:p-5 hover:shadow-md transition-shadow"
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <Icon size={24} className="text-primary" />
+              <div className="flex items-start justify-between mb-3 sm:mb-4">
+                <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Icon size={20} className="sm:w-6 sm:h-6 text-primary" />
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-[#0F172A] mb-1">{integration.name}</h3>
-                    <p className="text-sm text-[#64748B]">{integration.description}</p>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold text-sm sm:text-base text-[#0F172A] mb-0.5 sm:mb-1 truncate">{integration.name}</h3>
+                    <p className="text-xs sm:text-sm text-[#64748B] line-clamp-2">{integration.description}</p>
                   </div>
                 </div>
-                {getStatusIcon(integration.status)}
+                <div className="flex-shrink-0 ml-2">
+                  {getStatusIcon(integration.status)}
+                </div>
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-[#E2E8F0]">
-                <div>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-3 sm:pt-4 border-t border-[#E2E8F0] gap-3">
+                <div className="flex-1 min-w-0">
                   <span className={`px-2 py-1 rounded text-xs font-semibold ${getStatusColor(integration.status)}`}>
                     {integration.status === 'connected' ? 'Connected' : integration.status === 'error' ? 'Error' : 'Not Connected'}
                   </span>
                   {integration.connectedAt && (
-                    <p className="text-xs text-[#64748B] mt-1">
+                    <p className="text-[10px] sm:text-xs text-[#64748B] mt-1">
                       Connected on {new Date(integration.connectedAt).toLocaleDateString()}
                     </p>
                   )}
                   {integration.lastSync && (
-                    <p className="text-xs text-[#64748B]">
+                    <p className="text-[10px] sm:text-xs text-[#64748B]">
                       Last sync: {integration.lastSync}
                     </p>
                   )}
                 </div>
-                <button className="px-3 py-1.5 border border-[#E2E8F0] rounded-md text-sm text-[#0F172A] hover:bg-[#F8FAFC] flex items-center gap-2">
-                  <Settings size={14} />
+                <button className="px-3 py-1.5 border border-[#E2E8F0] rounded-md text-xs sm:text-sm text-[#0F172A] hover:bg-[#F8FAFC] flex items-center gap-2 self-start sm:self-auto">
+                  <Settings size={12} className="sm:w-[14px] sm:h-[14px]" />
                   Configure
                 </button>
               </div>

@@ -34,11 +34,12 @@ export default function PipelinePage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-[15px] font-semibold text-[#0F172A]">
-          Pipeline Overview - {mockOrders.length} orders (${totalValue.toFixed(2)} total value)
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <h1 className="text-sm sm:text-[15px] font-semibold text-[#0F172A]">
+          <span className="hidden sm:inline">Pipeline Overview - </span>
+          {mockOrders.length} orders <span className="hidden md:inline">(${totalValue.toFixed(2)} total value)</span>
         </h1>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => setPeriod('today')}
             className={`px-3 py-1.5 border border-[#E2E8F0] rounded-md text-sm ${
@@ -67,13 +68,13 @@ export default function PipelinePage() {
       </div>
 
       {/* Pipeline Columns */}
-      <div className="flex gap-4 overflow-x-auto pb-4" style={{ minHeight: 'calc(100vh - 300px)' }}>
+      <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 -mx-3 sm:-mx-4 md:-mx-5 px-3 sm:px-4 md:px-5" style={{ minHeight: 'calc(100vh - 300px)' }}>
         {columns.map((column) => {
           const orders = getOrdersByStatus(column.status);
           const riskScore = Math.floor(Math.random() * 100);
           
           return (
-            <div key={column.title} className="min-w-[280px] bg-white border border-[#E2E8F0] rounded-lg flex-shrink-0 flex flex-col">
+            <div key={column.title} className="min-w-[260px] sm:min-w-[280px] bg-white border border-[#E2E8F0] rounded-lg flex-shrink-0 flex flex-col">
               {/* Column Header */}
               <div className="p-3 border-b border-[#E2E8F0] flex items-center justify-between">
                 <div className="text-[13px] font-semibold uppercase tracking-wider text-[#0F172A]">

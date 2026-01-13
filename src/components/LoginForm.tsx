@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { Mail, Lock, Loader2, AlertCircle, ArrowRight } from 'lucide-react';
+import { Mail, Loader2, AlertCircle, ArrowRight } from 'lucide-react';
+import OTPVerification from './OTPVerification';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const { signIn, loading, isAuthenticated } = useAuth();
+  const [showOTP, setShowOTP] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { sendOTPEmail, verifyOTP, loading: authLoading, isAuthenticated } = useAuth();
 
   // Si ya está autenticado, redirigir
   if (isAuthenticated && typeof window !== 'undefined') {
@@ -14,28 +16,77 @@ export default function LoginForm() {
     return null;
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const validateEmail = (email: string): boolean => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    const { data, error } = await signIn(email, password);
-    
-    if (error) {
-      // Mensajes de error más descriptivos
-      if (error.message.includes('Invalid login credentials')) {
-        setError('Email o contraseña incorrectos');
-      } else if (error.message.includes('Email not confirmed')) {
-        setError('Por favor verifica tu email antes de iniciar sesión. Revisa tu bandeja de entrada.');
+    if (!email.trim()) {
+      setError('Por favor ingresa tu correo electrónico');
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setError('Por favor ingresa un correo electrónico válido');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const result = await sendOTPEmail(email);
+
+      if (result.error) {
+        setError(result.error.message || 'Error al enviar código. Intenta nuevamente.');
       } else {
-        setError(error.message || 'Error al iniciar sesión');
+        setShowOTP(true);
       }
-    } else if (data?.user) {
-      // Redirigir después de login exitoso
+    } catch (err: any) {
+      setError(err.message || 'Error al enviar código. Intenta nuevamente.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async (token: string) => {
+    setError(null);
+    const result = await verifyOTP(email, token, 'email');
+    
+    if (result.error) {
+      throw new Error(result.error.message || 'Código inválido');
+    } else if (result.data?.user) {
+      // Redirigir después de verificación exitosa
       setTimeout(() => {
         window.location.href = '/';
       }, 100);
     }
   };
+
+  const handleResendOTP = async () => {
+    setError(null);
+    await sendOTPEmail(email);
+  };
+
+  const handleBack = () => {
+    setShowOTP(false);
+    setError(null);
+  };
+
+  // Mostrar componente de verificación OTP
+  if (showOTP) {
+    return (
+      <OTPVerification
+        emailOrPhone={email}
+        type="email"
+        onVerify={handleVerifyOTP}
+        onResend={handleResendOTP}
+        onBack={handleBack}
+        loading={authLoading}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -45,18 +96,18 @@ export default function LoginForm() {
           {/* Header */}
           <div className="text-center space-y-2">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 shadow-lg shadow-primary-500/25 mb-4">
-              <Lock className="h-8 w-8 text-white" />
+              <Mail className="h-8 w-8 text-white" />
             </div>
             <h2 className="text-3xl font-bold text-gray-900 tracking-tight">
-              Bienvenido de vuelta
+              Iniciar sesión
             </h2>
             <p className="text-sm text-gray-500">
-              Inicia sesión en tu cuenta para continuar
+              Te enviaremos un código de verificación a tu correo
             </p>
           </div>
 
           {/* Form */}
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={handleSendOTP}>
             {/* Error Message */}
             {error && (
               <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-r-lg flex items-start space-x-3 animate-in fade-in slide-in-from-top-2 duration-200">
@@ -81,40 +132,12 @@ export default function LoginForm() {
                   autoComplete="email"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setError(null);
+                  }}
                   className="block w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
                   placeholder="tu@email.com"
-                />
-              </div>
-            </div>
-
-            {/* Password Input */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                  Contraseña
-                </label>
-                <a
-                  href="/forgot-password"
-                  className="text-sm font-medium text-primary-600 hover:text-primary-500 transition-colors"
-                >
-                  ¿Olvidaste tu contraseña?
-                </a>
-              </div>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
-                  placeholder="••••••••"
                 />
               </div>
             </div>
@@ -122,17 +145,17 @@ export default function LoginForm() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || authLoading || !email.trim()}
               className="w-full flex items-center justify-center px-4 py-3.5 border border-transparent rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-primary-500/25 hover:shadow-xl hover:shadow-primary-500/30 transform hover:-translate-y-0.5"
             >
-              {loading ? (
+              {loading || authLoading ? (
                 <>
                   <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                  Iniciando sesión...
+                  Enviando código...
                 </>
               ) : (
                 <>
-                  Iniciar sesión
+                  Enviar código
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </>
               )}

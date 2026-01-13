@@ -68,6 +68,80 @@ export function useAuth() {
     };
   }, []);
 
+  // Enviar OTP por email
+  const sendOTPEmail = async (email: string) => {
+    setAuthState((prev) => ({ ...prev, loading: true, error: null }));
+    const { data, error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/`,
+      },
+    });
+    
+    setAuthState((prev) => ({ 
+      ...prev, 
+      loading: false, 
+      error: error?.message ?? null 
+    }));
+
+    return { data, error };
+  };
+
+  // Enviar OTP por SMS (teléfono)
+  const sendOTPPhone = async (phone: string) => {
+    setAuthState((prev) => ({ ...prev, loading: true, error: null }));
+    
+    // Asegurar formato internacional (agregar + si no tiene)
+    const formattedPhone = phone.startsWith('+') ? phone : `+${phone}`;
+    
+    const { data, error } = await supabase.auth.signInWithOtp({
+      phone: formattedPhone,
+      options: {
+        channel: 'sms',
+      },
+    });
+    
+    setAuthState((prev) => ({ 
+      ...prev, 
+      loading: false, 
+      error: error?.message ?? null 
+    }));
+
+    return { data, error };
+  };
+
+  // Verificar OTP
+  const verifyOTP = async (emailOrPhone: string, token: string, type: 'email' | 'phone') => {
+    setAuthState((prev) => ({ ...prev, loading: true, error: null }));
+    
+    const formattedInput = type === 'phone' && !emailOrPhone.startsWith('+') 
+      ? `+${emailOrPhone}` 
+      : emailOrPhone;
+
+    const { data, error } = await supabase.auth.verifyOtp({
+      [type]: formattedInput,
+      token,
+      type: type === 'email' ? 'email' : 'sms',
+    });
+    
+    if (error) {
+      setAuthState({
+        user: null,
+        loading: false,
+        error: error.message,
+      });
+    } else {
+      setAuthState({
+        user: data.user,
+        loading: false,
+        error: null,
+      });
+    }
+
+    return { data, error };
+  };
+
+  // Autenticación tradicional con email y contraseña (mantener para compatibilidad)
   const signIn = async (email: string, password: string) => {
     setAuthState((prev) => ({ ...prev, loading: true, error: null }));
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -178,7 +252,9 @@ export function useAuth() {
     signUp,
     signOut,
     resetPassword,
+    sendOTPEmail,
+    sendOTPPhone,
+    verifyOTP,
     isAuthenticated: !!authState.user,
   };
 }
-

@@ -1,31 +1,66 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ChatList from './ChatList';
 import ChatWindow from './ChatWindow';
+import type { Chat } from '../data/mockData';
+import { mockChats } from '../data/mockData';
 
 export default function ChatsPage() {
+  const [chats, setChats] = useState<Chat[]>(mockChats);
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
+  const [showChatList, setShowChatList] = useState(true);
+
+  const selectedChat = chats.find(chat => chat.id === selectedChatId) || null;
+
+  const handleSelectChat = (chatId: string) => {
+    setSelectedChatId(chatId);
+    setShowChatList(false);
+  };
+
+  const handleBackToList = () => {
+    setShowChatList(true);
+    setSelectedChatId(null);
+  };
 
   return (
-    <div className="h-full flex flex-col md:flex-row">
-      {/* Chat List - Oculto en móvil cuando hay chat seleccionado */}
-      <div className={`${selectedChatId ? 'hidden md:flex' : 'flex'} w-full md:w-80 border-r border-[#E2E8F0] flex-shrink-0`}>
-        <ChatList 
-          selectedChatId={selectedChatId} 
-          onSelectChat={setSelectedChatId}
-        />
+    <div className="h-full flex flex-col">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">Chats</h1>
+        <p className="text-gray-600 mt-2">Gestiona tus conversaciones con clientes</p>
       </div>
-      {/* Chat Window */}
-      <div className="flex-1 min-w-0">
-        {selectedChatId ? (
-          <ChatWindow chatId={selectedChatId} onBack={() => setSelectedChatId(null)} />
-        ) : (
-          <div className="h-full hidden md:flex items-center justify-center bg-[#F8FAFC] text-[#64748B]">
-            <div className="text-center">
-              <p className="text-lg font-medium mb-2">Selecciona una conversación</p>
-              <p className="text-sm">Elige un chat de la lista para comenzar</p>
+
+      <div className="flex-1 flex gap-4 min-h-0">
+        {/* Lista de chats - visible en desktop, toggle en móvil */}
+        <div
+          className={`${
+            showChatList ? 'block' : 'hidden'
+          } md:block w-full md:w-80 lg:w-96 flex-shrink-0`}
+        >
+          <ChatList
+            chats={chats}
+            selectedChatId={selectedChatId}
+            onSelectChat={handleSelectChat}
+          />
+        </div>
+
+        {/* Ventana de chat */}
+        <div
+          className={`${
+            !showChatList ? 'block' : 'hidden'
+          } md:block flex-1 min-w-0`}
+        >
+          {selectedChat ? (
+            <ChatWindow
+              chat={selectedChat}
+              onBack={handleBackToList}
+            />
+          ) : (
+            <div className="h-full flex items-center justify-center bg-white rounded-lg border border-gray-200">
+              <div className="text-center">
+                <p className="text-gray-500 text-lg">Selecciona un chat para comenzar</p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

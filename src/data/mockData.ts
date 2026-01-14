@@ -85,27 +85,6 @@ export const mockChats: Chat[] = [
     ],
   },
   {
-    id: '2',
-    customerName: 'Carlos Rodríguez',
-    customerEmail: 'carlos@example.com',
-    customerAvatar: 'https://ui-avatars.com/api/?name=Carlos+Rodriguez&background=10b981&color=fff',
-    lastMessage: '¿Cuándo llegará mi pedido?',
-    lastMessageTime: new Date(Date.now() - 15 * 60000),
-    unreadCount: 0,
-    status: 'active',
-    platform: 'whatsapp',
-    botActive: false,
-    messages: [
-      {
-        id: 'm5',
-        text: '¿Cuándo llegará mi pedido?',
-        sender: 'user',
-        timestamp: new Date(Date.now() - 15 * 60000),
-        read: true,
-      },
-    ],
-  },
-  {
     id: '3',
     customerName: 'Ana Martínez',
     customerEmail: 'ana@example.com',
@@ -173,7 +152,6 @@ export const mockOrders: Order[] = [
     total: 79.99,
     status: 'shipped',
     createdAt: new Date(Date.now() - 24 * 3600000),
-    chatId: '2',
   },
   {
     id: 'ORD-003',

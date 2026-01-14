@@ -23,6 +23,7 @@
 - Integración con OpenAI (bot inteligente)
 - WebSockets para tiempo real
 - Integraciones con Facebook Messenger y WhatsApp
+- **Integración con WhatsApp Business API vía 360dialog (Cloud API de Meta)** ⚡ PRIORITARIO
 - Procesamiento real de PDFs y web scraping
 - Almacenamiento de imágenes en Supabase Storage
 - OCR para comprobantes de pago
@@ -70,7 +71,11 @@
 │                    SERVICIOS EXTERNOS                        │
 │  - OpenAI API (GPT-4/3.5)                                   │
 │  - Facebook Messenger API                                    │
-│  - WhatsApp Business API                                     │
+│  - WhatsApp Business API (Cloud API de Meta)                │
+│  │  └─ 360dialog (BSP - Business Solution Provider)         │
+│  │     - API Key de 360dialog                                │
+│  │     - Webhook para recibir mensajes                       │
+│  │     - Envío de mensajes vía API REST                      │
 │  - Servicios OCR (opcional: Tesseract.js o Cloud Vision)    │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -92,6 +97,7 @@
 - ⬜ OpenAI SDK
 - ⬜ WebSocket Client (Supabase Realtime)
 - ⬜ Zod (validación de esquemas)
+- ⬜ 360dialog SDK / WhatsApp Cloud API Client
 
 ### Utilidades
 - ⬜ PDF parsing (pdf-parse o pdf.js)

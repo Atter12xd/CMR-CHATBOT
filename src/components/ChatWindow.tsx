@@ -1,125 +1,193 @@
-import { useState, useEffect } from 'react';
-import { mockChats, formatTime } from '../data/mockData';
+import { useState, useRef, useEffect } from 'react';
+import { ArrowLeft, Send, Bot, User, UserCircle } from 'lucide-react';
 import type { Chat, Message } from '../data/mockData';
-import { Send, Bot, User } from 'lucide-react';
+import { formatTime } from '../data/mockData';
 
 interface ChatWindowProps {
-  chatId: string;
-  onBack?: () => void;
+  chat: Chat;
+  onBack: () => void;
 }
 
-export default function ChatWindow({ chatId, onBack }: ChatWindowProps) {
-  const [chat, setChat] = useState<Chat | null>(null);
+export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
   const [newMessage, setNewMessage] = useState('');
+  const [messages, setMessages] = useState<Message[]>(chat.messages);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const foundChat = mockChats.find((c) => c.id === chatId);
-    setChat(foundChat || null);
-  }, [chatId]);
+    scrollToBottom();
+  }, [messages]);
 
-  useEffect(() => {
-    // Actualizar chat periódicamente
-    const interval = setInterval(() => {
-      const foundChat = mockChats.find((c) => c.id === chatId);
-      setChat(foundChat || null);
-    }, 2000);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
-    return () => clearInterval(interval);
-  }, [chatId]);
+  const handleSendMessage = () => {
+    if (!newMessage.trim()) return;
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newMessage.trim() || !chat) return;
+    const message: Message = {
+      id: `m${Date.now()}`,
+      text: newMessage,
+      sender: 'agent',
+      timestamp: new Date(),
+      read: false,
+    };
 
-    // Aquí se enviaría el mensaje
-    console.log('Enviar mensaje:', newMessage);
+    setMessages([...messages, message]);
     setNewMessage('');
   };
 
-  if (!chat) {
-    return (
-      <div className="h-full flex items-center justify-center bg-[#F8FAFC] text-[#64748B]">
-        <p>Chat no encontrado</p>
-      </div>
-    );
-  }
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const getMessageSender = (sender: Message['sender']) => {
+    switch (sender) {
+      case 'bot':
+        return { icon: Bot, bgColor: 'bg-purple-500', name: 'Bot' };
+      case 'agent':
+        return { icon: UserCircle, bgColor: 'bg-primary-500', name: 'Tú' };
+      case 'user':
+        return { icon: User, bgColor: 'bg-gray-500', name: chat.customerName };
+      default:
+        return { icon: User, bgColor: 'bg-gray-500', name: 'Usuario' };
+    }
+  };
+
+  const formatMessageTime = (date: Date) => {
+    return new Date(date).toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-white rounded-lg border border-gray-200">
       {/* Header */}
-      <div className="p-3 sm:p-4 border-b border-[#E2E8F0] flex items-center gap-2 sm:gap-3">
-        {onBack && (
+      <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+        <div className="flex items-center space-x-3">
           <button
             onClick={onBack}
-            className="md:hidden p-1.5 hover:bg-[#F8FAFC] rounded-md transition-colors"
+            className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={20} className="text-gray-600" />
           </button>
-        )}
-        <img
-          src={chat.customerAvatar}
-          alt={chat.customerName}
-          className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex-shrink-0"
-        />
-        <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-[#0F172A] truncate text-sm sm:text-base">{chat.customerName}</h3>
-          <p className="text-xs sm:text-sm text-[#64748B] truncate">{chat.customerEmail}</p>
-        </div>
-        {chat.botActive && (
-          <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium flex-shrink-0">
-            <Bot size={12} className="sm:w-[14px] sm:h-[14px]" />
-            <span className="hidden sm:inline">Bot Activo</span>
+          <img
+            src={chat.customerAvatar}
+            alt={chat.customerName}
+            className="w-10 h-10 rounded-full"
+          />
+          <div>
+            <h2 className="font-semibold text-gray-900">{chat.customerName}</h2>
+            <p className="text-sm text-gray-500">{chat.customerEmail}</p>
           </div>
-        )}
+        </div>
+        <div className="flex items-center space-x-2">
+          {chat.botActive && (
+            <span className="text-xs px-3 py-1 bg-purple-100 text-purple-700 rounded-full font-medium">
+              Bot activo
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-[#ECE5DD]">
-        {chat.messages.map((message: Message) => (
-          <div
-            key={message.id}
-            className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
+      {/* Mensajes */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+        {messages.map((message) => {
+          const senderInfo = getMessageSender(message.sender);
+          const SenderIcon = senderInfo.icon;
+          const isOwnMessage = message.sender === 'agent';
+
+          return (
             <div
-              className={`max-w-[85%] sm:max-w-[75%] md:max-w-[65%] px-3 py-2 rounded-lg ${
-                message.sender === 'user'
-                  ? 'bg-[#DCF8C6] text-[#0F172A]'
-                  : message.sender === 'bot'
-                  ? 'bg-[#E0D0F0] text-[#0F172A]'
-                  : 'bg-white text-[#0F172A]'
-              }`}
+              key={message.id}
+              className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
             >
-              <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
-                {message.sender === 'bot' && <Bot size={12} className="sm:w-[14px] sm:h-[14px]" />}
-                {message.sender === 'agent' && <User size={12} className="sm:w-[14px] sm:h-[14px]" />}
+              <div className={`flex ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'} items-start space-x-3 max-w-[75%]`}>
+                {/* Avatar/Icon */}
+                <div
+                  className={`${senderInfo.bgColor} text-white rounded-full p-2 flex-shrink-0`}
+                >
+                  <SenderIcon size={16} />
+                </div>
+
+                {/* Mensaje */}
+                <div className={`${isOwnMessage ? 'items-end' : 'items-start'} flex flex-col`}>
+                  <div
+                    className={`rounded-lg px-4 py-2 ${
+                      isOwnMessage
+                        ? 'bg-primary-500 text-white'
+                        : message.sender === 'bot'
+                        ? 'bg-purple-100 text-purple-900'
+                        : 'bg-white text-gray-900 border border-gray-200'
+                    }`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap break-words">{message.text}</p>
+                    {message.image && (
+                      <img
+                        src={message.image}
+                        alt="Adjunto"
+                        className="mt-2 rounded-lg max-w-xs"
+                      />
+                    )}
+                  </div>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <span className="text-xs text-gray-500">
+                      {formatMessageTime(message.timestamp)}
+                    </span>
+                    {isOwnMessage && (
+                      <span className="text-xs text-gray-500">
+                        {message.read ? '✓✓' : '✓'}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
-              <p className="text-xs sm:text-sm whitespace-pre-wrap break-words">{message.text}</p>
-              <p className="text-[10px] sm:text-xs text-[#64748B] mt-1 text-right">
-                {formatTime(message.timestamp)}
-              </p>
+            </div>
+          );
+        })}
+        {chat.botTyping && (
+          <div className="flex justify-start">
+            <div className="flex items-start space-x-3">
+              <div className="bg-purple-500 text-white rounded-full p-2">
+                <Bot size={16} />
+              </div>
+              <div className="bg-purple-100 text-purple-900 rounded-lg px-4 py-2">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+              </div>
             </div>
           </div>
-        ))}
+        )}
+        <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <form onSubmit={handleSendMessage} className="p-3 sm:p-4 border-t border-[#E2E8F0] bg-white">
-        <div className="flex gap-2">
-          <input
-            type="text"
+      {/* Input de mensaje */}
+      <div className="p-4 border-t border-gray-200">
+        <div className="flex items-end space-x-2">
+          <textarea
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
+            onKeyPress={handleKeyPress}
             placeholder="Escribe un mensaje..."
-            className="flex-1 px-3 sm:px-4 py-2 border border-[#E2E8F0] rounded-full text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            rows={1}
+            className="flex-1 resize-none border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            style={{ minHeight: '44px', maxHeight: '120px' }}
           />
           <button
-            type="submit"
-            className="px-3 sm:px-4 py-2 bg-primary text-white rounded-full hover:bg-primary-dark transition-colors flex-shrink-0"
+            onClick={handleSendMessage}
+            disabled={!newMessage.trim()}
+            className="p-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
           >
-            <Send size={16} className="sm:w-[18px] sm:h-[18px]" />
+            <Send size={20} />
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

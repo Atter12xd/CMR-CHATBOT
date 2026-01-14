@@ -52,30 +52,15 @@ export default function ConfigPage() {
       </div>
 
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-6">Integraciones</h2>
-        
-        {/* Facebook Messenger - Placeholder */}
-        <div className="mb-6 pb-6 border-b border-gray-200">
-          <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">f</span>
-              </div>
-              <div>
-                <h3 className="font-medium text-gray-900">Facebook Messenger</h3>
-                <p className="text-sm text-gray-500">Conecta tu página de Facebook</p>
-              </div>
-            </div>
-            <button className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors">
-              Conectar
-            </button>
-          </div>
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">WhatsApp Business</h2>
+          <p className="text-sm text-gray-600">
+            Conecta tu número de WhatsApp Business para recibir y enviar mensajes desde tu CMR
+          </p>
         </div>
 
         {/* WhatsApp Integration */}
-        <div>
-          <WhatsAppIntegration organizationId={organizationId} />
-        </div>
+        <WhatsAppIntegration organizationId={organizationId} />
       </div>
     </div>
   );

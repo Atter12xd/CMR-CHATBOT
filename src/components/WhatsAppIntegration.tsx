@@ -41,7 +41,7 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
         .from('whatsapp_integrations')
         .select('*')
         .eq('organization_id', organizationId)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
         throw error;
@@ -103,7 +103,7 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
           onConflict: 'organization_id',
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (dbError) throw dbError;
 

@@ -26,17 +26,19 @@ export async function requestVerificationCode(data: StartVerificationRequest) {
     throw new Error('No hay sesión activa');
   }
 
-  const response = await fetch(`${import.meta.env.PUBLIC_SUPABASE_URL}/functions/v1/whatsapp-oauth`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${session.access_token}`,
-    },
-    body: JSON.stringify({
+  // Usar funciones.invoke de Supabase para llamar Edge Functions
+  const { data: result, error } = await supabase.functions.invoke('whatsapp-oauth', {
+    body: {
       action: 'start_verification',
       ...data,
-    }),
+    },
   });
+
+  if (error) {
+    throw new Error(error.message || 'Error al iniciar la verificación');
+  }
+
+  return result;
 
   if (!response.ok) {
     const error = await response.json();
@@ -55,24 +57,18 @@ export async function verifyCode(data: VerifyCodeRequest) {
     throw new Error('No hay sesión activa');
   }
 
-  const response = await fetch(`${import.meta.env.PUBLIC_SUPABASE_URL}/functions/v1/whatsapp-oauth`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${session.access_token}`,
-    },
-    body: JSON.stringify({
+  const { data: result, error } = await supabase.functions.invoke('whatsapp-oauth', {
+    body: {
       action: 'verify_code',
       ...data,
-    }),
+    },
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Error al verificar el código');
+  if (error) {
+    throw new Error(error.message || 'Error al verificar el código');
   }
 
-  return await response.json();
+  return result;
 }
 
 /**
@@ -84,24 +80,18 @@ export async function disconnectWhatsApp(data: DisconnectRequest) {
     throw new Error('No hay sesión activa');
   }
 
-  const response = await fetch(`${import.meta.env.PUBLIC_SUPABASE_URL}/functions/v1/whatsapp-oauth`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${session.access_token}`,
-    },
-    body: JSON.stringify({
+  const { data: result, error } = await supabase.functions.invoke('whatsapp-oauth', {
+    body: {
       action: 'disconnect',
       ...data,
-    }),
+    },
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Error al desconectar');
+  if (error) {
+    throw new Error(error.message || 'Error al desconectar');
   }
 
-  return await response.json();
+  return result;
 }
 
 /**
@@ -112,9 +102,9 @@ export async function getIntegrationStatus(organizationId: string) {
     .from('whatsapp_integrations')
     .select('*')
     .eq('organization_id', organizationId)
-    .single();
+    .maybeSingle();
 
-  if (error && error.code !== 'PGRST116') {
+  if (error) {
     throw error;
   }
 

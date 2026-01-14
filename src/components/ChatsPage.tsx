@@ -1,15 +1,30 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ChatList from './ChatList';
 import ChatWindow from './ChatWindow';
 import type { Chat } from '../data/mockData';
 import { mockChats } from '../data/mockData';
 
 export default function ChatsPage() {
+  console.log('[ChatsPage] Component rendering');
+  console.log('[ChatsPage] mockChats:', mockChats);
+
   const [chats, setChats] = useState<Chat[]>(mockChats);
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [showChatList, setShowChatList] = useState(true);
 
+  useEffect(() => {
+    console.log('[ChatsPage] Component mounted');
+    console.log('[ChatsPage] mockChats:', mockChats);
+  }, []);
+
+  useEffect(() => {
+    console.log('[ChatsPage] Chats updated:', chats);
+    console.log('[ChatsPage] Selected chat ID:', selectedChatId);
+  }, [chats, selectedChatId]);
+
   const selectedChat = chats.find(chat => chat.id === selectedChatId) || null;
+
+  console.log('[ChatsPage] Rendering with', chats.length, 'chats');
 
   const handleSelectChat = (chatId: string) => {
     setSelectedChatId(chatId);

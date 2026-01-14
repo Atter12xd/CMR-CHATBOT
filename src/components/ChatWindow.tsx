@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, Send, Bot, User, UserCircle } from 'lucide-react';
 import type { Chat, Message } from '../data/mockData';
-import { formatTime } from '../data/mockData';
 
 interface ChatWindowProps {
   chat: Chat;

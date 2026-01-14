@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import ChatList from './ChatList';
 import ChatWindow from './ChatWindow';
 import type { Chat } from '../data/mockData';
@@ -22,14 +22,14 @@ export default function ChatsPage() {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex flex-col h-full">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Chats</h1>
         <p className="text-gray-600 mt-2">Gestiona tus conversaciones con clientes</p>
       </div>
 
       <div className="flex-1 flex gap-4 min-h-0">
-        {/* Lista de chats - visible en desktop, toggle en móvil */}
+        {/* Lista de chats - visible en desktop siempre, toggle en móvil */}
         <div
           className={`${
             showChatList ? 'block' : 'hidden'
@@ -45,8 +45,8 @@ export default function ChatsPage() {
         {/* Ventana de chat */}
         <div
           className={`${
-            !showChatList ? 'block' : 'hidden'
-          } md:block flex-1 min-w-0`}
+            !showChatList && selectedChat ? 'block' : 'hidden'
+          } ${selectedChat ? 'md:block' : 'md:hidden'} flex-1 min-w-0`}
         >
           {selectedChat ? (
             <ChatWindow

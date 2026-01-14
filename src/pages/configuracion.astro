@@ -1,50 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AppLayout from '../components/Layout';
+import ConfigPage from '../components/ConfigPage';
 ---
 
 <Layout title="Configuración - CMR Chatbot">
   <AppLayout client:only="react">
-  <div>
-    <div class="mb-6">
-      <h1 class="text-3xl font-bold text-gray-900">Configuración</h1>
-      <p class="text-gray-600 mt-2">Gestiona la configuración de tu CMR</p>
-    </div>
-
-    <div class="bg-white rounded-lg border border-gray-200 p-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Integraciones</h2>
-      <div class="space-y-4">
-        <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-              <span class="text-white font-bold">f</span>
-            </div>
-            <div>
-              <h3 class="font-medium text-gray-900">Facebook Messenger</h3>
-              <p class="text-sm text-gray-500">Conecta tu página de Facebook</p>
-            </div>
-          </div>
-          <button class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors">
-            Conectar
-          </button>
-        </div>
-
-        <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
-              <span class="text-white font-bold">W</span>
-            </div>
-            <div>
-              <h3 class="font-medium text-gray-900">WhatsApp Business</h3>
-              <p class="text-sm text-gray-500">Conecta tu cuenta de WhatsApp</p>
-            </div>
-          </div>
-          <button class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors">
-            Conectar
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+    <ConfigPage client:only="react" />
   </AppLayout>
 </Layout>

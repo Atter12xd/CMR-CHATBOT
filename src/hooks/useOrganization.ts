@@ -25,7 +25,7 @@ export function useOrganization() {
         .from('organizations')
         .select('id')
         .eq('owner_id', user?.id)
-        .single();
+        .maybeSingle(); // Usar maybeSingle en lugar de single para manejar 0 filas
 
       if (error) {
         console.error('Error loading organization:', error);

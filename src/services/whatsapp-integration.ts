@@ -39,13 +39,6 @@ export async function requestVerificationCode(data: StartVerificationRequest) {
   }
 
   return result;
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Error al iniciar la verificación');
-  }
-
-  return await response.json();
 }
 
 /**

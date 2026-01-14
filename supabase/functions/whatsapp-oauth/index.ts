@@ -4,7 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
 };
 
 interface RequestBody {
@@ -15,11 +15,11 @@ interface RequestBody {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight
+  // Handle CORS preflight - debe ser lo primero
   if (req.method === 'OPTIONS') {
-    return new Response(null, { 
-      status: 204,
-      headers: corsHeaders 
+    return new Response('ok', { 
+      status: 200,
+      headers: corsHeaders
     });
   }
 
@@ -29,7 +29,13 @@ serve(async (req) => {
     if (!authHeader) {
       return new Response(
         JSON.stringify({ error: 'No authorization header' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { 
+          status: 401, 
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json' 
+          } 
+        }
       );
     }
 
@@ -238,4 +244,3 @@ async function handleDisconnect(
     { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
   );
 }
-

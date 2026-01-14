@@ -28,7 +28,7 @@ export async function requestVerificationCode(data: StartVerificationRequest) {
 
   try {
     // Usar funciones.invoke de Supabase para llamar Edge Functions
-    const { data: result, error } = await supabase.functions.invoke('whatsapp-oauth', {
+    const { data: result, error } = await supabase.functions.invoke('smart-endpoint', {
       body: {
         action: 'start_verification',
         ...data,
@@ -61,7 +61,7 @@ export async function verifyCode(data: VerifyCodeRequest) {
   }
 
   try {
-    const { data: result, error } = await supabase.functions.invoke('whatsapp-oauth', {
+    const { data: result, error } = await supabase.functions.invoke('smart-endpoint', {
       body: {
         action: 'verify_code',
         ...data,
@@ -93,7 +93,7 @@ export async function disconnectWhatsApp(data: DisconnectRequest) {
   }
 
   try {
-    const { data: result, error } = await supabase.functions.invoke('whatsapp-oauth', {
+    const { data: result, error } = await supabase.functions.invoke('smart-endpoint', {
       body: {
         action: 'disconnect',
         ...data,

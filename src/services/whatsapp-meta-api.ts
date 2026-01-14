@@ -28,7 +28,7 @@ export async function registerPhoneNumber(data: RegisterPhoneRequest) {
   }
 
   try {
-    const { data: result, error } = await supabase.functions.invoke('whatsapp-meta-api', {
+    const { data: result, error } = await supabase.functions.invoke('super-worker', {
       body: {
         action: 'register_phone',
         ...data,
@@ -56,7 +56,7 @@ export async function requestVerificationCode(data: RequestCodeRequest) {
   }
 
   try {
-    const { data: result, error } = await supabase.functions.invoke('whatsapp-meta-api', {
+    const { data: result, error } = await supabase.functions.invoke('super-worker', {
       body: {
         action: 'request_code',
         ...data,
@@ -84,7 +84,7 @@ export async function verifyCodeWithMeta(data: VerifyCodeRequest) {
   }
 
   try {
-    const { data: result, error } = await supabase.functions.invoke('whatsapp-meta-api', {
+    const { data: result, error } = await supabase.functions.invoke('super-worker', {
       body: {
         action: 'verify_code',
         ...data,
@@ -112,7 +112,7 @@ export async function getPhoneNumberId(organizationId: string, phoneNumber: stri
   }
 
   try {
-    const { data: result, error } = await supabase.functions.invoke('whatsapp-meta-api', {
+    const { data: result, error } = await supabase.functions.invoke('super-worker', {
       body: {
         action: 'get_phone_id',
         organizationId,

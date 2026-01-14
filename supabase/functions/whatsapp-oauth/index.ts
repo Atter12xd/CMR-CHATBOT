@@ -116,7 +116,7 @@ async function handleStartVerification(
     // 3. Solicitar código de verificación
 
     // Llamar a la Edge Function de Meta API
-    const metaApiUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/whatsapp-meta-api`;
+    const metaApiUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/super-worker`;
     
     // Primero, obtener el Phone Number ID
     const phoneIdResponse = await fetch(metaApiUrl, {
@@ -265,7 +265,7 @@ async function handleVerifyCode(
   // Si tenemos phone_number_id, usar Meta API real
   if (integration.phone_number_id) {
     try {
-      const metaApiUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/whatsapp-meta-api`;
+      const metaApiUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/super-worker`;
       
       const verifyResponse = await fetch(metaApiUrl, {
         method: 'POST',

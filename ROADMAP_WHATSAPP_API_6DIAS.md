@@ -194,7 +194,78 @@ WHATSAPP_WEBHOOK_URL=https://verifycodorders.com/api/whatsapp/webhook
    - ✅ Estructura preparada para encriptación
    - ⚠️ Pendiente: Implementar encriptación real (usar Web Crypto API o crypto-js)
 
+#### ⚠️ Problema de CORS Detectado y Solución
+
+**Problema**:
+```
+Access to fetch at 'https://fsnolvozwcnbyuradiru.supabase.co/functions/v1/whatsapp-oauth' 
+from origin 'https://cmr-chatbot-two.vercel.app' has been blocked by CORS policy: 
+Response to preflight request doesn't pass access control check: 
+It does not have HTTP ok status.
+```
+
+**Causa**:
+- La Edge Function no está respondiendo correctamente al preflight OPTIONS
+- El código puede no estar desplegado correctamente
+- O la función no existe con el nombre correcto
+
+**Solución**:
+1. ✅ **Verificar nombres de funciones en Supabase**:
+   - ⚠️ **IMPORTANTE**: Las funciones en Supabase pueden tener nombres diferentes a sus URLs
+   - Función `whatsapp-oauth` → URL real: `smart-endpoint`
+   - Función `whatsapp-meta-api` → URL real: `super-worker`
+   - ✅ **CORREGIDO**: El código ahora usa las URLs correctas (`smart-endpoint` y `super-worker`)
+
+2. ✅ **Verificar código en cada función**:
+   - Abrir función `whatsapp-oauth` (URL: `smart-endpoint`) → Pestaña "Code"
+   - Verificar que tenga el código completo de `supabase/functions/whatsapp-oauth/index.ts`
+   - Abrir función `whatsapp-meta-api` (URL: `super-worker`) → Pestaña "Code"
+   - Verificar que tenga el código completo de `supabase/functions/whatsapp-meta-api/index.ts`
+
+3. ✅ **Asegurar que el código tenga manejo correcto de CORS**:
+   ```typescript
+   // Al inicio de cada función, debe tener:
+   if (req.method === 'OPTIONS') {
+     return new Response('ok', { 
+       status: 200,
+       headers: corsHeaders
+     });
+   }
+   ```
+
+4. ✅ **Redesplegar las funciones**:
+   - Click en "Deploy" o "Deploy updates" en cada función
+   - Esperar a que termine el despliegue
+
+5. ✅ **Verificar logs**:
+   - Ir a pestaña "Logs" en cada función
+   - Ver si hay errores al recibir peticiones
+
+6. ✅ **Probar en modo incógnito**:
+   - Limpiar caché del navegador
+   - O probar en ventana incógnito
+
+**Si el problema persiste**:
+- ✅ Verificar que `supabase.functions.invoke()` esté usando la URL correcta (`smart-endpoint` y `super-worker`)
+- Revisar que las funciones estén activas (no pausadas)
+- Verificar variables de entorno en Supabase (Secrets)
+
+**✅ Corrección Aplicada (14 Ene 2026)**:
+- Actualizado `src/services/whatsapp-integration.ts` para usar `smart-endpoint` en lugar de `whatsapp-oauth`
+- Actualizado `src/services/whatsapp-meta-api.ts` para usar `super-worker` en lugar de `whatsapp-meta-api`
+- Actualizado `supabase/functions/whatsapp-oauth/index.ts` para usar `super-worker` en llamadas internas
+
 **Resultado**: ✅ Sistema conectado con Meta Graph API para gestionar números (con fallback simulado)
+
+#### ✅ Corrección de Nombres de Funciones
+**Problema detectado**: Las funciones en Supabase tienen nombres diferentes a sus URLs:
+- `whatsapp-oauth` → URL real: `smart-endpoint`
+- `whatsapp-meta-api` → URL real: `super-worker`
+
+**Solución aplicada**:
+- ✅ Actualizado `src/services/whatsapp-integration.ts` para usar `smart-endpoint`
+- ✅ Actualizado `src/services/whatsapp-meta-api.ts` para usar `super-worker`
+- ✅ Actualizado `supabase/functions/whatsapp-oauth/index.ts` para usar `super-worker` en llamadas internas
 
 ---
 
@@ -513,6 +584,6 @@ CREATE POLICY "Users can update own whatsapp integration"
 
 ---
 
-**Última actualización**: Día 3 - ✅ COMPLETADO
-**Estado**: ✅ Día 1, 2 y 3 completados | 🟣 Listo para Día 4: Webhook y Recepción de Mensajes
+**Última actualización**: Día 3 - ✅ COMPLETADO (con problema de CORS documentado)
+**Estado**: ✅ Día 1, 2 y 3 completados | ⚠️ Problema de CORS pendiente de resolver | 🟣 Listo para Día 4: Webhook y Recepción de Mensajes
 

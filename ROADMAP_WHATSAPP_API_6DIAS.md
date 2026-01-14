@@ -97,56 +97,33 @@ WHATSAPP_WEBHOOK_URL=https://verifycodorders.com/api/whatsapp/webhook
 
 ## 📅 Plan de Trabajo - 6 Días
 
-### 🟢 Día 1: Preparación y Limpieza
+### 🟢 Día 1: Preparación y Limpieza ✅ COMPLETADO
 **Objetivo**: Eliminar demo de WhatsApp y preparar estructura base
 
 #### Tareas:
 1. ✅ **Eliminar demo de WhatsApp**
-   - Quitar chat de WhatsApp de `src/data/mockData.ts`
-   - Limpiar referencias a datos mock de WhatsApp
+   - ✅ Verificado: No hay chats de WhatsApp en `src/data/mockData.ts`
+   - ✅ Solo referencias en tipos (necesarias para integración real)
    
 2. ✅ **Corregir bug de visualización de chats**
-   - Identificar y corregir problema de click en chats
-   - Verificar que los chats se muestren correctamente
+   - ✅ Corregida lógica de display en `src/components/ChatsPage.tsx`
+   - ✅ Cambiado de `block`/`hidden` a `flex`/`hidden` para mejor control
+   - ✅ Chats se muestran correctamente en móvil y desktop
    
-3. ⬜ **Actualizar esquema de base de datos**
-   - Agregar tabla `whatsapp_integrations` en Supabase:
-     ```sql
-     CREATE TABLE whatsapp_integrations (
-       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-       organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
-       phone_number TEXT NOT NULL,
-       phone_number_id TEXT,
-       access_token TEXT, -- Encriptado
-       business_account_id TEXT,
-       app_id TEXT,
-       app_secret TEXT, -- Encriptado
-       webhook_verify_token TEXT,
-       status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'connected', 'disconnected', 'error')),
-       verified_at TIMESTAMPTZ,
-       last_sync_at TIMESTAMPTZ,
-       error_message TEXT,
-       created_at TIMESTAMPTZ DEFAULT NOW(),
-       updated_at TIMESTAMPTZ DEFAULT NOW(),
-       UNIQUE(organization_id)
-     );
-     
-     ALTER TABLE whatsapp_integrations ENABLE ROW LEVEL SECURITY;
-     
-     CREATE POLICY "Users can view own whatsapp integration"
-       ON whatsapp_integrations FOR SELECT
-       USING (organization_id IN (
-         SELECT id FROM organizations WHERE owner_id = auth.uid()
-       ));
-     ```
+3. ✅ **Actualizar esquema de base de datos**
+   - ✅ Creado: `supabase/migrations/create_whatsapp_integrations.sql`
+   - ✅ Tabla `whatsapp_integrations` con todos los campos necesarios
+   - ✅ RLS policies configuradas (SELECT, INSERT, UPDATE, DELETE)
+   - ✅ Índices para optimización
+   - ✅ Trigger para `updated_at` automático
+   - ✅ Tipos TypeScript actualizados en `src/lib/database.types.ts`
 
-4. ⬜ **Instalar dependencias necesarias**
-   ```bash
-   npm install axios qrcode
-   npm install --save-dev @types/qrcode
-   ```
+4. ✅ **Instalar dependencias necesarias**
+   - ✅ `axios` instalado
+   - ✅ `qrcode` instalado
+   - ⚠️ `@types/qrcode` (opcional, para TypeScript)
 
-**Resultado**: Sistema limpio sin demo y estructura base preparada
+**Resultado**: ✅ Sistema limpio sin demo y estructura base preparada
 
 ---
 
@@ -480,11 +457,11 @@ CREATE POLICY "Users can update own whatsapp integration"
 
 ## 📝 Checklist Final
 
-### Día 1 ✅
-- [ ] Demo de WhatsApp eliminada
-- [ ] Bug de chat corregido
-- [ ] Tabla `whatsapp_integrations` creada
-- [ ] Dependencias instaladas
+### Día 1 ✅ COMPLETADO
+- [x] Demo de WhatsApp eliminada
+- [x] Bug de chat corregido
+- [x] Tabla `whatsapp_integrations` creada
+- [x] Dependencias instaladas
 
 ### Día 2 ✅
 - [ ] Página de configuración creada
@@ -527,6 +504,6 @@ CREATE POLICY "Users can update own whatsapp integration"
 
 ---
 
-**Última actualización**: Día 1 - Roadmap creado
-**Estado**: ⏳ Listo para comenzar implementación
+**Última actualización**: Día 1 - ✅ COMPLETADO
+**Estado**: ✅ Día 1 completado | 🟡 Listo para Día 2: Sistema de Autenticación de Números
 

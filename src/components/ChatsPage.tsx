@@ -32,8 +32,8 @@ export default function ChatsPage() {
         {/* Lista de chats - visible en desktop siempre, toggle en móvil */}
         <div
           className={`${
-            showChatList ? 'block' : 'hidden'
-          } md:block w-full md:w-80 lg:w-96 flex-shrink-0`}
+            showChatList ? 'flex' : 'hidden'
+          } md:flex w-full md:w-80 lg:w-96 flex-shrink-0`}
         >
           <ChatList
             chats={chats}
@@ -45,8 +45,8 @@ export default function ChatsPage() {
         {/* Ventana de chat */}
         <div
           className={`${
-            !showChatList && selectedChat ? 'block' : 'hidden'
-          } ${selectedChat ? 'md:block' : 'md:hidden'} flex-1 min-w-0`}
+            !showChatList && selectedChat ? 'flex' : 'hidden'
+          } ${selectedChat ? 'md:flex' : 'md:hidden'} flex-1 min-w-0`}
         >
           {selectedChat ? (
             <ChatWindow

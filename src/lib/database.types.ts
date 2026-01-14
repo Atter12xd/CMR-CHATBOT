@@ -44,6 +44,59 @@ export interface Database {
           updated_at?: string | null
         }
       }
+      whatsapp_integrations: {
+        Row: {
+          id: string
+          organization_id: string
+          phone_number: string
+          phone_number_id: string | null
+          access_token: string | null
+          business_account_id: string | null
+          app_id: string | null
+          app_secret: string | null
+          webhook_verify_token: string | null
+          status: 'pending' | 'connected' | 'disconnected' | 'error'
+          verified_at: string | null
+          last_sync_at: string | null
+          error_message: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          organization_id: string
+          phone_number: string
+          phone_number_id?: string | null
+          access_token?: string | null
+          business_account_id?: string | null
+          app_id?: string | null
+          app_secret?: string | null
+          webhook_verify_token?: string | null
+          status?: 'pending' | 'connected' | 'disconnected' | 'error'
+          verified_at?: string | null
+          last_sync_at?: string | null
+          error_message?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          organization_id?: string
+          phone_number?: string
+          phone_number_id?: string | null
+          access_token?: string | null
+          business_account_id?: string | null
+          app_id?: string | null
+          app_secret?: string | null
+          webhook_verify_token?: string | null
+          status?: 'pending' | 'connected' | 'disconnected' | 'error'
+          verified_at?: string | null
+          last_sync_at?: string | null
+          error_message?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+      }
       products: {
         Row: {
           id: string
@@ -121,6 +174,7 @@ export interface Database {
           customer_phone?: string | null
           customer_avatar?: string | null
           platform?: 'facebook' | 'whatsapp' | 'web'
+          platform_conversation_id?: string | null
           status?: 'active' | 'waiting' | 'resolved'
           bot_active?: boolean
           last_message_at?: string | null
@@ -132,36 +186,38 @@ export interface Database {
         Row: {
           id: string
           chat_id: string
-          sender_type: 'user' | 'agent' | 'bot'
-          sender_id: string | null
-          text: string | null
+          sender: 'user' | 'agent' | 'bot'
+          text: string
           image_url: string | null
           is_payment_receipt: boolean
           platform_message_id: string | null
-          read: boolean
+          status: 'sending' | 'sent' | 'delivered' | 'read' | 'failed'
           created_at: string | null
+          updated_at: string | null
         }
         Insert: {
           id?: string
           chat_id: string
-          sender_type: 'user' | 'agent' | 'bot'
-          sender_id?: string | null
-          text?: string | null
+          sender: 'user' | 'agent' | 'bot'
+          text: string
           image_url?: string | null
           is_payment_receipt?: boolean
           platform_message_id?: string | null
-          read?: boolean
+          status?: 'sending' | 'sent' | 'delivered' | 'read' | 'failed'
           created_at?: string | null
+          updated_at?: string | null
         }
         Update: {
           id?: string
           chat_id?: string
-          sender_type?: 'user' | 'agent' | 'bot'
-          sender_id?: string | null
-          text?: string | null
+          sender?: 'user' | 'agent' | 'bot'
+          text?: string
           image_url?: string | null
           is_payment_receipt?: boolean
-          read?: boolean
+          platform_message_id?: string | null
+          status?: 'sending' | 'sent' | 'delivered' | 'read' | 'failed'
+          created_at?: string | null
+          updated_at?: string | null
         }
       }
       orders: {
@@ -171,6 +227,7 @@ export interface Database {
           chat_id: string | null
           customer_name: string
           customer_email: string | null
+          customer_phone: string | null
           total: number
           status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
           created_at: string | null
@@ -182,6 +239,7 @@ export interface Database {
           chat_id?: string | null
           customer_name: string
           customer_email?: string | null
+          customer_phone?: string | null
           total: number
           status?: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
           created_at?: string | null
@@ -193,8 +251,10 @@ export interface Database {
           chat_id?: string | null
           customer_name?: string
           customer_email?: string | null
+          customer_phone?: string | null
           total?: number
           status?: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+          created_at?: string | null
           updated_at?: string | null
         }
       }
@@ -203,7 +263,7 @@ export interface Database {
           id: string
           order_id: string
           product_id: string | null
-          product_name: string
+          name: string
           quantity: number
           price: number
           created_at: string | null
@@ -212,7 +272,7 @@ export interface Database {
           id?: string
           order_id: string
           product_id?: string | null
-          product_name: string
+          name: string
           quantity: number
           price: number
           created_at?: string | null
@@ -221,62 +281,17 @@ export interface Database {
           id?: string
           order_id?: string
           product_id?: string | null
-          product_name?: string
+          name?: string
           quantity?: number
           price?: number
-        }
-      }
-      payments: {
-        Row: {
-          id: string
-          organization_id: string
-          chat_id: string | null
-          customer_name: string
-          customer_email: string | null
-          amount: number
-          method: 'yape' | 'plin' | 'bcp' | 'otro'
-          receipt_image_url: string | null
-          status: 'pending' | 'verified' | 'rejected'
-          notes: string | null
-          verified_by: string | null
-          verified_at: string | null
-          created_at: string | null
-        }
-        Insert: {
-          id?: string
-          organization_id: string
-          chat_id?: string | null
-          customer_name: string
-          customer_email?: string | null
-          amount: number
-          method: 'yape' | 'plin' | 'bcp' | 'otro'
-          receipt_image_url?: string | null
-          status?: 'pending' | 'verified' | 'rejected'
-          notes?: string | null
-          verified_by?: string | null
-          verified_at?: string | null
           created_at?: string | null
         }
-        Update: {
-          id?: string
-          organization_id?: string
-          chat_id?: string | null
-          customer_name?: string
-          customer_email?: string | null
-          amount?: number
-          method?: 'yape' | 'plin' | 'bcp' | 'otro'
-          receipt_image_url?: string | null
-          status?: 'pending' | 'verified' | 'rejected'
-          notes?: string | null
-          verified_by?: string | null
-          verified_at?: string | null
-        }
       }
-      payment_methods_config: {
+      payment_methods: {
         Row: {
           id: string
           organization_id: string
-          method: 'yape' | 'plin' | 'bcp'
+          type: 'yape' | 'plin' | 'bcp'
           enabled: boolean
           account_name: string | null
           account_number: string | null
@@ -287,8 +302,8 @@ export interface Database {
         Insert: {
           id?: string
           organization_id: string
-          method: 'yape' | 'plin' | 'bcp'
-          enabled?: boolean
+          type: 'yape' | 'plin' | 'bcp'
+          enabled: boolean
           account_name?: string | null
           account_number?: string | null
           account_type?: string | null
@@ -298,26 +313,26 @@ export interface Database {
         Update: {
           id?: string
           organization_id?: string
-          method?: 'yape' | 'plin' | 'bcp'
+          type?: 'yape' | 'plin' | 'bcp'
           enabled?: boolean
           account_name?: string | null
           account_number?: string | null
           account_type?: string | null
+          created_at?: string | null
           updated_at?: string | null
         }
       }
-      bot_training_data: {
+      bot_trainings: {
         Row: {
           id: string
           organization_id: string
           type: 'web' | 'pdf'
           source: string
           content: string | null
-          file_url: string | null
           status: 'pending' | 'processing' | 'completed' | 'error'
           error_message: string | null
-          extracted_at: string | null
           created_at: string | null
+          updated_at: string | null
         }
         Insert: {
           id?: string
@@ -325,11 +340,10 @@ export interface Database {
           type: 'web' | 'pdf'
           source: string
           content?: string | null
-          file_url?: string | null
           status?: 'pending' | 'processing' | 'completed' | 'error'
           error_message?: string | null
-          extracted_at?: string | null
           created_at?: string | null
+          updated_at?: string | null
         }
         Update: {
           id?: string
@@ -337,38 +351,10 @@ export interface Database {
           type?: 'web' | 'pdf'
           source?: string
           content?: string | null
-          file_url?: string | null
           status?: 'pending' | 'processing' | 'completed' | 'error'
           error_message?: string | null
-          extracted_at?: string | null
-        }
-      }
-      bot_context: {
-        Row: {
-          id: string
-          organization_id: string
-          context_text: string
-          source_type: 'training' | 'manual' | 'product' | null
-          source_id: string | null
-          priority: number
-          created_at: string | null
-        }
-        Insert: {
-          id?: string
-          organization_id: string
-          context_text: string
-          source_type?: 'training' | 'manual' | 'product' | null
-          source_id?: string | null
-          priority?: number
           created_at?: string | null
-        }
-        Update: {
-          id?: string
-          organization_id?: string
-          context_text?: string
-          source_type?: 'training' | 'manual' | 'product' | null
-          source_id?: string | null
-          priority?: number
+          updated_at?: string | null
         }
       }
     }
@@ -381,12 +367,8 @@ export interface Database {
     Enums: {
       [_ in never]: never
     }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
 }
-
-
-
-
-
-
-

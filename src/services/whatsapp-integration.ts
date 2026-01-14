@@ -26,19 +26,29 @@ export async function requestVerificationCode(data: StartVerificationRequest) {
     throw new Error('No hay sesión activa');
   }
 
-  // Usar funciones.invoke de Supabase para llamar Edge Functions
-  const { data: result, error } = await supabase.functions.invoke('whatsapp-oauth', {
-    body: {
-      action: 'start_verification',
-      ...data,
-    },
-  });
+  try {
+    // Usar funciones.invoke de Supabase para llamar Edge Functions
+    const { data: result, error } = await supabase.functions.invoke('whatsapp-oauth', {
+      body: {
+        action: 'start_verification',
+        ...data,
+      },
+    });
 
-  if (error) {
-    throw new Error(error.message || 'Error al iniciar la verificación');
+    if (error) {
+      console.error('Error from Edge Function:', error);
+      throw new Error(error.message || 'Error al iniciar la verificación');
+    }
+
+    return result;
+  } catch (err: any) {
+    console.error('Error calling Edge Function:', err);
+    // Si es error de CORS, dar mensaje más claro
+    if (err.message?.includes('CORS') || err.message?.includes('Failed to fetch')) {
+      throw new Error('Error de conexión. Verifica que la Edge Function esté desplegada correctamente en Supabase.');
+    }
+    throw err;
   }
-
-  return result;
 }
 
 /**
@@ -50,18 +60,27 @@ export async function verifyCode(data: VerifyCodeRequest) {
     throw new Error('No hay sesión activa');
   }
 
-  const { data: result, error } = await supabase.functions.invoke('whatsapp-oauth', {
-    body: {
-      action: 'verify_code',
-      ...data,
-    },
-  });
+  try {
+    const { data: result, error } = await supabase.functions.invoke('whatsapp-oauth', {
+      body: {
+        action: 'verify_code',
+        ...data,
+      },
+    });
 
-  if (error) {
-    throw new Error(error.message || 'Error al verificar el código');
+    if (error) {
+      console.error('Error from Edge Function:', error);
+      throw new Error(error.message || 'Error al verificar el código');
+    }
+
+    return result;
+  } catch (err: any) {
+    console.error('Error calling Edge Function:', err);
+    if (err.message?.includes('CORS') || err.message?.includes('Failed to fetch')) {
+      throw new Error('Error de conexión. Verifica que la Edge Function esté desplegada correctamente en Supabase.');
+    }
+    throw err;
   }
-
-  return result;
 }
 
 /**
@@ -73,18 +92,27 @@ export async function disconnectWhatsApp(data: DisconnectRequest) {
     throw new Error('No hay sesión activa');
   }
 
-  const { data: result, error } = await supabase.functions.invoke('whatsapp-oauth', {
-    body: {
-      action: 'disconnect',
-      ...data,
-    },
-  });
+  try {
+    const { data: result, error } = await supabase.functions.invoke('whatsapp-oauth', {
+      body: {
+        action: 'disconnect',
+        ...data,
+      },
+    });
 
-  if (error) {
-    throw new Error(error.message || 'Error al desconectar');
+    if (error) {
+      console.error('Error from Edge Function:', error);
+      throw new Error(error.message || 'Error al desconectar');
+    }
+
+    return result;
+  } catch (err: any) {
+    console.error('Error calling Edge Function:', err);
+    if (err.message?.includes('CORS') || err.message?.includes('Failed to fetch')) {
+      throw new Error('Error de conexión. Verifica que la Edge Function esté desplegada correctamente en Supabase.');
+    }
+    throw err;
   }
-
-  return result;
 }
 
 /**

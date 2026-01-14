@@ -13,36 +13,85 @@ Implementar la integración de WhatsApp Business API (Cloud API de Meta) permiti
 - **Identificador de la app**: `1697684594201061`
 - **Clave secreta de la app**: `75ec6c1f9c00e3ee5ca3763e5c46a920`
 
+### ⚠️ Situación Actual: Número y Webhook Existentes
+
+**Situación**: Ya tienes un número de WhatsApp configurado en otro sistema con:
+- **Webhook existente**: `https://verifycodorders.com/api/whatsapp/webhook`
+- **Token de verificación**: (configurado pero oculto)
+
+**Decisión necesaria**: Tienes dos opciones:
+
+#### Opción A: Reutilizar Webhook Existente (Desarrollo Rápido) ⚡
+**Ventajas**:
+- Más rápido para empezar
+- No necesitas cambiar configuración en Meta
+- Usas la infraestructura existente
+
+**Desventajas**:
+- Dependes del sistema anterior
+- Menos control sobre el webhook
+- Posibles conflictos si ambos sistemas reciben mensajes
+
+**Recomendado para**: Desarrollo inicial y pruebas
+
+#### Opción B: Crear Webhook Nuevo (Producción) 🎯
+**Ventajas**:
+- Control completo sobre el webhook
+- Independiente del sistema anterior
+- Más escalable para múltiples clientes
+- Mejor arquitectura
+
+**Desventajas**:
+- Requiere crear Edge Function en Supabase
+- Necesitas actualizar configuración en Meta
+- Más tiempo de implementación
+
+**Recomendado para**: Producción y sistema multi-tenant
+
+### 📝 Plan Recomendado: Enfoque Híbrido
+
+**Fase 1 (Día 1-3)**: Usar webhook existente temporalmente para desarrollo
+**Fase 2 (Día 4-6)**: Migrar a nuestro propio webhook para producción
+
+---
+
 ### Variables de Entorno Necesarias
 
-#### Para Desarrollo Local (`.env`)
+#### Para Desarrollo Local (`.env`) - Usando Webhook Existente
 ```env
-# WhatsApp Business API - Credenciales del sistema (para desarrollo inicial)
+# WhatsApp Business API - Credenciales del sistema
 WHATSAPP_PHONE_NUMBER_ID=723144527547373
 WHATSAPP_BUSINESS_ACCOUNT_ID=754836650218132
 WHATSAPP_APP_ID=1697684594201061
 WHATSAPP_APP_SECRET=75ec6c1f9c00e3ee5ca3763e5c46a920
 
-# WhatsApp Business API - Token de acceso (se genera por cliente)
-WHATSAPP_ACCESS_TOKEN=
+# WhatsApp Business API - Token de acceso (obtener de Meta)
+WHATSAPP_ACCESS_TOKEN=tu_access_token_aqui
 
-# Webhook
-WHATSAPP_WEBHOOK_VERIFY_TOKEN=tu_verify_token_secreto_aqui
-WHATSAPP_WEBHOOK_URL=https://tu-dominio.com/api/webhooks/whatsapp
+# Webhook Existente (temporal para desarrollo)
+WHATSAPP_WEBHOOK_VERIFY_TOKEN=tu_token_existente_aqui
+WHATSAPP_WEBHOOK_URL=https://verifycodorders.com/api/whatsapp/webhook
+
+# Para producción (crear después)
+# WHATSAPP_WEBHOOK_URL=https://cmr-chatbot-two.vercel.app/api/webhooks/whatsapp
 ```
 
 #### Para Vercel (Variables de Entorno)
-1. Ve a tu proyecto en Vercel Dashboard
+1. Ve a tu proyecto en Vercel Dashboard: `cmr-chatbot-two.vercel.app`
 2. Settings → Environment Variables
 3. Agrega las siguientes variables:
    - `WHATSAPP_PHONE_NUMBER_ID` = `723144527547373`
    - `WHATSAPP_BUSINESS_ACCOUNT_ID` = `754836650218132`
    - `WHATSAPP_APP_ID` = `1697684594201061`
    - `WHATSAPP_APP_SECRET` = `75ec6c1f9c00e3ee5ca3763e5c46a920`
-   - `WHATSAPP_WEBHOOK_VERIFY_TOKEN` = (genera un token secreto aleatorio)
-   - `WHATSAPP_WEBHOOK_URL` = `https://tu-dominio.vercel.app/api/webhooks/whatsapp`
+   - `WHATSAPP_WEBHOOK_VERIFY_TOKEN` = (el token que ya tienes configurado en Meta)
+   - `WHATSAPP_WEBHOOK_URL` = `https://verifycodorders.com/api/whatsapp/webhook` (temporal)
+   - `WHATSAPP_ACCESS_TOKEN` = (obtener de Meta Graph API)
 
-**⚠️ IMPORTANTE**: Las credenciales por cliente se almacenarán en Supabase (tabla `whatsapp_integrations`) y no en variables de entorno, ya que cada organización tendrá su propio número.
+**⚠️ IMPORTANTE**: 
+- Las credenciales por cliente se almacenarán en Supabase (tabla `whatsapp_integrations`)
+- El webhook actual se usa temporalmente para desarrollo
+- En producción, crearemos nuestro propio webhook en Supabase Edge Functions
 
 ---
 
@@ -168,28 +217,64 @@ WHATSAPP_WEBHOOK_URL=https://tu-dominio.com/api/webhooks/whatsapp
 ### 🟣 Día 4: Webhook y Recepción de Mensajes
 **Objetivo**: Configurar webhook para recibir mensajes de WhatsApp
 
+#### ⚠️ Decisión Importante: Webhook Existente vs Nuevo
+**Situación actual**: Tienes un webhook funcionando en `https://verifycodorders.com/api/whatsapp/webhook`
+
+**Recomendación**: Usar el webhook existente TEMPORALMENTE (Día 4) y crear uno nuevo para producción (Día 5-6)
+
+#### Estrategia: Enfoque Híbrido
+
+**Opción A: Usar Webhook Existente (Desarrollo Rápido)** ⚡
+- ✅ Usar `https://verifycodorders.com/api/whatsapp/webhook`
+- ✅ Usar el token de verificación existente
+- ✅ Más rápido para empezar
+- ❌ Dependes del sistema anterior
+- ❌ No ideal para producción multi-tenant
+
+**Opción B: Crear Webhook Propio (Producción)** 🎯
+- ✅ Control completo sobre el webhook
+- ✅ Independiente del sistema anterior
+- ✅ Escalable para múltiples clientes
+- ❌ Requiere más tiempo
+- ❌ Necesitas actualizar configuración en Meta
+
 #### Tareas:
-1. ⬜ **Edge Function: Webhook Handler**
-   - Crear `supabase/functions/whatsapp-webhook/index.ts`
-   - Implementar verificación de webhook (GET)
-   - Implementar recepción de mensajes (POST)
-   - Validar firma de webhook de Meta
+1. ⬜ **Decidir estrategia (Recomendado: Opción A primero)**
+   - Para desarrollo rápido: Usar webhook existente
+   - Para producción: Crear nuestro propio webhook
    
-2. ⬜ **Procesamiento de mensajes entrantes**
+2. ⬜ **Opción A: Integrar con Webhook Existente (Rápido)**
+   - Obtener token de verificación del webhook existente
+   - Documentar token en variables de entorno
+   - Crear servicio que reciba eventos del webhook existente
+   - Probar conectividad
+   
+3. ⬜ **Opción B: Edge Function: Webhook Handler (Producción)**
+   - Crear `supabase/functions/whatsapp-webhook/index.ts`
+   - Implementar verificación de webhook (GET) - Meta verifica con token
+   - Implementar recepción de mensajes (POST)
+   - Validar firma de webhook de Meta (X-Hub-Signature-256)
+   - Guardar mensajes en Supabase
+   
+4. ⬜ **Procesamiento de mensajes entrantes**
    - Extraer datos del mensaje (texto, multimedia, metadata)
    - Crear/actualizar chat en Supabase
    - Guardar mensaje en base de datos
    - Activar bot si está configurado
    
-3. ⬜ **Configurar webhook en Meta**
-   - Obtener URL de webhook de Supabase Edge Function
+5. ⬜ **Configurar webhook en Meta (solo si Opción B)**
+   - Si creamos webhook nuevo: Obtener URL de Supabase Edge Function
+   - URL: `https://tu-proyecto.supabase.co/functions/v1/whatsapp-webhook`
+   - O usar Vercel: `https://cmr-chatbot-two.vercel.app/api/webhooks/whatsapp`
    - Configurar webhook en Meta Business Manager
    - Configurar campos a suscribir (messages, status)
-   - Verificar webhook
+   - Verificar webhook (Meta enviará GET request con token)
    
-4. ⬜ **Sincronización de conversaciones**
+6. ⬜ **Sincronización de conversaciones**
    - Sincronizar conversaciones existentes al conectar
    - Actualizar estado de mensajes (enviado, entregado, leído)
+
+**📌 Nota del Día 4**: Recomendamos empezar con el webhook existente para desarrollo rápido, y crear nuestro propio webhook en los días siguientes para producción.
 
 **Resultado**: Sistema recibe mensajes de WhatsApp en tiempo real
 

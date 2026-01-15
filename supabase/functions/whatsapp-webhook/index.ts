@@ -75,22 +75,35 @@ async function getOrCreateChat(
   // Buscar chat existente
   const { data: existingChat, error: searchError } = await supabase
     .from('chats')
-    .select('id')
+    .select('id, customer_name')
     .eq('organization_id', organizationId)
     .eq('platform', 'whatsapp')
     .eq('customer_phone', normalizedPhone)
     .maybeSingle();
 
   if (existingChat) {
+    // Si el chat existe pero tenemos un nombre mejor, actualizarlo
+    if (customerName && customerName !== existingChat.customer_name && !existingChat.customer_name.startsWith('Usuario ')) {
+      console.log(`Actualizando nombre del chat de "${existingChat.customer_name}" a "${customerName}"`);
+      await supabase
+        .from('chats')
+        .update({ customer_name: customerName })
+        .eq('id', existingChat.id);
+    }
     return existingChat.id;
   }
 
   // Crear nuevo chat
+  // Si no hay nombre, intentar obtenerlo del número o usar un nombre genérico
+  const finalCustomerName = customerName || `Usuario ${normalizedPhone.slice(-4)}`;
+  
+  console.log(`Creando nuevo chat para ${normalizedPhone} con nombre: ${finalCustomerName}`);
+  
   const { data: newChat, error: createError } = await supabase
     .from('chats')
     .insert({
       organization_id: organizationId,
-      customer_name: customerName || `Usuario ${normalizedPhone.slice(-4)}`,
+      customer_name: finalCustomerName,
       customer_phone: normalizedPhone,
       platform: 'whatsapp',
       platform_conversation_id: normalizedPhone,
@@ -114,16 +127,17 @@ async function getOrCreateChat(
 async function processIncomingMessage(
   supabase: any,
   integration: any,
-  messageData: any
+  messageData: any,
+  contactName?: string
 ): Promise<void> {
   const { from, id: messageId, timestamp, type, text, image, document } = messageData;
 
-  // Obtener o crear chat
+  // Obtener o crear chat con el nombre del contacto si está disponible
   const chatId = await getOrCreateChat(
     supabase,
     integration.organization_id,
     from,
-    undefined // Meta no siempre envía el nombre
+    contactName // Usar el nombre del contacto si está disponible
   );
 
   // Extraer texto del mensaje
@@ -141,23 +155,31 @@ async function processIncomingMessage(
   }
 
   // Guardar mensaje
-  const { error: messageError } = await supabase
+  const messageData = {
+    chat_id: chatId,
+    sender_type: 'user',
+    sender_id: null,
+    text: messageText,
+    image_url: imageUrl,
+    platform_message_id: messageId,
+    read: false,
+    created_at: new Date(parseInt(timestamp) * 1000).toISOString(),
+  };
+
+  console.log('Guardando mensaje:', JSON.stringify(messageData, null, 2));
+
+  const { data: savedMessage, error: messageError } = await supabase
     .from('messages')
-    .insert({
-      chat_id: chatId,
-      sender_type: 'user',
-      sender_id: null,
-      text: messageText,
-      image_url: imageUrl,
-      platform_message_id: messageId,
-      read: false,
-      created_at: new Date(parseInt(timestamp) * 1000).toISOString(),
-    });
+    .insert(messageData)
+    .select();
 
   if (messageError) {
     console.error('Error guardando mensaje:', messageError);
+    console.error('Message data:', JSON.stringify(messageData, null, 2));
     throw messageError;
   }
+
+  console.log('Mensaje guardado exitosamente:', savedMessage);
 
   // Obtener unread_count actual y actualizar chat
   const { data: chat } = await supabase
@@ -206,9 +228,41 @@ async function processMessageStatus(
     return;
   }
 
-  // Actualizar estado del mensaje (puedes agregar una columna status a messages si lo necesitas)
-  // Por ahora solo logueamos
-  console.log(`Mensaje ${messageId} actualizado a estado: ${status}`);
+  // Mapear estados de Meta a nuestros estados
+  // Meta envía: sent, delivered, read, failed
+  let mappedStatus: 'sent' | 'delivered' | 'read' | 'failed' = 'sent';
+  
+  if (status === 'sent') {
+    mappedStatus = 'sent';
+  } else if (status === 'delivered') {
+    mappedStatus = 'delivered';
+  } else if (status === 'read') {
+    mappedStatus = 'read';
+    // Si el mensaje fue leído, también marcarlo como read=true
+    await supabase
+      .from('messages')
+      .update({ read: true, status: 'read', updated_at: new Date().toISOString() })
+      .eq('id', message.id);
+    console.log(`Mensaje ${messageId} marcado como leído`);
+    return;
+  } else if (status === 'failed') {
+    mappedStatus = 'failed';
+  }
+
+  // Actualizar estado del mensaje
+  const { error: updateError } = await supabase
+    .from('messages')
+    .update({ 
+      status: mappedStatus,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', message.id);
+
+  if (updateError) {
+    console.error(`Error actualizando estado del mensaje ${messageId}:`, updateError);
+  } else {
+    console.log(`Mensaje ${messageId} actualizado a estado: ${mappedStatus}`);
+  }
 }
 
 serve(async (req) => {
@@ -361,14 +415,27 @@ serve(async (req) => {
 
           // Procesar mensajes entrantes
           if (value.messages && Array.isArray(value.messages)) {
+            console.log(`Procesando ${value.messages.length} mensaje(s)`);
+            
+            // Extraer nombre del contacto si está disponible
+            const contactName = value.contacts && value.contacts.length > 0 
+              ? value.contacts[0]?.profile?.name 
+              : undefined;
+            
+            console.log('Nombre del contacto:', contactName || 'No disponible');
+            
             for (const message of value.messages) {
               try {
-                await processIncomingMessage(supabase, integration, message);
-                console.log(`Mensaje procesado: ${message.id}`);
+                console.log(`Procesando mensaje: ${message.id}, tipo: ${message.type}`);
+                await processIncomingMessage(supabase, integration, message, contactName);
+                console.log(`Mensaje procesado exitosamente: ${message.id}`);
               } catch (error) {
                 console.error(`Error procesando mensaje ${message.id}:`, error);
+                console.error('Error details:', JSON.stringify(error, null, 2));
               }
             }
+          } else {
+            console.log('No hay mensajes en el evento o no es un array');
           }
 
           // Procesar estados de mensajes

@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Send, Bot, User, UserCircle } from 'lucide-react';
+import { ArrowLeft, Send, Bot, User, UserCircle, Loader2 } from 'lucide-react';
 import type { Chat, Message } from '../data/mockData';
+import { loadChatWithMessages } from '../services/chats';
+import { sendTextMessage, markMessagesAsRead } from '../services/whatsapp-messages';
 
 interface ChatWindowProps {
   chat: Chat;
@@ -9,8 +11,31 @@ interface ChatWindowProps {
 
 export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
   const [newMessage, setNewMessage] = useState('');
-  const [messages, setMessages] = useState<Message[]>(chat.messages);
+  const [messages, setMessages] = useState<Message[]>(chat.messages || []);
+  const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Cargar mensajes cuando se abre el chat
+  useEffect(() => {
+    const loadMessages = async () => {
+      try {
+        setLoading(true);
+        const fullChat = await loadChatWithMessages(chat.id);
+        if (fullChat) {
+          setMessages(fullChat.messages);
+          // Marcar mensajes como leídos
+          await markMessagesAsRead(chat.id);
+        }
+      } catch (error) {
+        console.error('Error cargando mensajes:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadMessages();
+  }, [chat.id]);
 
   useEffect(() => {
     scrollToBottom();
@@ -20,19 +45,49 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleSendMessage = () => {
-    if (!newMessage.trim()) return;
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || sending) return;
 
-    const message: Message = {
-      id: `m${Date.now()}`,
-      text: newMessage,
+    const messageText = newMessage.trim();
+    setNewMessage('');
+    setSending(true);
+
+    // Optimistic update: agregar mensaje inmediatamente
+    const optimisticMessage: Message = {
+      id: `temp-${Date.now()}`,
+      text: messageText,
       sender: 'agent',
       timestamp: new Date(),
       read: false,
     };
+    setMessages([...messages, optimisticMessage]);
 
-    setMessages([...messages, message]);
-    setNewMessage('');
+    try {
+      // Enviar mensaje a WhatsApp
+      const result = await sendTextMessage({
+        chatId: chat.id,
+        text: messageText,
+      });
+
+      if (result.success && result.messageId) {
+        // Recargar mensajes para obtener el mensaje real con ID
+        const fullChat = await loadChatWithMessages(chat.id);
+        if (fullChat) {
+          setMessages(fullChat.messages);
+        }
+      } else {
+        // Si falló, remover el mensaje optimista y mostrar error
+        setMessages(messages);
+        alert(result.error || 'Error al enviar mensaje');
+      }
+    } catch (error: any) {
+      console.error('Error enviando mensaje:', error);
+      // Remover mensaje optimista
+      setMessages(messages);
+      alert('Error al enviar mensaje: ' + (error.message || 'Error desconocido'));
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -94,7 +149,13 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
 
       {/* Mensajes */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-        {messages.map((message) => {
+        {loading ? (
+          <div className="flex items-center justify-center h-full">
+            <Loader2 className="h-6 w-6 animate-spin text-primary-600" />
+          </div>
+        ) : (
+          <>
+            {messages.map((message) => {
           const senderInfo = getMessageSender(message.sender);
           const SenderIcon = senderInfo.icon;
           const isOwnMessage = message.sender === 'agent';
@@ -147,6 +208,8 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
             </div>
           );
         })}
+          </>
+        )}
         {chat.botTyping && (
           <div className="flex justify-start">
             <div className="flex items-start space-x-3">
@@ -180,10 +243,14 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
           />
           <button
             onClick={handleSendMessage}
-            disabled={!newMessage.trim()}
+            disabled={!newMessage.trim() || sending}
             className="p-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
           >
-            <Send size={20} />
+            {sending ? (
+              <Loader2 size={20} className="animate-spin" />
+            ) : (
+              <Send size={20} />
+            )}
           </button>
         </div>
       </div>

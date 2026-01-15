@@ -1,13 +1,48 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
 import ChatList from './ChatList';
 import ChatWindow from './ChatWindow';
 import type { Chat } from '../data/mockData';
-import { mockChats } from '../data/mockData';
+import { useOrganization } from '../hooks/useOrganization';
+import { loadChats, subscribeToChats } from '../services/chats';
 
 export default function ChatsPage() {
-  const [chats, setChats] = useState<Chat[]>(mockChats);
+  const { organizationId, loading: orgLoading } = useOrganization();
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [showChatList, setShowChatList] = useState(true);
+
+  // Cargar chats cuando haya organización
+  useEffect(() => {
+    if (!organizationId) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchChats = async () => {
+      try {
+        setLoading(true);
+        const loadedChats = await loadChats(organizationId);
+        setChats(loadedChats);
+      } catch (error) {
+        console.error('Error cargando chats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchChats();
+
+    // Suscribirse a cambios en tiempo real
+    const unsubscribe = subscribeToChats(organizationId, (updatedChats) => {
+      setChats(updatedChats);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [organizationId]);
 
   const selectedChat = chats.find(chat => chat.id === selectedChatId) || null;
 
@@ -20,6 +55,30 @@ export default function ChatsPage() {
     setShowChatList(true);
     setSelectedChatId(null);
   };
+
+  if (orgLoading || loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-6 w-6 animate-spin text-primary-600" />
+      </div>
+    );
+  }
+
+  if (!organizationId) {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">Chats</h1>
+          <p className="text-gray-600 mt-2">Gestiona tus conversaciones con clientes</p>
+        </div>
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+          <p className="text-yellow-800">
+            Necesitas crear una organización para ver tus chats. Ve a Configuración para crear una.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full">

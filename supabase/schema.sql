@@ -66,8 +66,10 @@ CREATE TABLE IF NOT EXISTS messages (
   image_url TEXT,
   is_payment_receipt BOOLEAN DEFAULT false,
   platform_message_id TEXT, -- ID del mensaje en la plataforma externa
+  status TEXT DEFAULT 'sent' CHECK (status IN ('sending', 'sent', 'delivered', 'read', 'failed')),
   read BOOLEAN DEFAULT false,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- =====================================================

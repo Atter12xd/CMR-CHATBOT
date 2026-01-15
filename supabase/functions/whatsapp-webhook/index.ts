@@ -212,12 +212,79 @@ async function processMessageStatus(
 }
 
 serve(async (req) => {
+  console.log('=== Webhook recibido ===');
+  console.log('Method:', req.method);
+  console.log('URL:', req.url);
+  console.log('Headers:', Object.fromEntries(req.headers.entries()));
+
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
+    console.log('OPTIONS request - CORS preflight');
     return new Response('ok', {
       status: 200,
       headers: corsHeaders,
     });
+  }
+
+  // Verificar apikey si viene en query o header (para bypass de autenticación de Supabase)
+  const url = new URL(req.url);
+  const apikeyFromQuery = url.searchParams.get('apikey');
+  const apikeyFromHeader = req.headers.get('apikey') || req.headers.get('x-api-key');
+  
+  // Si viene apikey, lo validamos (opcional, pero ayuda a debuggear)
+  if (apikeyFromQuery || apikeyFromHeader) {
+    console.log('Apikey recibido:', apikeyFromQuery ? 'from query' : 'from header');
+  }
+
+  // GET: Verificación del webhook (Meta envía esto para verificar)
+  // Este endpoint NO requiere autenticación porque Meta no puede autenticarse
+  if (req.method === 'GET') {
+    try {
+      const url = new URL(req.url);
+      const mode = url.searchParams.get('hub.mode');
+      const token = url.searchParams.get('hub.verify_token');
+      const challenge = url.searchParams.get('hub.challenge');
+
+      console.log('Webhook verification request:', { mode, token: token ? '***' : null, challenge: challenge ? '***' : null });
+
+      // Obtener token de verificación de variables de entorno
+      const verifyToken = Deno.env.get('WHATSAPP_WEBHOOK_VERIFY_TOKEN');
+      
+      console.log('Verify token from env:', verifyToken ? '***' : 'NOT FOUND');
+
+      if (!verifyToken) {
+        console.error('WHATSAPP_WEBHOOK_VERIFY_TOKEN no está configurado en Secrets');
+        return new Response('Verify token not configured', {
+          status: 500,
+          headers: { 'Content-Type': 'text/plain' },
+        });
+      }
+
+      if (mode === 'subscribe' && token === verifyToken) {
+        console.log('Webhook verificado exitosamente');
+        return new Response(challenge || '', {
+          status: 200,
+          headers: { 'Content-Type': 'text/plain' },
+        });
+      } else {
+        console.error('Verificación fallida:', { 
+          mode, 
+          tokenReceived: token ? '***' : null, 
+          tokenExpected: verifyToken ? '***' : null,
+          tokensMatch: token === verifyToken
+        });
+        return new Response('Verification failed', {
+          status: 403,
+          headers: { 'Content-Type': 'text/plain' },
+        });
+      }
+    } catch (error: any) {
+      console.error('Error en verificación GET:', error);
+      return new Response('Error', {
+        status: 500,
+        headers: { 'Content-Type': 'text/plain' },
+      });
+    }
   }
 
   try {
@@ -226,30 +293,7 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // GET: Verificación del webhook (Meta envía esto para verificar)
-    if (req.method === 'GET') {
-      const url = new URL(req.url);
-      const mode = url.searchParams.get('hub.mode');
-      const token = url.searchParams.get('hub.verify_token');
-      const challenge = url.searchParams.get('hub.challenge');
-
-      // Obtener token de verificación de variables de entorno
-      const verifyToken = Deno.env.get('WHATSAPP_WEBHOOK_VERIFY_TOKEN');
-
-      if (mode === 'subscribe' && token === verifyToken) {
-        console.log('Webhook verificado exitosamente');
-        return new Response(challenge, {
-          status: 200,
-          headers: { 'Content-Type': 'text/plain' },
-        });
-      } else {
-        console.error('Verificación fallida:', { mode, token, verifyToken });
-        return new Response('Verification failed', {
-          status: 403,
-          headers: { 'Content-Type': 'text/plain' },
-        });
-      }
-    }
+    console.log('Supabase client creado');
 
     // POST: Recibir eventos de WhatsApp
     if (req.method === 'POST') {
@@ -353,9 +397,15 @@ serve(async (req) => {
       headers: { 'Content-Type': 'text/plain' },
     });
   } catch (error: any) {
-    console.error('Error en webhook:', error);
+    console.error('=== ERROR EN WEBHOOK ===');
+    console.error('Error:', error);
+    console.error('Stack:', error.stack);
+    console.error('Message:', error.message);
     return new Response(
-      JSON.stringify({ error: error.message || 'Internal server error' }),
+      JSON.stringify({ 
+        error: error.message || 'Internal server error',
+        details: error.toString()
+      }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

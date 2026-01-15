@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, MessageCircle } from 'lucide-react';
+import { Search, MessageCircle, Filter, X } from 'lucide-react';
 import type { Chat } from '../data/mockData';
 import { formatTime } from '../data/mockData';
 
@@ -9,13 +9,29 @@ interface ChatListProps {
   onSelectChat: (chatId: string) => void;
 }
 
+type PlatformFilter = 'all' | 'facebook' | 'whatsapp' | 'web';
+type StatusFilter = 'all' | 'active' | 'waiting' | 'resolved';
+
 export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatListProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [platformFilter, setPlatformFilter] = useState<PlatformFilter>('all');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
-  const filteredChats = chats.filter(chat =>
-    chat.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredChats = chats.filter(chat => {
+    // Búsqueda por texto
+    const matchesSearch = chat.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (chat.customerEmail && chat.customerEmail.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    // Filtro por plataforma
+    const matchesPlatform = platformFilter === 'all' || chat.platform === platformFilter;
+    
+    // Filtro por estado
+    const matchesStatus = statusFilter === 'all' || chat.status === statusFilter;
+    
+    return matchesSearch && matchesPlatform && matchesStatus;
+  });
 
   const getPlatformIcon = (platform: Chat['platform']) => {
     switch (platform) {
@@ -43,20 +59,138 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
     }
   };
 
+  const activeFiltersCount = (platformFilter !== 'all' ? 1 : 0) + (statusFilter !== 'all' ? 1 : 0);
+
+  const clearFilters = () => {
+    setPlatformFilter('all');
+    setStatusFilter('all');
+  };
+
   return (
     <div className="h-full flex flex-col bg-white">
-      {/* Búsqueda */}
-      <div className="p-3 border-b border-gray-200 bg-[#f0f2f5]">
-        <div className="relative">
-          <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Buscar o empezar un chat nuevo"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white border-0 rounded-lg focus:outline-none focus:ring-0 text-sm placeholder-gray-400"
-          />
+      {/* Búsqueda y Filtros */}
+      <div className="p-3 border-b border-gray-200 bg-[#f0f2f5] space-y-2">
+        <div className="flex items-center space-x-2">
+          <div className="relative flex-1">
+            <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Buscar conversaciones..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 bg-white border-0 rounded-lg focus:outline-none focus:ring-0 text-sm placeholder-gray-400"
+            />
+          </div>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`p-2 rounded-lg transition-colors relative ${
+              showFilters || activeFiltersCount > 0 ? 'bg-primary-100 text-primary-600' : 'bg-white text-gray-500 hover:bg-gray-100'
+            }`}
+            title="Filtros"
+          >
+            <Filter size={18} />
+            {activeFiltersCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-primary-500 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                {activeFiltersCount}
+              </span>
+            )}
+          </button>
         </div>
+
+        {/* Panel de filtros */}
+        {showFilters && (
+          <div className="bg-white rounded-lg p-3 space-y-3 shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-gray-700">Filtros</span>
+              {activeFiltersCount > 0 && (
+                <button
+                  onClick={clearFilters}
+                  className="text-xs text-primary-600 hover:text-primary-700 font-medium"
+                >
+                  Limpiar
+                </button>
+              )}
+            </div>
+            
+            {/* Filtro por Plataforma */}
+            <div>
+              <label className="text-xs font-medium text-gray-600 mb-1.5 block">Plataforma</label>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setPlatformFilter('all')}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                    platformFilter === 'all' ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Todas
+                </button>
+                <button
+                  onClick={() => setPlatformFilter('whatsapp')}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                    platformFilter === 'whatsapp' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  WhatsApp
+                </button>
+                <button
+                  onClick={() => setPlatformFilter('facebook')}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                    platformFilter === 'facebook' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Facebook
+                </button>
+                <button
+                  onClick={() => setPlatformFilter('web')}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                    platformFilter === 'web' ? 'bg-gray-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Web
+                </button>
+              </div>
+            </div>
+
+            {/* Filtro por Estado */}
+            <div>
+              <label className="text-xs font-medium text-gray-600 mb-1.5 block">Estado</label>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setStatusFilter('all')}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                    statusFilter === 'all' ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Todos
+                </button>
+                <button
+                  onClick={() => setStatusFilter('active')}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                    statusFilter === 'active' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Activos
+                </button>
+                <button
+                  onClick={() => setStatusFilter('waiting')}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                    statusFilter === 'waiting' ? 'bg-yellow-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Esperando
+                </button>
+                <button
+                  onClick={() => setStatusFilter('resolved')}
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                    statusFilter === 'resolved' ? 'bg-gray-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Resueltos
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Lista de chats */}

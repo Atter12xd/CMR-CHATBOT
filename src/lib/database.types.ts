@@ -357,6 +357,50 @@ export interface Database {
           updated_at?: string | null
         }
       }
+      tags: {
+        Row: {
+          id: string
+          organization_id: string
+          name: string
+          color: string
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          organization_id: string
+          name: string
+          color?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          organization_id?: string
+          name?: string
+          color?: string
+          updated_at?: string | null
+        }
+      }
+      chat_tags: {
+        Row: {
+          id: string
+          chat_id: string
+          tag_id: string
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          chat_id: string
+          tag_id: string
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          chat_id?: string
+          tag_id?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

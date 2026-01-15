@@ -3,7 +3,8 @@ export interface Message {
   text: string;
   sender: 'user' | 'agent' | 'bot';
   timestamp: Date;
-  read: boolean;
+  status?: 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
+  read?: boolean; // Deprecated: usar status en su lugar
   image?: string; // URL o base64 de imagen (para comprobantes de pago)
   isPaymentReceipt?: boolean; // Indica si es un comprobante de pago
 }

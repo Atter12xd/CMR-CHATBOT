@@ -113,9 +113,9 @@ export async function loadChatWithMessages(chatId: string): Promise<Chat | null>
     const transformedMessages: Message[] = (messages || []).map((msg) => ({
       id: msg.id,
       text: msg.text || '',
-      sender: msg.sender_type as 'user' | 'agent' | 'bot',
+      sender: msg.sender as 'user' | 'agent' | 'bot',
       timestamp: msg.created_at ? new Date(msg.created_at) : new Date(),
-      read: msg.read || false,
+      status: (msg.status as 'sending' | 'sent' | 'delivered' | 'read' | 'failed') || 'sent',
       image: msg.image_url || undefined,
       isPaymentReceipt: msg.is_payment_receipt || false,
     }));
@@ -237,9 +237,9 @@ export function subscribeToChatMessages(
           const transformedMessages: Message[] = messages.map((msg) => ({
             id: msg.id,
             text: msg.text || '',
-            sender: msg.sender_type as 'user' | 'agent' | 'bot',
+            sender: msg.sender as 'user' | 'agent' | 'bot',
             timestamp: msg.created_at ? new Date(msg.created_at) : new Date(),
-            read: msg.read || false,
+            status: (msg.status as 'sending' | 'sent' | 'delivered' | 'read' | 'failed') || 'sent',
             image: msg.image_url || undefined,
             isPaymentReceipt: msg.is_payment_receipt || false,
           }));

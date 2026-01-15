@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Send, Bot, User, UserCircle, Loader2, Check, CheckCheck } from 'lucide-react';
+import { ArrowLeft, Send, Bot, User, UserCircle, Loader2, Paperclip } from 'lucide-react';
 import type { Chat, Message } from '../data/mockData';
 import { loadChatWithMessages, subscribeToChatMessages } from '../services/chats';
-import { sendTextMessage, markMessagesAsRead } from '../services/whatsapp-messages';
+import { sendTextMessage, sendImageMessage, sendDocumentMessage, markMessagesAsRead } from '../services/whatsapp-messages';
+import MessageStatusIndicator from './MessageStatusIndicator';
+import FileUploadModal from './FileUploadModal';
 
 interface ChatWindowProps {
   chat: Chat;
@@ -14,6 +16,7 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>(chat.messages || []);
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
+  const [showFileModal, setShowFileModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -85,7 +88,7 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
       text: messageText,
       sender: 'agent',
       timestamp: new Date(),
-      read: false,
+      status: 'sending',
     };
     setMessages([...messages, optimisticMessage]);
 
@@ -121,6 +124,66 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
+    }
+  };
+
+  const handleSendFile = async (fileUrl: string, fileType: 'image' | 'document', caption?: string) => {
+    try {
+      setSending(true);
+
+      // Optimistic update
+      const optimisticMessage: Message = {
+        id: `temp-${Date.now()}`,
+        text: caption || (fileType === 'image' ? '📷 Imagen' : '📄 Documento'),
+        sender: 'agent',
+        timestamp: new Date(),
+        status: 'sending',
+        image: fileType === 'image' ? fileUrl : undefined,
+      };
+      setMessages([...messages, optimisticMessage]);
+
+      // Enviar archivo
+      if (fileType === 'image') {
+        const result = await sendImageMessage({
+          chatId: chat.id,
+          imageUrl: fileUrl,
+          caption,
+        });
+        
+        if (result.success) {
+          // Recargar mensajes
+          const fullChat = await loadChatWithMessages(chat.id);
+          if (fullChat) {
+            setMessages(fullChat.messages);
+          }
+        } else {
+          setMessages(messages); // Remover optimistic update
+          alert(result.error || 'Error al enviar imagen');
+        }
+      } else {
+        const filename = fileUrl.split('/').pop() || 'documento';
+        const result = await sendDocumentMessage({
+          chatId: chat.id,
+          documentUrl: fileUrl,
+          filename,
+        });
+
+        if (result.success) {
+          const fullChat = await loadChatWithMessages(chat.id);
+          if (fullChat) {
+            setMessages(fullChat.messages);
+          }
+        } else {
+          setMessages(messages);
+          alert(result.error || 'Error al enviar documento');
+        }
+      }
+    } catch (error: any) {
+      console.error('Error enviando archivo:', error);
+      setMessages(messages);
+      alert('Error al enviar archivo: ' + (error.message || 'Error desconocido'));
+    } finally {
+      setSending(false);
     }
   };
 
@@ -230,18 +293,15 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
                       />
                     )}
                   </div>
-                  <div className={`flex items-center space-x-1.5 mt-1 px-1 ${isOwnMessage ? 'flex-row-reverse' : ''}`}>
+                  <div className={`flex items-center space-x-1.5 mt-1 px-1 ${isOwnMessage ? 'flex-row-reverse space-x-reverse' : ''}`}>
                     <span className="text-xs text-gray-400">
                       {formatMessageTime(message.timestamp)}
                     </span>
                     {isOwnMessage && (
-                      <span className="text-xs text-gray-400">
-                        {message.read ? (
-                          <CheckCheck size={12} className="text-blue-500" />
-                        ) : (
-                          <Check size={12} />
-                        )}
-                      </span>
+                      <MessageStatusIndicator 
+                        status={message.status || (message.read ? 'read' : 'sent')} 
+                        className="flex-shrink-0"
+                      />
                     )}
                   </div>
                 </div>
@@ -273,6 +333,16 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
       {/* Input de mensaje */}
       <div className="px-3 md:px-6 py-3 border-t border-gray-200 bg-[#f0f2f5]">
         <div className="flex items-end space-x-2">
+          {/* Botón de adjuntar */}
+          <button
+            onClick={() => setShowFileModal(true)}
+            disabled={sending}
+            className="p-3 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+            title="Adjuntar archivo"
+          >
+            <Paperclip size={20} />
+          </button>
+
           <div className="flex-1 relative bg-white rounded-3xl border border-gray-300 flex items-center">
             <textarea
               ref={textareaRef}
@@ -298,6 +368,14 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
           </button>
         </div>
       </div>
+
+      {/* Modal de upload */}
+      <FileUploadModal
+        isOpen={showFileModal}
+        onClose={() => setShowFileModal(false)}
+        onSend={handleSendFile}
+        chatId={chat.id}
+      />
     </div>
   );
 }

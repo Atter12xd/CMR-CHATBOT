@@ -8,7 +8,14 @@ import {
   Key, 
   ExternalLink,
   RefreshCw,
-  Trash2
+  Trash2,
+  Activity,
+  Send,
+  MessageCircle,
+  Eye,
+  Clock,
+  TrendingUp,
+  Info
 } from 'lucide-react';
 import { createClient } from '../lib/supabase';
 import type { Database } from '../lib/database.types';
@@ -28,10 +35,19 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
   const [phoneNumber, setPhoneNumber] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [metrics, setMetrics] = useState({
+    messagesSentToday: 0,
+    messagesReceivedToday: 0,
+    deliveryRate: 0,
+    readRate: 0,
+    avgResponseTime: 0,
+  });
+  const [loadingMetrics, setLoadingMetrics] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
     loadIntegration();
+    loadMetrics();
   }, [organizationId]);
 
   const loadIntegration = async () => {
@@ -209,6 +225,117 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
     }
   };
 
+  const loadMetrics = async () => {
+    try {
+      setLoadingMetrics(true);
+      
+      // Obtener fecha de hoy (inicio del día)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayISO = today.toISOString();
+
+      // Obtener chats de WhatsApp de esta organización
+      const { data: chats } = await supabase
+        .from('chats')
+        .select('id')
+        .eq('organization_id', organizationId)
+        .eq('platform', 'whatsapp');
+
+      if (!chats || chats.length === 0) {
+        return;
+      }
+
+      const chatIds = chats.map(c => c.id);
+
+      // Contar mensajes enviados hoy
+      const { count: sentCount } = await supabase
+        .from('messages')
+        .select('id', { count: 'exact', head: true })
+        .in('chat_id', chatIds)
+        .eq('sender', 'agent')
+        .gte('created_at', todayISO);
+
+      // Contar mensajes recibidos hoy
+      const { count: receivedCount } = await supabase
+        .from('messages')
+        .select('id', { count: 'exact', head: true })
+        .in('chat_id', chatIds)
+        .eq('sender', 'user')
+        .gte('created_at', todayISO);
+
+      // Calcular tasa de entrega (mensajes delivered o read / total enviados)
+      const { data: sentMessages } = await supabase
+        .from('messages')
+        .select('status')
+        .in('chat_id', chatIds)
+        .eq('sender', 'agent')
+        .gte('created_at', todayISO);
+
+      let deliveryRate = 0;
+      let readRate = 0;
+      
+      if (sentMessages && sentMessages.length > 0) {
+        const deliveredCount = sentMessages.filter(m => 
+          m.status === 'delivered' || m.status === 'read'
+        ).length;
+        const readCount = sentMessages.filter(m => m.status === 'read').length;
+        
+        deliveryRate = (deliveredCount / sentMessages.length) * 100;
+        readRate = (readCount / sentMessages.length) * 100;
+      }
+
+      // Calcular tiempo promedio de respuesta (últimos 10 mensajes)
+      const { data: recentUserMessages } = await supabase
+        .from('messages')
+        .select('created_at, chat_id')
+        .in('chat_id', chatIds)
+        .eq('sender', 'user')
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      let avgResponseTime = 0;
+      if (recentUserMessages && recentUserMessages.length > 0) {
+        const responseTimes: number[] = [];
+        
+        for (const userMsg of recentUserMessages) {
+          // Buscar la siguiente respuesta del agente
+          const { data: agentResponse } = await supabase
+            .from('messages')
+            .select('created_at')
+            .eq('chat_id', userMsg.chat_id)
+            .eq('sender', 'agent')
+            .gt('created_at', userMsg.created_at)
+            .order('created_at', { ascending: true })
+            .limit(1)
+            .maybeSingle();
+
+          if (agentResponse) {
+            const userTime = new Date(userMsg.created_at).getTime();
+            const agentTime = new Date(agentResponse.created_at).getTime();
+            const diff = (agentTime - userTime) / 1000 / 60; // minutos
+            responseTimes.push(diff);
+          }
+        }
+
+        if (responseTimes.length > 0) {
+          avgResponseTime = responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length;
+        }
+      }
+
+      setMetrics({
+        messagesSentToday: sentCount || 0,
+        messagesReceivedToday: receivedCount || 0,
+        deliveryRate: Math.round(deliveryRate),
+        readRate: Math.round(readRate),
+        avgResponseTime: Math.round(avgResponseTime),
+      });
+    } catch (err: any) {
+      console.error('Error cargando métricas:', err);
+    } finally {
+      setLoadingMetrics(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -241,24 +368,62 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
           </div>
 
           {integration.status === 'connected' && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-600">
-                  <p>Conectado desde: {new Date(integration.verified_at || '').toLocaleDateString()}</p>
-                  {integration.last_sync_at && (
-                    <p>Última sincronización: {new Date(integration.last_sync_at).toLocaleString()}</p>
-                  )}
+            <>
+              {/* Información básica */}
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-gray-600">
+                    <p>Conectado desde: {new Date(integration.verified_at || '').toLocaleDateString()}</p>
+                    {integration.last_sync_at && (
+                      <p>Última sincronización: {new Date(integration.last_sync_at).toLocaleString()}</p>
+                    )}
+                  </div>
+                  <button
+                    onClick={handleDisconnect}
+                    disabled={connecting}
+                    className="flex items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    <Trash2 size={16} />
+                    <span>Desconectar</span>
+                  </button>
                 </div>
-                <button
-                  onClick={handleDisconnect}
-                  disabled={connecting}
-                  className="flex items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-                >
-                  <Trash2 size={16} />
-                  <span>Desconectar</span>
-                </button>
               </div>
-            </div>
+
+              {/* Información técnica */}
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="flex items-center space-x-2 mb-3">
+                  <Info size={16} className="text-gray-500" />
+                  <h4 className="text-sm font-semibold text-gray-900">Información Técnica</h4>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {integration.phone_number_id && (
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <p className="text-xs text-gray-500 mb-1">Phone Number ID</p>
+                      <p className="text-sm font-mono text-gray-900">{integration.phone_number_id}</p>
+                    </div>
+                  )}
+                  {integration.business_account_id && (
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <p className="text-xs text-gray-500 mb-1">Business Account ID</p>
+                      <p className="text-sm font-mono text-gray-900">{integration.business_account_id}</p>
+                    </div>
+                  )}
+                  {integration.app_id && (
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <p className="text-xs text-gray-500 mb-1">App ID</p>
+                      <p className="text-sm font-mono text-gray-900">{integration.app_id}</p>
+                    </div>
+                  )}
+                  <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+                    <p className="text-xs text-green-600 mb-1 flex items-center space-x-1">
+                      <Activity size={12} />
+                      <span>Estado API</span>
+                    </p>
+                    <p className="text-sm font-semibold text-green-700">Activo</p>
+                  </div>
+                </div>
+              </div>
+            </>
           )}
 
           {integration.error_message && (
@@ -384,7 +549,7 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
         </div>
       )}
 
-      {/* Conectado */}
+      {/* Conectado - Mensaje de éxito */}
       {step === 'connected' && integration?.status === 'connected' && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-6">
           <div className="flex items-center space-x-3">
@@ -395,6 +560,93 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
                 Tu número {integration.phone_number} está conectado y listo para recibir mensajes.
               </p>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Métricas en tiempo real */}
+      {integration?.status === 'connected' && (
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-2">
+              <TrendingUp size={20} className="text-primary-600" />
+              <h3 className="text-lg font-semibold text-gray-900">Métricas de Hoy</h3>
+            </div>
+            <button
+              onClick={loadMetrics}
+              disabled={loadingMetrics}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+              title="Actualizar métricas"
+            >
+              <RefreshCw size={16} className={`text-gray-500 ${loadingMetrics ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
+
+          {loadingMetrics ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-primary-600" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {/* Mensajes enviados */}
+              <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Send size={16} className="text-blue-600" />
+                  <span className="text-xs font-medium text-blue-600">Enviados</span>
+                </div>
+                <p className="text-2xl font-bold text-blue-900">{metrics.messagesSentToday}</p>
+                <p className="text-xs text-blue-600 mt-1">mensajes</p>
+              </div>
+
+              {/* Mensajes recibidos */}
+              <div className="bg-green-50 rounded-lg p-4 border border-green-100">
+                <div className="flex items-center space-x-2 mb-2">
+                  <MessageCircle size={16} className="text-green-600" />
+                  <span className="text-xs font-medium text-green-600">Recibidos</span>
+                </div>
+                <p className="text-2xl font-bold text-green-900">{metrics.messagesReceivedToday}</p>
+                <p className="text-xs text-green-600 mt-1">mensajes</p>
+              </div>
+
+              {/* Tasa de entrega */}
+              <div className="bg-purple-50 rounded-lg p-4 border border-purple-100">
+                <div className="flex items-center space-x-2 mb-2">
+                  <CheckCircle2 size={16} className="text-purple-600" />
+                  <span className="text-xs font-medium text-purple-600">Entrega</span>
+                </div>
+                <p className="text-2xl font-bold text-purple-900">{metrics.deliveryRate}%</p>
+                <p className="text-xs text-purple-600 mt-1">tasa</p>
+              </div>
+
+              {/* Tasa de lectura */}
+              <div className="bg-cyan-50 rounded-lg p-4 border border-cyan-100">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Eye size={16} className="text-cyan-600" />
+                  <span className="text-xs font-medium text-cyan-600">Lectura</span>
+                </div>
+                <p className="text-2xl font-bold text-cyan-900">{metrics.readRate}%</p>
+                <p className="text-xs text-cyan-600 mt-1">tasa</p>
+              </div>
+
+              {/* Tiempo de respuesta */}
+              <div className="bg-orange-50 rounded-lg p-4 border border-orange-100">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Clock size={16} className="text-orange-600" />
+                  <span className="text-xs font-medium text-orange-600">Respuesta</span>
+                </div>
+                <p className="text-2xl font-bold text-orange-900">
+                  {metrics.avgResponseTime > 0 ? metrics.avgResponseTime : '-'}
+                </p>
+                <p className="text-xs text-orange-600 mt-1">minutos</p>
+              </div>
+            </div>
+          )}
+
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <p className="text-xs text-gray-500 flex items-center space-x-1">
+              <Info size={12} />
+              <span>Las métricas se actualizan cada vez que recargues esta página o hagas clic en el botón de actualizar.</span>
+            </p>
           </div>
         </div>
       )}

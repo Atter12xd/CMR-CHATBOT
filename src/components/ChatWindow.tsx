@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Send, Bot, User, UserCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, Send, Bot, User, UserCircle, Loader2, Check, CheckCheck } from 'lucide-react';
 import type { Chat, Message } from '../data/mockData';
-import { loadChatWithMessages } from '../services/chats';
+import { loadChatWithMessages, subscribeToChatMessages } from '../services/chats';
 import { sendTextMessage, markMessagesAsRead } from '../services/whatsapp-messages';
 
 interface ChatWindowProps {
@@ -15,6 +15,7 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Cargar mensajes cuando se abre el chat
   useEffect(() => {
@@ -35,15 +36,41 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
     };
 
     loadMessages();
+
+    // Suscribirse a nuevos mensajes en tiempo real
+    const unsubscribe = subscribeToChatMessages(chat.id, (newMessages) => {
+      setMessages(newMessages);
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, [chat.id]);
 
   useEffect(() => {
-    scrollToBottom();
+    // Scroll solo si estamos cerca del final o es un mensaje nuevo
+    const scrollContainer = messagesEndRef.current?.parentElement;
+    if (scrollContainer) {
+      const isNearBottom = scrollContainer.scrollHeight - scrollContainer.scrollTop < scrollContainer.clientHeight + 200;
+      if (isNearBottom || messages.length === 0) {
+        setTimeout(() => scrollToBottom(), 100);
+      }
+    } else {
+      scrollToBottom();
+    }
   }, [messages]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Auto-resize textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
+    }
+  }, [newMessage]);
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || sending) return;
@@ -118,9 +145,9 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
   };
 
   return (
-    <div className="h-full flex flex-col bg-white rounded-lg border border-gray-200">
+    <div className="h-full flex flex-col bg-white rounded-lg border border-gray-200 shadow-sm">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+      <div className="px-4 py-3 border-b border-gray-200 bg-white flex items-center justify-between shadow-sm">
         <div className="flex items-center space-x-3">
           <button
             onClick={onBack}
@@ -131,16 +158,20 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
           <img
             src={chat.customerAvatar}
             alt={chat.customerName}
-            className="w-10 h-10 rounded-full"
+            className="w-11 h-11 rounded-full border-2 border-gray-200"
           />
           <div>
-            <h2 className="font-semibold text-gray-900">{chat.customerName}</h2>
-            <p className="text-sm text-gray-500">{chat.customerEmail}</p>
+            <h2 className="font-semibold text-gray-900 text-base">{chat.customerName}</h2>
+            <p className="text-xs text-gray-500">
+              {chat.platform === 'whatsapp' && 'WhatsApp'}
+              {chat.platform === 'facebook' && 'Facebook'}
+              {chat.platform === 'web' && 'Web'}
+            </p>
           </div>
         </div>
         <div className="flex items-center space-x-2">
           {chat.botActive && (
-            <span className="text-xs px-3 py-1 bg-purple-100 text-purple-700 rounded-full font-medium">
+            <span className="text-xs px-2.5 py-1 bg-purple-100 text-purple-700 rounded-full font-medium">
               Bot activo
             </span>
           )}
@@ -148,43 +179,49 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
       </div>
 
       {/* Mensajes */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-3 bg-gradient-to-b from-gray-50 to-white">
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <Loader2 className="h-6 w-6 animate-spin text-primary-600" />
           </div>
         ) : (
           <>
-            {messages.map((message) => {
+            {messages.map((message, index) => {
           const senderInfo = getMessageSender(message.sender);
           const SenderIcon = senderInfo.icon;
           const isOwnMessage = message.sender === 'agent';
+          const prevMessage = index > 0 ? messages[index - 1] : null;
+          const showAvatar = !prevMessage || prevMessage.sender !== message.sender || 
+            (new Date(message.timestamp).getTime() - new Date(prevMessage.timestamp).getTime()) > 300000; // 5 minutos
 
           return (
             <div
               key={message.id}
-              className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} group`}
             >
-              <div className={`flex ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'} items-start space-x-3 max-w-[75%]`}>
-                {/* Avatar/Icon */}
-                <div
-                  className={`${senderInfo.bgColor} text-white rounded-full p-2 flex-shrink-0`}
-                >
-                  <SenderIcon size={16} />
-                </div>
+              <div className={`flex ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'} items-end space-x-2 max-w-[80%] md:max-w-[70%]`}>
+                {/* Avatar/Icon - solo mostrar si es necesario */}
+                {showAvatar && (
+                  <div
+                    className={`${senderInfo.bgColor} text-white rounded-full p-2 flex-shrink-0 w-8 h-8 items-center justify-center hidden sm:flex ${isOwnMessage ? 'ml-2' : 'mr-2'}`}
+                  >
+                    <SenderIcon size={14} />
+                  </div>
+                )}
+                {!showAvatar && <div className="w-8 flex-shrink-0 hidden sm:block" />}
 
                 {/* Mensaje */}
                 <div className={`${isOwnMessage ? 'items-end' : 'items-start'} flex flex-col`}>
                   <div
-                    className={`rounded-lg px-4 py-2 ${
+                    className={`rounded-2xl px-4 py-2.5 shadow-sm ${
                       isOwnMessage
-                        ? 'bg-primary-500 text-white'
+                        ? 'bg-primary-500 text-white rounded-br-md'
                         : message.sender === 'bot'
-                        ? 'bg-purple-100 text-purple-900'
-                        : 'bg-white text-gray-900 border border-gray-200'
+                        ? 'bg-purple-100 text-purple-900 rounded-bl-md'
+                        : 'bg-white text-gray-900 border border-gray-200 rounded-bl-md'
                     }`}
                   >
-                    <p className="text-sm whitespace-pre-wrap break-words">{message.text}</p>
+                    <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">{message.text}</p>
                     {message.image && (
                       <img
                         src={message.image}
@@ -193,13 +230,17 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
                       />
                     )}
                   </div>
-                  <div className="flex items-center space-x-2 mt-1">
-                    <span className="text-xs text-gray-500">
+                  <div className={`flex items-center space-x-1.5 mt-1 px-1 ${isOwnMessage ? 'flex-row-reverse' : ''}`}>
+                    <span className="text-xs text-gray-400">
                       {formatMessageTime(message.timestamp)}
                     </span>
                     {isOwnMessage && (
-                      <span className="text-xs text-gray-500">
-                        {message.read ? '✓✓' : '✓'}
+                      <span className="text-xs text-gray-400">
+                        {message.read ? (
+                          <CheckCheck size={12} className="text-blue-500" />
+                        ) : (
+                          <Check size={12} />
+                        )}
                       </span>
                     )}
                   </div>
@@ -230,21 +271,24 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
       </div>
 
       {/* Input de mensaje */}
-      <div className="p-4 border-t border-gray-200">
+      <div className="px-4 py-3 border-t border-gray-200 bg-white">
         <div className="flex items-end space-x-2">
-          <textarea
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Escribe un mensaje..."
-            rows={1}
-            className="flex-1 resize-none border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            style={{ minHeight: '44px', maxHeight: '120px' }}
-          />
+          <div className="flex-1 relative">
+            <textarea
+              ref={textareaRef}
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyDown={handleKeyPress}
+              placeholder="Escribe un mensaje..."
+              rows={1}
+              className="w-full resize-none border border-gray-300 rounded-2xl px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50 text-sm"
+              style={{ minHeight: '44px', maxHeight: '120px' }}
+            />
+          </div>
           <button
             onClick={handleSendMessage}
             disabled={!newMessage.trim() || sending}
-            className="p-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+            className="p-3 bg-primary-500 text-white rounded-full hover:bg-primary-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 shadow-md hover:shadow-lg disabled:shadow-none"
           >
             {sending ? (
               <Loader2 size={20} className="animate-spin" />

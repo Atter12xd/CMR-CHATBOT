@@ -149,14 +149,38 @@ export async function loadChatWithMessages(chatId: string): Promise<Chat | null>
 }
 
 /**
- * Suscripción en tiempo real a cambios en chats
+ * Suscripción en tiempo real a cambios en chats (optimizada)
  */
 export function subscribeToChats(
   organizationId: string,
   callback: (chats: Chat[]) => void
 ) {
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  let lastUpdate = Date.now();
+
+  const debouncedReload = async () => {
+    // Debounce: solo recargar si pasaron al menos 1 segundo desde la última actualización
+    const now = Date.now();
+    if (now - lastUpdate < 1000) {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        lastUpdate = Date.now();
+        loadChats(organizationId).then(callback).catch(console.error);
+      }, 1000);
+      return;
+    }
+    
+    lastUpdate = Date.now();
+    try {
+      const chats = await loadChats(organizationId);
+      callback(chats);
+    } catch (error) {
+      console.error('Error recargando chats:', error);
+    }
+  };
+
   const subscription = supabase
-    .channel('chats-changes')
+    .channel(`chats-changes-${organizationId}`)
     .on(
       'postgres_changes',
       {
@@ -165,23 +189,62 @@ export function subscribeToChats(
         table: 'chats',
         filter: `organization_id=eq.${organizationId}`,
       },
-      async () => {
-        // Recargar chats cuando hay cambios
-        const chats = await loadChats(organizationId);
-        callback(chats);
-      }
+      debouncedReload
     )
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages',
+      },
+      debouncedReload
+    )
+    .subscribe();
+
+  return () => {
+    if (debounceTimer) clearTimeout(debounceTimer);
+    subscription.unsubscribe();
+  };
+}
+
+/**
+ * Suscripción en tiempo real a mensajes de un chat específico
+ */
+export function subscribeToChatMessages(
+  chatId: string,
+  callback: (messages: Message[]) => void
+) {
+  const subscription = supabase
+    .channel(`chat-messages-${chatId}`)
     .on(
       'postgres_changes',
       {
         event: '*',
         schema: 'public',
         table: 'messages',
+        filter: `chat_id=eq.${chatId}`,
       },
       async () => {
-        // Recargar chats cuando hay nuevos mensajes
-        const chats = await loadChats(organizationId);
-        callback(chats);
+        // Recargar solo los mensajes de este chat
+        const { data: messages, error } = await supabase
+          .from('messages')
+          .select('*')
+          .eq('chat_id', chatId)
+          .order('created_at', { ascending: true });
+
+        if (!error && messages) {
+          const transformedMessages: Message[] = messages.map((msg) => ({
+            id: msg.id,
+            text: msg.text || '',
+            sender: msg.sender_type as 'user' | 'agent' | 'bot',
+            timestamp: msg.created_at ? new Date(msg.created_at) : new Date(),
+            read: msg.read || false,
+            image: msg.image_url || undefined,
+            isPaymentReceipt: msg.is_payment_receipt || false,
+          }));
+          callback(transformedMessages);
+        }
       }
     )
     .subscribe();

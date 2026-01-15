@@ -46,6 +46,8 @@ async function getOrganizationByPhoneNumberId(
   supabase: any,
   phoneNumberId: string
 ): Promise<any> {
+  console.log(`Buscando integración con phone_number_id: "${phoneNumberId}"`);
+  
   const { data: integration, error } = await supabase
     .from('whatsapp_integrations')
     .select('*')
@@ -53,10 +55,25 @@ async function getOrganizationByPhoneNumberId(
     .eq('status', 'connected')
     .maybeSingle();
 
-  if (error || !integration) {
+  if (error) {
+    console.error('Error en consulta:', error);
     return null;
   }
 
+  if (!integration) {
+    console.log('No se encontró integración con esos criterios');
+    
+    // Buscar sin filtro de status para debug
+    const { data: allIntegrations } = await supabase
+      .from('whatsapp_integrations')
+      .select('phone_number_id, status')
+      .eq('phone_number_id', phoneNumberId);
+    
+    console.log('Integraciones encontradas con ese phone_number_id (sin filtro status):', allIntegrations);
+    return null;
+  }
+
+  console.log(`✅ Integración encontrada: organization_id=${integration.organization_id}`);
   return integration;
 }
 
@@ -155,7 +172,7 @@ async function processIncomingMessage(
   }
 
   // Guardar mensaje
-  const messageData = {
+  const messageToSave = {
     chat_id: chatId,
     sender_type: 'user',
     sender_id: null,
@@ -166,16 +183,16 @@ async function processIncomingMessage(
     created_at: new Date(parseInt(timestamp) * 1000).toISOString(),
   };
 
-  console.log('Guardando mensaje:', JSON.stringify(messageData, null, 2));
+  console.log('Guardando mensaje:', JSON.stringify(messageToSave, null, 2));
 
   const { data: savedMessage, error: messageError } = await supabase
     .from('messages')
-    .insert(messageData)
+    .insert(messageToSave)
     .select();
 
   if (messageError) {
     console.error('Error guardando mensaje:', messageError);
-    console.error('Message data:', JSON.stringify(messageData, null, 2));
+    console.error('Message data:', JSON.stringify(messageToSave, null, 2));
     throw messageError;
   }
 
@@ -406,12 +423,32 @@ serve(async (req) => {
           }
 
           // Obtener integración por phone_number_id
+          console.log(`Buscando integración para phone_number_id: ${phoneNumberId}`);
           const integration = await getOrganizationByPhoneNumberId(supabase, phoneNumberId);
 
           if (!integration) {
-            console.log(`No se encontró integración para phone_number_id: ${phoneNumberId}`);
+            console.error(`❌ No se encontró integración para phone_number_id: ${phoneNumberId}`);
+            console.error('Verifica que:');
+            console.error('1. Existe un registro en whatsapp_integrations con este phone_number_id');
+            console.error('2. El status es "connected"');
+            console.error('3. El phone_number_id está guardado correctamente');
+            
+            // Intentar buscar sin filtro de status para debug
+            const { data: debugIntegration } = await supabase
+              .from('whatsapp_integrations')
+              .select('*')
+              .eq('phone_number_id', phoneNumberId)
+              .maybeSingle();
+            
+            if (debugIntegration) {
+              console.error(`Integración encontrada pero con status: ${debugIntegration.status}`);
+            } else {
+              console.error('No existe ninguna integración con este phone_number_id');
+            }
             continue;
           }
+
+          console.log(`✅ Integración encontrada para organización: ${integration.organization_id}`);
 
           // Procesar mensajes entrantes
           if (value.messages && Array.isArray(value.messages)) {

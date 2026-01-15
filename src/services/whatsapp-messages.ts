@@ -207,6 +207,7 @@ export async function markMessagesAsRead(chatId: string) {
   }
 
   try {
+    // Actualizar solo el campo read, sin tocar updated_at
     const { error } = await supabase
       .from('messages')
       .update({ read: true })
@@ -227,6 +228,7 @@ export async function markMessagesAsRead(chatId: string) {
     return { success: true };
   } catch (err: any) {
     console.error('Error marcando mensajes como leídos:', err);
-    throw err;
+    // No lanzar el error, solo loguearlo para no interrumpir la experiencia
+    return { success: false, error: err.message };
   }
 }

@@ -44,17 +44,17 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
   };
 
   return (
-    <div className="h-full flex flex-col bg-white rounded-lg border border-gray-200">
+    <div className="h-full flex flex-col bg-white">
       {/* Búsqueda */}
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-3 border-b border-gray-200 bg-[#f0f2f5]">
         <div className="relative">
           <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Buscar conversaciones..."
+            placeholder="Buscar o empezar un chat nuevo"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2.5 bg-white border-0 rounded-lg focus:outline-none focus:ring-0 text-sm placeholder-gray-400"
           />
         </div>
       </div>
@@ -71,8 +71,8 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
               <button
                 key={chat.id}
                 onClick={() => onSelectChat(chat.id)}
-                className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${
-                  selectedChatId === chat.id ? 'bg-primary-50 border-l-4 border-primary-500' : ''
+                className={`w-full px-3 py-3 text-left hover:bg-gray-100 transition-colors border-b border-gray-100 ${
+                  selectedChatId === chat.id ? 'bg-gray-100' : 'bg-white'
                 }`}
               >
                 <div className="flex items-start space-x-3">
@@ -81,15 +81,15 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
                     <img
                       src={chat.customerAvatar}
                       alt={chat.customerName}
-                      className="w-12 h-12 rounded-full"
+                      className="w-12 h-12 rounded-full object-cover"
                     />
-                    <div className={`absolute -bottom-1 -right-1 w-4 h-4 ${getStatusColor(chat.status)} rounded-full border-2 border-white`} />
+                    <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 ${getStatusColor(chat.status)} rounded-full border-2 border-white`} />
                   </div>
 
                   {/* Contenido */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="font-semibold text-gray-900 truncate">
+                    <div className="flex items-center justify-between mb-0.5">
+                      <h3 className="font-medium text-gray-900 truncate text-[15px]">
                         {chat.customerName}
                       </h3>
                       <span className="text-xs text-gray-500 flex-shrink-0 ml-2">
@@ -97,9 +97,9 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
                       </span>
                     </div>
 
-                    <div className="flex items-center space-x-2 mb-1">
+                    <div className="flex items-center space-x-1.5 mb-1">
                       {getPlatformIcon(chat.platform)}
-                      <p className="text-sm text-gray-600 truncate flex-1">
+                      <p className="text-sm text-gray-600 truncate flex-1 leading-tight">
                         {chat.lastMessage}
                       </p>
                     </div>

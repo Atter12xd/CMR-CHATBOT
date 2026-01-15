@@ -145,9 +145,9 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
   };
 
   return (
-    <div className="h-full flex flex-col bg-white rounded-lg border border-gray-200 shadow-sm">
+    <div className="h-full w-full flex flex-col bg-white">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-200 bg-white flex items-center justify-between shadow-sm">
+      <div className="px-4 md:px-6 py-3 border-b border-gray-200 bg-[#f0f2f5] flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <button
             onClick={onBack}
@@ -179,7 +179,7 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
       </div>
 
       {/* Mensajes */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-3 bg-gradient-to-b from-gray-50 to-white">
+      <div className="flex-1 overflow-y-auto px-3 md:px-6 py-4 space-y-1 bg-[#efeae2] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iYSIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiPjxwYXRoIGQ9Ik0wIDBoMTAwdjEwMEgweiIgZmlsbD0iI2VmZWFlMiIvPjxwYXRoIGQ9Ik0yNi4yNSAyNi4yNWg0Ny41djQ3LjVoLTQ3LjV6IiBmaWxsPSIjZjVmNWY1IiBmaWxsLW9wYWNpdHk9Ii41Ii8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0idXJsKCNhKSIvPjwvc3ZnPg==')]">
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <Loader2 className="h-6 w-6 animate-spin text-primary-600" />
@@ -199,7 +199,7 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
               key={message.id}
               className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} group`}
             >
-              <div className={`flex ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'} items-end space-x-2 max-w-[80%] md:max-w-[70%]`}>
+              <div className={`flex ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'} items-end space-x-2 max-w-[85%] md:max-w-[65%]`}>
                 {/* Avatar/Icon - solo mostrar si es necesario */}
                 {showAvatar && (
                   <div
@@ -213,12 +213,12 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
                 {/* Mensaje */}
                 <div className={`${isOwnMessage ? 'items-end' : 'items-start'} flex flex-col`}>
                   <div
-                    className={`rounded-2xl px-4 py-2.5 shadow-sm ${
+                    className={`rounded-lg px-3 py-2 shadow-sm ${
                       isOwnMessage
-                        ? 'bg-primary-500 text-white rounded-br-md'
+                        ? 'bg-[#d9fdd3] text-gray-900 rounded-br-sm'
                         : message.sender === 'bot'
-                        ? 'bg-purple-100 text-purple-900 rounded-bl-md'
-                        : 'bg-white text-gray-900 border border-gray-200 rounded-bl-md'
+                        ? 'bg-purple-100 text-purple-900 rounded-bl-sm'
+                        : 'bg-white text-gray-900 rounded-bl-sm shadow-[0_1px_0.5px_rgba(0,0,0,0.13)]'
                     }`}
                   >
                     <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">{message.text}</p>
@@ -271,9 +271,9 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
       </div>
 
       {/* Input de mensaje */}
-      <div className="px-4 py-3 border-t border-gray-200 bg-white">
+      <div className="px-3 md:px-6 py-3 border-t border-gray-200 bg-[#f0f2f5]">
         <div className="flex items-end space-x-2">
-          <div className="flex-1 relative">
+          <div className="flex-1 relative bg-white rounded-3xl border border-gray-300 flex items-center">
             <textarea
               ref={textareaRef}
               value={newMessage}
@@ -281,14 +281,14 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
               onKeyDown={handleKeyPress}
               placeholder="Escribe un mensaje..."
               rows={1}
-              className="w-full resize-none border border-gray-300 rounded-2xl px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50 text-sm"
+              className="w-full resize-none rounded-3xl px-4 py-2.5 pr-12 focus:outline-none bg-transparent text-sm text-gray-900 placeholder-gray-500"
               style={{ minHeight: '44px', maxHeight: '120px' }}
             />
           </div>
           <button
             onClick={handleSendMessage}
             disabled={!newMessage.trim() || sending}
-            className="p-3 bg-primary-500 text-white rounded-full hover:bg-primary-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 shadow-md hover:shadow-lg disabled:shadow-none"
+            className="p-3 bg-primary-500 text-white rounded-full hover:bg-primary-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 shadow-sm hover:shadow-md disabled:shadow-none"
           >
             {sending ? (
               <Loader2 size={20} className="animate-spin" />

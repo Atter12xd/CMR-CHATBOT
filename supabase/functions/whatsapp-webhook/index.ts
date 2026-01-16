@@ -46,8 +46,21 @@ async function getOrganizationByPhoneNumberId(
   supabase: any,
   phoneNumberId: string
 ): Promise<any> {
-  console.log(`Buscando integración con phone_number_id: "${phoneNumberId}"`);
+  console.log(`🔍 Buscando integración con phone_number_id: "${phoneNumberId}"`);
   
+  // Primero buscar sin filtro de status para ver qué hay
+  const { data: allIntegrations, error: allError } = await supabase
+    .from('whatsapp_integrations')
+    .select('id, phone_number_id, status, organization_id')
+    .eq('phone_number_id', phoneNumberId);
+  
+  console.log(`📊 Integraciones encontradas (sin filtro):`, allIntegrations);
+  
+  if (allError) {
+    console.error('❌ Error en consulta (sin filtro):', allError);
+  }
+
+  // Ahora buscar con filtro de status
   const { data: integration, error } = await supabase
     .from('whatsapp_integrations')
     .select('*')
@@ -56,24 +69,27 @@ async function getOrganizationByPhoneNumberId(
     .maybeSingle();
 
   if (error) {
-    console.error('Error en consulta:', error);
+    console.error('❌ Error en consulta (con filtro):', error);
     return null;
   }
 
   if (!integration) {
-    console.log('No se encontró integración con esos criterios');
+    console.error('❌ No se encontró integración con status "connected"');
     
-    // Buscar sin filtro de status para debug
-    const { data: allIntegrations } = await supabase
-      .from('whatsapp_integrations')
-      .select('phone_number_id, status')
-      .eq('phone_number_id', phoneNumberId);
-    
-    console.log('Integraciones encontradas con ese phone_number_id (sin filtro status):', allIntegrations);
+    if (allIntegrations && allIntegrations.length > 0) {
+      console.error(`⚠️ Pero hay ${allIntegrations.length} integración(es) con ese phone_number_id pero con otros status:`);
+      allIntegrations.forEach((int: any) => {
+        console.error(`   - ID: ${int.id}, Status: ${int.status}, Organization: ${int.organization_id}`);
+      });
+      console.error('💡 Solución: Actualiza el status de la integración a "connected"');
+    } else {
+      console.error('❌ No existe ninguna integración con ese phone_number_id');
+      console.error('💡 Solución: Verifica que el phone_number_id esté guardado correctamente en whatsapp_integrations');
+    }
     return null;
   }
 
-  console.log(`✅ Integración encontrada: organization_id=${integration.organization_id}`);
+  console.log(`✅ Integración encontrada: organization_id=${integration.organization_id}, status=${integration.status}`);
   return integration;
 }
 
@@ -174,16 +190,15 @@ async function processIncomingMessage(
   // Guardar mensaje
   const messageToSave = {
     chat_id: chatId,
-    sender_type: 'user',
-    sender_id: null,
+    sender: 'user',
     text: messageText,
     image_url: imageUrl,
     platform_message_id: messageId,
-    read: false,
+    status: 'delivered',
     created_at: new Date(parseInt(timestamp) * 1000).toISOString(),
   };
 
-  console.log('Guardando mensaje:', JSON.stringify(messageToSave, null, 2));
+  console.log('💾 Guardando mensaje en BD:', JSON.stringify(messageToSave, null, 2));
 
   const { data: savedMessage, error: messageError } = await supabase
     .from('messages')
@@ -191,12 +206,16 @@ async function processIncomingMessage(
     .select();
 
   if (messageError) {
-    console.error('Error guardando mensaje:', messageError);
-    console.error('Message data:', JSON.stringify(messageToSave, null, 2));
+    console.error('❌ Error guardando mensaje:', messageError);
+    console.error('❌ Message data que intentó guardar:', JSON.stringify(messageToSave, null, 2));
+    console.error('❌ Error code:', messageError.code);
+    console.error('❌ Error message:', messageError.message);
+    console.error('❌ Error details:', messageError.details);
+    console.error('❌ Error hint:', messageError.hint);
     throw messageError;
   }
 
-  console.log('Mensaje guardado exitosamente:', savedMessage);
+  console.log('✅ Mensaje guardado exitosamente en BD:', savedMessage);
 
   // Obtener unread_count actual y actualizar chat
   const { data: chat } = await supabase
@@ -283,10 +302,13 @@ async function processMessageStatus(
 }
 
 serve(async (req) => {
-  console.log('=== Webhook recibido ===');
+  console.log('=== WEBHOOK RECIBIDO ===');
+  console.log('Timestamp:', new Date().toISOString());
   console.log('Method:', req.method);
   console.log('URL:', req.url);
   console.log('Headers:', Object.fromEntries(req.headers.entries()));
+  console.log('Origin:', req.headers.get('origin') || 'No origin');
+  console.log('User-Agent:', req.headers.get('user-agent') || 'No user-agent');
 
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -310,6 +332,7 @@ serve(async (req) => {
   // GET: Verificación del webhook (Meta envía esto para verificar)
   // Este endpoint NO requiere autenticación porque Meta no puede autenticarse
   if (req.method === 'GET') {
+    console.log('📥 GET request recibido - Verificación de webhook o prueba');
     try {
       const url = new URL(req.url);
       const mode = url.searchParams.get('hub.mode');
@@ -368,8 +391,16 @@ serve(async (req) => {
 
     // POST: Recibir eventos de WhatsApp
     if (req.method === 'POST') {
+      console.log('📥 POST recibido en webhook');
       const rawBody = await req.text();
       const signature = req.headers.get('x-hub-signature-256');
+
+      console.log('📋 Headers recibidos:', {
+        contentType: req.headers.get('content-type'),
+        hasSignature: !!signature,
+        userAgent: req.headers.get('user-agent'),
+        bodyLength: rawBody.length
+      });
 
       // Obtener app secret para validar firma
       const appSecret = Deno.env.get('WHATSAPP_APP_SECRET') || '75ec6c1f9c00e3ee5ca3763e5c46a920';
@@ -378,15 +409,30 @@ serve(async (req) => {
       if (signature && appSecret) {
         const isValid = await validateSignature(rawBody, signature, appSecret);
         if (!isValid) {
-          console.error('Firma de webhook inválida');
+          console.error('❌ Firma de webhook inválida');
           return new Response('Invalid signature', {
             status: 401,
             headers: { 'Content-Type': 'text/plain' },
           });
+        } else {
+          console.log('✅ Firma de webhook válida');
         }
+      } else {
+        console.log('⚠️ Validación de firma omitida (no hay signature o appSecret)');
       }
 
-      const body = JSON.parse(rawBody);
+      let body;
+      try {
+        body = JSON.parse(rawBody);
+        console.log('✅ Body parseado correctamente');
+      } catch (parseError) {
+        console.error('❌ Error parseando body:', parseError);
+        console.error('❌ Raw body (primeros 500 chars):', rawBody.substring(0, 500));
+        return new Response('Invalid JSON', {
+          status: 400,
+          headers: { 'Content-Type': 'text/plain' },
+        });
+      }
 
       // Meta envía eventos en este formato:
       // {
@@ -411,19 +457,35 @@ serve(async (req) => {
         });
       }
 
+      // Log del body completo para debugging
+      console.log('=== BODY COMPLETO DEL WEBHOOK ===');
+      console.log(JSON.stringify(body, null, 2));
+
       // Procesar cada entrada
       for (const entry of body.entry || []) {
+        console.log('Procesando entry:', entry.id);
+        
         for (const change of entry.changes || []) {
           const value = change.value;
           const phoneNumberId = value?.metadata?.phone_number_id;
 
+          console.log('Change value:', {
+            messaging_product: value?.messaging_product,
+            phone_number_id: phoneNumberId,
+            hasMessages: !!value?.messages,
+            messagesCount: value?.messages?.length || 0,
+            hasStatuses: !!value?.statuses,
+            statusesCount: value?.statuses?.length || 0
+          });
+
           if (!phoneNumberId) {
-            console.log('No phone_number_id en el evento');
+            console.error('❌ No phone_number_id en el evento');
+            console.error('Metadata disponible:', value?.metadata);
             continue;
           }
 
           // Obtener integración por phone_number_id
-          console.log(`Buscando integración para phone_number_id: ${phoneNumberId}`);
+          console.log(`🔍 Buscando integración para phone_number_id: "${phoneNumberId}"`);
           const integration = await getOrganizationByPhoneNumberId(supabase, phoneNumberId);
 
           if (!integration) {
@@ -452,27 +514,38 @@ serve(async (req) => {
 
           // Procesar mensajes entrantes
           if (value.messages && Array.isArray(value.messages)) {
-            console.log(`Procesando ${value.messages.length} mensaje(s)`);
+            console.log(`📨 Procesando ${value.messages.length} mensaje(s) entrante(s)`);
             
             // Extraer nombre del contacto si está disponible
             const contactName = value.contacts && value.contacts.length > 0 
               ? value.contacts[0]?.profile?.name 
               : undefined;
             
-            console.log('Nombre del contacto:', contactName || 'No disponible');
+            console.log('👤 Nombre del contacto:', contactName || 'No disponible');
+            if (value.contacts && value.contacts.length > 0) {
+              console.log('📋 Info del contacto:', JSON.stringify(value.contacts[0], null, 2));
+            }
             
             for (const message of value.messages) {
               try {
-                console.log(`Procesando mensaje: ${message.id}, tipo: ${message.type}`);
+                console.log(`📩 Procesando mensaje: ID=${message.id}, tipo=${message.type}, from=${message.from}`);
+                console.log('📄 Contenido del mensaje:', JSON.stringify(message, null, 2));
                 await processIncomingMessage(supabase, integration, message, contactName);
-                console.log(`Mensaje procesado exitosamente: ${message.id}`);
+                console.log(`✅ Mensaje procesado exitosamente: ${message.id}`);
               } catch (error) {
-                console.error(`Error procesando mensaje ${message.id}:`, error);
-                console.error('Error details:', JSON.stringify(error, null, 2));
+                console.error(`❌ Error procesando mensaje ${message.id}:`, error);
+                console.error('❌ Error details:', JSON.stringify(error, null, 2));
+                console.error('❌ Stack trace:', error instanceof Error ? error.stack : 'No stack available');
               }
             }
           } else {
-            console.log('No hay mensajes en el evento o no es un array');
+            console.log('⚠️ No hay mensajes en el evento o no es un array');
+            console.log('📊 Value structure:', {
+              hasMessages: !!value.messages,
+              messagesType: typeof value.messages,
+              isArray: Array.isArray(value.messages),
+              keys: value ? Object.keys(value) : 'value is null/undefined'
+            });
           }
 
           // Procesar estados de mensajes
@@ -489,6 +562,7 @@ serve(async (req) => {
       }
 
       // Responder 200 OK a Meta
+      console.log('✅ Procesamiento completo. Respondiendo 200 OK a Meta');
       return new Response('OK', {
         status: 200,
         headers: { 'Content-Type': 'text/plain' },

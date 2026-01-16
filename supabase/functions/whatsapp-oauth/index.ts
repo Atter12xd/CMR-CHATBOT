@@ -345,11 +345,17 @@ async function handleVerifyCode(
     );
   }
 
+  // En modo simulado, usar valores de variables de entorno si están disponibles
+  const phoneNumberId = integration.phone_number_id || Deno.env.get('WHATSAPP_PHONE_NUMBER_ID') || null;
+  const accessToken = integration.access_token || Deno.env.get('WHATSAPP_ACCESS_TOKEN') || null;
+
   // Marcar como conectado
   const { data, error } = await supabase
     .from('whatsapp_integrations')
     .update({
       status: 'connected',
+      phone_number_id: phoneNumberId,
+      access_token: accessToken,
       verified_at: new Date().toISOString(),
       last_sync_at: new Date().toISOString(),
       error_message: null,

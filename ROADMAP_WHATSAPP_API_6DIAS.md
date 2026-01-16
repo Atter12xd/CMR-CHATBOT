@@ -368,6 +368,17 @@ It does not have HTTP ok status.
 
 **Resultado**: ✅ Sistema completo de envío y recepción de mensajes funcionando
 
+#### ⚠️ Problema Detectado y Solucionado (16 Ene 2026)
+**Error**: "Edge Function returned a non-2xx status code" al enviar mensajes
+**Causa**: `access_token` no disponible. El token temporal de `client_credentials` no funciona para enviar mensajes.
+**Solución**: 
+- Configurar `WHATSAPP_ACCESS_TOKEN` permanente en Supabase Edge Functions → Secrets
+- El código ahora prioriza el token de variables de entorno sobre el de BD
+- Manejo de errores mejorado con mensajes descriptivos
+- Logging detallado para debugging
+
+**Estado**: ✅ RESUELTO - Envío de mensajes funcionando correctamente
+
 ---
 
 ### 🔴 Día 6: Mejoras de UI, Funcionalidades Avanzadas y Documentación ✅ COMPLETADO
@@ -601,6 +612,7 @@ CREATE POLICY "Users can update own whatsapp integration"
 - [x] Diseño profesional tipo WhatsApp Web
 - [x] Optimización de actualizaciones
 - [x] Suscripciones en tiempo real optimizadas
+- [x] **Envío de mensajes funcionando correctamente** (16 Ene 2026 - ✅ VERIFICADO)
 
 ### Día 6 🟡 EN PROGRESO
 - [x] Dashboard básico funcionando
@@ -621,20 +633,23 @@ CREATE POLICY "Users can update own whatsapp integration"
 
 ---
 
-**Última actualización**: Día 6 - ✅ COMPLETADO (15 Ene 2026)
-**Estado**: ✅ TODOS LOS DÍAS COMPLETADOS (1, 2, 3, 4, 5 y 6)
+**Última actualización**: Día 6 - ✅ COMPLETADO (16 Ene 2026)
+**Estado**: ✅ TODOS LOS DÍAS COMPLETADOS (1, 2, 3, 4, 5 y 6) - ✅ ENVÍO DE MENSAJES FUNCIONANDO
 
 ## 🎉 Logros Principales
 
 ### ✅ Sistema Funcional Completo
 - ✅ Recepción de mensajes en tiempo real funcionando
-- ✅ Envío de mensajes desde la UI funcionando
+- ✅ **Envío de mensajes desde la UI funcionando** (16 Ene 2026 - ✅ VERIFICADO)
 - ✅ Diseño profesional tipo WhatsApp Web
 - ✅ Sistema multi-tenant operativo
 - ✅ Webhook desplegado y funcionando en producción
 - ✅ Integración con Meta WhatsApp Business API completa
+- ✅ Configuración de access token permanente funcionando
 
-### 🔧 Correcciones Realizadas (15 Ene 2026)
+### 🔧 Correcciones Realizadas
+
+#### 15 Ene 2026
 - ✅ Error de sintaxis en webhook (variable `messageData` duplicada) → Corregido
 - ✅ Integración no encontrada (duplicados y phone_number_id incorrecto) → Resuelto
 - ✅ Trigger de `updated_at` corregido en base de datos
@@ -642,6 +657,20 @@ CREATE POLICY "Users can update own whatsapp integration"
 - ✅ Diseño del chat mejorado profesionalmente tipo WhatsApp Web
 - ✅ Actualizaciones constantes cada 2 segundos resueltas
 - ✅ Error 400 al marcar mensajes como leídos → Corregido (manejo de errores mejorado)
+
+#### 16 Ene 2026
+- ✅ **Error "Edge Function returned a non-2xx status code" al enviar mensajes** → SOLUCIONADO
+  - Problema: `access_token` no disponible (ni en BD ni en variables de entorno)
+  - Causa: Token temporal de `client_credentials` no funciona para enviar mensajes
+  - Solución: Configurar `WHATSAPP_ACCESS_TOKEN` permanente en Supabase Edge Functions → Secrets
+  - Mejoras implementadas:
+    - Prioridad a token de variables de entorno sobre token de BD
+    - Manejo de errores mejorado con mensajes descriptivos
+    - Logging detallado para debugging
+    - Fallback a token temporal con advertencias claras
+- ✅ Envío de mensajes desde dashboard funcionando correctamente
+- ✅ Manejo de errores mejorado en edge function `whatsapp-send-message`
+- ✅ Guardado de `phone_number_id` y `access_token` en modo simulado mejorado
 
 ### 📊 Estadísticas del Proyecto
 - **Edge Functions creadas**: 4 

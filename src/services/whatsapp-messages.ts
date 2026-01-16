@@ -212,7 +212,7 @@ export async function markMessagesAsRead(chatId: string) {
       .from('messages')
       .update({ read: true })
       .eq('chat_id', chatId)
-      .eq('sender_type', 'user')
+      .eq('sender', 'user')
       .eq('read', false);
 
     if (error) {

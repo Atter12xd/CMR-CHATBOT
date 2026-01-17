@@ -1,11 +1,38 @@
-import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { useOrganization } from '../hooks/useOrganization';
 import WhatsAppIntegration from './WhatsAppIntegration';
 import CreateOrganizationButton from './CreateOrganizationButton';
 
 export default function ConfigPage() {
   const { organizationId, loading, refetch: loadOrganization } = useOrganization();
+  const [oauthStatus, setOauthStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  // Verificar parámetros de URL para mensajes de OAuth
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const success = urlParams.get('success');
+    const error = urlParams.get('error');
+    const connected = urlParams.get('connected');
+
+    if (success && connected) {
+      setOauthStatus({
+        type: 'success',
+        message: '¡WhatsApp conectado exitosamente vía Facebook!',
+      });
+      // Limpiar URL
+      window.history.replaceState({}, '', '/configuracion');
+    } else if (error) {
+      setOauthStatus({
+        type: 'error',
+        message: decodeURIComponent(error),
+      });
+      // Limpiar URL
+      window.history.replaceState({}, '', '/configuracion');
+    }
+  }, []);
 
   if (loading) {
     return (
@@ -58,6 +85,28 @@ export default function ConfigPage() {
             Conecta tu número de WhatsApp Business para recibir y enviar mensajes desde tu CMR
           </p>
         </div>
+
+        {/* Mensaje de OAuth */}
+        {oauthStatus && (
+          <div className={`mb-6 p-4 rounded-lg border ${
+            oauthStatus.type === 'success' 
+              ? 'bg-green-50 border-green-200' 
+              : 'bg-red-50 border-red-200'
+          }`}>
+            <div className="flex items-start space-x-3">
+              {oauthStatus.type === 'success' ? (
+                <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+              ) : (
+                <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+              )}
+              <p className={`text-sm font-medium ${
+                oauthStatus.type === 'success' ? 'text-green-900' : 'text-red-900'
+              }`}>
+                {oauthStatus.message}
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* WhatsApp Integration */}
         <WhatsAppIntegration organizationId={organizationId} />

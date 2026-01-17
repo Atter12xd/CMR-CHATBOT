@@ -81,6 +81,35 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
     }
   };
 
+  const handleConnectWithFacebook = () => {
+    // Construir URL de OAuth de Facebook
+    const appId = '1697684594201061'; // Tu App ID de Facebook
+    const redirectUri = `${window.location.origin}/api/auth/facebook/callback`;
+    // Usar URL de Supabase directamente (debe configurarse en Facebook App)
+    const supabaseCallbackUri = 'https://fsnolvozwcnbyuradiru.supabase.co/functions/v1/whatsapp-oauth-callback';
+    
+    // Scopes necesarios para WhatsApp Business API
+    const scopes = [
+      'business_management',
+      'whatsapp_business_management',
+      'whatsapp_business_messaging',
+    ].join(',');
+
+    // State contiene el organizationId para identificarlo en el callback
+    const state = encodeURIComponent(organizationId);
+
+    // URL de autorización de Facebook
+    const facebookAuthUrl = `https://www.facebook.com/v21.0/dialog/oauth?` +
+      `client_id=${appId}&` +
+      `redirect_uri=${encodeURIComponent(supabaseCallbackUri)}&` +
+      `scope=${scopes}&` +
+      `state=${state}&` +
+      `response_type=code`;
+
+    // Redirigir a Facebook OAuth
+    window.location.href = facebookAuthUrl;
+  };
+
   const handleStartConnection = async () => {
     if (!phoneNumber.trim()) {
       setError('Por favor ingresa un número de teléfono');
@@ -160,8 +189,13 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
       // Actualizar integración
       await loadIntegration();
       
-      // Iniciar polling del estado si está pendiente
-      const updatedIntegration = await loadIntegration();
+      // Verificar estado actualizado
+      const { data: updatedIntegration } = await supabase
+        .from('whatsapp_integrations')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .maybeSingle();
+      
       if (updatedIntegration?.status === 'pending') {
         startStatusPolling();
       } else {
@@ -504,6 +538,44 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Conectar WhatsApp Business</h3>
           
           <div className="space-y-4">
+            {/* Botón OAuth - Conectar con Facebook */}
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-900 mb-3 font-medium">
+                💡 Método Recomendado: Conecta tu cuenta de Meta Business
+              </p>
+              <button
+                onClick={handleConnectWithFacebook}
+                disabled={connecting}
+                className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-[#1877F2] text-white rounded-lg hover:bg-[#166FE5] transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+              >
+                {connecting ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    <span>Conectando...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    </svg>
+                    <span>Conectar con Facebook</span>
+                  </>
+                )}
+              </button>
+              <p className="text-xs text-blue-700 mt-2">
+                Conecta tu cuenta de Meta Business Manager para gestionar tus números de WhatsApp fácilmente
+              </p>
+            </div>
+
+            {/* Separador */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">O conecta manualmente</span>
+              </div>
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Número de teléfono

@@ -66,12 +66,26 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
       }
 
       if (data) {
-        setIntegration(data);
-        if (data.status === 'connected') {
-          setStep('connected');
-        } else if (data.status === 'pending') {
-          setStep('verification');
+        // Si está desconectado, no mostrar como integración activa
+        if (data.status === 'disconnected') {
+          setIntegration(null);
+          setStep('input');
+          setPhoneNumber('');
+          setVerificationCode('');
+        } else {
+          setIntegration(data);
+          if (data.status === 'connected') {
+            setStep('connected');
+          } else if (data.status === 'pending') {
+            setStep('verification');
+          }
         }
+      } else {
+        // No hay integración, resetear estado
+        setIntegration(null);
+        setStep('input');
+        setPhoneNumber('');
+        setVerificationCode('');
       }
     } catch (err: any) {
       console.error('Error loading integration:', err);
@@ -281,10 +295,15 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
       const { disconnectWhatsApp } = await import('../services/whatsapp-integration');
       await disconnectWhatsApp({ organizationId });
 
+      // Recargar integración para actualizar estado (ahora será 'disconnected' o null)
+      await loadIntegration();
+      
+      // Asegurar que el formulario de conexión esté visible
       setIntegration(null);
       setStep('input');
       setPhoneNumber('');
       setVerificationCode('');
+      setCheckingStatus(false);
     } catch (err: any) {
       console.error('Error disconnecting:', err);
       setError(err.message || 'Error al desconectar');
@@ -444,8 +463,8 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
 
   return (
     <div className="space-y-6">
-      {/* Estado actual */}
-      {integration && (
+      {/* Estado actual - Solo mostrar si está conectado o pendiente */}
+      {integration && integration.status !== 'disconnected' && (
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
@@ -532,8 +551,8 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
         </div>
       )}
 
-      {/* Formulario de conexión */}
-      {step === 'input' && !integration && (
+      {/* Formulario de conexión - Mostrar si no hay integración o está desconectado */}
+      {(step === 'input' && (!integration || integration.status === 'disconnected')) && (
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Conectar WhatsApp Business</h3>
           

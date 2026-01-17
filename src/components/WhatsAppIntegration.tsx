@@ -43,6 +43,8 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
     avgResponseTime: 0,
   });
   const [loadingMetrics, setLoadingMetrics] = useState(false);
+  const [checkingStatus, setCheckingStatus] = useState(false);
+  const [statusCheckCount, setStatusCheckCount] = useState(0);
   const supabase = createClient();
 
   useEffect(() => {
@@ -157,13 +159,75 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
 
       // Actualizar integración
       await loadIntegration();
-      setStep('connected');
+      
+      // Iniciar polling del estado si está pendiente
+      const updatedIntegration = await loadIntegration();
+      if (updatedIntegration?.status === 'pending') {
+        startStatusPolling();
+      } else {
+        setStep('connected');
+      }
     } catch (err: any) {
       console.error('Error verifying code:', err);
       setError(err.message || 'Error al verificar el código');
     } finally {
       setConnecting(false);
     }
+  };
+
+  // Polling del estado del número después de verificar código
+  const startStatusPolling = async () => {
+    setCheckingStatus(true);
+    setStatusCheckCount(0);
+    
+    const maxAttempts = 20; // Máximo 20 intentos (10 minutos con intervalos de 30s)
+    let attempts = 0;
+    
+    const checkStatus = async () => {
+      try {
+        attempts++;
+        setStatusCheckCount(attempts);
+        
+        const { checkNumberStatus } = await import('../services/whatsapp-integration');
+        await checkNumberStatus(organizationId, integration?.phone_number_id || undefined);
+        
+        // Recargar integración para obtener estado actualizado
+        await loadIntegration();
+        const { data: currentIntegrationData } = await supabase
+          .from('whatsapp_integrations')
+          .select('*')
+          .eq('organization_id', organizationId)
+          .maybeSingle();
+        
+        const currentIntegration = currentIntegrationData;
+        
+        if (currentIntegration?.status === 'connected') {
+          // ¡Conectado! Detener polling
+          setCheckingStatus(false);
+          setStep('connected');
+          return;
+        }
+        
+        // Si no está conectado y no hemos alcanzado el máximo, seguir intentando
+        if (attempts < maxAttempts && currentIntegration?.status === 'pending') {
+          setTimeout(checkStatus, 30000); // Esperar 30 segundos
+        } else if (attempts >= maxAttempts) {
+          // Límite alcanzado
+          setCheckingStatus(false);
+          setError('El número está tardando en activarse. Por favor recarga la página más tarde.');
+        }
+      } catch (err: any) {
+        console.error('Error checking status:', err);
+        if (attempts < maxAttempts) {
+          setTimeout(checkStatus, 30000);
+        } else {
+          setCheckingStatus(false);
+        }
+      }
+    };
+    
+    // Iniciar primer check después de 5 segundos
+    setTimeout(checkStatus, 5000);
   };
 
   const handleDisconnect = async () => {
@@ -487,65 +551,93 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
       )}
 
       {/* Verificación de código */}
-      {step === 'verification' && (
+      {(step === 'verification' || checkingStatus) && (
         <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Verificar Número</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            {checkingStatus ? 'Activando tu número...' : 'Verificar Número'}
+          </h3>
           
-          <div className="space-y-4">
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm text-blue-800">
-                Se ha enviado un código de verificación de 6 dígitos al número <strong>{phoneNumber}</strong>.
-                Por favor, ingresa el código recibido.
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Código de verificación
-              </label>
-              <input
-                type="text"
-                value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                placeholder="123456"
-                maxLength={6}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-center text-2xl tracking-widest"
-              />
-            </div>
-
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-700">{error}</p>
+          {checkingStatus ? (
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                  <div>
+                    <p className="text-sm font-medium text-blue-900">
+                      Activando tu número, esto puede tomar hasta 2 minutos...
+                    </p>
+                    <p className="text-xs text-blue-700 mt-1">
+                      Verificando estado ({statusCheckCount}/20)...
+                    </p>
+                  </div>
+                </div>
               </div>
-            )}
-
-            <div className="flex space-x-3">
-              <button
-                onClick={() => {
-                  setStep('input');
-                  setVerificationCode('');
-                  setError(null);
-                }}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleVerifyCode}
-                disabled={connecting || verificationCode.length !== 6}
-                className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {connecting ? (
-                  <span className="flex items-center justify-center">
-                    <Loader2 size={18} className="animate-spin mr-2" />
-                    Verificando...
-                  </span>
-                ) : (
-                  'Verificar'
-                )}
-              </button>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${Math.min((statusCheckCount / 20) * 100, 100)}%` }}
+                />
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  Se ha enviado un código de verificación de 6 dígitos al número <strong>{phoneNumber}</strong>.
+                  Por favor, ingresa el código recibido.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Código de verificación
+                </label>
+                <input
+                  type="text"
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="123456"
+                  maxLength={6}
+                  disabled={checkingStatus}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-center text-2xl tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+              </div>
+
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-700">{error}</p>
+                </div>
+              )}
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => {
+                    setStep('input');
+                    setVerificationCode('');
+                    setError(null);
+                  }}
+                  disabled={checkingStatus}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleVerifyCode}
+                  disabled={connecting || verificationCode.length !== 6 || checkingStatus}
+                  className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {connecting ? (
+                    <span className="flex items-center justify-center">
+                      <Loader2 size={18} className="animate-spin mr-2" />
+                      Verificando...
+                    </span>
+                  ) : (
+                    'Verificar'
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

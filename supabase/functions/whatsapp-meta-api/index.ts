@@ -10,7 +10,7 @@ const corsHeaders = {
 const META_GRAPH_API_BASE = 'https://graph.facebook.com/v21.0';
 
 interface RequestBody {
-  action: 'register_phone' | 'get_phone_id' | 'request_code' | 'verify_code' | 'get_access_token';
+  action: 'register_phone' | 'get_phone_id' | 'request_code' | 'verify_code' | 'get_access_token' | 'check_status';
   organizationId: string;
   phoneNumber?: string;
   code?: string;
@@ -297,6 +297,63 @@ serve(async (req) => {
           JSON.stringify({ success: true, accessToken }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
+
+      case 'check_status':
+        if (!phoneNumberId) {
+          // Si no se proporciona phoneNumberId, buscar en la integración
+          if (!integration?.phone_number_id) {
+            return new Response(
+              JSON.stringify({ error: 'Phone number ID required' }),
+              { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+          phoneNumberId = integration.phone_number_id;
+        }
+        
+        try {
+          const phoneInfo = await getPhoneNumberInfo(accessToken, phoneNumberId);
+          
+          // Determinar estado basándose en code_verification_status
+          // Meta devuelve: 'VERIFIED', 'UNVERIFIED', 'PENDING'
+          let status = 'pending';
+          if (phoneInfo.code_verification_status === 'VERIFIED') {
+            status = 'connected';
+          } else if (phoneInfo.code_verification_status === 'UNVERIFIED') {
+            status = 'error';
+          }
+          
+          // Actualizar estado en BD si ha cambiado
+          if (integration && integration.status !== status) {
+            await supabase
+              .from('whatsapp_integrations')
+              .update({
+                status,
+                last_sync_at: new Date().toISOString(),
+                error_message: status === 'error' ? 'Número no verificado' : null,
+              })
+              .eq('organization_id', organizationId);
+          }
+          
+          return new Response(
+            JSON.stringify({ 
+              success: true, 
+              status,
+              phoneInfo,
+              code_verification_status: phoneInfo.code_verification_status 
+            }),
+            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } catch (error: any) {
+          // Si falla, retornar estado actual de BD
+          return new Response(
+            JSON.stringify({ 
+              success: true, 
+              status: integration?.status || 'pending',
+              error: error.message 
+            }),
+            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
 
       default:
         return new Response(

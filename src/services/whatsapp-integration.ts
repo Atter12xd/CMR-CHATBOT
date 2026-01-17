@@ -132,3 +132,31 @@ export async function getIntegrationStatus(organizationId: string) {
   return data;
 }
 
+/**
+ * Verifica el estado del número en Meta API
+ */
+export async function checkNumberStatus(organizationId: string, phoneNumberId?: string) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    throw new Error('No hay sesión activa');
+  }
+
+  try {
+    const { data: result, error } = await supabase.functions.invoke('super-worker', {
+      body: {
+        action: 'check_status',
+        organizationId,
+        phoneNumberId,
+      },
+    });
+
+    if (error) {
+      throw new Error(error.message || 'Error al verificar estado');
+    }
+
+    return result;
+  } catch (err: any) {
+    console.error('Error checking number status:', err);
+    throw err;
+  }
+}

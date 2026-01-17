@@ -152,7 +152,7 @@ export default function RegisterForm() {
               Crea tu cuenta
             </h2>
             <p className="text-sm text-gray-500">
-              Te enviaremos un código de verificación a tu correo
+              Recibirás un código de 6 dígitos en tu correo para verificar tu cuenta
             </p>
           </div>
 

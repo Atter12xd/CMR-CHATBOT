@@ -162,6 +162,11 @@ export default function OTPVerification({
             <p className="text-sm font-semibold text-primary-600 break-all">
               {emailOrPhone}
             </p>
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-xs text-blue-800">
+                💡 <strong>Tip:</strong> Si recibiste un enlace, haz clic en él. Si recibiste un código de 6 dígitos, ingrésalo arriba.
+              </p>
+            </div>
           </div>
 
           {/* Form */}

@@ -68,13 +68,15 @@ export function useAuth() {
     };
   }, []);
 
-  // Enviar OTP por email
+  // Enviar OTP por email - Envía código de 6 dígitos en lugar de enlace
   const sendOTPEmail = async (email: string) => {
     setAuthState((prev) => ({ ...prev, loading: true, error: null }));
     const { data, error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/`,
+        // No usar emailRedirectTo para que envíe código de 6 dígitos
+        // emailRedirectTo: `${window.location.origin}/`,
+        shouldCreateUser: true, // Permitir crear usuario si no existe
       },
     });
     

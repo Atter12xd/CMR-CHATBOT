@@ -557,10 +557,16 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Conectar WhatsApp Business</h3>
           
           <div className="space-y-4">
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
+
             {/* Botón OAuth - Conectar con Facebook */}
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm text-blue-900 mb-3 font-medium">
-                💡 Método Recomendado: Conecta tu cuenta de Meta Business
+                Conecta tu cuenta de Meta Business Manager
               </p>
               <button
                 onClick={handleConnectWithFacebook}
@@ -582,153 +588,41 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
                 )}
               </button>
               <p className="text-xs text-blue-700 mt-2">
-                Conecta tu cuenta de Meta Business Manager para gestionar tus números de WhatsApp fácilmente
+                Al conectar, podrás gestionar tus números de WhatsApp Business de forma fácil y segura
               </p>
             </div>
-
-            {/* Separador */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">O conecta manualmente</span>
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Número de teléfono
-              </label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                <input
-                  type="tel"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="+51987654321"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
-              </div>
-              <p className="mt-1 text-xs text-gray-500">
-                Usa formato internacional con código de país (ej: +51987654321)
-              </p>
-            </div>
-
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-700">{error}</p>
-              </div>
-            )}
-
-            <button
-              onClick={handleStartConnection}
-              disabled={connecting || !phoneNumber.trim()}
-              className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {connecting ? (
-                <>
-                  <Loader2 size={18} className="animate-spin" />
-                  <span>Conectando...</span>
-                </>
-              ) : (
-                <>
-                  <Key size={18} />
-                  <span>Iniciar Conexión</span>
-                </>
-              )}
-            </button>
           </div>
         </div>
       )}
 
-      {/* Verificación de código */}
-      {(step === 'verification' || checkingStatus) && (
+      {/* Mostrar progreso de activación si está verificando estado (solo para polling automático) */}
+      {checkingStatus && (
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            {checkingStatus ? 'Activando tu número...' : 'Verificar Número'}
+            Activando tu número...
           </h3>
           
-          {checkingStatus ? (
-            <div className="space-y-4">
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
-                  <div>
-                    <p className="text-sm font-medium text-blue-900">
-                      Activando tu número, esto puede tomar hasta 2 minutos...
-                    </p>
-                    <p className="text-xs text-blue-700 mt-1">
-                      Verificando estado ({statusCheckCount}/20)...
-                    </p>
-                  </div>
+          <div className="space-y-4">
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center space-x-3">
+                <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                <div>
+                  <p className="text-sm font-medium text-blue-900">
+                    Activando tu número, esto puede tomar hasta 2 minutos...
+                  </p>
+                  <p className="text-xs text-blue-700 mt-1">
+                    Verificando estado ({statusCheckCount}/20)...
+                  </p>
                 </div>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${Math.min((statusCheckCount / 20) * 100, 100)}%` }}
-                />
-              </div>
             </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-800">
-                  Se ha enviado un código de verificación de 6 dígitos al número <strong>{phoneNumber}</strong>.
-                  Por favor, ingresa el código recibido.
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Código de verificación
-                </label>
-                <input
-                  type="text"
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  placeholder="123456"
-                  maxLength={6}
-                  disabled={checkingStatus}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-center text-2xl tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
-                />
-              </div>
-
-              {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-sm text-red-700">{error}</p>
-                </div>
-              )}
-
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => {
-                    setStep('input');
-                    setVerificationCode('');
-                    setError(null);
-                  }}
-                  disabled={checkingStatus}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleVerifyCode}
-                  disabled={connecting || verificationCode.length !== 6 || checkingStatus}
-                  className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {connecting ? (
-                    <span className="flex items-center justify-center">
-                      <Loader2 size={18} className="animate-spin mr-2" />
-                      Verificando...
-                    </span>
-                  ) : (
-                    'Verificar'
-                  )}
-                </button>
-              </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${Math.min((statusCheckCount / 20) * 100, 100)}%` }}
+              />
             </div>
-          )}
+          </div>
         </div>
       )}
 

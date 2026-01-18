@@ -80,23 +80,13 @@ export const POST: APIRoute = async ({ request }) => {
         .eq('code', code);
     }
 
-    // Generar URL de OAuth de Facebook con el código QR en el state
-    const appId = '1697684594201061'; // Tu App ID
-    const redirectUri = `${supabaseUrl}/functions/v1/whatsapp-oauth-callback`;
-    const scopes = 'business_management,whatsapp_business_management,whatsapp_business_messaging';
-    const state = code; // Usar el código QR como state para identificarlo en el callback
-    
-    const oauthUrl = `https://www.facebook.com/v21.0/dialog/oauth?` +
-      `client_id=${appId}` +
-      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-      `&scope=${encodeURIComponent(scopes)}` +
-      `&state=${encodeURIComponent(state)}` +
-      `&response_type=code`;
-
+    // Retornar organización ID para mostrar formulario de número de teléfono
+    // (SIN OAuth - usando verificación directa por SMS mientras esperamos permisos)
     return new Response(
       JSON.stringify({ 
-        success: true, 
-        oauthUrl 
+        success: true,
+        organizationId: qrCode.organization_id,
+        code: code
       }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );

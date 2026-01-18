@@ -190,7 +190,7 @@ async function processIncomingMessage(
   // Guardar mensaje
   const messageToSave = {
     chat_id: chatId,
-    sender: 'user',
+    sender_type: 'user', // Campo correcto según schema
     text: messageText,
     image_url: imageUrl,
     platform_message_id: messageId,

@@ -31,52 +31,87 @@ if (!code) {
         </p>
       </div>
 
-      <!-- Botón de conexión -->
+      <!-- Formulario para ingresar número de WhatsApp -->
       <div id="connect-container" class="space-y-4">
-        <button
-          id="connect-btn"
-          class="w-full bg-[#1877F2] hover:bg-[#166FE5] text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
-        >
-          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-          </svg>
-          <span>Conectar con WhatsApp</span>
-        </button>
-
-        <div id="loading" class="hidden text-center">
-          <div class="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-2"></div>
-          <p class="text-sm text-gray-600">Procesando...</p>
+        <!-- Paso 1: Ingresar número -->
+        <div id="phone-form" class="space-y-4">
+          <div>
+            <label for="phone-input" class="block text-sm font-medium text-gray-700 mb-2">
+              Tu número de WhatsApp Business
+            </label>
+            <input
+              type="tel"
+              id="phone-input"
+              placeholder="+51987654321"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              autocomplete="tel"
+            />
+            <p class="mt-1 text-xs text-gray-500">Ingresa el número que quieres conectar (formato internacional con código de país)</p>
+          </div>
+          <button
+            id="connect-btn"
+            class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            <span>Conectar mi número</span>
+          </button>
         </div>
 
+        <!-- Loading -->
+        <div id="loading" class="hidden text-center">
+          <div class="inline-block w-12 h-12 border-4 border-green-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p id="loading-message" class="text-sm text-gray-600">Procesando...</p>
+        </div>
+
+        <!-- Error -->
         <div id="error" class="hidden bg-red-50 border border-red-200 rounded-lg p-4">
           <p id="error-message" class="text-sm text-red-700 text-center"></p>
+        </div>
+
+        <!-- Success -->
+        <div id="success" class="hidden bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+          <div class="flex items-center justify-center mb-2">
+            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <p class="text-sm font-semibold text-green-900 mb-1">¡WhatsApp conectado exitosamente!</p>
+          <p class="text-xs text-green-700">Redirigiendo al dashboard...</p>
         </div>
       </div>
 
       <!-- Instrucciones -->
       <div class="text-center text-xs text-gray-500 space-y-2">
-        <p>Al hacer clic en "Conectar", serás redirigido a Facebook para autorizar la conexión</p>
-        <p>Necesitarás permisos de administrador en tu cuenta de Meta Business</p>
+        <p>Ingresa el número de WhatsApp Business que deseas conectar</p>
+        <p>Cada organización puede conectar su propio número individual</p>
       </div>
     </div>
   </main>
 </Layout>
 
 <script define:vars={{ code }}>
+  const phoneForm = document.getElementById('phone-form');
+  const phoneInput = document.getElementById('phone-input') as HTMLInputElement;
   const connectBtn = document.getElementById('connect-btn');
   const loading = document.getElementById('loading');
+  const loadingMessage = document.getElementById('loading-message');
   const errorDiv = document.getElementById('error');
   const errorMessage = document.getElementById('error-message');
+  const successDiv = document.getElementById('success');
   const connectContainer = document.getElementById('connect-container');
+  
+  let organizationId: string | null = null;
 
-  connectBtn?.addEventListener('click', async () => {
+  // Verificar código QR al cargar
+  async function verifyQRCode() {
     try {
-      // Mostrar loading
-      connectBtn.style.display = 'none';
       loading?.classList.remove('hidden');
+      loadingMessage.textContent = 'Verificando código QR...';
       errorDiv?.classList.add('hidden');
+      phoneForm?.classList.add('hidden');
 
-      // Verificar código QR y obtener URL de OAuth
       const response = await fetch('/api/qr/verify', {
         method: 'POST',
         headers: {
@@ -91,20 +126,96 @@ if (!code) {
         throw new Error(data.error || 'Error al verificar código QR');
       }
 
-      // Redirigir a OAuth de Facebook
-      if (data.oauthUrl) {
-        window.location.href = data.oauthUrl;
-      } else {
-        throw new Error('URL de OAuth no disponible');
+      organizationId = data.organizationId;
+      
+      loading?.classList.add('hidden');
+      phoneForm?.classList.remove('hidden');
+    } catch (err: any) {
+      console.error('Error verificando QR:', err);
+      loading?.classList.add('hidden');
+      errorDiv?.classList.remove('hidden');
+      errorMessage.textContent = err.message || 'Error al verificar código QR. Por favor intenta nuevamente.';
+    }
+  }
+
+  // Conectar número específico de la organización
+  async function connectPhoneNumber() {
+    const phoneNumber = phoneInput?.value.trim();
+    
+    if (!phoneNumber) {
+      showError('Por favor ingresa un número de teléfono');
+      return;
+    }
+
+    // Validar formato de número
+    const phoneRegex = /^\+[1-9]\d{1,14}$/;
+    if (!phoneRegex.test(phoneNumber)) {
+      showError('Formato inválido. Usa formato internacional: +51987654321');
+      return;
+    }
+
+    if (!organizationId) {
+      showError('Error: No se pudo identificar la organización');
+      return;
+    }
+
+    try {
+      loading?.classList.remove('hidden');
+      loadingMessage.textContent = 'Buscando y conectando tu número de WhatsApp...';
+      errorDiv?.classList.add('hidden');
+      phoneForm?.classList.add('hidden');
+
+      // Conectar número específico - sistema busca/registra el número en Meta y obtiene su phone_number_id único
+      const connectResponse = await fetch('/api/qr/connect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          code,
+          organizationId,
+          phoneNumber // Número específico de esta organización
+        }),
+      });
+
+      const connectData = await connectResponse.json();
+
+      if (!connectResponse.ok || !connectData.success) {
+        throw new Error(connectData.error || 'Error al conectar WhatsApp');
       }
+
+      // Éxito - mostrar mensaje y redirigir
+      loading?.classList.add('hidden');
+      connectContainer?.classList.add('hidden');
+      successDiv?.classList.remove('hidden');
+
+      // Redirigir al dashboard después de 2 segundos
+      setTimeout(() => {
+        window.location.href = '/configuracion?success=true&connected=true';
+      }, 2000);
     } catch (err: any) {
       console.error('Error conectando:', err);
       loading?.classList.add('hidden');
-      connectBtn.style.display = 'flex';
-      errorDiv?.classList.remove('hidden');
-      errorMessage.textContent = err.message || 'Error al conectar. Por favor intenta nuevamente.';
+      phoneForm?.classList.remove('hidden');
+      showError(err.message || 'Error al conectar WhatsApp. Por favor intenta nuevamente.');
+    }
+  }
+
+  function showError(message: string) {
+    errorDiv?.classList.remove('hidden');
+    errorMessage.textContent = message;
+  }
+
+  // Event listeners
+  connectBtn?.addEventListener('click', connectPhoneNumber);
+  phoneInput?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      connectPhoneNumber();
     }
   });
+
+  // Iniciar verificación al cargar
+  verifyQRCode();
 </script>
 
 <style>

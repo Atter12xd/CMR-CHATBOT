@@ -58,14 +58,7 @@ export async function checkQRStatus(code: string): Promise<QRStatusResponse> {
   }
 
   try {
-    const { data, error } = await supabase.functions.invoke('whatsapp-qr-generate', {
-      method: 'GET',
-      headers: {
-        'code': code,
-      },
-    });
-
-    // Obtener URL de Supabase desde las variables de entorno
+    // Usar fetch directo con query params (no headers personalizados para evitar CORS)
     const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || '';
     const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY || '';
     

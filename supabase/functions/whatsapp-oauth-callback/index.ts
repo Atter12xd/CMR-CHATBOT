@@ -103,15 +103,18 @@ serve(async (req) => {
     const error = url.searchParams.get('error');
     const errorDescription = url.searchParams.get('error_description');
 
+    // Obtener URL del frontend desde variable de entorno o usar la actual
+    const frontendUrl = Deno.env.get('FRONTEND_URL') || Deno.env.get('PUBLIC_SITE_URL') || 'https://cmr-chatbot-two.vercel.app';
+
     // Si hay error de OAuth
     if (error) {
-      const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://wazapp.ai'}/configuracion?error=${encodeURIComponent(errorDescription || error)}`;
+      const redirectUrl = `${frontendUrl}/configuracion?error=${encodeURIComponent(errorDescription || error)}`;
       return Response.redirect(redirectUrl, 302);
     }
 
     // Validar que tenemos código y state
     if (!code || !state) {
-      const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://wazapp.ai'}/configuracion?error=${encodeURIComponent('Faltan parámetros de autorización')}`;
+      const redirectUrl = `${frontendUrl}/configuracion?error=${encodeURIComponent('Faltan parámetros de autorización')}`;
       return Response.redirect(redirectUrl, 302);
     }
 
@@ -140,13 +143,13 @@ serve(async (req) => {
           .single();
         
         if (qrError || !qrData) {
-          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://wazapp.ai'}/configuracion?error=${encodeURIComponent('Código QR no encontrado o inválido')}`;
+          const redirectUrl = `${frontendUrl}/configuracion?error=${encodeURIComponent('Código QR no encontrado o inválido')}`;
           return Response.redirect(redirectUrl, 302);
         }
         
         // Verificar que el QR esté en estado válido
         if (qrData.status === 'expired' || qrData.status === 'used') {
-          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://wazapp.ai'}/configuracion?error=${encodeURIComponent('Código QR ya fue utilizado o expiró')}`;
+          const redirectUrl = `${frontendUrl}/configuracion?error=${encodeURIComponent('Código QR ya fue utilizado o expiró')}`;
           return Response.redirect(redirectUrl, 302);
         }
         
@@ -156,7 +159,7 @@ serve(async (req) => {
         organizationId = decodedState;
       }
     } catch {
-      const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://wazapp.ai'}/configuracion?error=${encodeURIComponent('State inválido')}`;
+      const redirectUrl = `${frontendUrl}/configuracion?error=${encodeURIComponent('State inválido')}`;
       return Response.redirect(redirectUrl, 302);
     }
 
@@ -189,7 +192,7 @@ serve(async (req) => {
 
     // Si no hay cuentas de negocio, redirigir con error
     if (!businessAccounts || businessAccounts.length === 0) {
-      const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://wazapp.ai'}/configuracion?error=${encodeURIComponent('No se encontraron cuentas de WhatsApp Business. Asegúrate de tener una cuenta configurada en Meta Business Manager.')}`;
+      const redirectUrl = `${frontendUrl}/configuracion?error=${encodeURIComponent('No se encontraron cuentas de WhatsApp Business. Asegúrate de tener una cuenta configurada en Meta Business Manager.')}`;
       return Response.redirect(redirectUrl, 302);
     }
 
@@ -225,7 +228,7 @@ serve(async (req) => {
 
     if (dbError) {
       console.error('Error guardando integración:', dbError);
-      const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://wazapp.ai'}/configuracion?error=${encodeURIComponent('Error al guardar configuración')}`;
+      const redirectUrl = `${frontendUrl}/configuracion?error=${encodeURIComponent('Error al guardar configuración')}`;
       return Response.redirect(redirectUrl, 302);
     }
 
@@ -241,12 +244,13 @@ serve(async (req) => {
     }
 
     // Redirigir a la página de configuración con éxito
-    const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://wazapp.ai'}/configuracion?success=true&connected=true`;
+    const redirectUrl = `${frontendUrl}/configuracion?success=true&connected=true`;
     return Response.redirect(redirectUrl, 302);
   } catch (error: any) {
     console.error('Error en OAuth callback:', error);
     const errorMessage = error.message || 'Error desconocido en la autorización';
-    const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://wazapp.ai'}/configuracion?error=${encodeURIComponent(errorMessage)}`;
+    const frontendUrl = Deno.env.get('FRONTEND_URL') || Deno.env.get('PUBLIC_SITE_URL') || 'https://cmr-chatbot-two.vercel.app';
+    const redirectUrl = `${frontendUrl}/configuracion?error=${encodeURIComponent(errorMessage)}`;
     return Response.redirect(redirectUrl, 302);
   }
 });

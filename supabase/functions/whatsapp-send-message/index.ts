@@ -312,11 +312,26 @@
         );
       }
 
+      // PRIORIDAD: Usar phone_number_id de la integración ESPECÍFICA de esta organización
+      // Cada organización puede tener su propio número, así que debemos usar el suyo
+      let phoneNumberId = integration.phone_number_id || null;
+      
+      if (!phoneNumberId) {
+        console.error('❌ ERROR: Esta integración no tiene phone_number_id');
+        console.error('💡 Solución: Asegúrate de que el número esté correctamente conectado mediante QR');
+        return new Response(
+          JSON.stringify({ 
+            error: 'Esta integración no tiene un número de WhatsApp conectado',
+            details: 'Conecta un número de WhatsApp usando el código QR en la página de configuración'
+          }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       // PRIORIDAD: Usar access_token de variables de entorno PRIMERO
       // El token en BD puede ser temporal (client_credentials) que NO sirve para enviar mensajes
       // Para enviar mensajes necesitas un token permanente de Meta
       let accessToken = Deno.env.get('WHATSAPP_ACCESS_TOKEN') || null;
-      let phoneNumberId = integration.phone_number_id || Deno.env.get('WHATSAPP_PHONE_NUMBER_ID') || null;
 
       // Si no hay access_token en variables de entorno, intentar usar el de BD (puede no funcionar)
       if (!accessToken && integration.access_token) {

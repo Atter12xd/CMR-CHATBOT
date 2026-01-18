@@ -26,23 +26,39 @@ function updateConfigFile(filePath) {
 function walkDir(dir) {
   if (!fs.existsSync(dir)) {
     console.log(`⚠️ Directory ${dir} does not exist`);
-    return;
+    return 0;
   }
   
-  const files = fs.readdirSync(dir);
   let updated = 0;
   
-  for (const file of files) {
-    const filePath = path.join(dir, file);
-    const stat = fs.statSync(filePath);
+  try {
+    const files = fs.readdirSync(dir);
     
-    if (stat.isDirectory()) {
-      updated += walkDir(filePath);
-    } else if (file.endsWith('.json') || file.endsWith('.js') || file.endsWith('.mjs') || file.endsWith('.ts')) {
-      if (updateConfigFile(filePath)) {
-        updated++;
+    for (const file of files) {
+      // Ignorar directorios especiales y symlinks problemáticos
+      if (file === 'proc' || file === 'sys' || file === 'dev') {
+        continue;
+      }
+      
+      const filePath = path.join(dir, file);
+      
+      try {
+        const stat = fs.statSync(filePath);
+        
+        if (stat.isDirectory()) {
+          updated += walkDir(filePath);
+        } else if (file.endsWith('.json') || file === '.vc-config.json') {
+          if (updateConfigFile(filePath)) {
+            updated++;
+          }
+        }
+      } catch (error) {
+        // Ignorar errores de archivos/directorios inaccesibles (symlinks, permisos, etc.)
+        continue;
       }
     }
+  } catch (error) {
+    // Ignorar errores al leer directorios
   }
   
   return updated;

@@ -1,6 +1,14 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
 
+// Handler GET opcional (para evitar warning)
+export const GET: APIRoute = async () => {
+  return new Response(
+    JSON.stringify({ error: 'Método no permitido. Use POST para verificar códigos QR.' }),
+    { status: 405, headers: { 'Content-Type': 'application/json' } }
+  );
+};
+
 export const POST: APIRoute = async ({ request }) => {
   try {
     const { code } = await request.json();

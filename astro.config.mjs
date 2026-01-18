@@ -5,9 +5,7 @@ import vercel from '@astrojs/vercel/serverless';
 
 export default defineConfig({
   output: 'hybrid', // Permite páginas estáticas y SSR
-  adapter: vercel({
-    functionPerRoute: false, // Usar una sola función para reducir costos
-  }),
+  adapter: vercel(),
   integrations: [react(), tailwind()],
   server: {
     port: 4321

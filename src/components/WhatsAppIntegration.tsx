@@ -568,23 +568,55 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
             )}
 
             {/* Opción 1: Conectar con QR */}
-            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-sm text-green-900 mb-3 font-medium">
+            <div className="p-4 bg-green-50 border border-green-200 rounded-lg space-y-3">
+              <p className="text-sm text-green-900 font-medium">
                 Escanea un código QR con tu teléfono
               </p>
+              
+              {/* Campo para ingresar número ANTES de generar QR */}
+              <div>
+                <label htmlFor="qr-phone-input" className="block text-sm font-medium text-gray-700 mb-1">
+                  Tu número de WhatsApp Business
+                </label>
+                <input
+                  id="qr-phone-input"
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="+51987654321"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  disabled={connecting}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Usa formato internacional con código de país
+                </p>
+              </div>
+
               <button
                 onClick={() => {
-                  setStep('qr');
+                  // Validar número antes de generar QR
+                  if (!phoneNumber.trim()) {
+                    setError('Por favor ingresa un número de teléfono');
+                    return;
+                  }
+
+                  const phoneRegex = /^\+[1-9]\d{1,14}$/;
+                  if (!phoneRegex.test(phoneNumber.trim())) {
+                    setError('Formato inválido. Usa formato internacional: +51987654321');
+                    return;
+                  }
+
                   setError(null);
+                  setStep('qr');
                 }}
-                disabled={connecting}
+                disabled={connecting || !phoneNumber.trim()}
                 className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
               >
                 <QrCode size={20} />
-                <span>Vincular con QR</span>
+                <span>Generar QR y Vincular</span>
               </button>
-              <p className="text-xs text-green-700 mt-2">
-                Escanea el código QR con la cámara de tu teléfono para conectar WhatsApp rápidamente
+              <p className="text-xs text-green-700">
+                Escanea el código QR con WhatsApp (Vincular dispositivo) para conectar automáticamente
               </p>
             </div>
 
@@ -631,7 +663,7 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
       )}
 
       {/* Mostrar componente QR cuando se selecciona */}
-      {step === 'qr' && (
+      {step === 'qr' && phoneNumber && (
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">Conectar con Código QR</h3>
@@ -645,8 +677,17 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
               Volver
             </button>
           </div>
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-900">
+              <strong>Número a conectar:</strong> {phoneNumber}
+            </p>
+            <p className="text-xs text-blue-700 mt-1">
+              Escanea este QR con WhatsApp → Vincular dispositivo
+            </p>
+          </div>
           <QRConnectionDisplay
             organizationId={organizationId}
+            phoneNumber={phoneNumber}
             onConnected={() => {
               loadIntegration();
               setStep('connected');

@@ -80,12 +80,24 @@ export const POST: APIRoute = async ({ request }) => {
         .eq('code', code);
     }
 
-    // Retornar organización ID para mostrar formulario de número de teléfono
-    // (SIN OAuth - usando verificación directa por SMS mientras esperamos permisos)
+    // Retornar organización ID y número de teléfono del QR
+    const phoneNumber = qrCode.metadata?.phoneNumber || null;
+    
+    if (!phoneNumber) {
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: 'Este código QR no tiene un número asociado. Por favor genera un nuevo QR.'
+        }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true,
         organizationId: qrCode.organization_id,
+        phoneNumber: phoneNumber, // Número que viene del QR
         code: code
       }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }

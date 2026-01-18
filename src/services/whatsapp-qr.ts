@@ -20,7 +20,7 @@ export interface QRStatusResponse {
 /**
  * Genera un nuevo código QR para conectar WhatsApp
  */
-export async function generateQR(organizationId: string): Promise<QRCodeResponse> {
+export async function generateQR(organizationId: string, phoneNumber: string): Promise<QRCodeResponse> {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
     throw new Error('No hay sesión activa');
@@ -30,6 +30,7 @@ export async function generateQR(organizationId: string): Promise<QRCodeResponse
     const { data, error } = await supabase.functions.invoke('whatsapp-qr-generate', {
       body: {
         organizationId,
+        phoneNumber, // Pasar número al generar QR
       },
     });
 

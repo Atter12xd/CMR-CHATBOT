@@ -4,11 +4,12 @@ import { generateQR, pollQRStatus, type QRStatusResponse } from '../services/wha
 
 interface QRConnectionDisplayProps {
   organizationId: string;
+  phoneNumber: string; // Número ya ingresado antes de generar QR
   onConnected: () => void;
   onError: (error: string) => void;
 }
 
-export default function QRConnectionDisplay({ organizationId, onConnected, onError }: QRConnectionDisplayProps) {
+export default function QRConnectionDisplay({ organizationId, phoneNumber, onConnected, onError }: QRConnectionDisplayProps) {
   const [qrData, setQrData] = useState<{ code: string; qrImage: string; qrUrl: string; expiresAt: string } | null>(null);
   const [status, setStatus] = useState<'pending' | 'scanned' | 'expired' | 'used'>('pending');
   const [loading, setLoading] = useState(true);
@@ -16,14 +17,16 @@ export default function QRConnectionDisplay({ organizationId, onConnected, onErr
   const stopPollingRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
-    generateQRCode();
+    if (phoneNumber) {
+      generateQRCode();
+    }
     return () => {
       // Limpiar polling al desmontar
       if (stopPollingRef.current) {
         stopPollingRef.current();
       }
     };
-  }, [organizationId]);
+  }, [organizationId, phoneNumber]);
 
   // Contador regresivo
   useEffect(() => {
@@ -50,7 +53,7 @@ export default function QRConnectionDisplay({ organizationId, onConnected, onErr
   const generateQRCode = async () => {
     try {
       setLoading(true);
-      const data = await generateQR(organizationId);
+      const data = await generateQR(organizationId, phoneNumber);
       setQrData(data);
       setStatus('pending');
       

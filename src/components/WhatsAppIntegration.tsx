@@ -15,10 +15,12 @@ import {
   Eye,
   Clock,
   TrendingUp,
-  Info
+  Info,
+  QrCode
 } from 'lucide-react';
 import { createClient } from '../lib/supabase';
 import type { Database } from '../lib/database.types';
+import QRConnectionDisplay from './QRConnectionDisplay';
 
 type WhatsAppIntegration = Database['public']['Tables']['whatsapp_integrations']['Row'];
 type IntegrationStatus = WhatsAppIntegration['status'];
@@ -31,7 +33,7 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
   const [integration, setIntegration] = useState<WhatsAppIntegration | null>(null);
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState(false);
-  const [step, setStep] = useState<'input' | 'verification' | 'connected'>('input');
+  const [step, setStep] = useState<'input' | 'verification' | 'connected' | 'qr'>('input');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -98,27 +100,29 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
   const handleConnectWithFacebook = () => {
     // Construir URL de OAuth de Facebook
     const appId = '1697684594201061'; // Tu App ID de Facebook
-    const redirectUri = `${window.location.origin}/api/auth/facebook/callback`;
     // Usar URL de Supabase directamente (debe configurarse en Facebook App)
     const supabaseCallbackUri = 'https://fsnolvozwcnbyuradiru.supabase.co/functions/v1/whatsapp-oauth-callback';
     
     // Scopes necesarios para WhatsApp Business API
+    // Permisos necesarios para la integración completa
     const scopes = [
-      'business_management',
-      'whatsapp_business_management',
-      'whatsapp_business_messaging',
+      'business_management', // Para acceder a cuentas de negocio (WABA)
+      'whatsapp_business_management', // Para gestionar números de WhatsApp Business
+      'whatsapp_business_messaging', // Para enviar y recibir mensajes
     ].join(',');
 
     // State contiene el organizationId para identificarlo en el callback
     const state = encodeURIComponent(organizationId);
 
-    // URL de autorización de Facebook
+    // URL de autorización de Facebook OAuth estándar
+    // NOTA: Si tu app usa Facebook Login for Business con config_id, deberías usar config_id en lugar de scope
     const facebookAuthUrl = `https://www.facebook.com/v21.0/dialog/oauth?` +
       `client_id=${appId}&` +
       `redirect_uri=${encodeURIComponent(supabaseCallbackUri)}&` +
       `scope=${scopes}&` +
       `state=${state}&` +
-      `response_type=code`;
+      `response_type=code&` +
+      `auth_type=rerequest`; // Solicitar permisos incluso si ya fueron otorgados antes
 
     // Redirigir a Facebook OAuth
     window.location.href = facebookAuthUrl;
@@ -563,7 +567,38 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
               </div>
             )}
 
-            {/* Botón OAuth - Conectar con Facebook */}
+            {/* Opción 1: Conectar con QR */}
+            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-sm text-green-900 mb-3 font-medium">
+                Escanea un código QR con tu teléfono
+              </p>
+              <button
+                onClick={() => {
+                  setStep('qr');
+                  setError(null);
+                }}
+                disabled={connecting}
+                className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+              >
+                <QrCode size={20} />
+                <span>Vincular con QR</span>
+              </button>
+              <p className="text-xs text-green-700 mt-2">
+                Escanea el código QR con la cámara de tu teléfono para conectar WhatsApp rápidamente
+              </p>
+            </div>
+
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">O</span>
+              </div>
+            </div>
+
+            {/* Opción 2: Botón OAuth - Conectar con Facebook */}
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm text-blue-900 mb-3 font-medium">
                 Conecta tu cuenta de Meta Business Manager
@@ -592,6 +627,34 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
               </p>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Mostrar componente QR cuando se selecciona */}
+      {step === 'qr' && (
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Conectar con Código QR</h3>
+            <button
+              onClick={() => {
+                setStep('input');
+                setError(null);
+              }}
+              className="text-sm text-gray-600 hover:text-gray-900"
+            >
+              Volver
+            </button>
+          </div>
+          <QRConnectionDisplay
+            organizationId={organizationId}
+            onConnected={() => {
+              loadIntegration();
+              setStep('connected');
+            }}
+            onError={(errorMessage) => {
+              setError(errorMessage);
+            }}
+          />
         </div>
       )}
 

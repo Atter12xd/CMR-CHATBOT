@@ -1,0 +1,117 @@
+---
+// Página móvil para escanear QR y conectar WhatsApp
+import Layout from '../../../layouts/Layout.astro';
+
+const { code } = Astro.params;
+
+if (!code) {
+  return Astro.redirect('/');
+}
+---
+
+<Layout title="Conectar WhatsApp">
+  <main class="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-xl p-6 space-y-6">
+      <!-- Logo/Header -->
+      <div class="text-center">
+        <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span class="text-white font-bold text-2xl">W</span>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">Conectar WhatsApp</h1>
+        <p class="text-gray-600">Vincula tu cuenta de WhatsApp Business</p>
+      </div>
+
+      <!-- Información -->
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <p class="text-sm text-blue-900 text-center">
+          Al conectar, podrás gestionar tus mensajes de WhatsApp desde tu dashboard
+        </p>
+      </div>
+
+      <!-- Botón de conexión -->
+      <div id="connect-container" class="space-y-4">
+        <button
+          id="connect-btn"
+          class="w-full bg-[#1877F2] hover:bg-[#166FE5] text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+        >
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+          </svg>
+          <span>Conectar con WhatsApp</span>
+        </button>
+
+        <div id="loading" class="hidden text-center">
+          <div class="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-2"></div>
+          <p class="text-sm text-gray-600">Procesando...</p>
+        </div>
+
+        <div id="error" class="hidden bg-red-50 border border-red-200 rounded-lg p-4">
+          <p id="error-message" class="text-sm text-red-700 text-center"></p>
+        </div>
+      </div>
+
+      <!-- Instrucciones -->
+      <div class="text-center text-xs text-gray-500 space-y-2">
+        <p>Al hacer clic en "Conectar", serás redirigido a Facebook para autorizar la conexión</p>
+        <p>Necesitarás permisos de administrador en tu cuenta de Meta Business</p>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script define:vars={{ code }}>
+  const connectBtn = document.getElementById('connect-btn');
+  const loading = document.getElementById('loading');
+  const errorDiv = document.getElementById('error');
+  const errorMessage = document.getElementById('error-message');
+  const connectContainer = document.getElementById('connect-container');
+
+  connectBtn?.addEventListener('click', async () => {
+    try {
+      // Mostrar loading
+      connectBtn.style.display = 'none';
+      loading?.classList.remove('hidden');
+      errorDiv?.classList.add('hidden');
+
+      // Verificar código QR y obtener URL de OAuth
+      const response = await fetch('/api/qr/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Error al verificar código QR');
+      }
+
+      // Redirigir a OAuth de Facebook
+      if (data.oauthUrl) {
+        window.location.href = data.oauthUrl;
+      } else {
+        throw new Error('URL de OAuth no disponible');
+      }
+    } catch (err: any) {
+      console.error('Error conectando:', err);
+      loading?.classList.add('hidden');
+      connectBtn.style.display = 'flex';
+      errorDiv?.classList.remove('hidden');
+      errorMessage.textContent = err.message || 'Error al conectar. Por favor intenta nuevamente.';
+    }
+  });
+</script>
+
+<style>
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+</style>

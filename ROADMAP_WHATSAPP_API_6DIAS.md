@@ -447,6 +447,72 @@ It does not have HTTP ok status.
 
 ---
 
+### 🔵 Día 6+: Integración OAuth con Facebook (Flujo Automático) ✅ COMPLETADO - ⏳ EN REVISIÓN
+**Objetivo**: Implementar flujo OAuth para que clientes conecten sus números de WhatsApp sin configuración manual
+
+#### Tareas Completadas:
+1. ✅ **Edge Function: OAuth Callback Handler**
+   - ✅ Creado `supabase/functions/whatsapp-oauth-callback/index.ts`
+   - ✅ Maneja redirect de Facebook OAuth
+   - ✅ Intercambia código OAuth por access token
+   - ✅ Obtiene token de larga duración (60 días)
+   - ✅ Obtiene WhatsApp Business Accounts del usuario
+   - ✅ Guarda credenciales en `whatsapp_integrations`
+   - ✅ Manejo de errores completo
+   
+2. ✅ **Integración con Facebook Login**
+   - ✅ Botón "Conectar con Facebook" en `WhatsAppIntegration.tsx`
+   - ✅ Flujo OAuth completo implementado
+   - ✅ Redirección a Meta OAuth
+   - ✅ Callback handler procesa autorización
+   - ✅ UI actualizada con mensajes de éxito/error
+   
+3. ✅ **Configuración de Facebook Developers**
+   - ✅ App tipo "Business" configurada
+   - ✅ Redirect URI configurado: `https://{SUPABASE_URL}/functions/v1/whatsapp-oauth-callback`
+   - ✅ Permisos solicitados:
+     * `business_management`
+     * `whatsapp_business_management`
+     * `whatsapp_business_messaging`
+   - ✅ Dominio actualizado a `https://wazapp.ai/`
+   
+4. ⏳ **Proceso de App Review de Meta**
+   - ⏳ Solicitud enviada a Meta para aprobación de permisos
+   - ⏳ Instrucciones de prueba proporcionadas
+   - ⏳ Esperando aprobación de Meta
+   - 📋 URL de app: `https://wazapp.ai/`
+   - 📋 Instrucciones completas para revisores configuradas
+
+#### ⚠️ Problemas Resueltos Durante OAuth:
+- ✅ Error "URI de redireccionamiento no válido" → Solucionado (actualizado redirect URI en Facebook Developers)
+- ✅ Error "Esta aplicación necesita al menos un supported permission" → Solucionado (solicitado Advanced Access en App Review)
+- ✅ Flujo de desconexión/reconexión → Corregido (UI se resetea correctamente después de desconectar)
+
+#### 🔄 Flujo OAuth Implementado:
+```
+1. Usuario hace clic en "Conectar con Facebook"
+   ↓
+2. Redirige a: https://www.facebook.com/v21.0/dialog/oauth?...
+   ↓
+3. Usuario autoriza permisos en Meta
+   ↓
+4. Meta redirige a: {SUPABASE_URL}/functions/v1/whatsapp-oauth-callback?code=...&state=...
+   ↓
+5. Edge Function intercambia código por access token
+   ↓
+6. Obtiene token de larga duración
+   ↓
+7. Obtiene WhatsApp Business Accounts y números
+   ↓
+8. Guarda en BD (whatsapp_integrations)
+   ↓
+9. Redirige a: https://wazapp.ai/configuracion?success=true
+```
+
+**Resultado**: ✅ Flujo OAuth completo implementado - ⏳ Esperando aprobación de Meta App Review
+
+---
+
 ## 🏗️ Arquitectura de la Solución
 
 ```
@@ -461,9 +527,14 @@ It does not have HTTP ok status.
 │              SUPABASE EDGE FUNCTIONS (Deno)                  │
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │  /whatsapp-oauth                                      │   │
-│  │  - Iniciar flujo OAuth                                │   │
-│  │  - Generar códigos de verificación                    │   │
-│  │  - Verificar códigos                                  │   │
+│  │  - Iniciar flujo OAuth (generar URL de autorización) │   │
+│  └──────────────────────────────────────────────────────┘   │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  /whatsapp-oauth-callback                            │   │
+│  │  - Manejar callback de Facebook OAuth                │   │
+│  │  - Intercambiar código por access token              │   │
+│  │  - Obtener WhatsApp Business Accounts                │   │
+│  │  - Guardar credenciales en BD                        │   │
 │  └──────────────────────────────────────────────────────┘   │
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │  /whatsapp-meta-api                                   │   │
@@ -633,8 +704,8 @@ CREATE POLICY "Users can update own whatsapp integration"
 
 ---
 
-**Última actualización**: Día 6 - ✅ COMPLETADO (16 Ene 2026)
-**Estado**: ✅ TODOS LOS DÍAS COMPLETADOS (1, 2, 3, 4, 5 y 6) - ✅ ENVÍO DE MENSAJES FUNCIONANDO
+**Última actualización**: Día 6+ - ✅ INTEGRACIÓN OAUTH CON FACEBOOK (17 Ene 2026)
+**Estado**: ✅ TODOS LOS DÍAS COMPLETADOS (1, 2, 3, 4, 5 y 6) - ✅ ENVÍO DE MENSAJES FUNCIONANDO - ⏳ REVISIÓN APP REVIEW EN PROCESO
 
 ## 🎉 Logros Principales
 
@@ -672,12 +743,30 @@ CREATE POLICY "Users can update own whatsapp integration"
 - ✅ Manejo de errores mejorado en edge function `whatsapp-send-message`
 - ✅ Guardado de `phone_number_id` y `access_token` en modo simulado mejorado
 
+#### 17 Ene 2026
+- ✅ **Integración OAuth con Facebook implementada** → COMPLETADO
+  - Edge Function `whatsapp-oauth-callback` creada para procesar autorización
+  - Flujo completo OAuth funcionando (autorización → callback → guardado en BD)
+  - UI actualizada con botón "Conectar con Facebook"
+  - Dominio actualizado a `https://wazapp.ai/`
+- ✅ **Error "URI de redireccionamiento no válido"** → SOLUCIONADO
+  - Actualizado redirect URI en Facebook Developers
+  - URLs de callback corregidas en código
+- ✅ **Error "Esta aplicación necesita al menos un supported permission"** → SOLUCIONADO
+  - Configurado App tipo "Business" en Facebook Developers
+  - Solicitado Advanced Access para permisos requeridos en App Review
+  - Instrucciones de prueba completas proporcionadas a Meta
+- ⏳ **Solicitud de App Review enviada a Meta** → EN PROCESO
+  - Permisos solicitados: `business_management`, `whatsapp_business_management`, `whatsapp_business_messaging`
+  - Esperando aprobación de Meta (típicamente 5-7 días)
+
 ### 📊 Estadísticas del Proyecto
-- **Edge Functions creadas**: 4 
-  - whatsapp-oauth (smart-endpoint)
-  - whatsapp-meta-api (super-worker)
-  - whatsapp-webhook
-  - whatsapp-send-message
+- **Edge Functions creadas**: 5 
+  - whatsapp-oauth (smart-endpoint) - Iniciar flujo OAuth
+  - whatsapp-oauth-callback - Procesar callback de Facebook
+  - whatsapp-meta-api (super-worker) - Interactuar con Meta Graph API
+  - whatsapp-webhook - Recibir mensajes de WhatsApp
+  - whatsapp-send-message - Enviar mensajes de WhatsApp
 - **Servicios creados**: 4
   - whatsapp-integration.ts
   - whatsapp-meta-api.ts
@@ -689,9 +778,10 @@ CREATE POLICY "Users can update own whatsapp integration"
   - ChatList.tsx (diseño mejorado)
   - WhatsAppIntegration.tsx (flujo completo)
 - **Líneas de código**: ~2500+ líneas
-- **Migraciones SQL**: 2
+- **Migraciones SQL**: 3
   - create_whatsapp_integrations.sql
   - add_message_status_column.sql
+  - create_tags_system.sql (infraestructura)
 
 ### 🎨 Mejoras de Diseño Implementadas
 - ✅ Diseño tipo WhatsApp Web con colores oficiales (#efeae2, #f0f2f5, #d9fdd3)

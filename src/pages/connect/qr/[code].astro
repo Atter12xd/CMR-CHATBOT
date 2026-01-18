@@ -33,6 +33,11 @@ if (!code) {
 
       <!-- Estado de conexión automática (el número ya viene en el QR) -->
       <div id="connect-container" class="space-y-4">
+        <div id="auto-connect" class="text-center py-8">
+          <div class="inline-block w-16 h-16 border-4 border-green-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <h2 class="text-xl font-semibold text-gray-900 mb-2">Conectando WhatsApp...</h2>
+          <p class="text-sm text-gray-600">Por favor espera, no cierres esta ventana</p>
+        </div>
 
         <!-- Loading -->
         <div id="loading" class="hidden text-center">
@@ -67,21 +72,18 @@ if (!code) {
 </Layout>
 
 <script define:vars={{ code }}>
-  const loading = document.getElementById('loading');
-  const loadingMessage = document.getElementById('loading-message');
+  const autoConnect = document.getElementById('auto-connect');
   const errorDiv = document.getElementById('error');
   const errorMessage = document.getElementById('error-message');
   const successDiv = document.getElementById('success');
-  const connectContainer = document.getElementById('connect-container');
 
   // Conectar automáticamente al escanear QR (el número ya viene en el QR)
   async function connectAutomatically() {
     try {
-      loading?.classList.remove('hidden');
-      loadingMessage.textContent = 'Verificando código QR...';
-      errorDiv?.classList.add('hidden');
-
+      console.log('🚀 Iniciando conexión automática con código:', code);
+      
       // 1. Verificar código QR y obtener organizationId y phoneNumber del metadata
+      console.log('📋 Verificando código QR...');
       const verifyResponse = await fetch('/api/qr/verify', {
         method: 'POST',
         headers: {
@@ -91,6 +93,7 @@ if (!code) {
       });
 
       const verifyData = await verifyResponse.json();
+      console.log('📋 Respuesta de verificación:', verifyData);
 
       if (!verifyResponse.ok || !verifyData.success) {
         throw new Error(verifyData.error || 'Error al verificar código QR');
@@ -103,9 +106,10 @@ if (!code) {
         throw new Error('El código QR no contiene un número de teléfono. Por favor genera un nuevo QR.');
       }
 
+      console.log('✅ QR verificado. Conectando:', { organizationId, phoneNumber });
+
       // 2. Conectar automáticamente con el número del QR
-      loadingMessage.textContent = `Conectando ${phoneNumber} con WhatsApp Business...`;
-      
+      console.log('🔗 Conectando número...');
       const connectResponse = await fetch('/api/qr/connect', {
         method: 'POST',
         headers: {
@@ -114,35 +118,46 @@ if (!code) {
         body: JSON.stringify({ 
           code,
           organizationId,
-          phoneNumber // Usar el número del QR
+          phoneNumber
         }),
       });
 
       const connectData = await connectResponse.json();
+      console.log('🔗 Respuesta de conexión:', connectData);
 
       if (!connectResponse.ok || !connectData.success) {
         throw new Error(connectData.error || 'Error al conectar WhatsApp');
       }
 
-      // 3. Éxito - mostrar mensaje y redirigir
-      loading?.classList.add('hidden');
-      connectContainer?.classList.add('hidden');
+      // 3. Éxito - mostrar mensaje y cerrar/redirigir rápidamente
+      console.log('✅ Conexión exitosa!');
+      autoConnect?.classList.add('hidden');
       successDiv?.classList.remove('hidden');
 
-      // Redirigir al dashboard después de 2 segundos
+      // Cerrar ventana inmediatamente o redirigir
       setTimeout(() => {
-        window.location.href = '/configuracion?success=true&connected=true';
-      }, 2000);
+        try {
+          // Intentar cerrar si se abrió desde QR
+          window.close();
+        } catch (e) {
+          // Si no se puede cerrar, redirigir
+          window.location.href = '/configuracion?success=true&connected=true';
+        }
+      }, 500);
     } catch (err: any) {
-      console.error('Error conectando:', err);
-      loading?.classList.add('hidden');
+      console.error('❌ Error conectando:', err);
+      autoConnect?.classList.add('hidden');
       errorDiv?.classList.remove('hidden');
       errorMessage.textContent = err.message || 'Error al conectar WhatsApp. Por favor intenta nuevamente.';
     }
   }
 
   // Iniciar conexión automáticamente al cargar
-  connectAutomatically();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', connectAutomatically);
+  } else {
+    connectAutomatically();
+  }
 </script>
 
 <style>

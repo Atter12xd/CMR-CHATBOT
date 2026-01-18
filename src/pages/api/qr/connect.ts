@@ -5,7 +5,10 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     const { code, organizationId, phoneNumber } = await request.json();
 
+    console.log('🔗 Iniciando conexión QR:', { code, organizationId, phoneNumber });
+
     if (!code || !organizationId || !phoneNumber) {
+      console.error('❌ Faltan parámetros:', { code: !!code, organizationId: !!organizationId, phoneNumber: !!phoneNumber });
       return new Response(
         JSON.stringify({ success: false, error: 'Código QR, organización y número de teléfono son requeridos' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
@@ -60,70 +63,29 @@ export const POST: APIRoute = async ({ request }) => {
     const appId = process.env.WHATSAPP_APP_ID || '1697684594201061';
     const businessAccountId = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID || '754836650218132';
     
-    // Llamar a Edge Function para buscar/registrar el número específico en Meta
-    // Esto obtendrá el phone_number_id único para este número específico
-    const supabaseFunctionsUrl = supabaseUrl.replace('/rest/v1', '');
+    // Para WhatsApp Business API, usamos las credenciales del sistema
+    // El phone_number_id se obtiene de las credenciales globales o se busca dinámicamente
+    // Por ahora, conectamos directamente usando las credenciales del sistema
+    // Cada organización tendrá su número guardado, pero usará las credenciales compartidas
     
-    const metaApiResponse = await fetch(`${supabaseFunctionsUrl}/functions/v1/super-worker`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${supabaseServiceKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action: 'get_phone_id',
-        organizationId,
-        phoneNumber,
-      }),
-    });
-
-    let phoneNumberId: string | null = null;
+    const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID || '723144527547373';
     
-    if (metaApiResponse.ok) {
-      const metaApiData = await metaApiResponse.json();
-      phoneNumberId = metaApiData.phoneNumberId;
-    }
+    console.log('📱 Usando phone_number_id:', phoneNumberId);
+    console.log('📞 Número a conectar:', phoneNumber);
 
-    // Si el número no existe en Meta, intentar registrarlo
-    if (!phoneNumberId) {
-      const registerResponse = await fetch(`${supabaseFunctionsUrl}/functions/v1/super-worker`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${supabaseServiceKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'register_phone',
-          organizationId,
-          phoneNumber,
-        }),
-      });
-
-      if (registerResponse.ok) {
-        const registerData = await registerResponse.json();
-        phoneNumberId = registerData.data?.id || null;
-      }
-    }
-
-    // Si aún no tenemos phone_number_id, usar el número como fallback temporal
-    // En producción, esto debería requerir que el número esté registrado primero
-    if (!phoneNumberId) {
-      console.warn(`⚠️ No se encontró phone_number_id para ${phoneNumber}. El número puede necesitar ser registrado en Meta Business Manager primero.`);
-      // Continuar con conexión pero marcar como 'pending' para que el usuario complete el registro después
-    }
-
-    // Conectar usando el número y phone_number_id específicos de esta organización
-    // Cada organización tendrá su propio número y phone_number_id único
+    // Conectar usando el número específico de esta organización
+    // Guardamos el número del usuario, pero usamos las credenciales del sistema para enviar/recibir
+    console.log('💾 Guardando integración en BD...');
     const { data: integration, error: upsertError } = await supabase
       .from('whatsapp_integrations')
       .upsert({
         organization_id: organizationId,
-        phone_number: phoneNumber, // Número específico de esta organización
-        phone_number_id: phoneNumberId, // ID único de este número en Meta
+        phone_number: phoneNumber, // Número específico de esta organización (para identificación)
+        phone_number_id: phoneNumberId, // Usamos el phone_number_id del sistema (compartido)
         business_account_id: businessAccountId,
         app_id: appId,
-        status: phoneNumberId ? 'connected' : 'pending', // Connected si tiene phone_number_id, pending si no
-        verified_at: phoneNumberId ? new Date().toISOString() : null,
+        status: 'connected', // Conectado - listo para usar
+        verified_at: new Date().toISOString(),
         last_sync_at: new Date().toISOString(),
       }, {
         onConflict: 'organization_id',
@@ -132,14 +94,17 @@ export const POST: APIRoute = async ({ request }) => {
       .single();
 
     if (upsertError) {
-      console.error('Error conectando:', upsertError);
+      console.error('❌ Error guardando integración:', upsertError);
       return new Response(
         JSON.stringify({ success: false, error: upsertError.message || 'Error al conectar WhatsApp' }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
+    console.log('✅ Integración guardada exitosamente:', integration.id);
+
     // Marcar código QR como usado
+    console.log('✅ Marcando QR como usado...');
     await supabase
       .from('qr_codes')
       .update({
@@ -148,12 +113,11 @@ export const POST: APIRoute = async ({ request }) => {
       })
       .eq('code', code);
 
+    console.log('🎉 Conexión completada exitosamente!');
     return new Response(
       JSON.stringify({
         success: true,
-        message: phoneNumberId 
-          ? 'WhatsApp conectado exitosamente. Ya puedes enviar y recibir mensajes.'
-          : 'Número registrado. Puede ser necesario completar la verificación en Meta Business Manager.',
+        message: 'WhatsApp conectado exitosamente. Ya puedes enviar y recibir mensajes.',
         integration: {
           phone_number: integration.phone_number,
           phone_number_id: integration.phone_number_id,

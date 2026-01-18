@@ -2,6 +2,9 @@
 // Página móvil para escanear QR y conectar WhatsApp
 import Layout from '../../../layouts/Layout.astro';
 
+// Esta página debe renderizarse en el servidor (SSR) porque el código viene como parámetro
+export const prerender = false;
+
 const { code } = Astro.params;
 
 if (!code) {

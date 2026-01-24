@@ -139,9 +139,7 @@ export async function checkNumberStatus(organizationId: string, phoneNumberId?: 
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
     throw new Error('No hay sesión activa');
-  }
-
-  try {
+  }  try {
     const { data: result, error } = await supabase.functions.invoke('super-worker', {
       body: {
         action: 'check_status',

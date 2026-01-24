@@ -1,120 +1,99 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { Mail, Phone, Loader2, AlertCircle, CheckCircle2, ArrowRight, ArrowLeft, User } from 'lucide-react';
-import OTPVerification from './OTPVerification';
+import { createClient } from '../lib/supabase';
+import { Mail, Lock, Loader2, AlertCircle, ArrowRight, User, CheckCircle2 } from 'lucide-react';
 
 export default function RegisterForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [showOTP, setShowOTP] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { sendOTPEmail, verifyOTP, loading: authLoading } = useAuth();
+  const { signUp, loading: authLoading, isAuthenticated } = useAuth();
+
+  if (isAuthenticated && !success && typeof window !== 'undefined') {
+    window.location.href = '/';
+    return null;
+  }
 
   const validateEmail = (email: string): boolean => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
-  const validatePhone = (phone: string): boolean => {
-    // Formato básico: debe tener al menos 9 dígitos
-    const cleanPhone = phone.replace(/\D/g, '');
-    return cleanPhone.length >= 9;
-  };
-
-  const handleSendOTP = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setSuccess(false);
 
-    // Validaciones
     if (!name.trim()) {
-      setError('Por favor ingresa tu nombre completo');
+      setError('Ingresa tu nombre completo');
       return;
     }
-
     if (!email.trim()) {
-      setError('Por favor ingresa tu correo electrónico');
+      setError('Ingresa tu correo electrónico');
       return;
     }
-
     if (!validateEmail(email)) {
-      setError('Por favor ingresa un correo electrónico válido');
+      setError('Correo electrónico no válido');
       return;
     }
-
-    if (!phone.trim()) {
-      setError('Por favor ingresa tu número de teléfono');
+    if (!password) {
+      setError('Crea una contraseña');
       return;
     }
-
-    if (!validatePhone(phone)) {
-      setError('Por favor ingresa un número de teléfono válido (mínimo 9 dígitos)');
+    if (password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden');
       return;
     }
 
     setLoading(true);
     try {
-      const result = await sendOTPEmail(email);
+      const { data, error: signUpError } = await signUp(email.trim(), password, name.trim());
 
-      if (result.error) {
-        setError(result.error.message || 'Error al enviar código. Intenta nuevamente.');
-      } else {
-        setShowOTP(true);
+      if (signUpError) {
+        const msg = signUpError.message || 'Error al crear la cuenta';
+        if (msg.toLowerCase().includes('already registered') || msg.toLowerCase().includes('already exists')) {
+          setError('Ya existe una cuenta con este correo. Inicia sesión o usa otro email.');
+        } else {
+          setError(msg);
+        }
+        return;
       }
-    } catch (err: any) {
-      setError(err.message || 'Error al enviar código. Intenta nuevamente.');
+
+      if (!data?.user) {
+        setError('No se pudo crear la cuenta. Intenta de nuevo.');
+        return;
+      }
+
+      const supabase = createClient();
+      const orgName = name.trim() || data.user.email?.split('@')[0] || 'Mi Tienda';
+      const { error: orgError } = await supabase
+        .from('organizations')
+        .insert({
+          name: orgName,
+          owner_id: data.user.id,
+        });
+
+      if (orgError) {
+        console.error('Error creando organización:', orgError);
+        // No bloqueamos: el usuario ya existe, puede crear org después desde el dashboard
+      }
+
+      setSuccess(true);
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1500);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error al crear la cuenta');
     } finally {
       setLoading(false);
     }
   };
-
-  const handleVerifyOTP = async (token: string) => {
-    setError(null);
-    
-    // Formatear teléfono (agregar + si no tiene)
-    const formattedPhone = phone.startsWith('+') ? phone : `+${phone}`;
-    
-    // Verificar OTP
-    const result = await verifyOTP(email, token, 'email');
-    
-    if (result.error) {
-      throw new Error(result.error.message || 'Código inválido');
-    } else if (result.data?.user) {
-      // Actualizar perfil del usuario con nombre y teléfono
-      // Esto se puede hacer después o en el perfil, por ahora solo mostramos éxito
-      setSuccess(true);
-      // Redirigir después de 2 segundos
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 2000);
-    }
-  };
-
-  const handleResendOTP = async () => {
-    setError(null);
-    await sendOTPEmail(email);
-  };
-
-  const handleBack = () => {
-    setShowOTP(false);
-    setError(null);
-  };
-
-  // Mostrar componente de verificación OTP
-  if (showOTP) {
-    return (
-      <OTPVerification
-        emailOrPhone={email}
-        type="email"
-        onVerify={handleVerifyOTP}
-        onResend={handleResendOTP}
-        onBack={handleBack}
-        loading={authLoading}
-      />
-    );
-  }
 
   if (success) {
     return (
@@ -125,12 +104,8 @@ export default function RegisterForm() {
               <CheckCircle2 className="h-10 w-10 text-white" />
             </div>
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-gray-900">
-                ¡Cuenta creada exitosamente!
-              </h2>
-              <p className="text-sm text-gray-600">
-                Redirigiendo...
-              </p>
+              <h2 className="text-2xl font-bold text-gray-900">Cuenta creada</h2>
+              <p className="text-sm text-gray-600">Redirigiendo al panel...</p>
             </div>
           </div>
         </div>
@@ -141,24 +116,20 @@ export default function RegisterForm() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       <div className="max-w-md w-full relative z-10">
-        {/* Card Container */}
         <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-8 sm:p-10 space-y-8">
-          {/* Header */}
           <div className="text-center space-y-2">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 shadow-lg shadow-primary-500/25 mb-4">
               <User className="h-8 w-8 text-white" />
             </div>
             <h2 className="text-3xl font-bold text-gray-900 tracking-tight">
-              Crea tu cuenta
+              Crear cuenta
             </h2>
             <p className="text-sm text-gray-500">
-              Recibirás un código de 6 dígitos en tu correo para verificar tu cuenta
+              Registro con email y contraseña. Sin códigos de verificación.
             </p>
           </div>
 
-          {/* Form */}
-          <form className="space-y-5" onSubmit={handleSendOTP}>
-            {/* Error Message */}
+          <form className="space-y-5" onSubmit={handleSubmit}>
             {error && (
               <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-r-lg flex items-start space-x-3 animate-in fade-in slide-in-from-top-2 duration-200">
                 <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
@@ -166,7 +137,6 @@ export default function RegisterForm() {
               </div>
             )}
 
-            {/* Name Input */}
             <div className="space-y-2">
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                 Nombre completo
@@ -179,16 +149,16 @@ export default function RegisterForm() {
                   id="name"
                   name="name"
                   type="text"
+                  autoComplete="name"
                   required
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => { setName(e.target.value); setError(null); }}
                   className="block w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
                   placeholder="Juan Pérez"
                 />
               </div>
             </div>
 
-            {/* Email Input */}
             <div className="space-y-2">
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Correo electrónico
@@ -204,40 +174,57 @@ export default function RegisterForm() {
                   autoComplete="email"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => { setEmail(e.target.value); setError(null); }}
                   className="block w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
                   placeholder="tu@email.com"
                 />
               </div>
             </div>
 
-            {/* Phone Input */}
             <div className="space-y-2">
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                Número de teléfono
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Contraseña
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Phone className="h-5 w-5 text-gray-400" />
+                  <Lock className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  autoComplete="tel"
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="new-password"
                   required
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  value={password}
+                  onChange={(e) => { setPassword(e.target.value); setError(null); }}
                   className="block w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
-                  placeholder="+51 999 999 999"
+                  placeholder="Mínimo 6 caracteres"
                 />
               </div>
-              <p className="text-xs text-gray-500">
-                Incluye el código de país (ej: +51 para Perú). Lo usaremos para conectar con APIs de mensajería.
-              </p>
             </div>
 
-            {/* Submit Button */}
+            <div className="space-y-2">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                Confirmar contraseña
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => { setConfirmPassword(e.target.value); setError(null); }}
+                  className="block w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                  placeholder="Repite tu contraseña"
+                />
+              </div>
+            </div>
+
             <button
               type="submit"
               disabled={loading || authLoading}
@@ -246,21 +233,20 @@ export default function RegisterForm() {
               {loading || authLoading ? (
                 <>
                   <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                  Enviando código...
+                  Creando cuenta...
                 </>
               ) : (
                 <>
-                  Enviar código de verificación
+                  Crear cuenta
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </>
               )}
             </button>
           </form>
 
-          {/* Footer */}
           <div className="text-center pt-4 border-t border-gray-200">
             <p className="text-sm text-gray-600">
-              ¿Ya tienes una cuenta?{' '}
+              ¿Ya tienes cuenta?{' '}
               <a
                 href="/login"
                 className="font-semibold text-primary-600 hover:text-primary-700 transition-colors inline-flex items-center group"
@@ -272,10 +258,9 @@ export default function RegisterForm() {
           </div>
         </div>
 
-        {/* Background decoration */}
         <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob" />
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000" />
         </div>
       </div>
     </div>

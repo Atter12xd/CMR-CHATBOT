@@ -69,22 +69,31 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
       setTemplateError(null);
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        const { data, error: err } = await supabase.functions.invoke('whatsapp-templates', {
-          body: { action: 'list', organizationId },
-          headers: { Authorization: `Bearer ${session?.access_token}` },
+        const url = `${import.meta.env.PUBLIC_SUPABASE_URL}/functions/v1/whatsapp-templates`;
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({ action: 'list', organizationId }),
         });
+        const j = await res.json().catch(() => ({}));
         if (cancelled) return;
-        if (err) throw new Error(err.message || 'Failed to load templates');
-        setTemplates((data?.templates || []).map((t: any) => ({
+        if (!res.ok) {
+          const msg = [j.error, j.details].filter(Boolean).join(' — ') || 'Error al cargar plantillas';
+          throw new Error(msg);
+        }
+        setTemplates((j.templates || []).map((t: any) => ({
           name: t.name,
           language: (typeof t.language === 'string' ? t.language : t.language?.code) || 'en_US',
           status: t.status || '',
         })));
-        if (data?.templates?.length && !selectedTemplate) {
-          setSelectedTemplate(data.templates[0].name);
+        if (j.templates?.length && !selectedTemplate) {
+          setSelectedTemplate(j.templates[0].name);
         }
       } catch (e: any) {
-        if (!cancelled) setTemplateError(e.message || 'Error loading templates');
+        if (!cancelled) setTemplateError(e.message || 'Error al cargar plantillas');
       } finally {
         if (!cancelled) setTemplatesLoading(false);
       }
@@ -502,21 +511,29 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
     setTemplateSuccess(false);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const { data, error: err } = await supabase.functions.invoke('whatsapp-templates', {
-        body: {
+      const url = `${import.meta.env.PUBLIC_SUPABASE_URL}/functions/v1/whatsapp-templates`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({
           action: 'send',
           organizationId,
           templateName: selectedTemplate,
           languageCode: templates.find(t => t.name === selectedTemplate)?.language || 'en_US',
           to: templateTestPhone.trim(),
-        },
-        headers: { Authorization: `Bearer ${session?.access_token}` },
+        }),
       });
-      if (err) throw new Error(err.message || 'Failed to send');
-      if (data?.error) throw new Error(data.error);
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = [j.error, j.details].filter(Boolean).join(' — ') || 'Error al enviar plantilla';
+        throw new Error(msg);
+      }
       setTemplateSuccess(true);
     } catch (e: any) {
-      setTemplateError(e.message || 'Error sending template');
+      setTemplateError(e.message || 'Error al enviar plantilla');
     } finally {
       setTemplateSendLoading(false);
     }

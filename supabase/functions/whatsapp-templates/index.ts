@@ -80,18 +80,24 @@ serve(async (req) => {
   const { data: integration, error: intErr } = await getIntegration(supabase, organizationId, user.id);
   if (intErr || !integration) {
     return new Response(
-      JSON.stringify({ error: 'WhatsApp not connected for this organization' }),
+      JSON.stringify({
+        error: 'WhatsApp no conectado para esta organización',
+        details: intErr?.message || 'Verifica que el número esté conectado en Configuración.',
+      }),
       { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 
-  const wabaId = integration.business_account_id;
-  const phoneNumberId = integration.phone_number_id;
+  const wabaId = integration.business_account_id || Deno.env.get('WHATSAPP_BUSINESS_ACCOUNT_ID');
+  const phoneNumberId = integration.phone_number_id || Deno.env.get('WHATSAPP_PHONE_NUMBER_ID');
   let accessToken = Deno.env.get('WHATSAPP_ACCESS_TOKEN') || integration.access_token;
 
   if (!accessToken) {
     return new Response(
-      JSON.stringify({ error: 'Missing WhatsApp access token. Configure WHATSAPP_ACCESS_TOKEN or connect via OAuth.' }),
+      JSON.stringify({
+        error: 'Falta access token de WhatsApp',
+        details: 'Configura WHATSAPP_ACCESS_TOKEN en Supabase → Edge Functions → Secrets, o conecta vía OAuth (Facebook).',
+      }),
       { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
@@ -99,7 +105,10 @@ serve(async (req) => {
   if (action === 'list') {
     if (!wabaId) {
       return new Response(
-        JSON.stringify({ error: 'Business account ID not available' }),
+        JSON.stringify({
+          error: 'Falta Business Account ID',
+          details: 'La integración no tiene business_account_id. Configura WHATSAPP_BUSINESS_ACCOUNT_ID en Secrets o conecta vía OAuth.',
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -109,9 +118,17 @@ serve(async (req) => {
     });
     if (!res.ok) {
       const err = await res.text();
+      let details = err;
+      try {
+        const parsed = JSON.parse(err);
+        details = parsed.error?.message || parsed.error?.error_user_msg || parsed.error || err;
+      } catch { /* keep raw */ }
       return new Response(
-        JSON.stringify({ error: 'Failed to fetch templates', details: err }),
-        { status: res.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({
+          error: 'Meta API rechazó la petición de plantillas',
+          details: String(details).slice(0, 500),
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
     const data = await res.json();
@@ -132,7 +149,10 @@ serve(async (req) => {
     }
     if (!phoneNumberId) {
       return new Response(
-        JSON.stringify({ error: 'Phone number not connected' }),
+        JSON.stringify({
+          error: 'Falta Phone Number ID',
+          details: 'Configura WHATSAPP_PHONE_NUMBER_ID en Secrets o conecta un número vía OAuth/QR.',
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

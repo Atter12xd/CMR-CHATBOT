@@ -47,12 +47,50 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
   const [loadingMetrics, setLoadingMetrics] = useState(false);
   const [checkingStatus, setCheckingStatus] = useState(false);
   const [statusCheckCount, setStatusCheckCount] = useState(0);
+  const [templates, setTemplates] = useState<{ name: string; language: string; status: string }[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState('');
+  const [templateTestPhone, setTemplateTestPhone] = useState('');
+  const [templatesLoading, setTemplatesLoading] = useState(false);
+  const [templateSendLoading, setTemplateSendLoading] = useState(false);
+  const [templateError, setTemplateError] = useState<string | null>(null);
+  const [templateSuccess, setTemplateSuccess] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
     loadIntegration();
     loadMetrics();
   }, [organizationId]);
+
+  useEffect(() => {
+    if (!integration || integration.status !== 'connected' || !organizationId) return;
+    let cancelled = false;
+    (async () => {
+      setTemplatesLoading(true);
+      setTemplateError(null);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const { data, error: err } = await supabase.functions.invoke('whatsapp-templates', {
+          body: { action: 'list', organizationId },
+          headers: { Authorization: `Bearer ${session?.access_token}` },
+        });
+        if (cancelled) return;
+        if (err) throw new Error(err.message || 'Failed to load templates');
+        setTemplates((data?.templates || []).map((t: any) => ({
+          name: t.name,
+          language: (typeof t.language === 'string' ? t.language : t.language?.code) || 'en_US',
+          status: t.status || '',
+        })));
+        if (data?.templates?.length && !selectedTemplate) {
+          setSelectedTemplate(data.templates[0].name);
+        }
+      } catch (e: any) {
+        if (!cancelled) setTemplateError(e.message || 'Error loading templates');
+      } finally {
+        if (!cancelled) setTemplatesLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [integration?.id, integration?.status, organizationId]);
 
   const loadIntegration = async () => {
     try {
@@ -457,6 +495,33 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
     }
   };
 
+  const handleSendTemplate = async () => {
+    if (!selectedTemplate || !templateTestPhone.trim()) return;
+    setTemplateSendLoading(true);
+    setTemplateError(null);
+    setTemplateSuccess(false);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const { data, error: err } = await supabase.functions.invoke('whatsapp-templates', {
+        body: {
+          action: 'send',
+          organizationId,
+          templateName: selectedTemplate,
+          languageCode: templates.find(t => t.name === selectedTemplate)?.language || 'en_US',
+          to: templateTestPhone.trim(),
+        },
+        headers: { Authorization: `Bearer ${session?.access_token}` },
+      });
+      if (err) throw new Error(err.message || 'Failed to send');
+      if (data?.error) throw new Error(data.error);
+      setTemplateSuccess(true);
+    } catch (e: any) {
+      setTemplateError(e.message || 'Error sending template');
+    } finally {
+      setTemplateSendLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -477,7 +542,10 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900">WhatsApp Business</h3>
-                <p className="text-sm text-gray-500">{integration.phone_number}</p>
+                <p className="text-sm text-gray-500">
+                  <span className="font-medium text-gray-700">Número conectado:</span>{' '}
+                  {integration.phone_number}
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
@@ -543,6 +611,76 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
                     <p className="text-sm font-semibold text-green-700">Activo</p>
                   </div>
                 </div>
+              </div>
+
+              {/* Message templates - List, select, send to test number (for Meta App Review) */}
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="flex items-center space-x-2 mb-3">
+                  <Send size={16} className="text-gray-500" />
+                  <h4 className="text-sm font-semibold text-gray-900">Plantillas de mensaje</h4>
+                </div>
+                <p className="text-xs text-gray-500 mb-3">
+                  Lista y envía plantillas aprobadas a un número de prueba. Gestionadas en Meta WhatsApp Manager.
+                </p>
+                {templatesLoading ? (
+                  <div className="flex items-center space-x-2 text-sm text-gray-500">
+                    <Loader2 size={16} className="animate-spin" />
+                    <span>Cargando plantillas…</span>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Plantilla</label>
+                      <select
+                        value={selectedTemplate}
+                        onChange={(e) => setSelectedTemplate(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      >
+                        <option value="">Seleccionar…</option>
+                        {templates.map((t) => (
+                          <option key={t.name} value={t.name}>{t.name} ({t.language})</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Número de prueba (ej. 51987654321)</label>
+                      <input
+                        type="tel"
+                        value={templateTestPhone}
+                        onChange={(e) => { setTemplateTestPhone(e.target.value); setTemplateError(null); setTemplateSuccess(false); }}
+                        placeholder="51987654321"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      />
+                    </div>
+                    {templateError && (
+                      <div className="p-2 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-xs text-red-700">{templateError}</p>
+                      </div>
+                    )}
+                    {templateSuccess && (
+                      <div className="p-2 bg-green-50 border border-green-200 rounded-lg">
+                        <p className="text-xs text-green-700">Plantilla enviada. Revisa WhatsApp en ese número.</p>
+                      </div>
+                    )}
+                    <button
+                      onClick={handleSendTemplate}
+                      disabled={templateSendLoading || !selectedTemplate || !templateTestPhone.trim()}
+                      className="flex items-center justify-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                    >
+                      {templateSendLoading ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin" />
+                          <span>Enviando…</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send size={16} />
+                          <span>Enviar plantilla de prueba</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
               </div>
             </>
           )}

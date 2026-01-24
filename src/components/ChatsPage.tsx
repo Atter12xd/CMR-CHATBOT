@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
+import { createClient } from '../lib/supabase';
 import ChatList from './ChatList';
 import ChatWindow from './ChatWindow';
 import type { Chat } from '../data/mockData';
@@ -12,6 +13,7 @@ export default function ChatsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [showChatList, setShowChatList] = useState(true);
+  const [whatsAppNumber, setWhatsAppNumber] = useState<string | null>(null);
 
   // Cargar chats cuando haya organización
   useEffect(() => {
@@ -42,6 +44,19 @@ export default function ChatsPage() {
     return () => {
       unsubscribe();
     };
+  }, [organizationId]);
+
+  // Cargar número de WhatsApp conectado (para mostrar "Enviando desde" en Meta App Review)
+  useEffect(() => {
+    if (!organizationId) return;
+    const supabase = createClient();
+    supabase
+      .from('whatsapp_integrations')
+      .select('phone_number')
+      .eq('organization_id', organizationId)
+      .eq('status', 'connected')
+      .maybeSingle()
+      .then(({ data }) => setWhatsAppNumber(data?.phone_number ?? null));
   }, [organizationId]);
 
   const selectedChat = chats.find(chat => chat.id === selectedChatId) || null;
@@ -113,6 +128,7 @@ export default function ChatsPage() {
             <ChatWindow
               chat={selectedChat}
               onBack={handleBackToList}
+              whatsAppNumber={selectedChat.platform === 'whatsapp' ? whatsAppNumber : undefined}
             />
           ) : (
             <div className="h-full w-full flex items-center justify-center bg-gray-50">

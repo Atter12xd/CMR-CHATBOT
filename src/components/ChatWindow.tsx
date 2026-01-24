@@ -9,9 +9,10 @@ import FileUploadModal from './FileUploadModal';
 interface ChatWindowProps {
   chat: Chat;
   onBack: () => void;
+  whatsAppNumber?: string;
 }
 
-export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
+export default function ChatWindow({ chat, onBack, whatsAppNumber }: ChatWindowProps) {
   const [newMessage, setNewMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>(chat.messages || []);
   const [loading, setLoading] = useState(false);
@@ -226,7 +227,7 @@ export default function ChatWindow({ chat, onBack }: ChatWindowProps) {
           <div>
             <h2 className="font-semibold text-gray-900 text-base">{chat.customerName}</h2>
             <p className="text-xs text-gray-500">
-              {chat.platform === 'whatsapp' && 'WhatsApp'}
+              {chat.platform === 'whatsapp' && (whatsAppNumber ? `WhatsApp · Enviando desde: ${whatsAppNumber}` : 'WhatsApp')}
               {chat.platform === 'facebook' && 'Facebook'}
               {chat.platform === 'web' && 'Web'}
             </p>

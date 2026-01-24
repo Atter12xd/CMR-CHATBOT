@@ -7,6 +7,7 @@ import fixVercelRuntime from './src/integrations/fix-vercel-runtime.ts';
 export default defineConfig({
   output: 'hybrid', // Permite páginas estáticas y SSR
   adapter: vercel(),
+  site: 'https://wazapp.ai',
   integrations: [react(), tailwind(), fixVercelRuntime()],
   server: {
     port: 4321

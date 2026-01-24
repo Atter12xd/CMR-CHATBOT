@@ -73,11 +73,11 @@ WHATSAPP_WEBHOOK_VERIFY_TOKEN=tu_token_existente_aqui
 WHATSAPP_WEBHOOK_URL=https://verifycodorders.com/api/whatsapp/webhook
 
 # Para producción (crear después)
-# WHATSAPP_WEBHOOK_URL=https://cmr-chatbot-two.vercel.app/api/webhooks/whatsapp
+# WHATSAPP_WEBHOOK_URL=https://wazapp.ai/api/webhooks/whatsapp
 ```
 
 #### Para Vercel (Variables de Entorno)
-1. Ve a tu proyecto en Vercel Dashboard: `cmr-chatbot-two.vercel.app`
+1. Ve a tu proyecto en Vercel Dashboard: `wazapp.ai`
 2. Settings → Environment Variables
 3. Agrega las siguientes variables:
    - `WHATSAPP_PHONE_NUMBER_ID` = `723144527547373`
@@ -199,7 +199,7 @@ WHATSAPP_WEBHOOK_URL=https://verifycodorders.com/api/whatsapp/webhook
 **Problema**:
 ```
 Access to fetch at 'https://fsnolvozwcnbyuradiru.supabase.co/functions/v1/whatsapp-oauth' 
-from origin 'https://cmr-chatbot-two.vercel.app' has been blocked by CORS policy: 
+from origin 'https://wazapp.ai' has been blocked by CORS policy: 
 Response to preflight request doesn't pass access control check: 
 It does not have HTTP ok status.
 ```

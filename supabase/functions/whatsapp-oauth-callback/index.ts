@@ -104,7 +104,7 @@ serve(async (req) => {
     const errorDescription = url.searchParams.get('error_description');
 
     // Obtener URL del frontend desde variable de entorno o usar la actual
-    const frontendUrl = Deno.env.get('FRONTEND_URL') || Deno.env.get('PUBLIC_SITE_URL') || 'https://cmr-chatbot-two.vercel.app';
+    const frontendUrl = Deno.env.get('FRONTEND_URL') || Deno.env.get('PUBLIC_SITE_URL') || 'https://wazapp.ai';
 
     // Si hay error de OAuth
     if (error) {
@@ -249,7 +249,7 @@ serve(async (req) => {
   } catch (error: any) {
     console.error('Error en OAuth callback:', error);
     const errorMessage = error.message || 'Error desconocido en la autorización';
-    const frontendUrl = Deno.env.get('FRONTEND_URL') || Deno.env.get('PUBLIC_SITE_URL') || 'https://cmr-chatbot-two.vercel.app';
+    const frontendUrl = Deno.env.get('FRONTEND_URL') || Deno.env.get('PUBLIC_SITE_URL') || 'https://wazapp.ai';
     const redirectUrl = `${frontendUrl}/configuracion?error=${encodeURIComponent(errorMessage)}`;
     return Response.redirect(redirectUrl, 302);
   }

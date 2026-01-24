@@ -17,7 +17,7 @@ Implementar un sistema de conexión de WhatsApp mediante QR code similar a Whats
 1. **Generación de QR Codes**
    - Edge Function: `supabase/functions/whatsapp-qr-generate/index.ts`
    - Guarda QR en tabla `qr_codes` con número asociado en metadata
-   - URL generada: `https://cmr-chatbot-two.vercel.app/connect/qr/{code}`
+   - URL generada: `https://wazapp.ai/connect/qr/{code}`
    - Expiración: 5 minutos
 
 2. **Componente Frontend de QR**
@@ -86,7 +86,7 @@ Implementar un sistema de conexión de WhatsApp mediante QR code similar a Whats
 - `supabase/functions/whatsapp-qr-generate/index.ts` - Genera QR con número en metadata
 - `supabase/functions/whatsapp-webhook/index.ts` - Ya existía, busca por phone_number_id
 - `supabase/functions/whatsapp-send-message/index.ts` - Ya existía, usa phone_number_id de integración
-- `supabase/functions/whatsapp-oauth-callback/index.ts` - Ya existía, redirige a cmr-chatbot-two.vercel.app
+- `supabase/functions/whatsapp-oauth-callback/index.ts` - Ya existía, redirige a wazapp.ai
 
 ### Frontend:
 - `src/components/QRConnectionDisplay.tsx` - Recibe phoneNumber como prop
@@ -117,7 +117,7 @@ WHATSAPP_BUSINESS_ACCOUNT_ID=754836650218132
 WHATSAPP_PHONE_NUMBER_ID=723144527547373
 WHATSAPP_ACCESS_TOKEN=<token permanente de Meta>
 WHATSAPP_WEBHOOK_VERIFY_TOKEN=<token de verificación>
-FRONTEND_URL=https://cmr-chatbot-two.vercel.app
+FRONTEND_URL=https://wazapp.ai
 SUPABASE_URL=<tu URL de Supabase>
 SUPABASE_SERVICE_ROLE_KEY=<tu service role key>
 ```

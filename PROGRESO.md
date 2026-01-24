@@ -54,8 +54,8 @@
 - `PUBLIC_APP_URL` ✅ (local: `http://localhost:4321`)
 
 **Deployment**:
-- ✅ Vercel: `cmr-chatbot-two.vercel.app`
-- ⬜ Variables de entorno en Vercel (agregar con `PUBLIC_APP_URL=https://cmr-chatbot-two.vercel.app`)
+- ✅ Vercel: `wazapp.ai`
+- ⬜ Variables de entorno en Vercel (agregar con `PUBLIC_APP_URL=https://wazapp.ai`)
 
 ### Mejoras de Diseño y Responsive
 - ✅ **Diseño responsive completo**: Toda la aplicación optimizada para móvil

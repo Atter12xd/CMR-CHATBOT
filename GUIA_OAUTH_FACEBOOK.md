@@ -37,7 +37,7 @@ Estos permisos deben estar aprobados en tu App (algunos requieren revisión de M
 Asegúrate de tener configuradas en Supabase Edge Functions → Secrets:
 - `WHATSAPP_APP_ID` = `1697684594201061`
 - `WHATSAPP_APP_SECRET` = `75ec6c1f9c00e3ee5ca3763e5c46a920`
-- `FRONTEND_URL` = `https://cmr-chatbot-two.vercel.app` (o tu URL de producción)
+- `FRONTEND_URL` = `https://wazapp.ai` (o tu URL de producción)
 
 ## 🎯 Flujo del Usuario (Cliente)
 

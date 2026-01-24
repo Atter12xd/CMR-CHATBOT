@@ -119,7 +119,7 @@
           }
 
           // Generar URL del QR
-          const frontendUrl = Deno.env.get('FRONTEND_URL') || Deno.env.get('PUBLIC_SITE_URL') || 'https://cmr-chatbot-two.vercel.app';
+          const frontendUrl = Deno.env.get('FRONTEND_URL') || Deno.env.get('PUBLIC_SITE_URL') || 'https://wazapp.ai';
           const qrUrl = `${frontendUrl}/connect/qr/${code}`;
 
           // Generar imagen QR usando API externa (ya que no tenemos qrcode instalado en Deno)

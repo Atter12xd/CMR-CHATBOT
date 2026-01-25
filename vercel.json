@@ -1,8 +1,5 @@
 {
   "buildCommand": "npm run build",
-  "rewrites": [
-    { "source": "/webhook", "destination": "/api/webhooks/whatsapp" }
-  ],
   "redirects": [
     {
       "source": "/:path*",

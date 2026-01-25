@@ -13,6 +13,7 @@ export interface Chat {
   id: string;
   customerName: string;
   customerEmail: string;
+  customerPhone?: string | null;
   customerAvatar: string;
   lastMessage: string;
   lastMessageTime: Date;

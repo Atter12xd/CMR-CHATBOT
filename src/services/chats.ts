@@ -34,13 +34,14 @@ export async function loadChats(organizationId: string): Promise<Chat[]> {
         id: chat.id,
         customerName: chat.customer_name,
         customerEmail: chat.customer_email || '',
+        customerPhone: chat.customer_phone ?? null,
         customerAvatar: avatarUrl,
-        lastMessage: '', // Se actualizará con el último mensaje
+        lastMessage: '',
         lastMessageTime: chat.last_message_at ? new Date(chat.last_message_at) : new Date(),
         unreadCount: chat.unread_count || 0,
         status: chat.status as 'active' | 'waiting' | 'resolved',
         platform: chat.platform as 'facebook' | 'whatsapp' | 'web',
-        messages: [], // Se cargarán cuando se abra el chat
+        messages: [],
         botActive: chat.bot_active || false,
       };
     });
@@ -129,6 +130,7 @@ export async function loadChatWithMessages(chatId: string): Promise<Chat | null>
       id: chat.id,
       customerName: chat.customer_name,
       customerEmail: chat.customer_email || '',
+      customerPhone: chat.customer_phone ?? null,
       customerAvatar: avatarUrl,
       lastMessage: transformedMessages.length > 0 
         ? (transformedMessages[transformedMessages.length - 1].text || 'Mensaje')
@@ -252,4 +254,55 @@ export function subscribeToChatMessages(
   return () => {
     subscription.unsubscribe();
   };
+}
+
+/**
+ * Vacía el chat: borra todos los mensajes y actualiza last_message_at / unread_count.
+ */
+export async function clearChat(chatId: string): Promise<{ success: boolean; error?: string }> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return { success: false, error: 'No hay sesión' };
+
+  try {
+    const { error: delErr } = await supabase
+      .from('messages')
+      .delete()
+      .eq('chat_id', chatId);
+
+    if (delErr) throw delErr;
+
+    await supabase
+      .from('chats')
+      .update({ last_message_at: null, unread_count: 0 })
+      .eq('id', chatId);
+
+    return { success: true };
+  } catch (e: any) {
+    console.error('Error vaciando chat:', e);
+    return { success: false, error: e.message || 'Error al vaciar chat' };
+  }
+}
+
+/**
+ * Actualiza el nombre del contacto del chat.
+ */
+export async function updateChatName(chatId: string, customerName: string): Promise<{ success: boolean; error?: string }> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return { success: false, error: 'No hay sesión' };
+
+  const name = (customerName || '').trim();
+  if (!name) return { success: false, error: 'El nombre no puede estar vacío' };
+
+  try {
+    const { error } = await supabase
+      .from('chats')
+      .update({ customer_name: name })
+      .eq('id', chatId);
+
+    if (error) throw error;
+    return { success: true };
+  } catch (e: any) {
+    console.error('Error actualizando nombre:', e);
+    return { success: false, error: e.message || 'Error al cambiar nombre' };
+  }
 }

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Send, Bot, User, UserCircle, Loader2, Paperclip } from 'lucide-react';
+import { ArrowLeft, Send, Bot, User, UserCircle, Loader2, Paperclip, MoreVertical, Pencil, Trash2, Info, X } from 'lucide-react';
 import type { Chat, Message } from '../data/mockData';
-import { loadChatWithMessages, subscribeToChatMessages } from '../services/chats';
+import { loadChatWithMessages, subscribeToChatMessages, clearChat, updateChatName } from '../services/chats';
 import { sendTextMessage, sendImageMessage, sendDocumentMessage, markMessagesAsRead } from '../services/whatsapp-messages';
 import MessageStatusIndicator from './MessageStatusIndicator';
 import FileUploadModal from './FileUploadModal';
@@ -19,8 +19,22 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [showFileModal, setShowFileModal] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [showRenameModal, setShowRenameModal] = useState(false);
+  const [renameValue, setRenameValue] = useState(chat.customerName);
+  const [renaming, setRenaming] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [clearing, setClearing] = useState(false);
+  const [showInfoPanel, setShowInfoPanel] = useState(false);
+  const [displayName, setDisplayName] = useState(chat.customerName);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setDisplayName(chat.customerName);
+    setRenameValue(chat.customerName);
+  }, [chat.id, chat.customerName]);
 
   // Cargar mensajes cuando se abre el chat
   useEffect(() => {
@@ -76,6 +90,55 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
     }
   }, [newMessage]);
+
+  // Cerrar menú al hacer clic fuera
+  useEffect(() => {
+    const fn = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener('mousedown', fn);
+    return () => document.removeEventListener('mousedown', fn);
+  }, []);
+
+  const handleRename = async () => {
+    const name = renameValue.trim();
+    if (!name) return;
+    setRenaming(true);
+    try {
+      const res = await updateChatName(chat.id, name);
+      if (res.success) {
+        setDisplayName(name);
+        setShowRenameModal(false);
+        setMenuOpen(false);
+        onRefetchChats?.();
+      } else {
+        alert(res.error || 'Error al cambiar nombre');
+      }
+    } catch (e: any) {
+      alert(e.message || 'Error al cambiar nombre');
+    } finally {
+      setRenaming(false);
+    }
+  };
+
+  const handleClearChat = async () => {
+    setClearing(true);
+    try {
+      const res = await clearChat(chat.id);
+      if (res.success) {
+        setMessages([]);
+        setShowClearConfirm(false);
+        setMenuOpen(false);
+        onRefetchChats?.();
+      } else {
+        alert(res.error || 'Error al vaciar chat');
+      }
+    } catch (e: any) {
+      alert(e.message || 'Error al vaciar chat');
+    } finally {
+      setClearing(false);
+    }
+  };
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || sending) return;
@@ -191,7 +254,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
       case 'agent':
         return { icon: UserCircle, bgColor: 'bg-primary-500', name: 'Tú' };
       case 'user':
-        return { icon: User, bgColor: 'bg-gray-500', name: chat.customerName };
+        return { icon: User, bgColor: 'bg-gray-500', name: displayName };
       default:
         return { icon: User, bgColor: 'bg-gray-500', name: 'Usuario' };
     }
@@ -217,11 +280,11 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
           </button>
           <img
             src={chat.customerAvatar}
-            alt={chat.customerName}
+            alt={displayName}
             className="w-12 h-12 rounded-xl object-cover ring-2 ring-white shadow-sm"
           />
           <div>
-            <h2 className="font-semibold text-slate-900 text-base tracking-tight">{chat.customerName}</h2>
+            <h2 className="font-semibold text-slate-900 text-base tracking-tight">{displayName}</h2>
             <p className="text-xs text-slate-500 mt-0.5">
               {chat.platform === 'whatsapp' && (whatsAppNumber ? `WhatsApp · ${whatsAppNumber}` : 'WhatsApp')}
               {chat.platform === 'facebook' && 'Facebook'}
@@ -229,11 +292,47 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
             </p>
           </div>
         </div>
-        {chat.botActive && (
-          <span className="text-xs px-3 py-1.5 bg-violet-100 text-violet-700 rounded-lg font-medium">
-            Bot activo
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {chat.botActive && (
+            <span className="text-xs px-3 py-1.5 bg-violet-100 text-violet-700 rounded-lg font-medium">
+              Bot activo
+            </span>
+          )}
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setMenuOpen((o) => !o)}
+              className="p-2.5 hover:bg-slate-100 rounded-xl transition-colors text-slate-500 hover:text-slate-700"
+              aria-label="Más opciones"
+            >
+              <MoreVertical size={22} />
+            </button>
+            {menuOpen && (
+              <div className="absolute right-0 top-full mt-1 w-56 bg-white rounded-xl shadow-lg border border-slate-200 py-1.5 z-50">
+                <button
+                  onClick={() => { setShowInfoPanel(true); setMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50"
+                >
+                  <Info size={18} className="text-slate-400" />
+                  Ver información
+                </button>
+                <button
+                  onClick={() => { setShowRenameModal(true); setRenameValue(displayName); setMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50"
+                >
+                  <Pencil size={18} className="text-slate-400" />
+                  Cambiar nombre
+                </button>
+                <button
+                  onClick={() => { setShowClearConfirm(true); setMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50"
+                >
+                  <Trash2 size={18} className="text-red-400" />
+                  Vaciar chat
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Mensajes */}
@@ -353,6 +452,130 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
         onSend={handleSendFile}
         chatId={chat.id}
       />
+
+      {/* Modal Cambiar nombre */}
+      {showRenameModal && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-slate-900">Cambiar nombre</h3>
+              <button onClick={() => setShowRenameModal(false)} className="p-2 hover:bg-slate-100 rounded-xl">
+                <X size={18} className="text-slate-500" />
+              </button>
+            </div>
+            <input
+              type="text"
+              value={renameValue}
+              onChange={(e) => setRenameValue(e.target.value)}
+              placeholder="Nombre del contacto"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 text-slate-900"
+              onKeyDown={(e) => e.key === 'Enter' && handleRename()}
+              autoFocus
+            />
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => setShowRenameModal(false)}
+                className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleRename}
+                disabled={renaming || !renameValue.trim()}
+                className="flex-1 py-2.5 rounded-xl bg-primary-500 text-white hover:bg-primary-600 disabled:opacity-50 font-medium"
+              >
+                {renaming ? 'Guardando…' : 'Guardar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmación Vaciar chat */}
+      {showClearConfirm && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5">
+            <h3 className="font-semibold text-slate-900 mb-1">Vaciar conversación</h3>
+            <p className="text-sm text-slate-500 mb-5">
+              Se eliminarán todos los mensajes de este chat. Esta acción no se puede deshacer.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowClearConfirm(false)}
+                className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleClearChat}
+                disabled={clearing}
+                className="flex-1 py-2.5 rounded-xl bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 font-medium"
+              >
+                {clearing ? 'Vaciar…' : 'Vaciar chat'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Panel Ver información */}
+      {showInfoPanel && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div
+            className="bg-white w-full sm:max-w-sm sm:rounded-2xl rounded-t-2xl shadow-xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-4 border-b border-slate-200 flex items-center justify-between">
+              <h3 className="font-semibold text-slate-900">Información del contacto</h3>
+              <button onClick={() => setShowInfoPanel(false)} className="p-2 hover:bg-slate-100 rounded-xl">
+                <X size={18} className="text-slate-500" />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <div className="flex justify-center">
+                <img
+                  src={chat.customerAvatar}
+                  alt={displayName}
+                  className="w-20 h-20 rounded-2xl object-cover ring-2 ring-slate-100"
+                />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">Nombre</p>
+                <p className="text-slate-900 font-medium">{displayName}</p>
+              </div>
+              {chat.customerEmail && (
+                <div>
+                  <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">Email</p>
+                  <p className="text-slate-900">{chat.customerEmail}</p>
+                </div>
+              )}
+              {chat.customerPhone && (
+                <div>
+                  <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">Teléfono</p>
+                  <p className="text-slate-900">{chat.customerPhone}</p>
+                </div>
+              )}
+              <div>
+                <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">Plataforma</p>
+                <p className="text-slate-900">
+                  {chat.platform === 'whatsapp' && 'WhatsApp'}
+                  {chat.platform === 'facebook' && 'Facebook'}
+                  {chat.platform === 'web' && 'Web'}
+                </p>
+              </div>
+            </div>
+            <div className="p-4 bg-slate-50 border-t border-slate-200">
+              <button
+                onClick={() => setShowInfoPanel(false)}
+                className="w-full py-2.5 rounded-xl bg-slate-200 text-slate-700 hover:bg-slate-300 font-medium"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+          <div className="absolute inset-0 -z-10" onClick={() => setShowInfoPanel(false)} aria-hidden="true" />
+        </div>
+      )}
     </div>
   );
 }

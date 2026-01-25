@@ -301,14 +301,20 @@ async function processMessageStatus(
   }
 }
 
+function redactHeaders(headers: Headers): Record<string, string> {
+  const out: Record<string, string> = {};
+  const sensitive = ['authorization', 'apikey', 'x-api-key', 'x-hub-signature-256'];
+  headers.forEach((v, k) => {
+    const key = k.toLowerCase();
+    out[k] = sensitive.some((s) => key === s) ? (v ? '[REDACTED]' : '') : v;
+  });
+  return out;
+}
+
 serve(async (req: Request) => {
   console.log('=== WEBHOOK RECIBIDO ===');
-  console.log('Timestamp:', new Date().toISOString());
-  console.log('Method:', req.method);
-  console.log('URL:', req.url);
-  console.log('Headers:', Object.fromEntries(req.headers.entries()));
-  console.log('Origin:', req.headers.get('origin') || 'No origin');
-  console.log('User-Agent:', req.headers.get('user-agent') || 'No user-agent');
+  console.log('Method:', req.method, '| URL:', req.url);
+  console.log('Headers (redacted):', JSON.stringify(redactHeaders(req.headers)));
 
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {

@@ -8,7 +8,9 @@ El proyecto está configurado para usar **https://wazapp.ai** como dominio princ
   - `whatsapp-qr-generate`: genera URLs de QR como `https://wazapp.ai/connect/qr/{code}`.
   - `whatsapp-oauth-callback`: redirige a `https://wazapp.ai/configuracion` tras OAuth.
 - **Astro**: `site: 'https://wazapp.ai'` en `astro.config.mjs` (canónicas, etc.).
-- **Vercel**: redirect permanente de `cmr-chatbot-two.vercel.app` → `https://wazapp.ai` (misma ruta).
+- **Vercel**: redirects permanentes:
+  - `cmr-chatbot-two.vercel.app` → `https://wazapp.ai` (misma ruta)
+  - `www.wazapp.ai` → `https://wazapp.ai` (misma ruta)
 
 ## Qué debes configurar tú
 

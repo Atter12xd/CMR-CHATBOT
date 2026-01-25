@@ -6,6 +6,12 @@
       "has": [{ "type": "host", "value": "cmr-chatbot-two.vercel.app" }],
       "destination": "https://wazapp.ai/:path*",
       "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.wazapp.ai" }],
+      "destination": "https://wazapp.ai/:path*",
+      "permanent": true
     }
   ]
 }

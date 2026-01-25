@@ -102,10 +102,11 @@ async function getOrCreateChat(
   customerPhone: string,
   customerName?: string
 ): Promise<string> {
-  // Normalizar: solo dígitos (igual que en whatsapp-send-message para Meta)
-  const normalizedPhone = customerPhone.replace(/\D/g, '').trim();
+  const normalizedPhone = String(customerPhone ?? '').replace(/\D/g, '').trim();
+  if (!normalizedPhone) {
+    throw new Error('Número de teléfono inválido o vacío');
+  }
 
-  // Buscar chat existente
   const { data: existingChat, error: searchError } = await supabase
     .from('chats')
     .select('id, customer_name')
@@ -114,24 +115,24 @@ async function getOrCreateChat(
     .eq('customer_phone', normalizedPhone)
     .maybeSingle();
 
+  if (searchError) {
+    console.error('❌ Error buscando chat por customer_phone:', searchError);
+    throw new Error(`Error buscando chat: ${searchError.message}`);
+  }
+
   if (existingChat) {
-    // Si el chat existe pero tenemos un nombre mejor, actualizarlo
-    if (customerName && customerName !== existingChat.customer_name && !existingChat.customer_name.startsWith('Usuario ')) {
-      console.log(`Actualizando nombre del chat de "${existingChat.customer_name}" a "${customerName}"`);
-      await supabase
-        .from('chats')
-        .update({ customer_name: customerName })
-        .eq('id', existingChat.id);
+    const name = existingChat.customer_name ?? '';
+    const canUpdateName = customerName && customerName !== name && !name.startsWith('Usuario ');
+    if (canUpdateName) {
+      console.log(`Actualizando nombre del chat de "${name}" a "${customerName}"`);
+      await supabase.from('chats').update({ customer_name: customerName }).eq('id', existingChat.id);
     }
     return existingChat.id;
   }
 
-  // Crear nuevo chat
-  // Si no hay nombre, intentar obtenerlo del número o usar un nombre genérico
-  const finalCustomerName = customerName || `Usuario ${normalizedPhone.slice(-4)}`;
-  
+  const finalCustomerName = customerName?.trim() || `Usuario ${normalizedPhone.slice(-4)}`;
   console.log(`Creando nuevo chat para ${normalizedPhone} con nombre: ${finalCustomerName}`);
-  
+
   const { data: newChat, error: createError } = await supabase
     .from('chats')
     .insert({
@@ -142,13 +143,13 @@ async function getOrCreateChat(
       platform_conversation_id: normalizedPhone,
       status: 'active',
       last_message_at: new Date().toISOString(),
-      unread_count: 1,
+      unread_count: 0,
     })
     .select('id')
     .single();
 
   if (createError || !newChat) {
-    throw new Error(`Error creando chat: ${createError?.message || 'Unknown error'}`);
+    throw new Error(`Error creando chat: ${createError?.message ?? 'Unknown'}`);
   }
 
   return newChat.id;
@@ -156,6 +157,7 @@ async function getOrCreateChat(
 
 /**
  * Procesa un mensaje entrante de WhatsApp
+ * El trigger update_chat_on_new_message ya actualiza last_message_at y unread_count en chats.
  */
 async function processIncomingMessage(
   supabase: any,
@@ -163,31 +165,59 @@ async function processIncomingMessage(
   messageData: any,
   contactName?: string
 ): Promise<void> {
-  const { from, id: messageId, timestamp, type, text, image, document } = messageData;
+  const from = messageData.from;
+  const messageId = messageData.id;
+  const ts = messageData.timestamp;
+  const type = messageData.type ?? 'text';
+  const text = messageData.text;
+  const image = messageData.image;
+  const document = messageData.document;
+  const audio = messageData.audio;
+  const video = messageData.video;
+  const sticker = messageData.sticker;
 
-  // Obtener o crear chat con el nombre del contacto si está disponible
+  if (!from) {
+    console.warn('⚠️ Mensaje sin "from", se omite');
+    return;
+  }
+
   const chatId = await getOrCreateChat(
     supabase,
     integration.organization_id,
     from,
-    contactName // Usar el nombre del contacto si está disponible
+    contactName
   );
 
-  // Extraer texto del mensaje
   let messageText: string | null = null;
   let imageUrl: string | null = null;
 
-  if (type === 'text' && text) {
+  if (type === 'text' && text?.body) {
     messageText = text.body;
   } else if (type === 'image' && image) {
-    imageUrl = image.id; // ID de la imagen en Meta, necesitarás descargarla después
-    messageText = image.caption || null;
+    imageUrl = image.id;
+    messageText = image.caption ?? null;
   } else if (type === 'document' && document) {
-    imageUrl = document.id; // ID del documento
-    messageText = document.caption || `Documento: ${document.filename || 'sin nombre'}`;
+    imageUrl = document.id;
+    messageText = document.caption ?? `Documento: ${document.filename ?? 'sin nombre'}`;
+  } else if (type === 'audio' && audio) {
+    messageText = '🎵 Audio';
+  } else if (type === 'video' && video) {
+    messageText = video.caption ?? '🎬 Video';
+  } else if (type === 'sticker' && sticker) {
+    messageText = '🖼 Sticker';
+  } else if (type === 'reaction') {
+    // Las reacciones referencian otro mensaje; opcional guardarlas. Por ahora se omiten.
+    console.log('Reacción recibida, se omite guardar');
+    return;
   }
 
-  // Guardar mensaje (columna sender, no sender_type)
+  if (messageText == null && imageUrl == null) {
+    messageText = '📎 Mensaje';
+  }
+
+  const timestampMs = ts != null ? Number(ts) * 1000 : Date.now();
+  const created_at = new Date(timestampMs).toISOString();
+
   const messageToSave = {
     chat_id: chatId,
     sender: 'user',
@@ -195,7 +225,7 @@ async function processIncomingMessage(
     image_url: imageUrl,
     platform_message_id: messageId,
     status: 'delivered',
-    created_at: new Date(parseInt(timestamp) * 1000).toISOString(),
+    created_at,
   };
 
   console.log('💾 Guardando mensaje en BD:', JSON.stringify(messageToSave, null, 2));
@@ -207,101 +237,71 @@ async function processIncomingMessage(
 
   if (messageError) {
     console.error('❌ Error guardando mensaje:', messageError);
-    console.error('❌ Message data que intentó guardar:', JSON.stringify(messageToSave, null, 2));
-    console.error('❌ Error code:', messageError.code);
-    console.error('❌ Error message:', messageError.message);
-    console.error('❌ Error details:', messageError.details);
-    console.error('❌ Error hint:', messageError.hint);
+    console.error('❌ Payload:', JSON.stringify(messageToSave, null, 2));
     throw messageError;
   }
 
-  console.log('✅ Mensaje guardado exitosamente en BD:', savedMessage);
-
-  // Obtener unread_count actual y actualizar chat
-  const { data: chat } = await supabase
-    .from('chats')
-    .select('unread_count')
-    .eq('id', chatId)
-    .single();
-
-  const newUnreadCount = (chat?.unread_count || 0) + 1;
-
-  // Actualizar chat: last_message_at y unread_count
-  await supabase
-    .from('chats')
-    .update({
-      last_message_at: new Date(parseInt(timestamp) * 1000).toISOString(),
-      unread_count: newUnreadCount,
-    })
-    .eq('id', chatId);
-
-  // TODO: Activar bot si está configurado
-  // const { data: chatData } = await supabase.from('chats').select('bot_active').eq('id', chatId).single();
-  // if (chatData?.bot_active) {
-  //   // Llamar a función de bot
-  // }
+  console.log('✅ Mensaje guardado:', savedMessage);
 }
 
 /**
- * Procesa un evento de estado de mensaje
+ * Procesa un evento de estado de mensaje (sent, delivered, read, failed)
  */
 async function processMessageStatus(
   supabase: any,
-  integration: any,
+  _integration: any,
   statusData: any
 ): Promise<void> {
-  const { id: messageId, status, timestamp } = statusData;
+  const messageId = statusData.id;
+  const status = statusData.status;
 
-  // Buscar mensaje por platform_message_id
+  if (!messageId) {
+    console.warn('⚠️ Status sin id de mensaje, se omite');
+    return;
+  }
+
   const { data: message, error: findError } = await supabase
     .from('messages')
     .select('id, chat_id')
     .eq('platform_message_id', messageId)
     .maybeSingle();
 
-  if (findError || !message) {
-    console.log(`Mensaje no encontrado: ${messageId}`);
+  if (findError) {
+    console.error(`Error buscando mensaje ${messageId}:`, findError);
+    return;
+  }
+  if (!message) {
+    console.log(`Mensaje no encontrado (status): ${messageId}`);
     return;
   }
 
-  // Mapear estados de Meta a nuestros estados
-  // Meta envía: sent, delivered, read, failed
-  let mappedStatus: 'sent' | 'delivered' | 'read' | 'failed' = 'sent';
-  
-  if (status === 'sent') {
-    mappedStatus = 'sent';
-  } else if (status === 'delivered') {
-    mappedStatus = 'delivered';
-  } else if (status === 'read') {
-    mappedStatus = 'read';
-    // Si el mensaje fue leído, también marcarlo como read=true
-    await supabase
+  if (status === 'read') {
+    const { error: updateError } = await supabase
       .from('messages')
-      .update({ read: true, status: 'read', updated_at: new Date().toISOString() })
+      .update({ read: true, status: 'read' })
       .eq('id', message.id);
-    console.log(`Mensaje ${messageId} marcado como leído`);
+    if (updateError) {
+      console.error(`Error marcando mensaje ${messageId} como leído:`, updateError);
+    } else {
+      console.log(`Mensaje ${messageId} marcado como leído`);
+    }
     return;
-  } else if (status === 'failed') {
-    mappedStatus = 'failed';
   }
 
-  // Actualizar estado del mensaje
+  const mapped = status === 'sent' ? 'sent' : status === 'delivered' ? 'delivered' : status === 'failed' ? 'failed' : 'sent';
   const { error: updateError } = await supabase
     .from('messages')
-    .update({ 
-      status: mappedStatus,
-      updated_at: new Date().toISOString()
-    })
+    .update({ status: mapped })
     .eq('id', message.id);
 
   if (updateError) {
     console.error(`Error actualizando estado del mensaje ${messageId}:`, updateError);
   } else {
-    console.log(`Mensaje ${messageId} actualizado a estado: ${mappedStatus}`);
+    console.log(`Mensaje ${messageId} → ${mapped}`);
   }
 }
 
-serve(async (req) => {
+serve(async (req: Request) => {
   console.log('=== WEBHOOK RECIBIDO ===');
   console.log('Timestamp:', new Date().toISOString());
   console.log('Method:', req.method);
@@ -319,31 +319,32 @@ serve(async (req) => {
     });
   }
 
-  // Verificar apikey si viene en query o header (para bypass de autenticación de Supabase)
   const url = new URL(req.url);
   const apikeyFromQuery = url.searchParams.get('apikey');
-  const apikeyFromHeader = req.headers.get('apikey') || req.headers.get('x-api-key');
-  
-  // Si viene apikey, lo validamos (opcional, pero ayuda a debuggear)
+  const apikeyFromHeader = req.headers.get('apikey') ?? req.headers.get('x-api-key');
   if (apikeyFromQuery || apikeyFromHeader) {
     console.log('Apikey recibido:', apikeyFromQuery ? 'from query' : 'from header');
   }
 
-  // GET: Verificación del webhook (Meta envía esto para verificar)
-  // Este endpoint NO requiere autenticación porque Meta no puede autenticarse
   if (req.method === 'GET') {
-    console.log('📥 GET request recibido - Verificación de webhook o prueba');
+    const ping = url.searchParams.get('ping');
+    if (ping === '1' || ping === 'true') {
+      console.log('🏓 PING / health check – si ves esto en Supabase Logs, el webhook está vivo');
+      return new Response('OK', {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+      });
+    }
+
+    console.log('📥 GET - Verificación de webhook');
     try {
-      const url = new URL(req.url);
       const mode = url.searchParams.get('hub.mode');
       const token = url.searchParams.get('hub.verify_token');
       const challenge = url.searchParams.get('hub.challenge');
 
       console.log('Webhook verification request:', { mode, token: token ? '***' : null, challenge: challenge ? '***' : null });
 
-      // Obtener token de verificación de variables de entorno
       const verifyToken = Deno.env.get('WHATSAPP_WEBHOOK_VERIFY_TOKEN');
-      
       console.log('Verify token from env:', verifyToken ? '***' : 'NOT FOUND');
 
       if (!verifyToken) {
@@ -361,12 +362,7 @@ serve(async (req) => {
           headers: { 'Content-Type': 'text/plain' },
         });
       } else {
-        console.error('Verificación fallida:', { 
-          mode, 
-          tokenReceived: token ? '***' : null, 
-          tokenExpected: verifyToken ? '***' : null,
-          tokensMatch: token === verifyToken
-        });
+        console.error('Verificación fallida:', { mode, tokenReceived: token ? '***' : null, tokenExpected: verifyToken ? '***' : null, tokensMatch: token === verifyToken });
         return new Response('Verification failed', {
           status: 403,
           headers: { 'Content-Type': 'text/plain' },
@@ -402,23 +398,23 @@ serve(async (req) => {
         bodyLength: rawBody.length
       });
 
-      // Obtener app secret para validar firma
-      const appSecret = Deno.env.get('WHATSAPP_APP_SECRET') || '75ec6c1f9c00e3ee5ca3763e5c46a920';
+      // Validar firma solo si tenemos App Secret en Secrets (nunca usar fallback)
+      const appSecret = Deno.env.get('WHATSAPP_APP_SECRET');
 
-      // Validar firma (opcional pero recomendado)
       if (signature && appSecret) {
         const isValid = await validateSignature(rawBody, signature, appSecret);
         if (!isValid) {
-          console.error('❌ Firma de webhook inválida');
+          console.error('❌ Firma de webhook inválida. Verifica WHATSAPP_APP_SECRET en Edge Function Secrets.');
           return new Response('Invalid signature', {
             status: 401,
             headers: { 'Content-Type': 'text/plain' },
           });
-        } else {
-          console.log('✅ Firma de webhook válida');
         }
+        console.log('✅ Firma de webhook válida');
+      } else if (signature && !appSecret) {
+        console.warn('⚠️ Meta envía firma pero WHATSAPP_APP_SECRET no está en Secrets. Omitiendo validación para recibir mensajes.');
       } else {
-        console.log('⚠️ Validación de firma omitida (no hay signature o appSecret)');
+        console.log('⚠️ Sin firma o sin App Secret; se procesa el webhook sin validar firma.');
       }
 
       let body;
@@ -461,13 +457,17 @@ serve(async (req) => {
       console.log('=== BODY COMPLETO DEL WEBHOOK ===');
       console.log(JSON.stringify(body, null, 2));
 
-      // Procesar cada entrada
-      for (const entry of body.entry || []) {
+      for (const entry of body.entry ?? []) {
         console.log('Procesando entry:', entry.id);
-        
-        for (const change of entry.changes || []) {
-          const value = change.value;
-          const phoneNumberId = value?.metadata?.phone_number_id;
+
+        for (const change of entry.changes ?? []) {
+          const value = change?.value;
+          if (!value) {
+            console.warn('⚠️ change.value vacío, se omite');
+            continue;
+          }
+
+          const phoneNumberId = value.metadata?.phone_number_id;
 
           console.log('Change value:', {
             messaging_product: value?.messaging_product,
@@ -553,19 +553,18 @@ serve(async (req) => {
             for (const status of value.statuses) {
               try {
                 await processMessageStatus(supabase, integration, status);
-              } catch (error) {
-                console.error(`Error procesando estado ${status.id}:`, error);
+              } catch (err) {
+                console.error(`Error procesando estado ${status?.id ?? '?'}:`, err);
               }
             }
           }
         }
       }
 
-      // Responder 200 OK a Meta
       console.log('✅ Procesamiento completo. Respondiendo 200 OK a Meta');
       return new Response('OK', {
         status: 200,
-        headers: { 'Content-Type': 'text/plain' },
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
     }
 

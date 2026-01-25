@@ -27,6 +27,30 @@ export interface SendMessageResponse {
   error?: string;
 }
 
+const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL || '';
+
+async function invokeSendMessage(session: { access_token: string }, body: object): Promise<SendMessageResponse> {
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/whatsapp-send-message`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify(body),
+  });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = [j.error, j.details].filter(Boolean).join(' — ') || 'Error al enviar mensaje';
+    return { success: false, status: 'failed', error: msg };
+  }
+  return {
+    success: true,
+    messageId: j.messageId,
+    whatsappMessageId: j.whatsappMessageId,
+    status: (j.status as SendMessageResponse['status']) || 'sent',
+  };
+}
+
 /**
  * Envía un mensaje de texto a WhatsApp
  */
@@ -35,35 +59,10 @@ export async function sendTextMessage(
 ): Promise<SendMessageResponse> {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
-    throw new Error('No hay sesión activa');
+    return { success: false, status: 'failed', error: 'No hay sesión activa' };
   }
-
   try {
-    const { data: result, error } = await supabase.functions.invoke('whatsapp-send-message', {
-      body: {
-        chatId: data.chatId,
-        text: data.text,
-      },
-      headers: {
-        Authorization: `Bearer ${session.access_token}`,
-      },
-    });
-
-    if (error) {
-      console.error('Error enviando mensaje:', error);
-      return {
-        success: false,
-        status: 'failed',
-        error: error.message || 'Error al enviar mensaje',
-      };
-    }
-
-    return {
-      success: true,
-      messageId: result?.messageId,
-      whatsappMessageId: result?.whatsappMessageId,
-      status: result?.status || 'sent',
-    };
+    return await invokeSendMessage(session, { chatId: data.chatId, text: data.text });
   } catch (err: any) {
     console.error('Error enviando mensaje:', err);
     return {
@@ -82,36 +81,14 @@ export async function sendImageMessage(
 ): Promise<SendMessageResponse> {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
-    throw new Error('No hay sesión activa');
+    return { success: false, status: 'failed', error: 'No hay sesión activa' };
   }
-
   try {
-    const { data: result, error } = await supabase.functions.invoke('whatsapp-send-message', {
-      body: {
-        chatId: data.chatId,
-        imageUrl: data.imageUrl,
-        text: data.caption,
-      },
-      headers: {
-        Authorization: `Bearer ${session.access_token}`,
-      },
+    return await invokeSendMessage(session, {
+      chatId: data.chatId,
+      imageUrl: data.imageUrl,
+      text: data.caption,
     });
-
-    if (error) {
-      console.error('Error enviando imagen:', error);
-      return {
-        success: false,
-        status: 'failed',
-        error: error.message || 'Error al enviar imagen',
-      };
-    }
-
-    return {
-      success: true,
-      messageId: result?.messageId,
-      whatsappMessageId: result?.whatsappMessageId,
-      status: result?.status || 'sent',
-    };
   } catch (err: any) {
     console.error('Error enviando imagen:', err);
     return {
@@ -130,36 +107,14 @@ export async function sendDocumentMessage(
 ): Promise<SendMessageResponse> {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
-    throw new Error('No hay sesión activa');
+    return { success: false, status: 'failed', error: 'No hay sesión activa' };
   }
-
   try {
-    const { data: result, error } = await supabase.functions.invoke('whatsapp-send-message', {
-      body: {
-        chatId: data.chatId,
-        documentUrl: data.documentUrl,
-        filename: data.filename,
-      },
-      headers: {
-        Authorization: `Bearer ${session.access_token}`,
-      },
+    return await invokeSendMessage(session, {
+      chatId: data.chatId,
+      documentUrl: data.documentUrl,
+      filename: data.filename,
     });
-
-    if (error) {
-      console.error('Error enviando documento:', error);
-      return {
-        success: false,
-        status: 'failed',
-        error: error.message || 'Error al enviar documento',
-      };
-    }
-
-    return {
-      success: true,
-      messageId: result?.messageId,
-      whatsappMessageId: result?.whatsappMessageId,
-      status: result?.status || 'sent',
-    };
   } catch (err: any) {
     console.error('Error enviando documento:', err);
     return {

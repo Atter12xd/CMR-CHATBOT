@@ -1,10 +1,9 @@
 import type { MiddlewareHandler } from 'astro';
 
 /**
- * Añade CORS a todas las respuestas para evitar bloqueos cuando
- * www.wazapp.ai redirige a wazapp.ai y los scripts se cargan cross-origin.
+ * Añade CORS a todas las respuestas.
  */
-export const onRequest: MiddlewareHandler = async ({ next }) => {
+export const onRequest: MiddlewareHandler = async (_context, next) => {
   const response = await next();
   const headers = new Headers(response.headers);
   headers.set('Access-Control-Allow-Origin', '*');

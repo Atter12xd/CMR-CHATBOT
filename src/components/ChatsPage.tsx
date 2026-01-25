@@ -25,7 +25,6 @@ export default function ChatsPage() {
     }
   }, [organizationId]);
 
-  // Cargar chats cuando haya organización
   useEffect(() => {
     if (!organizationId) {
       setLoading(false);
@@ -50,8 +49,15 @@ export default function ChatsPage() {
       setChats(updatedChats);
     });
 
-    return () => unsubscribe();
-  }, [organizationId]);
+    const pollInterval = setInterval(() => {
+      refetchChats();
+    }, 12_000);
+
+    return () => {
+      unsubscribe();
+      clearInterval(pollInterval);
+    };
+  }, [organizationId, refetchChats]);
 
   // Cargar número de WhatsApp conectado (para mostrar "Enviando desde" en Meta App Review)
   useEffect(() => {

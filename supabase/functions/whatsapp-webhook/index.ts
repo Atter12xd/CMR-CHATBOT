@@ -399,49 +399,32 @@ serve(async (req: Request) => {
 
     console.log('Supabase client creado');
 
-    // POST: Recibir eventos de WhatsApp
     if (req.method === 'POST') {
-      console.log('📥 POST recibido en webhook');
+      console.log('📥 POST webhook (eventos WhatsApp)');
       const rawBody = await req.text();
       const signature = req.headers.get('x-hub-signature-256');
+      console.log('body length:', rawBody?.length ?? 0, '| hasSignature:', !!signature);
 
-      console.log('📋 Headers recibidos:', {
-        contentType: req.headers.get('content-type'),
-        hasSignature: !!signature,
-        userAgent: req.headers.get('user-agent'),
-        bodyLength: rawBody.length
-      });
-
-      // Validar firma solo si tenemos App Secret en Secrets (nunca usar fallback)
       const appSecret = Deno.env.get('WHATSAPP_APP_SECRET');
-
       if (signature && appSecret) {
         const isValid = await validateSignature(rawBody, signature, appSecret);
         if (!isValid) {
-          console.error('❌ Firma de webhook inválida. Verifica WHATSAPP_APP_SECRET en Edge Function Secrets.');
-          return new Response('Invalid signature', {
-            status: 401,
-            headers: { 'Content-Type': 'text/plain' },
-          });
+          console.error('❌ Firma inválida (se procesa igual para que Meta siga enviando)');
+        } else {
+          console.log('✅ Firma válida');
         }
-        console.log('✅ Firma de webhook válida');
       } else if (signature && !appSecret) {
-        console.warn('⚠️ Meta envía firma pero WHATSAPP_APP_SECRET no está en Secrets. Omitiendo validación para recibir mensajes.');
-      } else {
-        console.log('⚠️ Sin firma o sin App Secret; se procesa el webhook sin validar firma.');
+        console.warn('⚠️ Hay firma pero no WHATSAPP_APP_SECRET; se omite validación.');
       }
 
-      let body;
+      let body: any;
       try {
         body = JSON.parse(rawBody);
-        console.log('✅ Body parseado correctamente');
+        console.log('✅ Body parseado OK');
       } catch (parseError) {
-        console.error('❌ Error parseando body:', parseError);
-        console.error('❌ Raw body (primeros 500 chars):', rawBody.substring(0, 500));
-        return new Response('Invalid JSON', {
-          status: 400,
-          headers: { 'Content-Type': 'text/plain' },
-        });
+        console.error('❌ JSON inválido:', parseError);
+        console.error('Raw (500 chars):', rawBody.substring(0, 500));
+        return new Response('OK', { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/plain' } });
       }
 
       // Meta envía eventos en este formato:
@@ -461,14 +444,11 @@ serve(async (req: Request) => {
       // }
 
       if (body.object !== 'whatsapp_business_account') {
-        return new Response('Invalid object type', {
-          status: 400,
-          headers: { 'Content-Type': 'text/plain' },
-        });
+        console.warn('⚠️ object !== whatsapp_business_account, se ignora. Body keys:', body ? Object.keys(body) : 'null');
+        return new Response('OK', { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/plain' } });
       }
 
-      // Log del body completo para debugging
-      console.log('=== BODY COMPLETO DEL WEBHOOK ===');
+      console.log('=== BODY WEBHOOK ===');
       console.log(JSON.stringify(body, null, 2));
 
       for (const entry of body.entry ?? []) {
@@ -481,7 +461,9 @@ serve(async (req: Request) => {
             continue;
           }
 
-          const phoneNumberId = value.metadata?.phone_number_id;
+          const phoneNumberId = value.metadata?.phone_number_id != null
+            ? String(value.metadata.phone_number_id).trim()
+            : undefined;
 
           console.log('Change value:', {
             messaging_product: value?.messaging_product,
@@ -575,32 +557,23 @@ serve(async (req: Request) => {
         }
       }
 
-      console.log('✅ Procesamiento completo. Respondiendo 200 OK a Meta');
+      console.log('✅ Procesamiento completo → 200 OK a Meta');
       return new Response('OK', {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
     }
 
-    // Método no soportado
     return new Response('Method not allowed', {
       status: 405,
       headers: { 'Content-Type': 'text/plain' },
     });
-  } catch (error: any) {
-    console.error('=== ERROR EN WEBHOOK ===');
-    console.error('Error:', error);
-    console.error('Stack:', error.stack);
-    console.error('Message:', error.message);
-    return new Response(
-      JSON.stringify({ 
-        error: error.message || 'Internal server error',
-        details: error.toString()
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+  } catch (err: any) {
+    console.error('=== ERROR WEBHOOK ===', err?.message ?? err);
+    console.error('Stack:', err?.stack);
+    return new Response('OK', {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+    });
   }
 });

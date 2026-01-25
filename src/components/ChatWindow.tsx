@@ -36,35 +36,36 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
     setRenameValue(chat.customerName);
   }, [chat.id, chat.customerName]);
 
-  // Cargar mensajes cuando se abre el chat
   useEffect(() => {
-    const loadMessages = async () => {
+    const loadMessages = async (showLoader = true) => {
       try {
-        setLoading(true);
+        if (showLoader) setLoading(true);
         const fullChat = await loadChatWithMessages(chat.id);
         if (fullChat) {
           setMessages(fullChat.messages);
-          // Marcar mensajes como leídos
           await markMessagesAsRead(chat.id);
         }
+        onRefetchChats?.();
       } catch (error) {
         console.error('Error cargando mensajes:', error);
       } finally {
-        setLoading(false);
+        if (showLoader) setLoading(false);
       }
     };
 
-    loadMessages();
+    loadMessages(true);
 
-    // Suscribirse a nuevos mensajes en tiempo real
     const unsubscribe = subscribeToChatMessages(chat.id, (newMessages) => {
       setMessages(newMessages);
     });
 
+    const poll = setInterval(() => loadMessages(false), 8_000);
+
     return () => {
       unsubscribe();
+      clearInterval(poll);
     };
-  }, [chat.id]);
+  }, [chat.id, onRefetchChats]);
 
   useEffect(() => {
     // Scroll solo si estamos cerca del final o es un mensaje nuevo

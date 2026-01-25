@@ -161,17 +161,15 @@ export function subscribeToChats(
   let lastUpdate = Date.now();
 
   const debouncedReload = async () => {
-    // Debounce: solo recargar si pasaron al menos 1 segundo desde la última actualización
     const now = Date.now();
-    if (now - lastUpdate < 1000) {
+    if (now - lastUpdate < 500) {
       if (debounceTimer) clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
         lastUpdate = Date.now();
         loadChats(organizationId).then(callback).catch(console.error);
-      }, 1000);
+      }, 500);
       return;
     }
-    
     lastUpdate = Date.now();
     try {
       const chats = await loadChats(organizationId);

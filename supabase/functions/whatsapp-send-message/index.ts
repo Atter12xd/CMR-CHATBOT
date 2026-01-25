@@ -394,8 +394,8 @@
         );
       }
 
-      // Normalizar número de teléfono (remover espacios, guiones, etc.)
-      const normalizedPhone = chat.customer_phone?.replace(/[\s\-\(\)]/g, '') || '';
+      // Normalizar número: solo dígitos (Meta exige formato sin +)
+      const normalizedPhone = (chat.customer_phone?.replace(/\D/g, '') || '').trim();
 
       if (!normalizedPhone) {
         return new Response(

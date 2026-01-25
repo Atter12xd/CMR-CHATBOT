@@ -153,37 +153,23 @@ export async function loadChatMessages(chatId: string) {
 }
 
 /**
- * Marca mensajes como leídos
+ * Marca el chat como leído (resetea unread_count).
+ * No actualizamos messages.read para evitar errores con triggers/updated_at.
  */
 export async function markMessagesAsRead(chatId: string) {
   const { data: { session } } = await supabase.auth.getSession();
-  if (!session) {
-    throw new Error('No hay sesión activa');
-  }
+  if (!session) return { success: false, error: 'No hay sesión' };
 
   try {
-    // Actualizar solo el campo read, sin tocar updated_at
     const { error } = await supabase
-      .from('messages')
-      .update({ read: true })
-      .eq('chat_id', chatId)
-      .eq('sender', 'user')
-      .eq('read', false);
-
-    if (error) {
-      throw error;
-    }
-
-    // Actualizar unread_count del chat
-    await supabase
       .from('chats')
       .update({ unread_count: 0 })
       .eq('id', chatId);
 
+    if (error) throw error;
     return { success: true };
   } catch (err: any) {
-    console.error('Error marcando mensajes como leídos:', err);
-    // No lanzar el error, solo loguearlo para no interrumpir la experiencia
+    console.error('Error marcando chat como leído:', err);
     return { success: false, error: err.message };
   }
 }

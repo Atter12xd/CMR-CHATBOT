@@ -102,8 +102,8 @@ async function getOrCreateChat(
   customerPhone: string,
   customerName?: string
 ): Promise<string> {
-  // Normalizar número de teléfono (remover espacios, guiones, etc.)
-  const normalizedPhone = customerPhone.replace(/[\s\-\(\)]/g, '');
+  // Normalizar: solo dígitos (igual que en whatsapp-send-message para Meta)
+  const normalizedPhone = customerPhone.replace(/\D/g, '').trim();
 
   // Buscar chat existente
   const { data: existingChat, error: searchError } = await supabase
@@ -187,10 +187,10 @@ async function processIncomingMessage(
     messageText = document.caption || `Documento: ${document.filename || 'sin nombre'}`;
   }
 
-  // Guardar mensaje
+  // Guardar mensaje (columna sender, no sender_type)
   const messageToSave = {
     chat_id: chatId,
-    sender_type: 'user', // Campo correcto según schema
+    sender: 'user',
     text: messageText,
     image_url: imageUrl,
     platform_message_id: messageId,

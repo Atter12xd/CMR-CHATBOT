@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
 import { createClient } from '../lib/supabase';
 import ChatList from './ChatList';
@@ -14,6 +14,16 @@ export default function ChatsPage() {
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [showChatList, setShowChatList] = useState(true);
   const [whatsAppNumber, setWhatsAppNumber] = useState<string | null>(null);
+
+  const refetchChats = useCallback(async () => {
+    if (!organizationId) return;
+    try {
+      const list = await loadChats(organizationId);
+      setChats(list);
+    } catch (e) {
+      console.error('Error refetch chats:', e);
+    }
+  }, [organizationId]);
 
   // Cargar chats cuando haya organización
   useEffect(() => {
@@ -36,14 +46,11 @@ export default function ChatsPage() {
 
     fetchChats();
 
-    // Suscribirse a cambios en tiempo real
     const unsubscribe = subscribeToChats(organizationId, (updatedChats) => {
       setChats(updatedChats);
     });
 
-    return () => {
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, [organizationId]);
 
   // Cargar número de WhatsApp conectado (para mostrar "Enviando desde" en Meta App Review)
@@ -129,6 +136,7 @@ export default function ChatsPage() {
               chat={selectedChat}
               onBack={handleBackToList}
               whatsAppNumber={selectedChat.platform === 'whatsapp' ? whatsAppNumber : undefined}
+              onRefetchChats={refetchChats}
             />
           ) : (
             <div className="h-full w-full flex items-center justify-center bg-gray-50">

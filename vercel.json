@@ -5,15 +5,11 @@
   ],
   "headers": [
     {
-      "source": "/_astro/(.*)",
+      "source": "/(.*)",
       "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" }
-      ]
-    },
-    {
-      "source": "/assets/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" }
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS, HEAD" },
+        { "key": "Access-Control-Allow-Headers", "value": "*" }
       ]
     }
   ],

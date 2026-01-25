@@ -3,6 +3,20 @@
   "rewrites": [
     { "source": "/webhook", "destination": "/api/webhooks/whatsapp" }
   ],
+  "headers": [
+    {
+      "source": "/_astro/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    }
+  ],
   "redirects": [
     {
       "source": "/:path*",

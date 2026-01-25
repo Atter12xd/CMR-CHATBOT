@@ -329,26 +329,34 @@ serve(async (req: Request) => {
   if (req.method === 'GET') {
     const ping = url.searchParams.get('ping');
     if (ping === '1' || ping === 'true') {
-      console.log('🏓 PING / health check – si ves esto en Supabase Logs, el webhook está vivo');
+      console.log('🏓 PING / health check – webhook vivo');
       return new Response('OK', {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
       });
     }
 
-    console.log('📥 GET - Verificación de webhook');
-    try {
-      const mode = url.searchParams.get('hub.mode');
-      const token = url.searchParams.get('hub.verify_token');
-      const challenge = url.searchParams.get('hub.challenge');
+    const mode = url.searchParams.get('hub.mode');
+    const token = url.searchParams.get('hub.verify_token');
+    const challenge = url.searchParams.get('hub.challenge');
 
-      console.log('Webhook verification request:', { mode, token: token ? '***' : null, challenge: challenge ? '***' : null });
+    if (!mode && !token && !challenge) {
+      console.log('📥 GET sin hub params (health check, curl, etc.). No es verificación de Meta.');
+      return new Response('Webhook OK. Use ?ping=1 to test. Meta verification requires hub.mode, hub.verify_token, hub.challenge.', {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+      });
+    }
+
+    console.log('📥 GET - Verificación de webhook Meta');
+    try {
+      console.log('Webhook verification:', { mode, token: token ? '***' : null, challenge: challenge ? '***' : null });
 
       const verifyToken = Deno.env.get('WHATSAPP_WEBHOOK_VERIFY_TOKEN');
       console.log('Verify token from env:', verifyToken ? '***' : 'NOT FOUND');
 
       if (!verifyToken) {
-        console.error('WHATSAPP_WEBHOOK_VERIFY_TOKEN no está configurado en Secrets');
+        console.error('WHATSAPP_WEBHOOK_VERIFY_TOKEN no configurado en Secrets');
         return new Response('Verify token not configured', {
           status: 500,
           headers: { 'Content-Type': 'text/plain' },
@@ -356,18 +364,18 @@ serve(async (req: Request) => {
       }
 
       if (mode === 'subscribe' && token === verifyToken) {
-        console.log('Webhook verificado exitosamente');
+        console.log('✅ Webhook verificado exitosamente por Meta');
         return new Response(challenge || '', {
           status: 200,
           headers: { 'Content-Type': 'text/plain' },
         });
-      } else {
-        console.error('Verificación fallida:', { mode, tokenReceived: token ? '***' : null, tokenExpected: verifyToken ? '***' : null, tokensMatch: token === verifyToken });
-        return new Response('Verification failed', {
-          status: 403,
-          headers: { 'Content-Type': 'text/plain' },
-        });
       }
+
+      console.error('Verificación fallida:', { mode, tokenReceived: token ? '***' : null, tokensMatch: token === verifyToken });
+      return new Response('Verification failed', {
+        status: 403,
+        headers: { 'Content-Type': 'text/plain' },
+      });
     } catch (error: any) {
       console.error('Error en verificación GET:', error);
       return new Response('Error', {

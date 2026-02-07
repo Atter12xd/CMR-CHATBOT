@@ -1,11 +1,13 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import LandingLayout from '../layouts/LandingLayout.astro';
 import LoginForm from '../components/LoginForm';
+import Navbar from '../components/landing/Navbar';
 ---
 
-<Layout title="Iniciar Sesión - CMR Chatbot">
+<LandingLayout title="Iniciar sesión - wazapp.ai" description="Accede a tu cuenta de wazapp.ai">
+  <Navbar client:only="react" />
   <LoginForm client:only="react" />
-</Layout>
+</LandingLayout>
 
 
 

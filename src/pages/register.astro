@@ -1,11 +1,13 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import LandingLayout from '../layouts/LandingLayout.astro';
 import RegisterForm from '../components/RegisterForm';
+import Navbar from '../components/landing/Navbar';
 ---
 
-<Layout title="Registro - CMR Chatbot">
+<LandingLayout title="Crear cuenta - wazapp.ai" description="Regístrate en wazapp.ai para vender más por WhatsApp">
+  <Navbar client:only="react" />
   <RegisterForm client:only="react" />
-</Layout>
+</LandingLayout>
 
 
 

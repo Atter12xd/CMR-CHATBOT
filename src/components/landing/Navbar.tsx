@@ -1,14 +1,10 @@
-import { useState } from 'react';
-import { MessageSquare, ChevronDown, Globe, ArrowRight } from 'lucide-react';
+import { MessageSquare, Globe, ArrowRight } from 'lucide-react';
 
 interface NavbarProps {
   showAnnouncement?: boolean;
 }
 
 export default function Navbar({ showAnnouncement = false }: NavbarProps) {
-  const [productOpen, setProductOpen] = useState(false);
-  const [resourcesOpen, setResourcesOpen] = useState(false);
-
   return (
     <>
       {showAnnouncement && (
@@ -40,61 +36,18 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
             </a>
 
             <div className="hidden md:flex items-center gap-1">
-              <div
-                className="relative"
-                onMouseEnter={() => setProductOpen(true)}
-                onMouseLeave={() => setProductOpen(false)}
+              <a
+                href="/#caracteristicas"
+                className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors rounded-lg hover:bg-slate-800/50"
               >
-                <a
-                  href="/#caracteristicas"
-                  className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors rounded-lg hover:bg-slate-800/50"
-                >
-                  Producto
-                  <ChevronDown className={`w-4 h-4 transition-transform ${productOpen ? 'rotate-180' : ''}`} />
-                </a>
-                {productOpen && (
-                  <div className="absolute top-full left-0 mt-1 w-48 py-2 bg-slate-900 border border-slate-700 rounded-lg shadow-xl">
-                    <a href="/#caracteristicas" className="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">
-                      Características
-                    </a>
-                    <a href="/#resultados" className="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">
-                      Resultados
-                    </a>
-                    <a href="/comparativas" className="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">
-                      Comparativas
-                    </a>
-                  </div>
-                )}
-              </div>
-              <div
-                className="relative"
-                onMouseEnter={() => setResourcesOpen(true)}
-                onMouseLeave={() => setResourcesOpen(false)}
+                Producto
+              </a>
+              <a
+                href="/recursos"
+                className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors rounded-lg hover:bg-slate-800/50"
               >
-                <a
-                  href="/recursos"
-                  className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors rounded-lg hover:bg-slate-800/50"
-                >
-                  Recursos
-                  <ChevronDown className={`w-4 h-4 transition-transform ${resourcesOpen ? 'rotate-180' : ''}`} />
-                </a>
-                {resourcesOpen && (
-                  <div className="absolute top-full left-0 mt-1 w-56 py-2 bg-slate-900 border border-slate-700 rounded-lg shadow-xl">
-                    <a href="/recursos#guias" className="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">
-                      Guías WhatsApp
-                    </a>
-                    <a href="/recursos#faq" className="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">
-                      Preguntas frecuentes
-                    </a>
-                    <a href="/recursos#videos" className="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">
-                      Vídeos
-                    </a>
-                    <a href="/blog" className="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800">
-                      Blog
-                    </a>
-                  </div>
-                )}
-              </div>
+                Recursos
+              </a>
               <a
                 href="/precios"
                 className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors rounded-lg hover:bg-slate-800/50"
@@ -102,7 +55,7 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
                 Pricing
               </a>
               <a
-                href="/#resultados"
+                href="/#por-que"
                 className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors rounded-lg hover:bg-slate-800/50"
               >
                 Por qué nosotros

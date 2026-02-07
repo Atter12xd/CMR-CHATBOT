@@ -86,10 +86,10 @@ export default function LandingPage() {
             ))}
           </div>
           <a
-            href="#resultados"
+            href="#por-que"
             className="inline-block mt-8 text-sm text-blue-400 hover:text-blue-300 font-medium transition-colors"
           >
-            Ver casos de éxito →
+            Por qué elegirnos →
           </a>
         </div>
       </section>
@@ -170,6 +170,44 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Por qué nosotros */}
+      <section id="por-que" className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 bg-slate-900/50">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-6">
+            Por qué elegir wazapp.ai
+          </h2>
+          <p className="text-lg text-slate-400 text-center max-w-2xl mx-auto mb-16">
+            Una plataforma pensada para que vendas más sin complicarte. Simple, rápida y orientada a resultados.
+          </p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-colors">
+              <p className="text-3xl font-bold text-blue-400 mb-2">Todo en uno</p>
+              <p className="text-slate-400 text-sm">
+                Conversaciones, pedidos, catálogo y métodos de pago en un solo panel. No más alternar entre apps ni perder ventas.
+              </p>
+            </div>
+            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-colors">
+              <p className="text-3xl font-bold text-blue-400 mb-2">En minutos</p>
+              <p className="text-slate-400 text-sm">
+                Conecta WhatsApp con QR o API oficial. Sin instalaciones complejas ni equipos técnicos. Funciona desde el primer día.
+              </p>
+            </div>
+            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-colors">
+              <p className="text-3xl font-bold text-blue-400 mb-2">Precio claro</p>
+              <p className="text-slate-400 text-sm">
+                Empieza gratis. Planes transparentes sin sorpresas. Escala cuando tu negocio crezca, sin compromisos largos.
+              </p>
+            </div>
+            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-colors">
+              <p className="text-3xl font-bold text-blue-400 mb-2">Soporte real</p>
+              <p className="text-slate-400 text-sm">
+                Atención en español cuando lo necesites. Guías, FAQs y asistencia para que aproveches al máximo la plataforma.
+              </p>
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, Facebook, Instagram } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -11,15 +11,20 @@ export default function Footer() {
               <span className="font-semibold text-white">wazapp.ai</span>
             </div>
             <div className="flex gap-3 text-slate-400">
-              {['fb', 'ig', 'in', 'tw'].map((s) => (
-                <a
-                  key={s}
-                  href="#"
-                  className="hover:text-white transition-colors w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold"
-                >
-                  {s}
-                </a>
-              ))}
+              <a
+                href="#"
+                className="hover:text-white transition-colors w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center"
+                aria-label="Facebook"
+              >
+                <Facebook className="w-4 h-4" />
+              </a>
+              <a
+                href="#"
+                className="hover:text-white transition-colors w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center"
+                aria-label="Instagram"
+              >
+                <Instagram className="w-4 h-4" />
+              </a>
             </div>
           </div>
           <div>

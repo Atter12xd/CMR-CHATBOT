@@ -14,7 +14,7 @@ export default function RegisterForm() {
   const { signUp, loading: authLoading, isAuthenticated } = useAuth();
 
   if (isAuthenticated && !success && typeof window !== 'undefined') {
-    window.location.href = '/';
+    window.location.href = '/chats';
     return null;
   }
 
@@ -86,7 +86,7 @@ export default function RegisterForm() {
 
       setSuccess(true);
       setTimeout(() => {
-        window.location.href = '/';
+        window.location.href = '/chats';
       }, 1500);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al crear la cuenta');

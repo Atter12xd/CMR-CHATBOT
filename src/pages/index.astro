@@ -1,11 +1,8 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import AppLayout from '../components/Layout';
-import ChatsPage from '../components/ChatsPage';
+import LandingLayout from '../layouts/LandingLayout.astro';
+import LandingPage from '../components/LandingPage';
 ---
 
-<Layout title="Chats - CMR Chatbot">
-  <AppLayout client:only="react">
-    <ChatsPage client:only="react" />
-  </AppLayout>
-</Layout>
+<LandingLayout title="Wazapp - Gestión de WhatsApp para Negocios">
+  <LandingPage client:only="react" />
+</LandingLayout>

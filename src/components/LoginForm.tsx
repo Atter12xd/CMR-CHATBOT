@@ -10,7 +10,7 @@ export default function LoginForm() {
   const { signIn, loading: authLoading, isAuthenticated } = useAuth();
 
   if (isAuthenticated && typeof window !== 'undefined') {
-    window.location.href = '/';
+    window.location.href = '/chats';
     return null;
   }
 
@@ -49,7 +49,7 @@ export default function LoginForm() {
         return;
       }
       if (data?.user) {
-        window.location.href = '/';
+        window.location.href = '/chats';
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión');

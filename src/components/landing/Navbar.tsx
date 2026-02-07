@@ -17,16 +17,16 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
 
   return (
     <>
+      {/* Anuncio: solo en desktop para no tapar navegación en móvil */}
       {showAnnouncement && (
-        <div className="fixed top-0 left-0 right-0 z-[60] bg-slate-900/95 backdrop-blur border-b border-slate-800">
-          <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-center gap-2 flex-wrap min-h-[38px]">
+        <div className="hidden md:block fixed top-0 left-0 right-0 z-[60] bg-slate-900/95 backdrop-blur border-b border-slate-800">
+          <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-center gap-2">
             <span className="px-2 py-0.5 rounded bg-black text-white text-xs font-medium shrink-0">Nuevo</span>
-            <MessageSquare className="w-4 h-4 text-emerald-400 shrink-0 hidden sm:inline" />
-            <span className="text-xs sm:text-sm text-slate-300 text-center">
-              <span className="hidden sm:inline">WhatsApp Business API integrado. Empieza a vender por chat hoy.</span>
-              <span className="sm:hidden">WhatsApp API integrado. Vende por chat.</span>
+            <MessageSquare className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span className="text-sm text-slate-300">
+              WhatsApp Business API integrado. Empieza a vender por chat hoy.
             </span>
-            <a href="/#caracteristicas" className="text-xs sm:text-sm text-blue-400 hover:text-blue-300 font-medium shrink-0">
+            <a href="/#caracteristicas" className="text-sm text-blue-400 hover:text-blue-300 font-medium shrink-0">
               Más info →
             </a>
           </div>
@@ -34,14 +34,14 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
       )}
       <nav
         className={`fixed left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-md border-b border-slate-800 ${
-          showAnnouncement ? 'top-[38px] sm:top-[42px]' : 'top-0'
+          showAnnouncement ? 'md:top-[42px] top-0' : 'top-0'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16">
-            {/* Logo - más grande (85% más aprox: h-9→h-14) */}
+          <div className="flex items-center justify-between h-16 sm:h-20 min-h-[64px] sm:min-h-[80px]">
+            {/* Logo - tamaño grande */}
             <a href="/" className="flex items-center shrink-0">
-              <img src="/logo.png" alt="wazapp.ai" className="h-12 sm:h-14 w-auto" />
+              <img src="/logo.png" alt="wazapp.ai" className="h-14 sm:h-20 md:h-24 w-auto max-h-[80px] sm:max-h-[96px]" />
             </a>
 
             {/* Links desktop */}

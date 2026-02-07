@@ -7,7 +7,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
           <div>
             <div className="mb-4">
-              <img src="/logo.png" alt="wazapp.ai" className="h-10 sm:h-12 w-auto" />
+              <img src="/logo.png" alt="wazapp.ai" className="h-12 sm:h-16 w-auto" />
             </div>
             <div className="flex gap-3 text-slate-400">
               <a

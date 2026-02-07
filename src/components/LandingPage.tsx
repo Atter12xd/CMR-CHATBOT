@@ -3,12 +3,11 @@ import { useAuth } from '../hooks/useAuth';
 import {
   MessageSquare,
   Zap,
-  BarChart3,
   ArrowRight,
-  ChevronDown,
-  Globe,
   Star,
 } from 'lucide-react';
+import Navbar from './landing/Navbar';
+import Footer from './landing/Footer';
 
 export default function LandingPage() {
   const { user, loading } = useAuth();
@@ -32,69 +31,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-gray-950 font-sans antialiased text-white">
-      {/* Announcement bar */}
-      <div className="fixed top-0 left-0 right-0 z-[60] bg-slate-900/95 backdrop-blur border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-center gap-2 flex-wrap">
-          <span className="px-2 py-0.5 rounded bg-black text-white text-xs font-medium">Nuevo</span>
-          <MessageSquare className="w-4 h-4 text-emerald-400" />
-          <span className="text-sm text-slate-300">
-            WhatsApp Business API integrado. Empieza a vender por chat hoy.
-          </span>
-          <a href="#caracteristicas" className="text-sm text-blue-400 hover:text-blue-300 font-medium">
-            Más info →
-          </a>
-        </div>
-      </div>
-
-      {/* Navbar - tema oscuro respond.io */}
-      <nav className="fixed top-[42px] left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-md border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 md:h-18">
-            <a href="/" className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-lg bg-blue-500 flex items-center justify-center">
-                <MessageSquare className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-semibold text-white tracking-tight">wazapp.ai</span>
-            </a>
-
-            <div className="hidden md:flex items-center gap-8">
-              <a href="#caracteristicas" className="text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-1">
-                Producto
-                <ChevronDown className="w-4 h-4" />
-              </a>
-              <a href="#caracteristicas" className="text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-1">
-                Recursos
-                <ChevronDown className="w-4 h-4" />
-              </a>
-              <a href="#resultados" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
-                Pricing
-              </a>
-              <a href="#resultados" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
-                Por qué nosotros
-              </a>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <button className="p-2 text-slate-400 hover:text-white transition-colors">
-                <Globe className="w-5 h-5" />
-              </button>
-              <a
-                href="/login"
-                className="text-sm font-medium text-white hover:text-slate-200 px-4 py-2 transition-colors"
-              >
-                Iniciar sesión
-              </a>
-              <a
-                href="/register"
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-500 transition-colors"
-              >
-                Empezar gratis
-                <ArrowRight className="w-4 h-4" />
-              </a>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar showAnnouncement />
 
       {/* Hero Section - tema oscuro */}
       <section className="pt-40 pb-20 md:pt-48 md:pb-28 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-950 via-slate-900/50 to-gray-950">
@@ -109,14 +46,14 @@ export default function LandingPage() {
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
               href="/register"
-              className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 bg-blue-600 text-white text-base font-semibold rounded-lg hover:bg-blue-500 transition-colors"
+              className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 bg-blue-600 text-white text-base font-semibold rounded-lg hover:bg-blue-500 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
             >
               Empezar gratis
               <ArrowRight className="w-5 h-5" />
             </a>
             <a
               href="/login"
-              className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 bg-slate-800 text-white text-base font-semibold rounded-lg border border-slate-600 hover:bg-slate-700 transition-colors"
+              className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 bg-slate-800 text-white text-base font-semibold rounded-lg border border-slate-600 hover:bg-slate-700 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
             >
               Ya tengo cuenta
             </a>
@@ -150,7 +87,7 @@ export default function LandingPage() {
           </div>
           <a
             href="#resultados"
-            className="inline-block mt-8 text-sm text-blue-400 hover:text-blue-300 font-medium"
+            className="inline-block mt-8 text-sm text-blue-400 hover:text-blue-300 font-medium transition-colors"
           >
             Ver casos de éxito →
           </a>
@@ -170,34 +107,34 @@ export default function LandingPage() {
                 todo el recorrido del cliente en un solo lugar, incluso a gran volumen.
               </p>
               <div className="space-y-10">
-                <div>
+                <div className="group">
                   <h3 className="text-lg font-semibold text-white mb-2">
                     <span className="text-blue-400">Capture:</span> Unifica puntos de contacto
                   </h3>
-                  <p className="text-slate-400">
+                  <p className="text-slate-400 group-hover:text-slate-300 transition-colors">
                     Los leads llegan por WhatsApp, redes o visitas. Wazapp los unifica en un panel para que no pierdas oportunidades.
                   </p>
                 </div>
-                <div>
+                <div className="group">
                   <h3 className="text-lg font-semibold text-white mb-2">
                     <span className="text-blue-400">Convierte:</span> Vende más con pedidos y catálogo
                   </h3>
-                  <p className="text-slate-400">
+                  <p className="text-slate-400 group-hover:text-slate-300 transition-colors">
                     Gestiona pedidos, productos y métodos de pago. Respuestas rápidas que cierran ventas.
                   </p>
                 </div>
-                <div>
+                <div className="group">
                   <h3 className="text-lg font-semibold text-white mb-2">
                     <span className="text-blue-400">Retén:</span> Ingresos recurrentes, no solo ventas puntuales
                   </h3>
-                  <p className="text-slate-400">
+                  <p className="text-slate-400 group-hover:text-slate-300 transition-colors">
                     Recordatorios, seguimiento y contexto completo para fidelizar a tus clientes.
                   </p>
                 </div>
               </div>
             </div>
             <div className="relative">
-              <div className="rounded-2xl overflow-hidden border border-slate-700 shadow-2xl shadow-blue-500/10 bg-gradient-to-br from-slate-800 to-slate-900 p-6">
+              <div className="rounded-2xl overflow-hidden border border-slate-700 shadow-2xl shadow-blue-500/10 bg-gradient-to-br from-slate-800 to-slate-900 p-6 transition-all duration-300 hover:shadow-blue-500/20 hover:border-slate-600">
                 <div className="space-y-4">
                   <div className="flex gap-3">
                     <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
@@ -268,16 +205,17 @@ export default function LandingPage() {
                 { title: 'Servicio médico recupera citas perdidas', desc: 'Recordatorios automáticos' },
                 { title: 'Tienda física vende más por envíos', desc: 'WhatsApp como canal de ventas' },
               ].map((card) => (
-                <div
+                <a
                   key={card.title}
-                  className="bg-slate-900/80 rounded-xl p-5 border border-slate-800 hover:border-slate-700 transition-colors"
+                  href="/register"
+                  className="block bg-slate-900/80 rounded-xl p-5 border border-slate-800 hover:border-slate-600 transition-all duration-300 hover:shadow-lg hover:shadow-slate-900/50"
                 >
                   <h3 className="font-semibold text-white text-sm mb-2">{card.title}</h3>
                   <p className="text-xs text-slate-500">{card.desc}</p>
-                  <a href="/register" className="text-xs text-blue-400 hover:text-blue-300 mt-3 inline-block font-medium">
+                  <span className="text-xs text-blue-400 hover:text-blue-300 mt-3 inline-block font-medium">
                     Saber más →
-                  </a>
-                </div>
+                  </span>
+                </a>
               ))}
             </div>
           </div>
@@ -293,13 +231,13 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
               href="/login"
-              className="inline-flex items-center justify-center px-8 py-4 bg-transparent text-white border border-white rounded-lg hover:bg-white hover:text-black transition-colors font-semibold"
+              className="inline-flex items-center justify-center px-8 py-4 bg-transparent text-white border border-white rounded-lg hover:bg-white hover:text-black transition-all duration-300 font-semibold hover:scale-[1.02] active:scale-[0.98]"
             >
               Ya tengo cuenta
             </a>
             <a
               href="/register"
-              className="inline-flex items-center gap-2 justify-center px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors font-semibold"
+              className="inline-flex items-center gap-2 justify-center px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-all duration-300 font-semibold hover:scale-[1.02] active:scale-[0.98]"
             >
               Empezar gratis
               <ArrowRight className="w-5 h-5" />
@@ -308,56 +246,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer multi-columna */}
-      <footer className="py-16 px-4 sm:px-6 lg:px-8 border-t border-slate-800 bg-black">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <MessageSquare className="w-6 h-6 text-blue-500" />
-                <span className="font-semibold text-white">wazapp.ai</span>
-              </div>
-              <div className="flex gap-3 text-slate-400">
-                {['fb', 'ig', 'in', 'tw'].map((s) => (
-                  <a key={s} href="#" className="hover:text-white transition-colors w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold">
-                    {s}
-                  </a>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h4 className="font-semibold text-white mb-4">Empresa</h4>
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li><a href="#" className="hover:text-white">Sobre nosotros</a></li>
-                <li><a href="#" className="hover:text-white">Contacto</a></li>
-                <li><a href="#" className="hover:text-white">Blog</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-white mb-4">Recursos</h4>
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li><a href="#" className="hover:text-white">WhatsApp Business API</a></li>
-                <li><a href="#" className="hover:text-white">Guías de uso</a></li>
-                <li><a href="#" className="hover:text-white">Pricing</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-white mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li><a href="#" className="hover:text-white">Privacidad</a></li>
-                <li><a href="#" className="hover:text-white">Términos</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-slate-500">© {new Date().getFullYear()} wazapp.ai</p>
-            <div className="flex gap-6 text-sm text-slate-500">
-              <a href="/login" className="hover:text-white">Iniciar sesión</a>
-              <a href="/register" className="hover:text-white">Registrarse</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

@@ -1,0 +1,17 @@
+---
+import LandingLayout from '../layouts/LandingLayout.astro';
+import Navbar from '../components/landing/Navbar';
+import Footer from '../components/landing/Footer';
+import RecursosContent from '../components/landing/RecursosContent';
+---
+
+<LandingLayout
+  title="Recursos - wazapp.ai | Guías y Ayuda WhatsApp"
+  description="Guías, FAQs y vídeos para vender más por WhatsApp con wazapp.ai"
+>
+  <Navbar client:only="react" />
+  <main class="pt-24">
+    <RecursosContent client:only="react" />
+  </main>
+  <Footer client:only="react" />
+</LandingLayout>

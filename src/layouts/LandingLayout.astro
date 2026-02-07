@@ -1,24 +1,28 @@
 ---
 interface Props {
   title: string;
+  description?: string;
 }
 
-const { title } = Astro.props;
+const { title, description = "Wazapp - Centraliza conversaciones de WhatsApp, gestiona pedidos y aumenta tus ventas" } = Astro.props;
 ---
 
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content="Wazapp - Centraliza conversaciones de WhatsApp, gestiona pedidos y aumenta tus ventas" />
+    <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <title>{title}</title>
+    <style is:global>
+      html { scroll-behavior: smooth; }
+    </style>
   </head>
-  <body class="font-sans bg-gray-950 text-white" style="font-family: 'Inter', system-ui, -apple-system, sans-serif;">
+  <body class="font-sans bg-gray-950 text-white antialiased" style="font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;">
     <slot />
   </body>
 </html>

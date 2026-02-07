@@ -1,0 +1,14 @@
+---
+import LandingLayout from '../layouts/LandingLayout.astro';
+import Navbar from '../components/landing/Navbar';
+import Footer from '../components/landing/Footer';
+import ContactoContent from '../components/landing/ContactoContent';
+---
+
+<LandingLayout title="Contacto - wazapp.ai">
+  <Navbar client:only="react" />
+  <main class="pt-24">
+    <ContactoContent client:only="react" />
+  </main>
+  <Footer client:only="react" />
+</LandingLayout>

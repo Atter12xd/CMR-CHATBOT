@@ -1,0 +1,36 @@
+---
+import LandingLayout from '../layouts/LandingLayout.astro';
+import Navbar from '../components/landing/Navbar';
+import Footer from '../components/landing/Footer';
+---
+
+<LandingLayout title="Política de Privacidad - wazapp.ai">
+  <Navbar client:only="react" />
+  <main class="pt-24 pb-24 min-h-screen">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-white prose prose-invert max-w-none">
+      <h1 class="text-4xl font-bold mb-8">Política de Privacidad</h1>
+      <p class="text-slate-400 mb-6">
+        Última actualización: {new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
+      </p>
+      <div class="space-y-6 text-slate-300">
+        <section>
+          <h2 class="text-xl font-semibold text-white mb-2">1. Información que recopilamos</h2>
+          <p>Recopilamos la información que nos facilitas al registrarte, usar nuestro servicio o contactarnos. Incluye datos de identificación, datos de contacto y datos de uso de la plataforma.</p>
+        </section>
+        <section>
+          <h2 class="text-xl font-semibold text-white mb-2">2. Uso de la información</h2>
+          <p>Utilizamos tu información para prestar el servicio, mejorar la plataforma, comunicarnos contigo y cumplir con obligaciones legales.</p>
+        </section>
+        <section>
+          <h2 class="text-xl font-semibold text-white mb-2">3. Protección de datos</h2>
+          <p>Implementamos medidas técnicas y organizativas para proteger tus datos frente a acceso no autorizado, pérdida o alteración.</p>
+        </section>
+        <section>
+          <h2 class="text-xl font-semibold text-white mb-2">4. Derechos</h2>
+          <p>Puedes ejercer tus derechos de acceso, rectificación, supresión y portabilidad contactando a soporte@wazapp.ai.</p>
+        </section>
+      </div>
+    </div>
+  </main>
+  <Footer client:only="react" />
+</LandingLayout>

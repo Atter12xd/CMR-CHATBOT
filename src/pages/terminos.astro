@@ -1,0 +1,36 @@
+---
+import LandingLayout from '../layouts/LandingLayout.astro';
+import Navbar from '../components/landing/Navbar';
+import Footer from '../components/landing/Footer';
+---
+
+<LandingLayout title="Términos de Servicio - wazapp.ai">
+  <Navbar client:only="react" />
+  <main class="pt-24 pb-24 min-h-screen">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-white prose prose-invert max-w-none">
+      <h1 class="text-4xl font-bold mb-8">Términos de Servicio</h1>
+      <p class="text-slate-400 mb-6">
+        Última actualización: {new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
+      </p>
+      <div class="space-y-6 text-slate-300">
+        <section>
+          <h2 class="text-xl font-semibold text-white mb-2">1. Aceptación</h2>
+          <p>Al utilizar wazapp.ai aceptas estos términos y condiciones de uso del servicio.</p>
+        </section>
+        <section>
+          <h2 class="text-xl font-semibold text-white mb-2">2. Uso del servicio</h2>
+          <p>Te comprometes a usar el servicio de forma lícita, respetando las políticas de WhatsApp y de Meta, y sin realizar actividades que afecten la integridad del sistema.</p>
+        </section>
+        <section>
+          <h2 class="text-xl font-semibold text-white mb-2">3. Suscripción y facturación</h2>
+          <p>Los planes de pago se facturan según la tarifa vigente. Puedes cancelar en cualquier momento desde tu cuenta.</p>
+        </section>
+        <section>
+          <h2 class="text-xl font-semibold text-white mb-2">4. Limitación de responsabilidad</h2>
+          <p>wazapp.ai se ofrece "tal cual". No nos hacemos responsables de daños indirectos derivados del uso del servicio.</p>
+        </section>
+      </div>
+    </div>
+  </main>
+  <Footer client:only="react" />
+</LandingLayout>

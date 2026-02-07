@@ -1,0 +1,17 @@
+---
+import LandingLayout from '../layouts/LandingLayout.astro';
+import Navbar from '../components/landing/Navbar';
+import Footer from '../components/landing/Footer';
+import PricingContent from '../components/landing/PricingContent';
+---
+
+<LandingLayout
+  title="Precios - wazapp.ai | Planes para vender por WhatsApp"
+  description="Planes Gratuito, Profesional y Empresa. Empieza gratis y escala cuando lo necesites."
+>
+  <Navbar client:only="react" />
+  <main class="pt-24">
+    <PricingContent client:only="react" />
+  </main>
+  <Footer client:only="react" />
+</LandingLayout>

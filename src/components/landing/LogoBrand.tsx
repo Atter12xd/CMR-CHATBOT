@@ -3,25 +3,29 @@ interface LogoBrandProps {
   href?: string;
 }
 
+// Logo y texto alineados al mismo tamaño visual
 const sizes = {
-  sm: { img: 'h-10', text: 'text-xl' },
-  md: { img: 'h-12 sm:h-14', text: 'text-xl sm:text-2xl' },
-  lg: { img: 'h-14 sm:h-20 md:h-24', text: 'text-[1.65rem] sm:text-3xl md:text-4xl' },
+  sm: { img: 'h-9', text: 'text-lg' },
+  md: { img: 'h-11 sm:h-12', text: 'text-xl sm:text-2xl' },
+  lg: {
+    img: 'h-14 sm:h-16 md:h-20',
+    text: 'text-xl sm:text-2xl md:text-[1.75rem]',
+  },
 };
 
 export default function LogoBrand({ size = 'md', href = '/' }: LogoBrandProps) {
   const s = sizes[size];
   const content = (
     <>
-      <img src="/logo.png" alt="wazapp.ai" className={`${s.img} w-auto shrink-0`} />
-      <span className={`${s.text} font-bold tracking-tight shrink-0`}>
+      <img src="/logo.png" alt="wazapp.ai" className={`${s.img} w-auto shrink-0 object-contain`} />
+      <span className={`${s.text} font-bold tracking-tight shrink-0 leading-none flex items-center`}>
         <span className="text-teal-400">wazapp</span>
         <span className="text-emerald-400">.ai</span>
       </span>
     </>
   );
 
-  const className = 'flex items-center gap-2';
+  const className = 'flex items-center gap-2.5';
 
   if (href) {
     return (

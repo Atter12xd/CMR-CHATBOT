@@ -18,7 +18,7 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
 
   return (
     <>
-      {/* Anuncio: solo en desktop para no tapar navegación en móvil */}
+      {/* Anuncio: solo en desktop */}
       {showAnnouncement && (
         <div className="hidden md:block fixed top-0 left-0 right-0 z-[60] bg-slate-900/95 backdrop-blur border-b border-slate-800">
           <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-center gap-2">
@@ -38,8 +38,8 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
           showAnnouncement ? 'md:top-[42px] top-0' : 'top-0'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
-          <div className="flex items-center justify-between gap-4 sm:gap-6 h-16 sm:h-20 min-h-[64px] sm:min-h-[80px]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 sm:h-20 min-h-[64px] sm:min-h-[80px]">
             {/* Logo + texto */}
             <LogoBrand size="lg" href="/" />
 
@@ -56,43 +56,68 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
               ))}
             </div>
 
-            {/* CTA + menú móvil */}
-            <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-              <a href="/login" className="text-sm font-medium text-white hover:text-slate-200 px-3 sm:px-4 py-2 transition-colors">
-                Iniciar sesión
-              </a>
-              <a
-                href="/register"
-                className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-500 transition-colors"
-              >
-                Empezar gratis
-                <ArrowRight className="w-4 h-4" />
-              </a>
+            {/* CTA desktop + hamburger móvil */}
+            <div className="flex items-center gap-2 sm:gap-4">
+              {/* Solo en desktop */}
+              <div className="hidden md:flex items-center gap-2">
+                <a href="/login" className="text-sm font-medium text-white hover:text-slate-200 px-4 py-2 transition-colors">
+                  Iniciar sesión
+                </a>
+                <a
+                  href="/register"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-500 transition-colors"
+                >
+                  Empezar gratis
+                  <ArrowRight className="w-4 h-4" />
+                </a>
+              </div>
+              {/* Hamburguesa solo en móvil - siempre visible */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+                className="md:hidden flex items-center justify-center w-12 h-12 text-white hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors border border-slate-700"
                 aria-label="Menú"
+                aria-expanded={mobileMenuOpen}
               >
-                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
             </div>
           </div>
         </div>
 
-        {/* Menú móvil desplegable */}
+        {/* Menú móvil desplegable - Producto, Recursos, etc. + Login/Register */}
         {mobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 right-0 bg-gray-950 border-b border-slate-800 shadow-xl">
-            <div className="px-4 py-4 space-y-1">
+          <div
+            className="md:hidden absolute top-full left-0 right-0 bg-gray-950 border-b border-slate-800 shadow-2xl z-[70] max-h-[calc(100vh-64px)] overflow-y-auto"
+            role="dialog"
+            aria-label="Menú de navegación"
+          >
+            <div className="px-4 py-6 space-y-1">
               {navLinks.map((link) => (
                 <a
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block px-4 py-3 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-colors"
+                  className="block px-4 py-3.5 text-base font-medium text-slate-200 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
                 >
                   {link.label}
                 </a>
               ))}
+              <div className="border-t border-slate-800 my-4" />
+              <a
+                href="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-4 py-3.5 text-base font-medium text-white hover:bg-slate-800 rounded-lg transition-colors"
+              >
+                Iniciar sesión
+              </a>
+              <a
+                href="/register"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-center gap-2 mx-4 mt-2 py-3.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-500 transition-colors"
+              >
+                Empezar gratis
+                <ArrowRight className="w-4 h-4" />
+              </a>
             </div>
           </div>
         )}

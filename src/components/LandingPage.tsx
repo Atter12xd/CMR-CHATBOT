@@ -34,7 +34,7 @@ export default function LandingPage() {
       <Navbar showAnnouncement />
 
       {/* Hero Section - tema oscuro */}
-      <section className="pt-40 pb-20 md:pt-48 md:pb-28 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-950 via-slate-900/50 to-gray-950">
+      <section className="pt-36 sm:pt-40 md:pt-48 pb-20 md:pb-28 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-950 via-slate-900/50 to-gray-950">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight leading-[1.1]">
             Tus clientes escriben por chat. ¿Llamas para detalles? ¿Confirmas por email? ¿Puedes seguir el ritmo?

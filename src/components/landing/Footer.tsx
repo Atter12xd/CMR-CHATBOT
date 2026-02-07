@@ -6,9 +6,8 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <MessageSquare className="w-6 h-6 text-blue-500" />
-              <span className="font-semibold text-white">wazapp.ai</span>
+            <div className="mb-4">
+              <img src="/logo.png" alt="wazapp.ai" className="h-8 w-auto" />
             </div>
             <div className="flex gap-3 text-slate-400">
               <a

@@ -73,12 +73,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     <div className="w-64 bg-gray-900 text-white flex flex-col h-full">
       {/* Logo/Header */}
       <div className="p-4 border-b border-gray-800 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-            <MessageSquare size={20} />
-          </div>
-          <span className="font-bold text-lg">CMR</span>
-        </div>
+        <a href="/chats" className="flex items-center">
+          <img src="/logo.png" alt="wazapp.ai" className="h-8 w-auto" />
+        </a>
         {isOpen && (
           <button
             onClick={onClose}

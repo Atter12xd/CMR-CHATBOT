@@ -28,11 +28,8 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <a href="/" className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-lg bg-blue-500 flex items-center justify-center">
-                <MessageSquare className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-semibold text-white tracking-tight">wazapp.ai</span>
+            <a href="/" className="flex items-center">
+              <img src="/logo.png" alt="wazapp.ai" className="h-9 w-auto" />
             </a>
 
             <div className="hidden md:flex items-center gap-1">

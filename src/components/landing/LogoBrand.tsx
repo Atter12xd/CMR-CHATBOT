@@ -4,9 +4,9 @@ interface LogoBrandProps {
 }
 
 const sizes = {
-  sm: { img: 'h-8', text: 'text-lg' },
-  md: { img: 'h-10 sm:h-12', text: 'text-xl sm:text-2xl' },
-  lg: { img: 'h-12 sm:h-16 md:h-20', text: 'text-2xl sm:text-3xl' },
+  sm: { img: 'h-10', text: 'text-xl' },
+  md: { img: 'h-12 sm:h-14', text: 'text-xl sm:text-2xl' },
+  lg: { img: 'h-14 sm:h-20 md:h-24', text: 'text-[1.65rem] sm:text-3xl md:text-4xl' },
 };
 
 export default function LogoBrand({ size = 'md', href = '/' }: LogoBrandProps) {

@@ -74,7 +74,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Logo/Header */}
       <div className="p-4 border-b border-gray-800 flex items-center justify-between">
         <a href="/chats" className="flex items-center gap-2">
-          <img src="/logo.png" alt="" className="h-10 w-auto shrink-0" />
+          <img src="/logo.png" alt="" className="h-12 w-auto shrink-0" />
           <span className="font-bold text-lg tracking-tight">
             <span className="text-teal-400">wazapp</span>
             <span className="text-emerald-400">.ai</span>

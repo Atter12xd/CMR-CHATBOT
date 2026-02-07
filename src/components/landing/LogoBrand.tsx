@@ -5,11 +5,11 @@ interface LogoBrandProps {
 
 // Logo y texto alineados al mismo tamaño visual
 const sizes = {
-  sm: { img: 'h-9', text: 'text-lg' },
-  md: { img: 'h-11 sm:h-12', text: 'text-xl sm:text-2xl' },
+  sm: { img: 'h-12', text: 'text-xl' },
+  md: { img: 'h-14 sm:h-16', text: 'text-2xl sm:text-3xl' },
   lg: {
-    img: 'h-14 sm:h-16 md:h-20',
-    text: 'text-xl sm:text-2xl md:text-[1.75rem]',
+    img: 'h-20 sm:h-24 md:h-28',
+    text: 'text-2xl sm:text-3xl md:text-[2.45rem]',
   },
 };
 

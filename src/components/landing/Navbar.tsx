@@ -39,7 +39,7 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-20 min-h-[64px] sm:min-h-[80px]">
+          <div className="flex items-center justify-between h-16 sm:h-24 md:h-28 min-h-[64px] sm:min-h-[96px] md:min-h-[112px]">
             {/* Logo + texto */}
             <LogoBrand size="lg" href="/" />
 

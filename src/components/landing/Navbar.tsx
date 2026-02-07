@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { MessageSquare, Globe, ArrowRight, Menu, X } from 'lucide-react';
+import { MessageSquare, ArrowRight, Menu, X } from 'lucide-react';
+import LogoBrand from './LogoBrand';
 
 interface NavbarProps {
   showAnnouncement?: boolean;
@@ -39,10 +40,8 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20 min-h-[64px] sm:min-h-[80px]">
-            {/* Logo - tamaño grande */}
-            <a href="/" className="flex items-center shrink-0">
-              <img src="/logo.png" alt="wazapp.ai" className="h-14 sm:h-20 md:h-24 w-auto max-h-[80px] sm:max-h-[96px]" />
-            </a>
+            {/* Logo + texto */}
+            <LogoBrand size="lg" href="/" />
 
             {/* Links desktop */}
             <div className="hidden md:flex items-center gap-1">

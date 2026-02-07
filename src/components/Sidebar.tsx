@@ -73,8 +73,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     <div className="w-64 bg-gray-900 text-white flex flex-col h-full">
       {/* Logo/Header */}
       <div className="p-4 border-b border-gray-800 flex items-center justify-between">
-        <a href="/chats" className="flex items-center">
-          <img src="/logo.png" alt="wazapp.ai" className="h-12 w-auto" />
+        <a href="/chats" className="flex items-center gap-2">
+          <img src="/logo.png" alt="" className="h-10 w-auto shrink-0" />
+          <span className="font-bold text-lg tracking-tight">
+            <span className="text-teal-400">wazapp</span>
+            <span className="text-emerald-400">.ai</span>
+          </span>
         </a>
         {isOpen && (
           <button

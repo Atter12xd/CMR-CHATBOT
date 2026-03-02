@@ -6,19 +6,19 @@ interface LogoBrandProps {
 
 const sizes = {
   sm: { 
-    img: 'h-8 w-8', 
+    img: 'h-10 w-10', 
     text: 'text-lg',
     gap: 'gap-2'
   },
   md: { 
-    img: 'h-9 w-9 sm:h-10 sm:w-10', 
+    img: 'h-12 w-12 sm:h-14 sm:w-14', 
     text: 'text-xl sm:text-2xl',
-    gap: 'gap-2.5'
+    gap: 'gap-3'
   },
   lg: {
-    img: 'h-10 w-10 sm:h-11 sm:w-11',
-    text: 'text-xl sm:text-2xl',
-    gap: 'gap-2.5'
+    img: 'h-14 w-14 sm:h-16 sm:w-16',
+    text: 'text-2xl sm:text-3xl',
+    gap: 'gap-3'
   },
 };
 

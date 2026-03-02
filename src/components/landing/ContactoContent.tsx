@@ -1,114 +1,233 @@
 import { useState } from 'react';
-import { Mail, MessageSquare, Send } from 'lucide-react';
+import { Mail, MessageSquare, Send, CheckCircle2, MapPin, Clock, Loader2 } from 'lucide-react';
 
 export default function ContactoContent() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [subject, setSubject] = useState('general');
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Placeholder: en producción conectarías a Formspree, Web3Forms o tu backend
+    setLoading(true);
+    // Simular envío
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setLoading(false);
     setSent(true);
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <section className="py-20 md:py-28 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto">
+    <div className="min-h-screen bg-slate-950 text-white">
+      <section className="py-12 lg:py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
           <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Contacto
+            <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight mb-4">
+              ¿Cómo podemos ayudarte?
             </h1>
-            <p className="text-xl text-slate-400">
-              ¿Dudas sobre planes empresa o integraciones? Escríbenos.
+            <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+              Estamos aquí para responder tus dudas sobre planes, integraciones o cualquier otra consulta.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-12">
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
-                  <Mail className="w-6 h-6 text-blue-400" />
+          <div className="grid lg:grid-cols-5 gap-12 lg:gap-16">
+            {/* Contact Info */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Email */}
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
+                  <Mail className="w-5 h-5 text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white">Email</h3>
-                  <a href="mailto:soporte@wazapp.ai" className="text-blue-400 hover:text-blue-300">
-                    soporte@wazapp.ai
+                  <h3 className="font-semibold text-white mb-1">Email</h3>
+                  <a 
+                    href="mailto:hola@wazapp.ai" 
+                    className="text-blue-400 hover:text-blue-300 transition-colors"
+                  >
+                    hola@wazapp.ai
                   </a>
+                  <p className="text-slate-500 text-sm mt-1">Respondemos en menos de 24h</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
-                  <MessageSquare className="w-6 h-6 text-blue-400" />
+
+              {/* Support */}
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                  <MessageSquare className="w-5 h-5 text-emerald-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white">Soporte en app</h3>
-                  <p className="text-slate-400 text-sm">Si ya tienes cuenta, usa el chat de ayuda dentro de la plataforma.</p>
+                  <h3 className="font-semibold text-white mb-1">Soporte en app</h3>
+                  <p className="text-slate-400 text-sm">
+                    Si ya tienes cuenta, usa el chat de ayuda dentro de la plataforma para soporte más rápido.
+                  </p>
+                </div>
+              </div>
+
+              {/* Hours */}
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+                  <Clock className="w-5 h-5 text-amber-400" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white mb-1">Horario de atención</h3>
+                  <p className="text-slate-400 text-sm">
+                    Lunes a Viernes: 9:00 - 18:00 (GMT-5)
+                  </p>
+                  <p className="text-slate-500 text-sm">
+                    Soporte prioritario 24/7 para plan Pro y Business
+                  </p>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="border-t border-slate-800/60 pt-8">
+                <h3 className="font-semibold text-white mb-4">¿Buscas algo específico?</h3>
+                <div className="space-y-3">
+                  <a 
+                    href="/precios" 
+                    className="block text-slate-400 hover:text-white text-sm transition-colors"
+                  >
+                    → Ver planes y precios
+                  </a>
+                  <a 
+                    href="/recursos" 
+                    className="block text-slate-400 hover:text-white text-sm transition-colors"
+                  >
+                    → Centro de ayuda y guías
+                  </a>
+                  <a 
+                    href="/sobre-nosotros" 
+                    className="block text-slate-400 hover:text-white text-sm transition-colors"
+                  >
+                    → Sobre nosotros
+                  </a>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-2xl bg-slate-900/50 border border-slate-800 p-8">
-              {sent ? (
-                <div className="text-center py-8">
-                  <p className="text-emerald-400 font-medium mb-2">¡Mensaje enviado!</p>
-                  <p className="text-slate-400 text-sm">Te responderemos en las próximas 24-48 horas.</p>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-2">
-                      Nombre
-                    </label>
-                    <input
-                      id="name"
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      required
-                      className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Tu nombre"
-                    />
+            {/* Contact Form */}
+            <div className="lg:col-span-3">
+              <div className="rounded-2xl bg-slate-900/50 border border-slate-800/60 p-8">
+                {sent ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-6">
+                      <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-white mb-2">¡Mensaje enviado!</h3>
+                    <p className="text-slate-400">
+                      Te responderemos lo antes posible. Revisa tu bandeja de entrada.
+                    </p>
+                    <button
+                      onClick={() => {
+                        setSent(false);
+                        setName('');
+                        setEmail('');
+                        setMessage('');
+                      }}
+                      className="mt-6 text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
+                    >
+                      Enviar otro mensaje
+                    </button>
                   </div>
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
-                      Email
-                    </label>
-                    <input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="tu@email.com"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-slate-300 mb-2">
-                      Mensaje
-                    </label>
-                    <textarea
-                      id="message"
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      required
-                      rows={5}
-                      className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                      placeholder="¿En qué podemos ayudarte?"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-500 transition-colors"
-                  >
-                    Enviar
-                    <Send className="w-4 h-4" />
-                  </button>
-                </form>
-              )}
+                ) : (
+                  <form onSubmit={handleSubmit} className="space-y-5">
+                    {/* Name & Email Row */}
+                    <div className="grid sm:grid-cols-2 gap-5">
+                      <div>
+                        <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-2">
+                          Nombre
+                        </label>
+                        <input
+                          id="name"
+                          type="text"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          required
+                          className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
+                          placeholder="Tu nombre"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
+                          Email
+                        </label>
+                        <input
+                          id="email"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
+                          placeholder="tu@email.com"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Subject */}
+                    <div>
+                      <label htmlFor="subject" className="block text-sm font-medium text-slate-300 mb-2">
+                        Asunto
+                      </label>
+                      <select
+                        id="subject"
+                        value={subject}
+                        onChange={(e) => setSubject(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
+                      >
+                        <option value="general">Consulta general</option>
+                        <option value="ventas">Planes y precios</option>
+                        <option value="soporte">Soporte técnico</option>
+                        <option value="empresa">Plan Business / Enterprise</option>
+                        <option value="integraciones">Integraciones y API</option>
+                      </select>
+                    </div>
+
+                    {/* Message */}
+                    <div>
+                      <label htmlFor="message" className="block text-sm font-medium text-slate-300 mb-2">
+                        Mensaje
+                      </label>
+                      <textarea
+                        id="message"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        required
+                        rows={5}
+                        className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all resize-none"
+                        placeholder="Cuéntanos en qué podemos ayudarte..."
+                      />
+                    </div>
+
+                    {/* Submit */}
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-blue-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          Enviando...
+                        </>
+                      ) : (
+                        <>
+                          Enviar mensaje
+                          <Send className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+
+                    <p className="text-xs text-slate-500 text-center">
+                      Al enviar, aceptas nuestra{' '}
+                      <a href="/privacidad" className="text-slate-400 hover:text-white transition-colors">
+                        política de privacidad
+                      </a>
+                    </p>
+                  </form>
+                )}
+              </div>
             </div>
           </div>
         </div>

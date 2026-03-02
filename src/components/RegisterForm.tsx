@@ -1,17 +1,37 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { createClient } from '../lib/supabase';
-import { Mail, Lock, Loader2, AlertCircle, ArrowRight, User, CheckCircle2, MessageSquare } from 'lucide-react';
+import { Mail, Lock, Loader2, AlertCircle, ArrowRight, User, CheckCircle2, Eye, EyeOff, Check, X } from 'lucide-react';
+import LogoBrand from './landing/LogoBrand';
+
+// Password strength checker
+function getPasswordStrength(password: string): { score: number; label: string; color: string } {
+  let score = 0;
+  if (password.length >= 6) score++;
+  if (password.length >= 8) score++;
+  if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
+  if (/\d/.test(password)) score++;
+  if (/[^a-zA-Z0-9]/.test(password)) score++;
+
+  if (score <= 1) return { score, label: 'Débil', color: 'bg-red-500' };
+  if (score <= 2) return { score, label: 'Regular', color: 'bg-amber-500' };
+  if (score <= 3) return { score, label: 'Buena', color: 'bg-emerald-500' };
+  return { score, label: 'Fuerte', color: 'bg-emerald-400' };
+}
 
 export default function RegisterForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const { signUp, loading: authLoading, isAuthenticated } = useAuth();
+
+  const passwordStrength = useMemo(() => getPasswordStrength(password), [password]);
+  const passwordsMatch = password && confirmPassword && password === confirmPassword;
 
   if (isAuthenticated && !success && typeof window !== 'undefined') {
     window.location.href = '/chats';
@@ -27,7 +47,7 @@ export default function RegisterForm() {
     setError(null);
 
     if (!name.trim()) {
-      setError('Ingresa tu nombre completo');
+      setError('Ingresa tu nombre');
       return;
     }
     if (!email.trim()) {
@@ -58,7 +78,7 @@ export default function RegisterForm() {
       if (signUpError) {
         const msg = signUpError.message || 'Error al crear la cuenta';
         if (msg.toLowerCase().includes('already registered') || msg.toLowerCase().includes('already exists')) {
-          setError('Ya existe una cuenta con este correo. Inicia sesión o usa otro email.');
+          setError('Ya existe una cuenta con este correo');
         } else {
           setError(msg);
         }
@@ -94,17 +114,20 @@ export default function RegisterForm() {
     }
   };
 
+  // Success State
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center pt-24 pb-16 px-4">
-        <div className="max-w-md w-full">
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/80 backdrop-blur-xl shadow-2xl shadow-black/20 p-8 sm:p-10 text-center space-y-6">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-500/20 border border-emerald-500/30">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 pointer-events-none" />
+        <div className="relative max-w-md w-full">
+          <div className="rounded-2xl border border-slate-800/60 bg-slate-900/70 backdrop-blur-xl shadow-2xl shadow-black/30 p-8 sm:p-10 text-center">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-6">
               <CheckCircle2 className="h-10 w-10 text-emerald-400" />
             </div>
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-white">Cuenta creada</h2>
-              <p className="text-slate-400">Redirigiendo al panel...</p>
+            <h2 className="text-2xl font-bold text-white mb-2">¡Cuenta creada!</h2>
+            <p className="text-slate-400">Redirigiendo al panel...</p>
+            <div className="mt-6">
+              <Loader2 className="h-6 w-6 animate-spin text-brand-400 mx-auto" />
             </div>
           </div>
         </div>
@@ -114,35 +137,44 @@ export default function RegisterForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center pt-24 pb-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/80 backdrop-blur-xl shadow-2xl shadow-black/20 p-8 sm:p-10 space-y-8">
-          <div className="text-center space-y-2">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-500 shadow-lg shadow-blue-500/25 mb-4">
-              <MessageSquare className="h-8 w-8 text-white" />
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-brand-500/5 rounded-full blur-[100px] pointer-events-none" />
+      
+      <div className="relative max-w-md w-full">
+        {/* Card */}
+        <div className="rounded-2xl border border-slate-800/60 bg-slate-900/70 backdrop-blur-xl shadow-2xl shadow-black/30 p-8 sm:p-10">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex justify-center mb-6">
+              <LogoBrand size="lg" href="/" />
             </div>
-            <h2 className="text-3xl font-bold text-white tracking-tight">
-              Crear cuenta
-            </h2>
-            <p className="text-sm text-slate-400">
+            <h1 className="text-2xl font-bold text-white tracking-tight">
+              Crea tu cuenta
+            </h1>
+            <p className="mt-2 text-sm text-slate-400">
               Empieza a vender por WhatsApp en minutos
             </p>
           </div>
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
+          {/* Form */}
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            {/* Error Alert */}
             {error && (
-              <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg flex items-start gap-3">
+              <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl flex items-start gap-3 animate-fade-in">
                 <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                <p className="text-sm font-medium">{error}</p>
+                <p className="text-sm">{error}</p>
               </div>
             )}
 
+            {/* Name Field */}
             <div className="space-y-2">
               <label htmlFor="name" className="block text-sm font-medium text-slate-300">
-                Nombre completo
+                Nombre
               </label>
-              <div className="relative">
+              <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-slate-500" />
+                  <User className="h-5 w-5 text-slate-500 group-focus-within:text-brand-400 transition-colors" />
                 </div>
                 <input
                   id="name"
@@ -152,19 +184,20 @@ export default function RegisterForm() {
                   required
                   value={name}
                   onChange={(e) => { setName(e.target.value); setError(null); }}
-                  className="block w-full pl-11 pr-4 py-3 bg-slate-800/80 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                  placeholder="Juan Pérez"
+                  className="block w-full pl-12 pr-4 py-3.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50 transition-all duration-200"
+                  placeholder="Tu nombre"
                 />
               </div>
             </div>
 
+            {/* Email Field */}
             <div className="space-y-2">
               <label htmlFor="email" className="block text-sm font-medium text-slate-300">
                 Correo electrónico
               </label>
-              <div className="relative">
+              <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-slate-500" />
+                  <Mail className="h-5 w-5 text-slate-500 group-focus-within:text-brand-400 transition-colors" />
                 </div>
                 <input
                   id="email"
@@ -174,60 +207,102 @@ export default function RegisterForm() {
                   required
                   value={email}
                   onChange={(e) => { setEmail(e.target.value); setError(null); }}
-                  className="block w-full pl-11 pr-4 py-3 bg-slate-800/80 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  className="block w-full pl-12 pr-4 py-3.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50 transition-all duration-200"
                   placeholder="tu@email.com"
                 />
               </div>
             </div>
 
+            {/* Password Field */}
             <div className="space-y-2">
               <label htmlFor="password" className="block text-sm font-medium text-slate-300">
                 Contraseña
               </label>
-              <div className="relative">
+              <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-slate-500" />
+                  <Lock className="h-5 w-5 text-slate-500 group-focus-within:text-brand-400 transition-colors" />
                 </div>
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
                   required
                   value={password}
                   onChange={(e) => { setPassword(e.target.value); setError(null); }}
-                  className="block w-full pl-11 pr-4 py-3 bg-slate-800/80 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  className="block w-full pl-12 pr-12 py-3.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50 transition-all duration-200"
                   placeholder="Mínimo 6 caracteres"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
+              
+              {/* Password Strength Indicator */}
+              {password && (
+                <div className="space-y-2 pt-1">
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div
+                        key={i}
+                        className={`h-1 flex-1 rounded-full transition-colors ${
+                          i <= passwordStrength.score ? passwordStrength.color : 'bg-slate-700'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <p className={`text-xs ${
+                    passwordStrength.score <= 1 ? 'text-red-400' : 
+                    passwordStrength.score <= 2 ? 'text-amber-400' : 'text-emerald-400'
+                  }`}>
+                    Contraseña {passwordStrength.label.toLowerCase()}
+                  </p>
+                </div>
+              )}
             </div>
 
+            {/* Confirm Password Field */}
             <div className="space-y-2">
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-300">
                 Confirmar contraseña
               </label>
-              <div className="relative">
+              <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-slate-500" />
+                  <Lock className="h-5 w-5 text-slate-500 group-focus-within:text-brand-400 transition-colors" />
                 </div>
                 <input
                   id="confirmPassword"
                   name="confirmPassword"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
                   required
                   value={confirmPassword}
                   onChange={(e) => { setConfirmPassword(e.target.value); setError(null); }}
-                  className="block w-full pl-11 pr-4 py-3 bg-slate-800/80 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  className="block w-full pl-12 pr-12 py-3.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50 transition-all duration-200"
                   placeholder="Repite tu contraseña"
                 />
+                {/* Match indicator */}
+                {confirmPassword && (
+                  <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                    {passwordsMatch ? (
+                      <Check className="h-5 w-5 text-emerald-400" />
+                    ) : (
+                      <X className="h-5 w-5 text-red-400" />
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading || authLoading}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-950 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] mt-6"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-brand-600/20 hover:shadow-brand-500/25 mt-6"
             >
               {loading || authLoading ? (
                 <>
@@ -243,19 +318,33 @@ export default function RegisterForm() {
             </button>
           </form>
 
-          <div className="text-center pt-4 border-t border-slate-800">
-            <p className="text-sm text-slate-400">
-              ¿Ya tienes cuenta?{' '}
-              <a
-                href="/login"
-                className="font-semibold text-blue-400 hover:text-blue-300 transition-colors inline-flex items-center gap-1 group"
-              >
-                Iniciar sesión
-                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </a>
-            </p>
+          {/* Divider */}
+          <div className="relative my-8">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-800/60"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-slate-900/70 text-slate-500">¿Ya tienes cuenta?</span>
+            </div>
           </div>
+
+          {/* Login Link */}
+          <a
+            href="/login"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-slate-800/50 hover:bg-slate-800 text-white rounded-xl text-sm font-semibold border border-slate-700/50 hover:border-slate-600 transition-all duration-200"
+          >
+            Iniciar sesión
+            <ArrowRight className="h-4 w-4" />
+          </a>
         </div>
+
+        {/* Footer Text */}
+        <p className="mt-8 text-center text-xs text-slate-500">
+          Al crear tu cuenta, aceptas nuestros{' '}
+          <a href="/terminos" className="text-slate-400 hover:text-white transition-colors">Términos</a>
+          {' '}y{' '}
+          <a href="/privacidad" className="text-slate-400 hover:text-white transition-colors">Privacidad</a>
+        </p>
       </div>
     </div>
   );

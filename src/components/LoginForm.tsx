@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { Mail, Lock, Loader2, AlertCircle, ArrowRight, MessageSquare } from 'lucide-react';
+import { Mail, Lock, Loader2, AlertCircle, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import LogoBrand from './landing/LogoBrand';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { signIn, loading: authLoading, isAuthenticated } = useAuth();
@@ -42,7 +44,7 @@ export default function LoginForm() {
       if (signInError) {
         const msg = signInError.message || 'Error al iniciar sesión';
         if (msg.toLowerCase().includes('invalid login')) {
-          setError('Correo o contraseña incorrectos. Verifica e intenta de nuevo.');
+          setError('Correo o contraseña incorrectos');
         } else {
           setError(msg);
         }
@@ -60,35 +62,44 @@ export default function LoginForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center pt-24 pb-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/80 backdrop-blur-xl shadow-2xl shadow-black/20 p-8 sm:p-10 space-y-8">
-          <div className="text-center space-y-2">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-500 shadow-lg shadow-blue-500/25 mb-4">
-              <MessageSquare className="h-8 w-8 text-white" />
+      {/* Background subtle gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-brand-500/5 rounded-full blur-[100px] pointer-events-none" />
+      
+      <div className="relative max-w-md w-full">
+        {/* Card */}
+        <div className="rounded-2xl border border-slate-800/60 bg-slate-900/70 backdrop-blur-xl shadow-2xl shadow-black/30 p-8 sm:p-10">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex justify-center mb-6">
+              <LogoBrand size="lg" href="/" />
             </div>
-            <h2 className="text-3xl font-bold text-white tracking-tight">
-              Iniciar sesión
-            </h2>
-            <p className="text-sm text-slate-400">
-              Accede a tu panel para gestionar ventas por WhatsApp
+            <h1 className="text-2xl font-bold text-white tracking-tight">
+              Bienvenido de vuelta
+            </h1>
+            <p className="mt-2 text-sm text-slate-400">
+              Ingresa tus credenciales para acceder
             </p>
           </div>
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          {/* Form */}
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            {/* Error Alert */}
             {error && (
-              <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg flex items-start gap-3">
+              <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl flex items-start gap-3 animate-fade-in">
                 <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                <p className="text-sm font-medium">{error}</p>
+                <p className="text-sm">{error}</p>
               </div>
             )}
 
+            {/* Email Field */}
             <div className="space-y-2">
               <label htmlFor="email" className="block text-sm font-medium text-slate-300">
                 Correo electrónico
               </label>
-              <div className="relative">
+              <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-slate-500" />
+                  <Mail className="h-5 w-5 text-slate-500 group-focus-within:text-brand-400 transition-colors" />
                 </div>
                 <input
                   id="email"
@@ -101,24 +112,33 @@ export default function LoginForm() {
                     setEmail(e.target.value);
                     setError(null);
                   }}
-                  className="block w-full pl-11 pr-4 py-3 bg-slate-800/80 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  className="block w-full pl-12 pr-4 py-3.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50 transition-all duration-200"
                   placeholder="tu@email.com"
                 />
               </div>
             </div>
 
+            {/* Password Field */}
             <div className="space-y-2">
-              <label htmlFor="password" className="block text-sm font-medium text-slate-300">
-                Contraseña
-              </label>
-              <div className="relative">
+              <div className="flex items-center justify-between">
+                <label htmlFor="password" className="block text-sm font-medium text-slate-300">
+                  Contraseña
+                </label>
+                <a
+                  href="/forgot-password"
+                  className="text-sm text-brand-400 hover:text-brand-300 transition-colors"
+                >
+                  ¿Olvidaste tu contraseña?
+                </a>
+              </div>
+              <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-slate-500" />
+                  <Lock className="h-5 w-5 text-slate-500 group-focus-within:text-brand-400 transition-colors" />
                 </div>
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   required
                   value={password}
@@ -126,25 +146,24 @@ export default function LoginForm() {
                     setPassword(e.target.value);
                     setError(null);
                   }}
-                  className="block w-full pl-11 pr-4 py-3 bg-slate-800/80 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  className="block w-full pl-12 pr-12 py-3.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50 transition-all duration-200"
                   placeholder="••••••••"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
             </div>
 
-            <div className="text-right">
-              <a
-                href="/forgot-password"
-                className="text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors"
-              >
-                ¿Olvidaste tu contraseña?
-              </a>
-            </div>
-
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading || authLoading || !email.trim() || !password}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-950 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-brand-600/20 hover:shadow-brand-500/25 mt-6"
             >
               {loading || authLoading ? (
                 <>
@@ -153,26 +172,40 @@ export default function LoginForm() {
                 </>
               ) : (
                 <>
-                  Entrar
+                  Iniciar sesión
                   <ArrowRight className="h-4 w-4" />
                 </>
               )}
             </button>
           </form>
 
-          <div className="text-center pt-4 border-t border-slate-800">
-            <p className="text-sm text-slate-400">
-              ¿No tienes cuenta?{' '}
-              <a
-                href="/register"
-                className="font-semibold text-blue-400 hover:text-blue-300 transition-colors inline-flex items-center gap-1 group"
-              >
-                Crear cuenta
-                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </a>
-            </p>
+          {/* Divider */}
+          <div className="relative my-8">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-800/60"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-slate-900/70 text-slate-500">¿Nuevo en Wazapp?</span>
+            </div>
           </div>
+
+          {/* Register Link */}
+          <a
+            href="/register"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-slate-800/50 hover:bg-slate-800 text-white rounded-xl text-sm font-semibold border border-slate-700/50 hover:border-slate-600 transition-all duration-200"
+          >
+            Crear cuenta gratis
+            <ArrowRight className="h-4 w-4" />
+          </a>
         </div>
+
+        {/* Footer Text */}
+        <p className="mt-8 text-center text-xs text-slate-500">
+          Al continuar, aceptas nuestros{' '}
+          <a href="/terminos" className="text-slate-400 hover:text-white transition-colors">Términos</a>
+          {' '}y{' '}
+          <a href="/privacidad" className="text-slate-400 hover:text-white transition-colors">Privacidad</a>
+        </p>
       </div>
     </div>
   );

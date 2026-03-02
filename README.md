@@ -9,7 +9,7 @@ Sistema CMR (Customer Relationship Management) profesional para gestión de chat
 - 📊 **Dashboard**: Estadísticas y métricas en tiempo real
 - 🎨 **Interfaz Moderna**: Diseño profesional similar a Intercom/Zendesk
 - 📱 **Responsive**: Funciona perfectamente en móviles y tablets
-- 🔌 **Integraciones**: Preparado para conectar con Facebook Messenger y WhatsApp
+- 🔌 **Integraciones**: WhatsApp vía Baileys (servidor Contabo), sin depender de Meta/Facebook
 
 ## 🛠️ Instalación
 
@@ -59,7 +59,7 @@ npm run preview
 
 Esta es una versión demo con datos simulados. Para producción, necesitarás:
 
-1. Conectar con APIs reales (Facebook Messenger, WhatsApp)
+1. Conectar con el servidor Contabo (API Baileys) para WhatsApp
 2. Implementar autenticación
 3. Configurar base de datos
 4. Agregar WebSockets para mensajes en tiempo real

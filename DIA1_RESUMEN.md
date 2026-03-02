@@ -49,7 +49,7 @@ src/components/
 - `/entrenar-bot` - Sistema de entrenamiento del bot
 - `/metodos-pago` - Configuración métodos de pago
 - `/dashboard` - Estadísticas y métricas
-- `/configuracion` - Panel de integraciones (preparado para Facebook/WhatsApp)
+- `/configuracion` - Panel de integraciones (WhatsApp vía Baileys/Contabo)
 
 ## Características Implementadas
 
@@ -57,7 +57,7 @@ src/components/
 - ✅ Lista de conversaciones con estados (activo, esperando, resuelto)
 - ✅ Vista de chat con mensajes en tiempo real (simulado)
 - ✅ Indicadores de no leídos
-- ✅ Soporte multi-plataforma (Facebook, WhatsApp, Web)
+- ✅ Soporte multi-plataforma (WhatsApp, Web)
 - ✅ Actualización automática de mensajes cada 15s
 - ✅ **Sistema de Bot integrado:**
   - Activación/desactivación por chat individual
@@ -157,7 +157,7 @@ El bot responde automáticamente cuando detecta:
 ✅ **Listo para conectar APIs reales** (Facebook Messenger, WhatsApp)
 
 ## Próximos Pasos
-- [ ] Integración con Facebook Developers API
+- [ ] Integración con servidor Contabo (Baileys) para WhatsApp
 - [ ] Conexión con WhatsApp Business API
 - [ ] WebSockets para mensajes en tiempo real
 - [ ] Autenticación de usuarios

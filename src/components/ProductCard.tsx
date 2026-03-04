@@ -1,6 +1,7 @@
 import { Edit, Trash2 } from 'lucide-react';
 import type { Product } from '../data/products';
 
+
 interface ProductCardProps {
   product: Product;
   onEdit?: (product: Product) => void;
@@ -8,44 +9,47 @@ interface ProductCardProps {
   viewMode?: 'grid' | 'list';
 }
 
+
 export default function ProductCard({ product, onEdit, onDelete, viewMode = 'grid' }: ProductCardProps) {
   if (viewMode === 'list') {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 hover:shadow-md shadow-sm transition-all duration-200">
         <div className="flex items-center gap-4">
           <img
             src={product.image}
             alt={product.name}
-            className="w-16 h-16 object-cover rounded-lg"
+            className="w-14 h-14 object-cover rounded-xl ring-1 ring-slate-100"
           />
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 truncate">{product.name}</h3>
-            <p className="text-sm text-gray-500">{product.category}</p>
+            <h3 className="text-sm font-semibold text-slate-900 truncate">{product.name}</h3>
+            <span className="inline-flex items-center mt-1 px-2 py-0.5 rounded-md bg-slate-50 ring-1 ring-slate-200/80 text-[11px] font-medium text-slate-500">
+              {product.category}
+            </span>
             {product.description && (
-              <p className="text-sm text-gray-600 mt-1 line-clamp-1">{product.description}</p>
+              <p className="text-[13px] text-slate-500 mt-1 line-clamp-1">{product.description}</p>
             )}
           </div>
-          <div className="text-right">
-            <p className="text-lg font-bold text-gray-900">${product.price.toFixed(2)}</p>
+          <div className="text-right flex-shrink-0">
+            <p className="text-lg font-bold text-slate-900">${product.price.toFixed(2)}</p>
             {product.stock !== undefined && (
-              <p className="text-sm text-gray-500">Stock: {product.stock}</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">Stock: {product.stock}</p>
             )}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-1 flex-shrink-0">
             {onEdit && (
               <button
                 onClick={() => onEdit(product)}
-                className="p-2 text-primary-600 hover:bg-primary-50 rounded-lg"
+                className="p-2 text-violet-600 hover:bg-violet-50 rounded-xl transition-colors"
               >
-                <Edit size={18} />
+                <Edit size={16} />
               </button>
             )}
             {onDelete && (
               <button
                 onClick={() => onDelete(product.id)}
-                className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"
               >
-                <Trash2 size={18} />
+                <Trash2 size={16} />
               </button>
             )}
           </div>
@@ -54,45 +58,48 @@ export default function ProductCard({ product, onEdit, onDelete, viewMode = 'gri
     );
   }
 
+
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-      <img
-        src={product.image}
-        alt={product.name}
-        className="w-full h-48 object-cover"
-      />
-      <div className="p-4">
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 truncate">{product.name}</h3>
-            <p className="text-sm text-gray-500">{product.category}</p>
-          </div>
+    <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 group">
+      <div className="relative overflow-hidden">
+        <img
+          src={product.image}
+          alt={product.name}
+          className="w-full h-44 object-cover group-hover:scale-[1.03] transition-transform duration-300"
+        />
+        <div className="absolute top-3 left-3">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-white/90 backdrop-blur-sm ring-1 ring-black/5 text-[11px] font-semibold text-slate-700 shadow-sm">
+            {product.category}
+          </span>
         </div>
+      </div>
+      <div className="p-4">
+        <h3 className="text-sm font-semibold text-slate-900 truncate">{product.name}</h3>
         {product.description && (
-          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.description}</p>
+          <p className="text-[13px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">{product.description}</p>
         )}
-        <div className="flex items-center justify-between">
+        <div className="flex items-end justify-between mt-3 pt-3 border-t border-slate-100">
           <div>
-            <p className="text-lg font-bold text-gray-900">${product.price.toFixed(2)}</p>
+            <p className="text-lg font-bold text-slate-900">${product.price.toFixed(2)}</p>
             {product.stock !== undefined && (
-              <p className="text-xs text-gray-500">Stock: {product.stock}</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">Stock: {product.stock}</p>
             )}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-1">
             {onEdit && (
               <button
                 onClick={() => onEdit(product)}
-                className="p-2 text-primary-600 hover:bg-primary-50 rounded-lg"
+                className="p-2 text-violet-600 hover:bg-violet-50 rounded-xl transition-colors"
               >
-                <Edit size={18} />
+                <Edit size={16} />
               </button>
             )}
             {onDelete && (
               <button
                 onClick={() => onDelete(product.id)}
-                className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"
               >
-                <Trash2 size={18} />
+                <Trash2 size={16} />
               </button>
             )}
           </div>

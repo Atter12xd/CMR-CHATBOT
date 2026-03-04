@@ -1,17 +1,20 @@
 import { useState } from 'react';
-import { Save, CreditCard, Smartphone, Building2 } from 'lucide-react';
+import { Save, CreditCard, Smartphone, Building2, Info } from 'lucide-react';
 import type { PaymentMethod } from '../data/paymentMethods';
 import { defaultPaymentMethods } from '../data/paymentMethods';
+
 
 interface PaymentMethodsConfigProps {
   methods: PaymentMethod[];
   onSave: (methods: PaymentMethod[]) => void;
 }
 
+
 export default function PaymentMethodsConfig({ methods, onSave }: PaymentMethodsConfigProps) {
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(
     methods.length > 0 ? methods : defaultPaymentMethods
   );
+
 
   const handleChange = (id: string, field: keyof PaymentMethod, value: string | boolean) => {
     setPaymentMethods(prev =>
@@ -21,134 +24,154 @@ export default function PaymentMethodsConfig({ methods, onSave }: PaymentMethods
     );
   };
 
+
   const handleSave = () => {
     onSave(paymentMethods);
     alert('Métodos de pago guardados exitosamente');
   };
 
+
   const getIcon = (type: PaymentMethod['type']) => {
     switch (type) {
       case 'yape':
       case 'plin':
-        return <Smartphone size={20} className="text-primary-600" />;
+        return <Smartphone size={18} className="text-violet-600" />;
       case 'bcp':
-        return <Building2 size={20} className="text-primary-600" />;
+        return <Building2 size={18} className="text-violet-600" />;
       default:
-        return <CreditCard size={20} className="text-primary-600" />;
+        return <CreditCard size={18} className="text-violet-600" />;
     }
   };
 
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Métodos de Pago</h2>
-          <p className="text-gray-600 mt-1">Configura los métodos de pago que el bot ofrecerá a los clientes</p>
+          <div className="flex items-center gap-2.5 mb-1">
+            <span className="w-2 h-2 rounded-full bg-violet-500"></span>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Pagos</p>
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900">Métodos de Pago</h2>
+          <p className="text-sm text-slate-500 mt-0.5">Configura los métodos de pago que el bot ofrecerá a los clientes</p>
         </div>
         <button
           onClick={handleSave}
-          className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors flex items-center space-x-2"
+          className="flex items-center gap-2 px-4 py-2.5 bg-violet-600 text-white text-sm font-medium rounded-xl hover:bg-violet-700 shadow-sm shadow-violet-600/20 transition-all duration-150 active:scale-[0.97]"
         >
-          <Save size={18} />
+          <Save size={16} />
           <span>Guardar</span>
         </button>
       </div>
 
-      <div className="space-y-4">
+
+      {/* Payment Methods */}
+      <div className="space-y-3">
         {paymentMethods.map((method) => (
           <div
             key={method.id}
-            className={`bg-white rounded-lg border-2 p-6 ${
-              method.active ? 'border-primary-500' : 'border-gray-200'
+            className={`bg-white rounded-2xl border-2 transition-all duration-200 ${
+              method.active ? 'border-violet-300 shadow-sm shadow-violet-100/50' : 'border-slate-200/80'
             }`}
           >
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                {getIcon(method.type)}
-                <div>
-                  <h3 className="font-semibold text-gray-900 text-lg">{method.name}</h3>
-                  <div className="flex items-center space-x-2 mt-1">
-                    <label className="flex items-center space-x-2 cursor-pointer">
+            <div className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                    method.active ? 'bg-violet-50 ring-1 ring-violet-100' : 'bg-slate-50 ring-1 ring-slate-200/80'
+                  }`}>
+                    {getIcon(method.type)}
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-900">{method.name}</h3>
+                    <label className="flex items-center gap-2 cursor-pointer mt-1.5">
                       <input
                         type="checkbox"
                         checked={method.active}
                         onChange={(e) => handleChange(method.id, 'active', e.target.checked)}
-                        className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+                        className="w-4 h-4 text-violet-600 rounded-md border-slate-300 focus:ring-violet-500/20"
                       />
-                      <span className="text-sm text-gray-700">Activar este método</span>
+                      <span className="text-[13px] text-slate-500">Activar este método</span>
                     </label>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            {method.active && (
-              <div className="mt-4 space-y-4 pt-4 border-t border-gray-200">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    A nombre de <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={method.accountName}
-                    onChange={(e) => handleChange(method.id, 'accountName', e.target.value)}
-                    required={method.active}
-                    placeholder="Ej: Juan Pérez"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  />
-                </div>
-
-                {method.type === 'bcp' && (
-                  <>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Número de cuenta <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={method.accountNumber || ''}
-                        onChange={(e) => handleChange(method.id, 'accountNumber', e.target.value)}
-                        required={method.active}
-                        placeholder="Ej: 1234567890123456"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Tipo de cuenta
-                      </label>
-                      <select
-                        value={method.accountType || 'Ahorros'}
-                        onChange={(e) => handleChange(method.id, 'accountType', e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      >
-                        <option value="Ahorros">Ahorros</option>
-                        <option value="Corriente">Corriente</option>
-                      </select>
-                    </div>
-                  </>
+                {method.active && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-[11px] font-semibold text-emerald-700">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    Activo
+                  </span>
                 )}
               </div>
-            )}
+
+
+              {method.active && (
+                <div className="mt-4 space-y-4 pt-4 border-t border-slate-100">
+                  <div>
+                    <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
+                      A nombre de <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={method.accountName}
+                      onChange={(e) => handleChange(method.id, 'accountName', e.target.value)}
+                      required={method.active}
+                      placeholder="Ej: Juan Pérez"
+                      className="w-full px-3.5 py-2.5 text-sm border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all placeholder:text-slate-400"
+                    />
+                  </div>
+
+
+                  {method.type === 'bcp' && (
+                    <>
+                      <div>
+                        <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
+                          Número de cuenta <span className="text-rose-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={method.accountNumber || ''}
+                          onChange={(e) => handleChange(method.id, 'accountNumber', e.target.value)}
+                          required={method.active}
+                          placeholder="Ej: 1234567890123456"
+                          className="w-full px-3.5 py-2.5 text-sm border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all placeholder:text-slate-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
+                          Tipo de cuenta
+                        </label>
+                        <select
+                          value={method.accountType || 'Ahorros'}
+                          onChange={(e) => handleChange(method.id, 'accountType', e.target.value)}
+                          className="w-full px-3.5 py-2.5 text-sm border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all text-slate-700"
+                        >
+                          <option value="Ahorros">Ahorros</option>
+                          <option value="Corriente">Corriente</option>
+                        </select>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         ))}
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <p className="text-sm text-blue-800">
-          <strong>Nota:</strong> Cuando un cliente quiera realizar un pago, el bot mostrará automáticamente 
-          los métodos de pago activos con la información configurada aquí.
-        </p>
+
+      {/* Info Note */}
+      <div className="bg-violet-50 border border-violet-200/60 rounded-2xl p-4">
+        <div className="flex items-start gap-2.5">
+          <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+            <Info size={14} className="text-violet-600" />
+          </div>
+          <p className="text-[13px] text-violet-700/90 leading-relaxed">
+            Cuando un cliente quiera realizar un pago, el bot mostrará automáticamente 
+            los métodos de pago activos con la información configurada aquí.
+          </p>
+        </div>
       </div>
     </div>
   );
 }
-
-
-
-
-
-
-
-
-

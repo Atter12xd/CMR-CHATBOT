@@ -43,7 +43,7 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
     loadMetrics();
   }, [organizationId]);
 
-  // Al montar paso QR: generar QR y hacer polling de estado (Baileys / Contabo)
+  // Paso QR: POST devuelve al instante; el QR llega por polling a GET /status (evita 504/CORS).
   useEffect(() => {
     if (step !== 'qr' || !organizationId) return;
 
@@ -73,43 +73,52 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
           return;
         }
 
-        if (data.success === false && data.error) {
-          setError(data.error + (data.retry ? ' Puedes intentar de nuevo.' : ''));
+        const status = await getBaileysStatus(organizationId);
+        if (cancelled) return;
+
+        if (status.status === 'connected' && status.phoneNumber) {
+          await supabase.from('whatsapp_integrations').upsert({
+            organization_id: organizationId,
+            phone_number: status.phoneNumber,
+            status: 'connected',
+            verified_at: new Date().toISOString(),
+          }, { onConflict: 'organization_id' });
+          setStep('connected');
+          loadIntegration();
           setConnecting(false);
           return;
         }
 
-        if (data.qrCode) {
-          setQrImage(data.qrCode);
-          pollIntervalRef.current = setInterval(async () => {
-            if (cancelled) return;
-            try {
-              const status = await getBaileysStatus(organizationId);
-              if (status.status === 'connected' && status.phoneNumber) {
-                if (pollIntervalRef.current) {
-                  clearInterval(pollIntervalRef.current);
-                  pollIntervalRef.current = null;
-                }
-                await supabase.from('whatsapp_integrations').upsert({
-                  organization_id: organizationId,
-                  phone_number: status.phoneNumber,
-                  status: 'connected',
-                  verified_at: new Date().toISOString(),
-                }, { onConflict: 'organization_id' });
-                setStep('connected');
-                setQrImage(null);
-                loadIntegration();
-                setConnecting(false);
+        if (status.qrCode) setQrImage(status.qrCode);
+        setConnecting(false);
+
+        pollIntervalRef.current = setInterval(async () => {
+          if (cancelled) return;
+          try {
+            const st = await getBaileysStatus(organizationId);
+            if (st.qrCode) setQrImage(st.qrCode);
+            if (st.status === 'connected' && st.phoneNumber) {
+              if (pollIntervalRef.current) {
+                clearInterval(pollIntervalRef.current);
+                pollIntervalRef.current = null;
               }
-            } catch {
-              // seguir intentando
+              await supabase.from('whatsapp_integrations').upsert({
+                organization_id: organizationId,
+                phone_number: st.phoneNumber,
+                status: 'connected',
+                verified_at: new Date().toISOString(),
+              }, { onConflict: 'organization_id' });
+              setStep('connected');
+              setQrImage(null);
+              loadIntegration();
             }
-          }, 2000);
-        }
+          } catch {
+            // seguir intentando
+          }
+        }, 2000);
       } catch (e: any) {
         if (!cancelled) setError(e.message || 'Error al generar QR');
-      } finally {
-        if (!cancelled) setConnecting(false);
+        setConnecting(false);
       }
     })();
 

@@ -4,6 +4,7 @@ import { sessionManager } from '../index.js';
 
 export const qrRouter = Router();
 
+/** Crea la sesión y devuelve al instante. El QR se obtiene por GET /status/:clientId (polling). */
 qrRouter.post('/generate', async (req, res) => {
   try {
     const { clientId } = req.body;
@@ -14,55 +15,19 @@ qrRouter.post('/generate', async (req, res) => {
 
     const session = await sessionManager.createSession(clientId);
 
-    const qrPromise = new Promise<string>((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        reject(new Error('Timeout esperando QR'));
-      }, 180000);
+    if (session.status === 'connected' && session.phoneNumber) {
+      return res.json({ success: true, status: 'already_connected', clientId });
+    }
 
-      if (session.qrCode) {
-        clearTimeout(timeout);
-        resolve(session.qrCode);
-        return;
-      }
-
-      sessionManager.once('qr', (data: { clientId: string; qr: string }) => {
-        if (data.clientId === clientId) {
-          clearTimeout(timeout);
-          resolve(data.qr);
-        }
-      });
-
-      sessionManager.once('connected', (data: { clientId: string }) => {
-        if (data.clientId === clientId) {
-          clearTimeout(timeout);
-          reject(new Error('already_connected'));
-        }
-      });
-    });
-
-    const qrCode = await qrPromise;
-    const qrImage = await QRCode.toDataURL(qrCode);
-
-    res.json({
-      success: true,
-      qrCode: qrImage,
-      clientId
-    });
+    res.json({ success: true, clientId });
   } catch (error: unknown) {
-    const err = error as Error;
-    if (err.message === 'already_connected') {
-      return res.json({ success: true, status: 'already_connected' });
-    }
-    if (err.message === 'Timeout esperando QR') {
-      console.error('Timeout generando QR para', req.body?.clientId);
-      return res.status(200).json({ success: false, error: err.message, retry: true });
-    }
-    console.error('Error generando QR:', err);
-    res.status(500).json({ error: err.message });
+    console.error('Error generando sesión QR:', error);
+    res.status(500).json({ error: (error as Error).message });
   }
 });
 
-qrRouter.get('/status/:clientId', (req, res) => {
+/** Incluye qrCode (data URL) cuando status es 'qr' para que el front haga polling y muestre el QR. */
+qrRouter.get('/status/:clientId', async (req, res) => {
   const { clientId } = req.params;
   const session = sessionManager.getSession(clientId);
 
@@ -70,10 +35,20 @@ qrRouter.get('/status/:clientId', (req, res) => {
     return res.json({ status: 'not_found' });
   }
 
-  res.json({
+  const payload: { status: string; phoneNumber?: string; qrCode?: string } = {
     status: session.status,
-    phoneNumber: session.phoneNumber
-  });
+    phoneNumber: session.phoneNumber,
+  };
+
+  if (session.status === 'qr' && session.qrCode) {
+    try {
+      payload.qrCode = await QRCode.toDataURL(session.qrCode);
+    } catch (e) {
+      console.error('Error generando data URL del QR:', e);
+    }
+  }
+
+  res.json(payload);
 });
 
 qrRouter.post('/disconnect', async (req, res) => {

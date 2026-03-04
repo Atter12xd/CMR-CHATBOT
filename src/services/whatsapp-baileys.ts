@@ -22,6 +22,7 @@ export interface BaileysQRResponse {
 export interface BaileysStatusResponse {
   status: 'not_found' | 'connecting' | 'qr' | 'connected' | 'disconnected';
   phoneNumber?: string;
+  qrCode?: string; // Data URL cuando status es 'qr' (para polling)
 }
 
 /**

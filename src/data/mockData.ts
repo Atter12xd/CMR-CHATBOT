@@ -27,6 +27,7 @@ export interface Chat {
 
 export interface Order {
   id: string;
+  code?: string;
   customerName: string;
   customerEmail: string;
   items: OrderItem[];

@@ -24,7 +24,7 @@ export default function OrderCard({ order }: OrderCardProps) {
       <div className="p-4">
         <div className="flex items-start justify-between mb-3">
           <div>
-            <h3 className="text-sm font-semibold text-slate-900">{order.id}</h3>
+            <h3 className="text-sm font-semibold text-slate-900">{order.code || order.id.slice(0, 8)}</h3>
             <p className="text-[13px] text-slate-500 mt-0.5">{order.customerName}</p>
           </div>
           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold ${status.bg} ${status.text}`}>
@@ -41,7 +41,7 @@ export default function OrderCard({ order }: OrderCardProps) {
                 {item.name} <span className="text-slate-400">x{item.quantity}</span>
               </span>
               <span className="text-slate-800 font-medium">
-                ${(item.price * item.quantity).toFixed(2)}
+                S/ {(item.price * item.quantity).toFixed(2)}
               </span>
             </div>
           ))}
@@ -50,7 +50,7 @@ export default function OrderCard({ order }: OrderCardProps) {
 
       <div className="flex items-center justify-between px-4 py-3 bg-slate-50/50 border-t border-slate-100">
         <span className="text-[12px] text-slate-400">{formatTime(order.createdAt)}</span>
-        <span className="text-base font-bold text-slate-900">${order.total.toFixed(2)}</span>
+        <span className="text-base font-bold text-slate-900">S/ {order.total.toFixed(2)}</span>
       </div>
     </div>
   );

@@ -1,14 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Globe, FileText, Plus, X, CheckCircle, AlertCircle, Loader2, Brain, Info } from 'lucide-react';
 import type { BotTrainingData } from '../data/botTraining';
 import { extractWebInfo, extractPDFInfo } from '../data/botTraining';
+import { useOrganization } from '../hooks/useOrganization';
+import { loadTrainingData, saveTrainingItem, deleteTrainingItem, uploadTrainingFile } from '../services/bot-training';
 
 
 export default function BotTrainingPage() {
+  const { organizationId, loading: orgLoading } = useOrganization();
   const [trainingData, setTrainingData] = useState<BotTrainingData[]>([]);
   const [webUrl, setWebUrl] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showWebForm, setShowWebForm] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const fetchTraining = useCallback(async () => {
+    if (!organizationId) return;
+    try {
+      setLoading(true);
+      const list = await loadTrainingData(organizationId);
+      setTrainingData(list);
+    } catch (err) {
+      console.error('Error cargando entrenamiento:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [organizationId]);
+
+  useEffect(() => {
+    if (!organizationId) {
+      setLoading(false);
+      return;
+    }
+    fetchTraining();
+  }, [organizationId, fetchTraining]);
 
 
   const handleWebExtract = async () => {
@@ -16,45 +41,24 @@ export default function BotTrainingPage() {
       alert('Por favor ingresa una URL válida');
       return;
     }
-
+    if (!organizationId) {
+      alert('No hay organización seleccionada');
+      return;
+    }
 
     setIsProcessing(true);
     setShowWebForm(false);
 
-
-    const newData: BotTrainingData = {
-      id: `web-${Date.now()}`,
-      type: 'web',
-      source: webUrl,
-      content: '',
-      extractedAt: new Date(),
-      status: 'processing',
-    };
-
-
-    setTrainingData(prev => [...prev, newData]);
-
-
     try {
       const content = await extractWebInfo(webUrl);
-      setTrainingData(prev =>
-        prev.map(item =>
-          item.id === newData.id
-            ? { ...item, content, status: 'completed' }
-            : item
-        )
-      );
-    } catch (error) {
-      setTrainingData(prev =>
-        prev.map(item =>
-          item.id === newData.id
-            ? { ...item, status: 'error', content: 'Error al procesar la URL' }
-            : item
-        )
-      );
+      await saveTrainingItem(organizationId, { type: 'web', source: webUrl, content });
+      await fetchTraining();
+      setWebUrl('');
+    } catch (err: any) {
+      console.error('Error extrayendo web:', err);
+      alert(err.message || 'Error al procesar la URL');
     } finally {
       setIsProcessing(false);
-      setWebUrl('');
     }
   };
 
@@ -62,56 +66,49 @@ export default function BotTrainingPage() {
   const handlePDFUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-
     if (file.type !== 'application/pdf') {
       alert('Por favor selecciona un archivo PDF');
       return;
     }
-
+    if (!organizationId) {
+      alert('No hay organización seleccionada');
+      return;
+    }
 
     setIsProcessing(true);
-
-
-    const newData: BotTrainingData = {
-      id: `pdf-${Date.now()}`,
-      type: 'pdf',
-      source: file.name,
-      content: '',
-      extractedAt: new Date(),
-      status: 'processing',
-    };
-
-
-    setTrainingData(prev => [...prev, newData]);
-
+    e.target.value = '';
 
     try {
-      const content = await extractPDFInfo(file.name);
-      setTrainingData(prev =>
-        prev.map(item =>
-          item.id === newData.id
-            ? { ...item, content, status: 'completed' }
-            : item
-        )
-      );
-    } catch (error) {
-      setTrainingData(prev =>
-        prev.map(item =>
-          item.id === newData.id
-            ? { ...item, status: 'error', content: 'Error al procesar el PDF' }
-            : item
-        )
-      );
+      const content = await extractPDFInfo(file);
+      let fileUrl: string | null = null;
+      try {
+        fileUrl = await uploadTrainingFile(file);
+      } catch {
+        // opcional: guardar igual sin URL
+      }
+      await saveTrainingItem(organizationId, {
+        type: 'pdf',
+        source: file.name,
+        content,
+        fileUrl,
+      });
+      await fetchTraining();
+    } catch (err: any) {
+      console.error('Error procesando PDF:', err);
+      alert(err.message || 'Error al procesar el PDF');
     } finally {
       setIsProcessing(false);
     }
   };
 
 
-  const handleDelete = (id: string) => {
-    if (confirm('¿Estás seguro de eliminar este entrenamiento?')) {
-      setTrainingData(prev => prev.filter(item => item.id !== id));
+  const handleDelete = async (id: string) => {
+    if (!confirm('¿Estás seguro de eliminar este entrenamiento?')) return;
+    try {
+      await deleteTrainingItem(id);
+      await fetchTraining();
+    } catch (err: any) {
+      alert(err.message || 'Error al eliminar');
     }
   };
 
@@ -135,6 +132,22 @@ export default function BotTrainingPage() {
     );
   };
 
+
+  if (orgLoading || loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[320px]">
+        <Loader2 size={24} className="animate-spin text-violet-600" />
+      </div>
+    );
+  }
+
+  if (!organizationId) {
+    return (
+      <div className="text-sm text-slate-500 p-4">
+        Crea o selecciona una organización para entrenar el bot.
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">

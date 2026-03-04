@@ -1,6 +1,8 @@
-import { useState } from 'react';
-import { ShoppingCart } from 'lucide-react';
-import { mockOrders, type Order } from '../data/mockData';
+import { useState, useEffect, useCallback } from 'react';
+import { ShoppingCart, Loader2 } from 'lucide-react';
+import { useOrganization } from '../hooks/useOrganization';
+import { loadOrders } from '../services/orders';
+import type { Order } from '../data/mockData';
 import OrderCard from './OrderCard';
 
 
@@ -18,16 +20,53 @@ const statusLabels: Record<string, string> = {
 
 
 export default function OrdersPage() {
+  const { organizationId, loading: orgLoading } = useOrganization();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<OrderStatus>('all');
 
+  const fetchOrders = useCallback(async () => {
+    if (!organizationId) return;
+    try {
+      setLoading(true);
+      const list = await loadOrders(organizationId);
+      setOrders(list);
+    } catch (err) {
+      console.error('Error cargando pedidos:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [organizationId]);
+
+  useEffect(() => {
+    if (!organizationId) {
+      setLoading(false);
+      return;
+    }
+    fetchOrders();
+  }, [organizationId, fetchOrders]);
 
   const statuses: OrderStatus[] = ['all', 'pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+  const filteredOrders =
+    selectedStatus === 'all'
+      ? orders
+      : orders.filter((order) => order.status === selectedStatus);
 
+  if (orgLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[320px]">
+        <Loader2 size={24} className="animate-spin text-violet-600" />
+      </div>
+    );
+  }
 
-  const filteredOrders = selectedStatus === 'all'
-    ? mockOrders
-    : mockOrders.filter(order => order.status === selectedStatus);
-
+  if (!organizationId) {
+    return (
+      <div className="text-sm text-slate-500 p-4">
+        Crea o selecciona una organización para ver pedidos.
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">
@@ -42,8 +81,6 @@ export default function OrdersPage() {
         </div>
       </div>
 
-
-      {/* Filters */}
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
         {statuses.map((status) => (
           <button
@@ -60,9 +97,11 @@ export default function OrdersPage() {
         ))}
       </div>
 
-
-      {/* Orders Grid */}
-      {filteredOrders.length > 0 ? (
+      {loading ? (
+        <div className="flex items-center justify-center py-16">
+          <Loader2 size={28} className="animate-spin text-violet-600" />
+        </div>
+      ) : filteredOrders.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredOrders.map((order) => (
             <OrderCard key={order.id} order={order} />
@@ -73,7 +112,9 @@ export default function OrdersPage() {
           <div className="w-14 h-14 bg-slate-50 ring-1 ring-slate-200/80 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <ShoppingCart size={24} className="text-slate-300" />
           </div>
-          <p className="text-sm text-slate-500">No hay pedidos con este estado</p>
+          <p className="text-sm text-slate-500">
+            {selectedStatus === 'all' ? 'No hay pedidos aún' : 'No hay pedidos con este estado'}
+          </p>
         </div>
       )}
     </div>

@@ -8,10 +8,11 @@ interface ProductFormProps {
   onSubmit: (product: Omit<Product, 'id' | 'createdAt'>) => void;
   onCancel?: () => void;
   initialProduct?: Product;
+  saving?: boolean;
 }
 
 
-export default function ProductForm({ onSubmit, onCancel, initialProduct }: ProductFormProps) {
+export default function ProductForm({ onSubmit, onCancel, initialProduct, saving = false }: ProductFormProps) {
   const [name, setName] = useState(initialProduct?.name || '');
   const [price, setPrice] = useState(initialProduct?.price.toString() || '');
   const [category, setCategory] = useState(initialProduct?.category || categories[0]);
@@ -223,10 +224,17 @@ export default function ProductForm({ onSubmit, onCancel, initialProduct }: Prod
         )}
         <button
           type="submit"
-          className="px-4 py-2.5 bg-violet-600 text-white text-sm font-medium rounded-xl hover:bg-violet-700 shadow-sm shadow-violet-600/20 transition-all duration-150 active:scale-[0.97] flex items-center gap-2"
+          disabled={saving}
+          className="px-4 py-2.5 bg-violet-600 text-white text-sm font-medium rounded-xl hover:bg-violet-700 shadow-sm shadow-violet-600/20 transition-all duration-150 active:scale-[0.97] flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          <Plus size={16} strokeWidth={2.5} />
-          <span>{initialProduct ? 'Actualizar' : 'Agregar'} Producto</span>
+          {saving ? (
+            <span className="animate-pulse">Guardando...</span>
+          ) : (
+            <>
+              <Plus size={16} strokeWidth={2.5} />
+              <span>{initialProduct ? 'Actualizar' : 'Agregar'} Producto</span>
+            </>
+          )}
         </button>
       </div>
     </form>

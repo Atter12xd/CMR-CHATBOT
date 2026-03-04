@@ -1,19 +1,51 @@
-import { useState } from 'react';
-import { Save, CreditCard, Smartphone, Building2, Info } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Save, CreditCard, Smartphone, Building2, Info, Loader2 } from 'lucide-react';
 import type { PaymentMethod } from '../data/paymentMethods';
 import { defaultPaymentMethods } from '../data/paymentMethods';
+import { useOrganization } from '../hooks/useOrganization';
+import { loadPaymentMethods, savePaymentMethods } from '../services/payment-methods';
 
 
 interface PaymentMethodsConfigProps {
-  methods: PaymentMethod[];
-  onSave: (methods: PaymentMethod[]) => void;
+  methods?: PaymentMethod[];
+  onSave?: (methods: PaymentMethod[]) => void;
 }
 
 
-export default function PaymentMethodsConfig({ methods, onSave }: PaymentMethodsConfigProps) {
+export default function PaymentMethodsConfig({ methods: propsMethods, onSave: propsOnSave }: PaymentMethodsConfigProps) {
+  const { organizationId, loading: orgLoading } = useOrganization();
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(
-    methods.length > 0 ? methods : defaultPaymentMethods
+    propsMethods?.length ? propsMethods : defaultPaymentMethods
   );
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+
+  const fetchMethods = useCallback(async () => {
+    if (!organizationId) return;
+    try {
+      setLoading(true);
+      const list = await loadPaymentMethods(organizationId);
+      setPaymentMethods(list);
+    } catch (err) {
+      console.error('Error cargando métodos de pago:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [organizationId]);
+
+  useEffect(() => {
+    if (propsMethods?.length) {
+      setPaymentMethods(propsMethods);
+      setLoading(false);
+      return;
+    }
+    if (!organizationId) {
+      setLoading(false);
+      return;
+    }
+    fetchMethods();
+  }, [organizationId, propsMethods, fetchMethods]);
 
 
   const handleChange = (id: string, field: keyof PaymentMethod, value: string | boolean) => {
@@ -25,9 +57,26 @@ export default function PaymentMethodsConfig({ methods, onSave }: PaymentMethods
   };
 
 
-  const handleSave = () => {
-    onSave(paymentMethods);
-    alert('Métodos de pago guardados exitosamente');
+  const handleSave = async () => {
+    if (propsOnSave) {
+      propsOnSave(paymentMethods);
+      alert('Métodos de pago guardados exitosamente');
+      return;
+    }
+    if (!organizationId) {
+      alert('No hay organización seleccionada');
+      return;
+    }
+    setSaving(true);
+    try {
+      await savePaymentMethods(organizationId, paymentMethods);
+      alert('Métodos de pago guardados exitosamente');
+    } catch (err: any) {
+      console.error('Error guardando métodos de pago:', err);
+      alert(err.message || 'Error al guardar');
+    } finally {
+      setSaving(false);
+    }
   };
 
 
@@ -44,6 +93,22 @@ export default function PaymentMethodsConfig({ methods, onSave }: PaymentMethods
   };
 
 
+  if (loading || orgLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[280px]">
+        <Loader2 size={24} className="animate-spin text-violet-600" />
+      </div>
+    );
+  }
+
+  if (!organizationId && !propsOnSave) {
+    return (
+      <div className="text-sm text-slate-500 p-4">
+        Crea o selecciona una organización para configurar métodos de pago.
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5">
       {/* Header */}
@@ -58,10 +123,11 @@ export default function PaymentMethodsConfig({ methods, onSave }: PaymentMethods
         </div>
         <button
           onClick={handleSave}
-          className="flex items-center gap-2 px-4 py-2.5 bg-violet-600 text-white text-sm font-medium rounded-xl hover:bg-violet-700 shadow-sm shadow-violet-600/20 transition-all duration-150 active:scale-[0.97]"
+          disabled={saving}
+          className="flex items-center gap-2 px-4 py-2.5 bg-violet-600 text-white text-sm font-medium rounded-xl hover:bg-violet-700 shadow-sm shadow-violet-600/20 transition-all duration-150 active:scale-[0.97] disabled:opacity-60"
         >
-          <Save size={16} />
-          <span>Guardar</span>
+          {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+          <span>{saving ? 'Guardando...' : 'Guardar'}</span>
         </button>
       </div>
 

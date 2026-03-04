@@ -1,20 +1,43 @@
-import { useState } from 'react';
-import { Plus, Search, Grid, List, X, Package } from 'lucide-react';
-import { initialProducts, categories, searchProducts, getProductsByCategory, type Product } from '../data/products';
+import { useState, useEffect, useCallback } from 'react';
+import { Plus, Search, Grid, List, X, Package, Loader2 } from 'lucide-react';
+import { categories, searchProducts, getProductsByCategory, type Product } from '../data/products';
+import { loadProducts, createProduct, updateProduct, deleteProduct, uploadProductImage } from '../services/products';
+import { useOrganization } from '../hooks/useOrganization';
 import ProductCard from './ProductCard';
 import ProductForm from './ProductForm';
 
-
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const { organizationId, loading: orgLoading } = useOrganization();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
+  const fetchProducts = useCallback(async () => {
+    if (!organizationId) return;
+    try {
+      setLoading(true);
+      const list = await loadProducts(organizationId);
+      setProducts(list);
+    } catch (err) {
+      console.error('Error cargando productos:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [organizationId]);
 
-  // Filtrar productos
+  useEffect(() => {
+    if (!organizationId) {
+      setLoading(false);
+      return;
+    }
+    fetchProducts();
+  }, [organizationId, fetchProducts]);
+
   let filteredProducts = products;
   if (searchQuery) {
     filteredProducts = searchProducts(searchQuery, filteredProducts);
@@ -23,53 +46,79 @@ export default function ProductsPage() {
     filteredProducts = getProductsByCategory(selectedCategory, filteredProducts);
   }
 
-
-  const handleAddProduct = (productData: Omit<Product, 'id' | 'createdAt'>) => {
-    const newProduct: Product = {
-      ...productData,
-      id: Date.now().toString(),
-      createdAt: new Date(),
-    };
-    setProducts([...products, newProduct]);
-    setShowForm(false);
+  const resolveImageUrl = async (image: string): Promise<string> => {
+    if (!image) return '';
+    if (image.startsWith('data:')) {
+      return await uploadProductImage(image);
+    }
+    return image;
   };
 
-
-  const handleEditProduct = (product: Product) => {
-    setEditingProduct(product);
-    setShowForm(true);
-  };
-
-
-  const handleUpdateProduct = (productData: Omit<Product, 'id' | 'createdAt'>) => {
-    if (!editingProduct) return;
-    
-    setProducts(products.map(p => 
-      p.id === editingProduct.id 
-        ? { ...productData, id: editingProduct.id, createdAt: editingProduct.createdAt }
-        : p
-    ));
-    setEditingProduct(null);
-    setShowForm(false);
-  };
-
-
-  const handleDeleteProduct = (productId: string) => {
-    if (confirm('¿Estás seguro de eliminar este producto?')) {
-      setProducts(products.filter(p => p.id !== productId));
+  const handleAddProduct = async (productData: Omit<Product, 'id' | 'createdAt'>) => {
+    if (!organizationId) return;
+    setSaving(true);
+    try {
+      const imageUrl = await resolveImageUrl(productData.image || '');
+      await createProduct(organizationId, {
+        ...productData,
+        image: imageUrl || productData.image,
+      });
+      await fetchProducts();
+      setShowForm(false);
+    } catch (err: any) {
+      console.error('Error agregando producto:', err);
+      alert(err.message || 'Error al agregar producto');
+    } finally {
+      setSaving(false);
     }
   };
 
+  const handleUpdateProduct = async (productData: Omit<Product, 'id' | 'createdAt'>) => {
+    if (!editingProduct) return;
+    setSaving(true);
+    try {
+      const imageUrl = await resolveImageUrl(productData.image || '');
+      await updateProduct(editingProduct.id, {
+        ...productData,
+        image: imageUrl || productData.image,
+      });
+      await fetchProducts();
+      setEditingProduct(null);
+      setShowForm(false);
+    } catch (err: any) {
+      console.error('Error actualizando producto:', err);
+      alert(err.message || 'Error al actualizar producto');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    if (!confirm('¿Estás seguro de eliminar este producto?')) return;
+    try {
+      await deleteProduct(productId);
+      await fetchProducts();
+    } catch (err: any) {
+      console.error('Error eliminando producto:', err);
+      alert(err.message || 'Error al eliminar producto');
+    }
+  };
 
   const handleCancelForm = () => {
     setShowForm(false);
     setEditingProduct(null);
   };
 
+  if (orgLoading || !organizationId) {
+    return (
+      <div className="flex items-center justify-center min-h-[320px]">
+        <Loader2 size={24} className="animate-spin text-violet-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5 mb-1">
@@ -91,8 +140,6 @@ export default function ProductsPage() {
         </button>
       </div>
 
-
-      {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1 relative">
           <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
@@ -113,7 +160,6 @@ export default function ProductsPage() {
           )}
         </div>
 
-
         <div className="flex gap-2">
           <select
             value={selectedCategory}
@@ -125,7 +171,6 @@ export default function ProductsPage() {
               <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>
-
 
           <div className="flex border border-slate-200/80 rounded-xl overflow-hidden">
             <button
@@ -144,8 +189,6 @@ export default function ProductsPage() {
         </div>
       </div>
 
-
-      {/* Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl shadow-slate-900/10 border border-slate-200/80">
@@ -157,16 +200,19 @@ export default function ProductsPage() {
                 onSubmit={editingProduct ? handleUpdateProduct : handleAddProduct}
                 onCancel={handleCancelForm}
                 initialProduct={editingProduct || undefined}
+                saving={saving}
               />
             </div>
           </div>
         </div>
       )}
 
-
-      {/* Products Grid/List */}
-      {filteredProducts.length > 0 ? (
-        <div className={viewMode === 'grid' 
+      {loading ? (
+        <div className="flex items-center justify-center py-16">
+          <Loader2 size={28} className="animate-spin text-violet-600" />
+        </div>
+      ) : filteredProducts.length > 0 ? (
+        <div className={viewMode === 'grid'
           ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'
           : 'space-y-3'
         }>
@@ -174,7 +220,7 @@ export default function ProductsPage() {
             <ProductCard
               key={product.id}
               product={product}
-              onEdit={handleEditProduct}
+              onEdit={(p) => { setEditingProduct(p); setShowForm(true); }}
               onDelete={handleDeleteProduct}
               viewMode={viewMode}
             />
@@ -186,7 +232,7 @@ export default function ProductsPage() {
             <Package size={24} className="text-slate-300" />
           </div>
           <p className="text-sm text-slate-500">
-            {searchQuery || selectedCategory !== 'all' 
+            {searchQuery || selectedCategory !== 'all'
               ? 'No se encontraron productos con estos filtros'
               : 'No hay productos. Agrega tu primer producto.'}
           </p>

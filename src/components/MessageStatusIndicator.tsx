@@ -1,11 +1,14 @@
 import { Loader2, Check, CheckCheck, XCircle } from 'lucide-react';
 
+
 type MessageStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
+
 
 interface MessageStatusIndicatorProps {
   status: MessageStatus;
   className?: string;
 }
+
 
 export default function MessageStatusIndicator({ status, className = '' }: MessageStatusIndicatorProps) {
   switch (status) {
@@ -13,7 +16,7 @@ export default function MessageStatusIndicator({ status, className = '' }: Messa
       return (
         <Loader2 
           size={12} 
-          className={`text-gray-400 animate-spin ${className}`}
+          className={`text-slate-400 animate-spin ${className}`}
           title="Enviando..."
         />
       );
@@ -22,7 +25,7 @@ export default function MessageStatusIndicator({ status, className = '' }: Messa
       return (
         <Check 
           size={12} 
-          className={`text-gray-400 ${className}`}
+          className={`text-slate-400 ${className}`}
           title="Enviado"
         />
       );
@@ -31,7 +34,7 @@ export default function MessageStatusIndicator({ status, className = '' }: Messa
       return (
         <CheckCheck 
           size={12} 
-          className={`text-gray-400 ${className}`}
+          className={`text-slate-400 ${className}`}
           title="Entregado"
         />
       );
@@ -49,7 +52,7 @@ export default function MessageStatusIndicator({ status, className = '' }: Messa
       return (
         <XCircle 
           size={12} 
-          className={`text-red-500 ${className}`}
+          className={`text-red-400 ${className}`}
           title="Error al enviar"
         />
       );

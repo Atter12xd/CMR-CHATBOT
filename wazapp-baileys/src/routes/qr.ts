@@ -17,7 +17,7 @@ qrRouter.post('/generate', async (req, res) => {
     const qrPromise = new Promise<string>((resolve, reject) => {
       const timeout = setTimeout(() => {
         reject(new Error('Timeout esperando QR'));
-      }, 90000);
+      }, 180000);
 
       if (session.qrCode) {
         clearTimeout(timeout);
@@ -52,6 +52,10 @@ qrRouter.post('/generate', async (req, res) => {
     const err = error as Error;
     if (err.message === 'already_connected') {
       return res.json({ success: true, status: 'already_connected' });
+    }
+    if (err.message === 'Timeout esperando QR') {
+      console.error('Timeout generando QR para', req.body?.clientId);
+      return res.status(200).json({ success: false, error: err.message, retry: true });
     }
     console.error('Error generando QR:', err);
     res.status(500).json({ error: err.message });

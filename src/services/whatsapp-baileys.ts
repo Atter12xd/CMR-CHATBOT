@@ -13,8 +13,10 @@ const getBaseUrl = (): string => {
 export interface BaileysQRResponse {
   success: boolean;
   qrCode?: string; // Data URL de la imagen QR
-  clientId: string;
+  clientId?: string;
   status?: 'already_connected';
+  error?: string;
+  retry?: boolean;
 }
 
 export interface BaileysStatusResponse {

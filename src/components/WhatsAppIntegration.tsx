@@ -73,6 +73,12 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
           return;
         }
 
+        if (data.success === false && data.error) {
+          setError(data.error + (data.retry ? ' Puedes intentar de nuevo.' : ''));
+          setConnecting(false);
+          return;
+        }
+
         if (data.qrCode) {
           setQrImage(data.qrCode);
           pollIntervalRef.current = setInterval(async () => {

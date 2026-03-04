@@ -66,7 +66,8 @@ export class SessionManager extends EventEmitter {
     const socket = makeWASocket({
       auth: state,
       printQRInTerminal: false,
-      browser: ['Wazapp.ai', 'Chrome', '120.0.0'],
+      browser: ['Mac', 'Chrome', '120.0.0'],
+      syncFullHistory: false,
     });
 
     const session: Session = {
@@ -102,9 +103,9 @@ export class SessionManager extends EventEmitter {
             .eq('client_id', clientId);
           this.emit('disconnected', { clientId, reason: 'logged_out' });
         } else if (reason !== DisconnectReason.loggedOut) {
-          console.log(`Reconectando sesión: ${clientId}`);
+          console.log(`Reconectando sesión: ${clientId} en 15s (evitar límite WhatsApp)`);
           this.sessions.delete(clientId);
-          setTimeout(() => this.createSession(clientId), 3000);
+          setTimeout(() => this.createSession(clientId), 15000);
         }
       }
 

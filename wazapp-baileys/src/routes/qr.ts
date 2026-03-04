@@ -17,7 +17,7 @@ qrRouter.post('/generate', async (req, res) => {
     const qrPromise = new Promise<string>((resolve, reject) => {
       const timeout = setTimeout(() => {
         reject(new Error('Timeout esperando QR'));
-      }, 30000);
+      }, 90000);
 
       if (session.qrCode) {
         clearTimeout(timeout);

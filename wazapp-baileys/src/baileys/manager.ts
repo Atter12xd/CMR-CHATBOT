@@ -1,6 +1,7 @@
 import makeWASocket, {
   DisconnectReason,
   useMultiFileAuthState,
+  fetchLatestBaileysVersion,
   WASocket,
   proto
 } from '@whiskeysockets/baileys';
@@ -10,6 +11,8 @@ import path from 'path';
 import fs from 'fs';
 import { createClient } from '@supabase/supabase-js';
 import { handleIncomingMessage } from './events.js';
+
+const logger = { trace: () => {}, debug: () => {}, info: () => {}, warn: () => {}, error: () => {}, fatal: () => {} };
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
@@ -63,11 +66,15 @@ export class SessionManager extends EventEmitter {
     const sessionPath = path.join(this.sessionsDir, clientId);
     const { state, saveCreds } = await useMultiFileAuthState(sessionPath);
 
+    const { version } = await fetchLatestBaileysVersion();
+
     const socket = makeWASocket({
+      version,
       auth: state,
+      logger,
       printQRInTerminal: false,
-      browser: ['Mac', 'Chrome', '120.0.0'],
-      syncFullHistory: false,
+      generateHighQualityLinkPreview: true,
+      defaultQueryTimeoutMs: 60000,
     });
 
     const session: Session = {
@@ -103,9 +110,9 @@ export class SessionManager extends EventEmitter {
             .eq('client_id', clientId);
           this.emit('disconnected', { clientId, reason: 'logged_out' });
         } else if (reason !== DisconnectReason.loggedOut) {
-          console.log(`Reconectando sesión: ${clientId} en 15s (evitar límite WhatsApp)`);
+          console.log(`Reconectando sesión: ${clientId} en 3s`);
           this.sessions.delete(clientId);
-          setTimeout(() => this.createSession(clientId), 15000);
+          setTimeout(() => this.createSession(clientId), 3000);
         }
       }
 

@@ -115,7 +115,7 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
           } catch {
             // seguir intentando
           }
-        }, 2000);
+        }, 1000);
       } catch (e: any) {
         if (!cancelled) setError(e.message || 'Error al generar QR');
         setConnecting(false);
@@ -436,10 +436,15 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
               <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
-          {connecting && !qrImage && (
-            <div className="flex items-center gap-2 py-6">
-              <Loader2 className="h-6 w-6 animate-spin text-green-600" />
-              <span>Generando QR...</span>
+          {(connecting || (!qrImage && !error)) && (
+            <div className="flex flex-col items-center gap-3 py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+              <span className="text-gray-700 font-medium">
+                {connecting ? 'Conectando con WhatsApp...' : 'Esperando código QR...'}
+              </span>
+              <p className="text-sm text-gray-500 text-center max-w-sm">
+                La conexión puede tardar 1–2 minutos. Si no aparece el QR, pulsa Volver e intenta de nuevo.
+              </p>
             </div>
           )}
           {qrImage && (

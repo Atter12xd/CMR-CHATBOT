@@ -9,6 +9,10 @@ import {
   TrendingUp,
   QrCode,
   Send,
+  MessageCircle,
+  Eye,
+  Clock,
+  Info,
 } from 'lucide-react';
 import { createClient } from '../lib/supabase';
 import type { Database } from '../lib/database.types';

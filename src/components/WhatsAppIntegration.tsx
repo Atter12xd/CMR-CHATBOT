@@ -8,6 +8,7 @@ import {
   Trash2,
   TrendingUp,
   QrCode,
+  Send,
 } from 'lucide-react';
 import { createClient } from '../lib/supabase';
 import type { Database } from '../lib/database.types';

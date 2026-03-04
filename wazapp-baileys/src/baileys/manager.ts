@@ -12,7 +12,17 @@ import fs from 'fs';
 import { createClient } from '@supabase/supabase-js';
 import { handleIncomingMessage } from './events.js';
 
-const logger = { trace: () => {}, debug: () => {}, info: () => {}, warn: () => {}, error: () => {}, fatal: () => {} };
+const noop = () => {};
+const logger = {
+  level: 'silent' as const,
+  trace: noop,
+  debug: noop,
+  info: noop,
+  warn: noop,
+  error: noop,
+  fatal: noop,
+  child: () => logger,
+};
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,

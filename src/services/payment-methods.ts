@@ -76,7 +76,7 @@ export async function savePaymentMethods(
           method: m.type,
           enabled: m.active,
           account_name: m.active ? (m.accountName || null) : null,
-          account_number: m.type === 'bcp' && m.active ? (m.accountNumber || null) : null,
+          account_number: m.active && m.accountNumber ? (m.accountNumber.trim() || null) : null,
           account_type: m.type === 'bcp' && m.active ? (m.accountType || null) : null,
           updated_at: new Date().toISOString(),
         },

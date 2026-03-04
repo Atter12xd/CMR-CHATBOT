@@ -187,6 +187,21 @@ export default function PaymentMethodsConfig({ methods: propsMethods, onSave: pr
                     />
                   </div>
 
+                  {(method.type === 'yape' || method.type === 'plin') && (
+                    <div>
+                      <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
+                        Número de celular
+                      </label>
+                      <input
+                        type="text"
+                        value={method.accountNumber || ''}
+                        onChange={(e) => handleChange(method.id, 'accountNumber', e.target.value)}
+                        placeholder="Ej: 999 888 777 (el número al que te envían el Yape/Plin)"
+                        className="w-full px-3.5 py-2.5 text-sm border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all placeholder:text-slate-400"
+                      />
+                      <p className="text-[11px] text-slate-400 mt-1">El bot dirá este número a los clientes para que te envíen el pago.</p>
+                    </div>
+                  )}
 
                   {method.type === 'bcp' && (
                     <>

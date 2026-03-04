@@ -159,10 +159,13 @@ async function generateAIResponse(
     if (paymentMethods?.length) {
       paymentMethodsContext = 'MÉTODOS DE PAGO que debes ofrecer al cliente:\n' + paymentMethods.map(p => {
         if (p.method === 'yape' || p.method === 'plin') {
-          return `- ${p.method === 'yape' ? 'Yape' : 'Plin'}: A nombre de ${p.account_name || 'N/A'}`;
+          const num = p.account_number?.trim();
+          const name = p.account_name || 'N/A';
+          const numText = num ? ` al número ${num}` : '';
+          return `- ${p.method === 'yape' ? 'Yape' : 'Plin'}${numText}: A nombre de ${name}`;
         }
         if (p.method === 'bcp') {
-          return `- BCP ${p.account_type || ''}: ${p.account_number || 'N/A'} - A nombre de ${p.account_name || 'N/A'}`;
+          return `- BCP ${p.account_type || ''}: cuenta ${p.account_number || 'N/A'} - A nombre de ${p.account_name || 'N/A'}`;
         }
         return '';
       }).filter(Boolean).join('\n');

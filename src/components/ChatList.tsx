@@ -15,11 +15,20 @@ type PlatformFilter = 'all' | 'facebook' | 'whatsapp' | 'web';
 type StatusFilter = 'all' | 'active' | 'waiting' | 'resolved';
 
 
+const INTENT_LABELS: Record<string, string> = {
+  preguntando_precio: 'Preguntó precio',
+  quiero_comprar: 'Quiere comprar',
+  cómo_pago: 'Preguntó pago',
+  hacer_pedido: 'Quiere pedir',
+};
+
+
 export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatListProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [platformFilter, setPlatformFilter] = useState<PlatformFilter>('all');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [onlyLeads, setOnlyLeads] = useState(false);
 
 
   const filteredChats = chats.filter(chat => {
@@ -28,7 +37,8 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
                          (chat.customerEmail && chat.customerEmail.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesPlatform = platformFilter === 'all' || chat.platform === platformFilter;
     const matchesStatus = statusFilter === 'all' || chat.status === statusFilter;
-    return matchesSearch && matchesPlatform && matchesStatus;
+    const matchesLeads = !onlyLeads || (chat.lastIntentAt != null);
+    return matchesSearch && matchesPlatform && matchesStatus && matchesLeads;
   });
 
 
@@ -56,7 +66,7 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
   };
 
 
-  const activeFiltersCount = (platformFilter !== 'all' ? 1 : 0) + (statusFilter !== 'all' ? 1 : 0);
+  const activeFiltersCount = (platformFilter !== 'all' ? 1 : 0) + (statusFilter !== 'all' ? 1 : 0) + (onlyLeads ? 1 : 0);
 
 
   return (
@@ -98,7 +108,7 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
             <div className="flex justify-between items-center">
               <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Filtros</span>
               {activeFiltersCount > 0 && (
-                <button onClick={() => { setPlatformFilter('all'); setStatusFilter('all'); }} className="text-[11px] font-medium text-violet-600 hover:text-violet-700">
+                <button onClick={() => { setPlatformFilter('all'); setStatusFilter('all'); setOnlyLeads(false); }} className="text-[11px] font-medium text-violet-600 hover:text-violet-700">
                   Limpiar
                 </button>
               )}
@@ -139,6 +149,15 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
                 ))}
               </div>
             </div>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={onlyLeads}
+                onChange={(e) => setOnlyLeads(e.target.checked)}
+                className="w-4 h-4 text-violet-600 rounded border-slate-300 focus:ring-violet-500/20"
+              />
+              <span className="text-[12px] font-medium text-slate-600">Solo por cerrar (con intención de compra)</span>
+            </label>
           </div>
         )}
       </div>
@@ -193,7 +212,12 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
                     </p>
                   </div>
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {chat.lastIntentAt != null && (
+                        <span className="text-[10px] px-2 py-0.5 bg-emerald-100/80 text-emerald-700 rounded-md font-medium">
+                          {INTENT_LABELS[chat.lastIntent || ''] || 'Por cerrar'}
+                        </span>
+                      )}
                       {chat.botActive && (
                         <span className="text-[10px] px-2 py-0.5 bg-violet-100/80 text-violet-600 rounded-md font-medium">
                           Bot

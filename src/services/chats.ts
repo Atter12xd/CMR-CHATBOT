@@ -43,6 +43,8 @@ export async function loadChats(organizationId: string): Promise<Chat[]> {
         platform: chat.platform as 'facebook' | 'whatsapp' | 'web',
         messages: [],
         botActive: chat.bot_active || false,
+        lastIntent: (chat as { last_intent?: string }).last_intent ?? null,
+        lastIntentAt: (chat as { last_intent_at?: string }).last_intent_at ? new Date((chat as { last_intent_at: string }).last_intent_at) : null,
       };
     });
 
@@ -141,6 +143,8 @@ export async function loadChatWithMessages(chatId: string): Promise<Chat | null>
       platform: chat.platform as 'facebook' | 'whatsapp' | 'web',
       messages: transformedMessages,
       botActive: chat.bot_active || false,
+      lastIntent: (chat as { last_intent?: string }).last_intent ?? null,
+      lastIntentAt: (chat as { last_intent_at?: string }).last_intent_at ? new Date((chat as { last_intent_at: string }).last_intent_at) : null,
     };
 
     return transformedChat;

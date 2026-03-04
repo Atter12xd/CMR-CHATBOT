@@ -68,35 +68,81 @@
 
 ---
 
-## 3. Próximos pasos (implementaciones pendientes)
+## 3. Pasos ya implementados (hechos)
 
-### 3.1 Métodos de pago (real)
+### 3.1 Métodos de pago (real) ✅
 - **Objetivo**: Que sea real, no solo “dar click”.
 - **Qué hacer**: Poder **ingresar número de Yape y nombre** (y otros métodos si aplica); guardar en BD y mostrarlos donde corresponda (checkout, respuestas del bot, etc.). Que todo lo que se muestre sea dato real, no simulado.
 
-### 3.2 Entrenar bot (PDF y más)
+### 3.2 Entrenar bot (PDF y más) ✅
 - **Objetivo**: Entrenar el bot desde **PDF y otras fuentes**; que el bot **entienda todo eso**.
 - **Qué hacer**: Afinar la subida de PDFs (y texto/URL si ya existe), procesar contenido, guardar en contexto del bot (ej. `bot_context` o tabla de entrenamiento) y que las respuestas de la IA usen ese contenido. Revisar que el flujo de “entrenar bot” sea real de punta a punta.
 
-### 3.3 Productos (subir y que el bot los use)
-- **Objetivo**: **Subir productos** con fotos y datos; que el **bot entienda esos productos** y se los ofrezca al cliente.
-- **Qué hacer**: CRUD de productos con imagen (y campos que falten); que la IA use la tabla `products` (y descripción, foto si se guarda URL) en el contexto al responder, para recomendar y dar info real al cliente.
+### 3.3 Productos (subir y que el bot los use) ✅
+- CRUD de productos con imagen (Storage `product-images`); el bot recibe productos (nombre, descripción, precio, imagen) en el contexto y puede ofrecerlos.
 
-### 3.4 Pedidos (bot genera pedido con código)
+### 3.4 Pedidos (bot genera pedido con código) ✅
 - **Objetivo**: Que el **bot** tome pedidos (ej. “un polo”), pida datos al usuario y **guarde el pedido en el sistema con un código**.
 - **Qué hacer**: Flujo en el chat: usuario pide producto → bot pide datos necesarios (nombre, dirección, etc.) → bot confirma y **crea registro en `orders`** (o tabla de pedidos) con **código de pedido**; opcionalmente notificar al negocio. Revisar que el backend de pedidos use datos reales (productos, precios, cliente).
 
-### 3.5 Dashboard en español y con datos reales
+### 3.5 Dashboard en español y con datos reales ✅
 - **Objetivo**: Dashboard **en español** y que **todo sea real** (nada simulado).
 - **Qué hacer**: Revisar todas las pantallas del dashboard: textos al español, reemplazar datos mock o estáticos por datos de Supabase (organizaciones, chats, pedidos, métricas). Quitar o reemplazar cualquier “demo” o placeholder por flujos reales.
 
-### 3.6 Chat: verificar que los mensajes se guardan
-- **Objetivo**: Confirmar que **los mensajes del chat se guardan** bien.
-- **Qué hacer**: Revisar que cada mensaje (usuario y bot) se persista en `messages` (y que el bot ya lo hace vía `events.ts`); que la vista de Chats del dashboard lea esos mensajes desde la BD y que no quede nada solo en memoria o simulado.
+### 3.6 Chat: mensajes en BD ✅
+- Backend Baileys usa columna `sender`; mensajes usuario y bot se persisten en `messages`; el dashboard lee desde Supabase.
 
 ---
 
-## 4. Resumen rápido
+## 4. Siguientes pasos: que el bot entienda todo
 
-- **Hecho**: WhatsApp por QR con Baileys en Contabo, API HTTPS (api.wazapp.ai), flujo de conexión/desconexión, respuestas del bot con IA, guardado de chats/mensajes en Supabase; iconos del Config arreglados.
-- **Siguiente**: Métodos de pago reales (Yape + nombre), entrenar bot con PDF y que entienda todo, productos con fotos y que el bot los use, pedidos con código desde el bot, dashboard en español y 100 % real, y verificar guardado de mensajes en el chat.
+Objetivo: que el bot **sepa cómo hablar**, **cómo ofrecer productos**, **cómo indicar pagos** y **cómo avisar al sistema** cuando alguien paga o está por comprar.
+
+### 4.1 Cómo hablar a la gente (tono y estilo)
+- **Objetivo**: Que el bot tenga un tono consistente: amable, claro, en español, sin respuestas largas.
+- **Qué hacer**:
+  - Afinar el **system prompt** en `wazapp-baileys/src/baileys/events.ts`: reglas de tono (trato de tú/usted según negocio), longitud máxima, emojis opcionales.
+  - Opcional: campo en `organizations` o `bot_context` para "personalidad del bot" (formal / cercano) y usarlo en el prompt.
+  - Probar con distintos tipos de mensaje (consulta, queja, pedido) y ajustar el prompt.
+
+### 4.2 Cómo dar y ofrecer productos
+- **Objetivo**: Que el bot ofrezca productos de forma clara (nombre, precio, enlace a imagen si hay) y sugiera según lo que pregunte el cliente.
+- **Qué hacer**:
+  - En el prompt, instruir explícitamente: cuando pregunten por productos, responde con nombre, precio en S/ y, si hay imagen, di que pueden verla en [URL].
+  - Incluir en el contexto de productos ya la URL de imagen (ya se hace); que el bot la mencione cuando sea útil.
+  - Opcional: herramienta `suggest_products` que devuelva 1–3 productos según categoría o búsqueda y el bot los formatee en el mensaje.
+
+### 4.3 Cómo decir a qué método de pago pagar
+- **Objetivo**: Que cuando el cliente pregunte "¿cómo pago?" o "¿Yape?", el bot responda con los métodos configurados (Yape/Plin/BCP) y el texto exacto a mostrar (ej. "Yape a nombre de: Juan Pérez").
+- **Qué hacer**:
+  - El contexto ya incluye métodos de pago activos (hecho en 3.1). En el prompt, añadir: cuando pregunten por pagos, indica solo los métodos que aparecen en MÉTODOS DE PAGO; di el nombre y a nombre de quién (o número de cuenta para BCP).
+  - Revisar que el texto generado no invente datos; que use solo lo que viene de `payment_methods_config`.
+
+### 4.4 Cómo hacer que el bot entienda los métodos de pago
+- **Objetivo**: Que el bot sepa qué es Yape, Plin, BCP y cuándo ofrecer cada uno (horarios, tipo de pago, etc.) si el negocio lo indica.
+- **Qué hacer**:
+  - Añadir en el prompt o en `bot_context` un párrafo fijo tipo: "Yape y Plin son pagos por celular; BCP es transferencia/depósito. Indica al cliente que puede pagar por el método que prefiera de la lista."
+  - Si el negocio quiere mensajes distintos por método (ej. "Para Yape: …"), guardar ese texto en BD (ej. en `payment_methods_config` o en `bot_context`) y que el bot lo use.
+
+### 4.5 Avisar en el sistema que alguien ya pagó
+- **Objetivo**: Cuando el cliente envíe un comprobante o diga "ya pagué", que el sistema lo registre y, si aplica, actualice el pedido.
+- **Qué hacer**:
+  - **Detectar intención**: en el flujo del bot, detectar mensajes como "ya pagué", "te envío el comprobante", o recepción de imagen en un chat con pedido pendiente.
+  - **Registro de pago**: crear registro en tabla `payments` (organization_id, chat_id, customer_name, amount, method, status 'pending', receipt_image_url si subieron foto).
+  - **Vincular con pedido**: si hay un pedido reciente (por chat_id) con status 'pending', opcionalmente actualizar el pedido a "en proceso" o marcar "pago reportado".
+  - **Notificación al negocio**: opcional: webhook, email o notificación en dashboard ("Cliente X reportó pago de S/ Y").
+
+### 4.6 Ver / avisar sobre persona que está a punto de comprar
+- **Objetivo**: Saber quién está por comprar (tiene carrito mental, preguntó precios o dijo "lo quiero") para seguimiento o ofertas.
+- **Qué hacer**:
+  - **Intención "a punto de comprar"**: en el prompt o con una herramienta, que el bot detecte frases como "cuánto es", "lo tomo", "quiero ese", "me lo reservas", "cómo pago".
+  - **Registro en BD**: crear tabla `leads` o usar campo en `chats` (ej. `last_intent`, `interested_in_order_at`); o insertar en `payments` con status 'pending' cuando el cliente dice que va a pagar.
+  - **Dashboard**: en Chats o en una vista "Leads / Por cerrar", listar chats con intención reciente de compra o con pedido pendiente de pago.
+  - **Opcional**: notificación en tiempo real (Supabase Realtime o polling) para que el negocio vea "Cliente X está preguntando por pago".
+
+---
+
+## 5. Resumen rápido
+
+- **Hecho**: WhatsApp por QR con Baileys, dashboard y flujos reales: mensajes en BD, productos con imagen, pedidos con código, métodos de pago en BD, entrenamiento con PDF/web, dashboard en español con datos de Supabase.
+- **Siguiente**: Afinar que el bot **entienda todo**: tono al hablar (4.1), cómo ofrecer productos (4.2), cómo indicar métodos de pago (4.3–4.4), **avisar cuando alguien pagó** (4.5) y **ver quién está a punto de comprar** (4.6).

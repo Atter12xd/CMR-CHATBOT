@@ -23,6 +23,8 @@ export interface Chat {
   messages: Message[];
   botActive: boolean;
   botTyping?: boolean;
+  lastIntent?: string | null;
+  lastIntentAt?: Date | null;
 }
 
 export interface Order {

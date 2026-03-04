@@ -7,6 +7,7 @@ import type { Chat } from '../data/mockData';
 import { useOrganization } from '../hooks/useOrganization';
 import { loadChats, subscribeToChats } from '../services/chats';
 
+
 export default function ChatsPage() {
   const { organizationId, loading: orgLoading } = useOrganization();
   const [chats, setChats] = useState<Chat[]>([]);
@@ -14,6 +15,7 @@ export default function ChatsPage() {
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [showChatList, setShowChatList] = useState(true);
   const [whatsAppNumber, setWhatsAppNumber] = useState<string | null>(null);
+
 
   const refetchChats = useCallback(async () => {
     if (!organizationId) return;
@@ -25,11 +27,13 @@ export default function ChatsPage() {
     }
   }, [organizationId]);
 
+
   useEffect(() => {
     if (!organizationId) {
       setLoading(false);
       return;
     }
+
 
     const fetchChats = async () => {
       try {
@@ -43,15 +47,19 @@ export default function ChatsPage() {
       }
     };
 
+
     fetchChats();
+
 
     const unsubscribe = subscribeToChats(organizationId, (updatedChats) => {
       setChats(updatedChats);
     });
 
+
     const pollInterval = setInterval(() => {
       refetchChats();
     }, 12_000);
+
 
     return () => {
       unsubscribe();
@@ -59,7 +67,8 @@ export default function ChatsPage() {
     };
   }, [organizationId, refetchChats]);
 
-  // Cargar número de WhatsApp conectado (para mostrar "Enviando desde" en Meta App Review)
+
+  // Cargar número de WhatsApp conectado
   useEffect(() => {
     if (!organizationId) return;
     const supabase = createClient();
@@ -72,57 +81,69 @@ export default function ChatsPage() {
       .then(({ data }) => setWhatsAppNumber(data?.phone_number ?? null));
   }, [organizationId]);
 
+
   const selectedChat = chats.find(chat => chat.id === selectedChatId) || null;
+
 
   const handleSelectChat = (chatId: string) => {
     setSelectedChatId(chatId);
     setShowChatList(false);
   };
 
+
   const handleBackToList = () => {
     setShowChatList(true);
     setSelectedChatId(null);
   };
 
+
   if (orgLoading || loading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-6 w-6 animate-spin text-primary-600" />
+      <div className="flex items-center justify-center p-12">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-6 w-6 animate-spin text-violet-500" />
+          <span className="text-sm text-slate-400 font-medium">Cargando conversaciones...</span>
+        </div>
       </div>
     );
   }
+
 
   if (!organizationId) {
     return (
       <div className="flex flex-col h-full">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Chats</h1>
-          <p className="text-gray-600 mt-2">Gestiona tus conversaciones con clientes</p>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Chats</h1>
+          <p className="text-slate-500 mt-1 text-sm">Gestiona tus conversaciones con clientes</p>
         </div>
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-          <p className="text-yellow-800">
-            Necesitas crear una organización para ver tus chats. Ve a Configuración para crear una.
-          </p>
+        <div className="bg-amber-50/80 border border-amber-200/60 rounded-2xl p-6">
+          <div className="flex items-start gap-3">
+            <div className="w-2 h-2 rounded-full bg-amber-400 mt-2 flex-shrink-0" />
+            <p className="text-amber-800 text-sm leading-relaxed">
+              Necesitas crear una organización para ver tus chats. Ve a Configuración para crear una.
+            </p>
+          </div>
         </div>
       </div>
     );
   }
 
+
   return (
     <div className="flex flex-col h-full">
-      {/* Header solo en móvil */}
-      <div className="mb-4 md:mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Chats</h1>
-        <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">Gestiona tus conversaciones con clientes</p>
+      {/* Header */}
+      <div className="mb-4 md:mb-5">
+        <h1 className="text-2xl md:text-[1.65rem] font-bold text-slate-900 tracking-tight">Chats</h1>
+        <p className="text-sm text-slate-500 mt-1">Gestiona tus conversaciones con clientes</p>
       </div>
 
-      {/* Contenedor principal tipo WhatsApp Web */}
-      <div className="flex-1 flex rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden min-h-0">
-        {/* Lista de chats - sidebar izquierdo */}
+      {/* Contenedor principal */}
+      <div className="flex-1 flex rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden min-h-0">
+        {/* Lista de chats — sidebar */}
         <div
           className={`${
             showChatList ? 'flex' : 'hidden'
-          } md:flex w-full md:w-[400px] lg:w-[420px] xl:w-[450px] flex-shrink-0 border-r border-gray-200`}
+          } md:flex w-full md:w-[380px] lg:w-[400px] xl:w-[420px] flex-shrink-0 border-r border-slate-200/80`}
         >
           <ChatList
             chats={chats}
@@ -131,11 +152,11 @@ export default function ChatsPage() {
           />
         </div>
 
-        {/* Ventana de chat - área principal */}
+        {/* Ventana de chat */}
         <div
           className={`${
             !showChatList && selectedChat ? 'flex' : 'hidden'
-          } ${selectedChat ? 'md:flex' : 'md:flex'} flex-1 min-w-0 bg-gray-50`}
+          } ${selectedChat ? 'md:flex' : 'md:flex'} flex-1 min-w-0`}
         >
           {selectedChat ? (
             <ChatWindow
@@ -145,15 +166,13 @@ export default function ChatsPage() {
               onRefetchChats={refetchChats}
             />
           ) : (
-            <div className="h-full w-full flex items-center justify-center bg-gray-50">
-              <div className="text-center max-w-md px-6">
-                <div className="w-24 h-24 mx-auto mb-4 bg-gray-200 rounded-full flex items-center justify-center">
-                  <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
+            <div className="h-full w-full flex items-center justify-center bg-slate-50/50">
+              <div className="text-center max-w-sm px-6">
+                <div className="w-20 h-20 mx-auto mb-5 bg-violet-50 rounded-2xl flex items-center justify-center">
+                  <div className="w-4 h-4 rounded-full bg-violet-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Selecciona un chat</h3>
-                <p className="text-gray-500">Elige una conversación de la lista para comenzar a chatear</p>
+                <h3 className="text-lg font-semibold text-slate-900 mb-2 tracking-tight">Selecciona un chat</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">Elige una conversación de la lista para comenzar a chatear</p>
               </div>
             </div>
           )}

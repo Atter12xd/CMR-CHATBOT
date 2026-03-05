@@ -220,7 +220,7 @@ export default function PricingContent() {
                   key={plan.name}
                   className={`relative rounded-2xl transition-all duration-300 ${
                     plan.highlighted
-                      ? 'bg-white text-slate-900 shadow-2xl shadow-brand-500/10 ring-1 ring-white/10 lg:scale-105'
+                      ? 'bg-slate-800/80 border-2 border-brand-500/50 shadow-2xl shadow-brand-500/10 lg:scale-105'
                       : 'bg-slate-900/50 border border-slate-800/50 hover:border-slate-700/50'
                   }`}
                 >
@@ -240,29 +240,29 @@ export default function PricingContent() {
 
                   <div className="p-7 lg:p-8">
                     {/* Header */}
-                    <h2 className={`text-xl font-bold mb-1 ${plan.highlighted ? 'text-slate-900' : 'text-white'}`}>
+                    <h2 className={`text-xl font-bold mb-1 ${plan.highlighted ? 'text-white' : 'text-white'}`}>
                       {plan.name}
                     </h2>
-                    <p className={`text-sm mb-8 ${plan.highlighted ? 'text-slate-500' : 'text-slate-500'}`}>
+                    <p className={`text-sm mb-8 ${plan.highlighted ? 'text-slate-400' : 'text-slate-500'}`}>
                       {plan.description}
                     </p>
 
                     {/* Price */}
                     <div className="mb-8">
                       <div className="flex items-baseline gap-1">
-                        <span className={`text-5xl font-bold tracking-tight ${plan.highlighted ? 'text-slate-900' : 'text-white'}`}>
+                        <span className={`text-5xl font-bold tracking-tight ${plan.highlighted ? 'text-white' : 'text-white'}`}>
                           ${price}
                         </span>
-                        <span className={`text-base font-medium ${plan.highlighted ? 'text-slate-400' : 'text-slate-500'}`}>
+                        <span className={`text-base font-medium ${plan.highlighted ? 'text-slate-500' : 'text-slate-500'}`}>
                           /mes
                         </span>
                       </div>
                       {billing === 'yearly' ? (
-                        <p className={`text-xs mt-1.5 ${plan.highlighted ? 'text-slate-400' : 'text-slate-500'}`}>
+                        <p className={`text-xs mt-1.5 ${plan.highlighted ? 'text-slate-500' : 'text-slate-500'}`}>
                           <span className="line-through">${plan.price.monthly}/mes</span> facturado mensual
                         </p>
                       ) : (
-                        <p className={`text-xs mt-1.5 ${plan.highlighted ? 'text-slate-400' : 'text-slate-500'}`}>
+                        <p className={`text-xs mt-1.5 ${plan.highlighted ? 'text-slate-500' : 'text-slate-500'}`}>
                           Facturación mensual
                         </p>
                       )}
@@ -282,10 +282,10 @@ export default function PricingContent() {
                     </a>
 
                     {/* Divider */}
-                    <div className={`border-t mb-6 ${plan.highlighted ? 'border-slate-200' : 'border-slate-800/40'}`} />
+                    <div className={`border-t mb-6 ${plan.highlighted ? 'border-slate-700/40' : 'border-slate-800/40'}`} />
 
                     {/* Features label */}
-                    <p className={`text-xs font-semibold uppercase tracking-wider mb-4 ${plan.highlighted ? 'text-slate-400' : 'text-slate-600'}`}>
+                    <p className={`text-xs font-semibold uppercase tracking-wider mb-4 ${plan.highlighted ? 'text-slate-500' : 'text-slate-600'}`}>
                       Incluye
                     </p>
 
@@ -295,12 +295,12 @@ export default function PricingContent() {
                         <li key={feature} className="flex items-start gap-3">
                           <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 mt-0.5 ${
                             plan.highlighted
-                              ? 'bg-emerald-100 text-emerald-600'
+                              ? 'bg-emerald-500/10 text-emerald-400'
                               : 'bg-emerald-500/10 text-emerald-400'
                           }`}>
                             <Check className="w-3 h-3" strokeWidth={3} />
                           </div>
-                          <span className={`text-sm leading-snug ${plan.highlighted ? 'text-slate-600' : 'text-slate-400'}`}>
+                          <span className={`text-sm leading-snug ${plan.highlighted ? 'text-slate-400' : 'text-slate-400'}`}>
                             {feature}
                           </span>
                         </li>

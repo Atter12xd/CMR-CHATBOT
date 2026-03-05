@@ -82,7 +82,6 @@ export const POST: APIRoute = async ({ request }) => {
       }
 
       default:
-        // ignore other events
         break;
     }
   } catch (err) {

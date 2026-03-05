@@ -29,7 +29,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
       try {
         const { data: { session } } = await createClient().auth.getSession();
         if (!session?.access_token || cancelled) return;
-        const res = await fetch('/api/stripe/subscription-status', {
+        const res = await fetch('/api/subscription-status', {
           headers: { Authorization: `Bearer ${session.access_token}` },
         });
         const data = await res.json().catch(() => ({ active: false }));

@@ -8,7 +8,7 @@ export const POST: APIRoute = async ({ request }) => {
     const priceId = import.meta.env.STRIPE_PRICE_ID || process.env.STRIPE_PRICE_ID;
     if (!priceId) {
       return new Response(
-        JSON.stringify({ error: 'STRIPE_PRICE_ID no configurado' }),
+        JSON.stringify({ error: 'STRIPE_PRICE_ID no configurado. Añade en Vercel el Price ID del plan $50/mes.' }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }

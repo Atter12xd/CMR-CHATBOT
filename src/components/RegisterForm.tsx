@@ -48,7 +48,7 @@ export default function RegisterForm() {
       setSessionValid(false);
       return;
     }
-    fetch(`/api/stripe/verify-session?session_id=${encodeURIComponent(sid)}`)
+    fetch(`/api/verify-session?session_id=${encodeURIComponent(sid)}`)
       .then((r) => r.json())
       .then((data) => {
         setSessionValid(data.valid === true);
@@ -130,7 +130,7 @@ export default function RegisterForm() {
       if (sessionId) {
         const { data: { session } } = await createClient().auth.getSession();
         if (session?.access_token) {
-          await fetch('/api/stripe/link-subscription', {
+          await fetch('/api/link-subscription', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

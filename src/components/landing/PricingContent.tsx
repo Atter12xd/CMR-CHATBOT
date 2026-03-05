@@ -157,7 +157,7 @@ export default function PricingContent() {
   const handleCheckout = async () => {
     setCheckoutLoading(true);
     try {
-      const res = await fetch('/api/stripe/create-checkout-session', {
+      const res = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),

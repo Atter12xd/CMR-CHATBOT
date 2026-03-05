@@ -136,5 +136,19 @@ const { title, description = "Wazapp - Centraliza conversaciones de WhatsApp, ge
   </head>
   <body class="font-sans bg-slate-950 text-white antialiased overflow-x-hidden">
     <slot />
+    <!-- Recarga una vez si falla la hidratación por chunk 404 (deploy nuevo, caché antigua en otro navegador) -->
+    <script is:inline>
+      window.addEventListener('unhandledrejection', function (e) {
+        var msg = (e.reason && (e.reason.message || e.reason + '')) || '';
+        if (msg.indexOf('Failed to fetch dynamically imported module') !== -1 || msg.indexOf('Importing a module script failed') !== -1) {
+          try {
+            if (!sessionStorage.getItem('wazapp_chunk_reload')) {
+              sessionStorage.setItem('wazapp_chunk_reload', '1');
+              window.location.reload();
+            }
+          } catch (_) {}
+        }
+      });
+    </script>
   </body>
 </html>

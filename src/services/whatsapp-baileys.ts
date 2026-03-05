@@ -68,3 +68,33 @@ export async function disconnectBaileys(clientId: string): Promise<void> {
     throw new Error(data.error || 'Error al desconectar');
   }
 }
+
+export interface SendBaileysMessageResponse {
+  success: boolean;
+  error?: string;
+}
+
+/**
+ * Envía un mensaje de texto por WhatsApp vía Baileys (servidor Contabo).
+ * Usado desde el chat del dashboard en modo humano.
+ * @param clientId - ID del cliente/organización (mismo que se usó al generar el QR)
+ * @param to - Número de destino (ej. 51931105619) con o sin @s.whatsapp.net
+ * @param message - Texto del mensaje
+ */
+export async function sendBaileysMessage(
+  clientId: string,
+  to: string,
+  message: string
+): Promise<SendBaileysMessageResponse> {
+  const base = getBaseUrl();
+  const res = await fetch(`${base}/api/whatsapp/messages/send`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ clientId, to, message }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    return { success: false, error: (data as { error?: string }).error || 'Error al enviar por WhatsApp' };
+  }
+  return { success: (data as { success?: boolean }).success !== false };
+}

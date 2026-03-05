@@ -1,10 +1,15 @@
 import { createClient } from '../lib/supabase';
+import { sendBaileysMessage } from './whatsapp-baileys';
 
 const supabase = createClient();
 
 export interface SendTextMessageRequest {
   chatId: string;
   text: string;
+  /** Si se pasa, se envía por Baileys (API Contabo) en lugar de Meta. Requiere también baileysTo. */
+  baileysClientId?: string;
+  /** Número del destinatario (ej. 51931105619). Necesario cuando se usa baileysClientId. */
+  baileysTo?: string;
 }
 
 export interface SendImageMessageRequest {
@@ -52,7 +57,8 @@ async function invokeSendMessage(session: { access_token: string }, body: object
 }
 
 /**
- * Envía un mensaje de texto a WhatsApp
+ * Envía un mensaje de texto a WhatsApp.
+ * Si se pasan baileysClientId y baileysTo, usa la API de Baileys (Contabo); si no, usa la Edge Function de Meta.
  */
 export async function sendTextMessage(
   data: SendTextMessageRequest
@@ -62,6 +68,38 @@ export async function sendTextMessage(
     return { success: false, status: 'failed', error: 'No hay sesión activa' };
   }
   try {
+    if (data.baileysClientId && data.baileysTo && data.text) {
+      const to = data.baileysTo.replace(/\D/g, '').trim();
+      if (!to) {
+        return { success: false, status: 'failed', error: 'Número de teléfono no válido' };
+      }
+      const result = await sendBaileysMessage(data.baileysClientId, to, data.text);
+      if (!result.success) {
+        return { success: false, status: 'failed', error: result.error || 'Error al enviar por WhatsApp' };
+      }
+      const { data: savedMessage, error: insertError } = await supabase
+        .from('messages')
+        .insert({
+          chat_id: data.chatId,
+          sender: 'agent',
+          text: data.text,
+          status: 'sent',
+        })
+        .select('id')
+        .single();
+      if (insertError) {
+        console.error('Error guardando mensaje en BD:', insertError);
+      }
+      await supabase
+        .from('chats')
+        .update({ last_message_at: new Date().toISOString(), unread_count: 0 })
+        .eq('id', data.chatId);
+      return {
+        success: true,
+        messageId: savedMessage?.id,
+        status: 'sent',
+      };
+    }
     return await invokeSendMessage(session, { chatId: data.chatId, text: data.text });
   } catch (err: any) {
     console.error('Error enviando mensaje:', err);

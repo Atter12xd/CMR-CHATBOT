@@ -13,11 +13,13 @@ interface ChatWindowProps {
   onBack: () => void;
   whatsAppNumber?: string;
   onRefetchChats?: () => void | Promise<void>;
+  /** ID de organización = clientId de Baileys. Si se pasa y el chat es WhatsApp, el envío usa la API de Baileys. */
+  baileysClientId?: string | null;
 }
 
 
 
-export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChats }: ChatWindowProps) {
+export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChats, baileysClientId }: ChatWindowProps) {
   const [newMessage, setNewMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>(chat.messages || []);
   const [loading, setLoading] = useState(false);
@@ -197,6 +199,9 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
       const result = await sendTextMessage({
         chatId: chat.id,
         text: messageText,
+        ...(chat.platform === 'whatsapp' && baileysClientId != null && baileysClientId !== '' && chat.customerPhone
+          ? { baileysClientId, baileysTo: chat.customerPhone }
+          : {}),
       });
 
 

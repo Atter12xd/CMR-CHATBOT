@@ -28,7 +28,7 @@
 | `src/index.ts` | Express, CORS, rutas `/api/whatsapp/qr`, `/api/whatsapp/messages`, `/api/whatsapp/status`, `load-env.js` primero para `.env`. |
 | `src/load-env.ts` | Carga `dotenv` antes de cualquier import que use `process.env`. |
 | `src/baileys/manager.ts` | **SessionManager**: `fetchLatestBaileysVersion()`, `useMultiFileAuthState`, `makeWASocket` (version, auth, logger, defaultQueryTimeoutMs, generateHighQualityLinkPreview), eventos `connection.update`, `creds.update`, `messages.upsert`; reconexión 3 s; escritura en `whatsapp_sessions` y Supabase. |
-| `src/baileys/events.ts` | **handleIncomingMessage**: lee organización, crea/obtiene chat, guarda mensaje usuario, **generateAIResponse** (bot_context, products, historial), envía respuesta por WhatsApp, guarda mensaje bot. |
+| `src/baileys/events.ts` | **handleIncomingMessage**: lee organización, crea/obtiene chat, guarda mensaje usuario; si `bot_active` → **generateAIResponse**; si pregunta de producto → **sendProductImages** (fetch URL, envía imagen + caption por WA, guarda en messages); envía texto bot, guarda mensaje; detección pagos (4.5) e intención compra (4.6). |
 | `src/routes/qr.ts` | POST `/generate`: crea sesión y responde al instante. GET `/status/:clientId`: devuelve status, phoneNumber y **qrCode** (data URL) cuando status es `qr`. POST `/disconnect`. |
 | `src/routes/messages.ts` | POST `/send`: enviar mensaje manual (clientId, to, message). |
 | `src/routes/status.ts` | GET `/`: lista sesiones activas. |
@@ -92,6 +92,13 @@
 ### 3.6 Chat: mensajes en BD ✅
 - Backend Baileys usa columna `sender`; mensajes usuario y bot se persisten en `messages`; el dashboard lee desde Supabase.
 
+### 3.7 Modo humano (bot pausado) ✅
+- Si `chats.bot_active === false`, el backend solo guarda el mensaje del usuario y **no** genera ni envía respuesta (log `[CHAT] Modo humano: bot pausado`). Chats nuevos con `bot_active: true`. Dashboard: en cabecera del chat y menú ⋮, botón "Bot activo" / "Modo humano" y servicio `updateChatBotActive(chatId, botActive)`. Migración `set_default_bot_active_true.sql`.
+
+### 3.8 Fotos de productos en el chat ✅
+- Cuando el usuario **pide información de producto** o el bot va a vender, en vez de solo poner un enlace se **envía la foto en el chat** por WhatsApp.
+- **Backend** (`events.ts`): `isProductQuestion(text)` detecta palabras tipo producto, catálogo, precio, foto, qué venden, etc. Si aplica, `sendProductImages()` obtiene hasta 5 productos con `image_url`, hace `fetch` de cada URL → buffer → `socket.sendMessage(remoteJid, { image: buffer, caption: "Nombre - S/ precio" })`. Cada envío se guarda en `messages` con `image_url` y texto (caption). Luego se envía el mensaje de texto de la IA. El prompt indica al bot que **no** ponga enlaces de imagen ("las fotos se envían aparte").
+
 ---
 
 ## 4. Siguientes pasos: que el bot entienda todo
@@ -105,12 +112,9 @@ Objetivo: que el bot **sepa cómo hablar**, **cómo ofrecer productos**, **cómo
   - Opcional: campo en `organizations` o `bot_context` para "personalidad del bot" (formal / cercano) y usarlo en el prompt.
   - Probar con distintos tipos de mensaje (consulta, queja, pedido) y ajustar el prompt.
 
-### 4.2 Cómo dar y ofrecer productos
-- **Objetivo**: Que el bot ofrezca productos de forma clara (nombre, precio, enlace a imagen si hay) y sugiera según lo que pregunte el cliente.
-- **Qué hacer**:
-  - En el prompt, instruir explícitamente: cuando pregunten por productos, responde con nombre, precio en S/ y, si hay imagen, di que pueden verla en [URL].
-  - Incluir en el contexto de productos ya la URL de imagen (ya se hace); que el bot la mencione cuando sea útil.
-  - Opcional: herramienta `suggest_products` que devuelva 1–3 productos según categoría o búsqueda y el bot los formatee en el mensaje.
+### 4.2 Cómo dar y ofrecer productos ✅ (con fotos en chat)
+- **Objetivo**: Que el bot ofrezca productos con nombre, precio y **foto en el chat** (no solo enlace).
+- **Implementado**: Al detectar pregunta de producto, el backend envía hasta 5 imágenes (fetch URL → buffer → WhatsApp con caption "Nombre - S/ precio") y guarda cada mensaje en `messages` con `image_url`; luego envía el texto de la IA. El prompt pide al bot no poner enlaces de imagen. Las URLs de producto deben ser accesibles desde el servidor (p. ej. Supabase Storage público).
 
 ### 4.3 Cómo decir a qué método de pago pagar
 - **Objetivo**: Que cuando el cliente pregunte "¿cómo pago?" o "¿Yape?", el bot responda con los métodos configurados (Yape/Plin/BCP) y el texto exacto a mostrar (ej. "Yape a nombre de: Juan Pérez").
@@ -144,5 +148,13 @@ Objetivo: que el bot **sepa cómo hablar**, **cómo ofrecer productos**, **cómo
 
 ## 5. Resumen rápido
 
-- **Hecho**: WhatsApp por QR con Baileys, dashboard y flujos reales: mensajes en BD, productos con imagen, pedidos con código, métodos de pago en BD, entrenamiento con PDF/web, dashboard en español con datos de Supabase.
-- **Siguiente**: Afinar que el bot **entienda todo**: tono al hablar (4.1), cómo ofrecer productos (4.2), cómo indicar métodos de pago (4.3–4.4), **avisar cuando alguien pagó** (4.5) y **ver quién está a punto de comprar** (4.6).
+- **Hecho**: WhatsApp por QR con Baileys, dashboard y flujos reales: mensajes en BD, productos con imagen, pedidos con código, métodos de pago en BD, entrenamiento con PDF/web, dashboard en español con datos de Supabase; **modo humano** (bot pausado por chat); **fotos de productos en el chat** (envío real por WhatsApp cuando preguntan por productos).
+- **Siguiente**: Afinar que el bot **entienda todo**: tono (4.1), productos con foto (4.2 hecho), métodos de pago (4.3–4.4), **avisar cuando alguien pagó** (4.5) y **ver quién está a punto de comprar** (4.6).
+
+---
+
+## 6. Para el siguiente Cursor (contexto reciente)
+
+- **Fotos de producto**: En `wazapp-baileys/src/baileys/events.ts` están `isProductQuestion()`, `sendProductImages()` y la llamada antes de enviar el texto de la IA. Las imágenes se obtienen con `fetch` desde `product.image_url`; si el bucket es privado, hace falta URL firmada o hacer el bucket público para esas imágenes.
+- **Modo humano**: `chats.bot_active`; si `false`, no se llama a `generateAIResponse` ni se envía mensaje; el dashboard usa `updateChatBotActive` en `src/services/chats.ts` y el botón en `ChatWindow.tsx`.
+- **Despliegue backend**: subir `events.ts` al servidor, `npm run build`, `sudo systemctl restart wazapp-baileys`. Logs: `sudo journalctl -u wazapp-baileys -f`.

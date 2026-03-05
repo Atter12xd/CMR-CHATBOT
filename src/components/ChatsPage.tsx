@@ -179,8 +179,9 @@ export default function ChatsPage() {
             <ChatWindow
               chat={selectedChat}
               onBack={handleBackToList}
-              whatsAppNumber={selectedChat.platform === 'whatsapp' ? whatsAppNumber : undefined}
+              whatsAppNumber={selectedChat.platform === 'whatsapp' ? (whatsAppNumber ?? undefined) : undefined}
               onRefetchChats={refetchChats}
+              baileysClientId={organizationId ?? undefined}
             />
           ) : (
             <div className="h-full w-full flex items-center justify-center bg-slate-50/30">

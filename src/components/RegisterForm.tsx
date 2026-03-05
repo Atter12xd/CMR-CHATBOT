@@ -1,7 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { createClient } from '../lib/supabase';
-import { Mail, Lock, Loader2, AlertCircle, ArrowRight, User, CheckCircle2, Eye, EyeOff, Check, X } from 'lucide-react';
+import { Mail, Lock, Loader2, AlertCircle, ArrowRight, User, CheckCircle2, Eye, EyeOff, Check, X, ShoppingCart } from 'lucide-react';
 import LogoBrand from './landing/LogoBrand';
 
 // Password strength checker
@@ -19,6 +19,12 @@ function getPasswordStrength(password: string): { score: number; label: string; 
   return { score, label: 'Fuerte', color: 'bg-emerald-400' };
 }
 
+function getSessionIdFromUrl(): string | null {
+  if (typeof window === 'undefined') return null;
+  const params = new URLSearchParams(window.location.search);
+  return params.get('session_id');
+}
+
 export default function RegisterForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -28,10 +34,28 @@ export default function RegisterForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [sessionValid, setSessionValid] = useState<boolean | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const { signUp, loading: authLoading, isAuthenticated } = useAuth();
 
   const passwordStrength = useMemo(() => getPasswordStrength(password), [password]);
   const passwordsMatch = password && confirmPassword && password === confirmPassword;
+
+  useEffect(() => {
+    const sid = getSessionIdFromUrl();
+    setSessionId(sid);
+    if (!sid) {
+      setSessionValid(false);
+      return;
+    }
+    fetch(`/api/stripe/verify-session?session_id=${encodeURIComponent(sid)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setSessionValid(data.valid === true);
+        if (data.email) setEmail(data.email);
+      })
+      .catch(() => setSessionValid(false));
+  }, []);
 
   if (isAuthenticated && !success && typeof window !== 'undefined') {
     window.location.href = '/chats';
@@ -103,6 +127,20 @@ export default function RegisterForm() {
         console.error('Error creando organización:', orgError);
       }
 
+      if (sessionId) {
+        const { data: { session } } = await createClient().auth.getSession();
+        if (session?.access_token) {
+          await fetch('/api/stripe/link-subscription', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({ session_id: sessionId }),
+          });
+        }
+      }
+
       setSuccess(true);
       setTimeout(() => {
         window.location.href = '/chats';
@@ -113,6 +151,45 @@ export default function RegisterForm() {
       setLoading(false);
     }
   };
+
+  // Debes elegir un plan primero (sin session_id o sesión inválida)
+  if (sessionValid === false) {
+    return (
+      <div className="min-h-screen flex items-center justify-center pt-24 pb-16 px-4">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 pointer-events-none" />
+        <div className="relative max-w-md w-full">
+          <div className="rounded-2xl border border-slate-800/60 bg-slate-900/70 backdrop-blur-xl shadow-2xl shadow-black/30 p-8 sm:p-10 text-center">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-amber-500/10 border border-amber-500/20 mb-6">
+              <ShoppingCart className="h-10 w-10 text-amber-400" />
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-2">Elige un plan para registrarte</h2>
+            <p className="text-slate-400 mb-6">
+              Para crear tu cuenta primero debes elegir el plan Starter y completar el pago. Incluye 14 días de prueba gratis y puedes cancelar cuando quieras.
+            </p>
+            <a
+              href="/precios"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-sm font-semibold transition-all"
+            >
+              Ver planes y precios
+              <ArrowRight className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Cargando verificación de sesión de pago
+  if (sessionValid === null && sessionId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center pt-24 pb-16 px-4">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-10 w-10 animate-spin text-brand-400" />
+          <p className="text-slate-400">Verificando tu pago...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Success State
   if (success) {

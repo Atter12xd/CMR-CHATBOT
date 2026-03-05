@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, ArrowRight, X, MessageSquare, Brain, ShoppingBag, BarChart3, CreditCard, QrCode, Zap, Shield } from 'lucide-react';
+import { Check, ArrowRight, MessageSquare, Brain, ShoppingBag, BarChart3, CreditCard, QrCode, Zap, Shield, Loader2 } from 'lucide-react';
 
 
 
@@ -24,6 +24,7 @@ const plans = [
     ctaLink: '/register',
     highlighted: true,
     whatsappMessage: null as string | null,
+    checkoutPlan: true,
   },
   {
     name: 'Pro',
@@ -45,6 +46,7 @@ const plans = [
     ctaLink: `https://wa.me/${WHATSAPP_SOPORTE}?text=${encodeURIComponent('Hola, me interesa el plan de 99 dólares.')}`,
     highlighted: false,
     whatsappMessage: 'Hola, me interesa el plan de 99 dólares.',
+    checkoutPlan: false,
   },
   {
     name: 'Business',
@@ -65,6 +67,7 @@ const plans = [
     ctaLink: `https://wa.me/${WHATSAPP_SOPORTE}?text=${encodeURIComponent('Hola, me interesa el plan de 150 dólares.')}`,
     highlighted: false,
     whatsappMessage: 'Hola, me interesa el plan de 150 dólares.',
+    checkoutPlan: false,
   },
 ];
 
@@ -149,6 +152,28 @@ const faqs = [
 
 export default function PricingContent() {
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly');
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  const handleCheckout = async () => {
+    setCheckoutLoading(true);
+    try {
+      const res = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+      alert(data.error || 'Error al iniciar el pago');
+    } catch (e) {
+      alert('Error de conexión. Intenta de nuevo.');
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
 
 
   return (
@@ -280,23 +305,44 @@ export default function PricingContent() {
                     </div>
 
                     {/* CTA */}
-                    <a
-                      href={plan.ctaLink}
-                      target={plan.ctaLink.startsWith('http') ? '_blank' : undefined}
-                      rel={plan.ctaLink.startsWith('http') ? 'noopener noreferrer' : undefined}
-                      className={`group flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl font-semibold text-sm transition-all duration-300 mb-8 ${
-                        plan.highlighted
-                          ? 'bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/25 hover:shadow-brand-500/30'
-                          : 'bg-slate-800/50 hover:bg-slate-800 text-white border border-slate-700/50 hover:border-slate-600'
-                      }`}
-                    >
-                      {plan.cta}
-                      {plan.whatsappMessage ? (
-                        <MessageSquare className="w-4 h-4" />
-                      ) : (
-                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-                      )}
-                    </a>
+                    {(plan as { checkoutPlan?: boolean }).checkoutPlan ? (
+                      <button
+                        type="button"
+                        onClick={handleCheckout}
+                        disabled={checkoutLoading}
+                        className="group flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl font-semibold text-sm transition-all duration-300 mb-8 bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/25 hover:shadow-brand-500/30 disabled:opacity-70 disabled:cursor-not-allowed"
+                      >
+                        {checkoutLoading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Redirigiendo a pago...
+                          </>
+                        ) : (
+                          <>
+                            {plan.cta}
+                            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                          </>
+                        )}
+                      </button>
+                    ) : (
+                      <a
+                        href={plan.ctaLink}
+                        target={plan.ctaLink.startsWith('http') ? '_blank' : undefined}
+                        rel={plan.ctaLink.startsWith('http') ? 'noopener noreferrer' : undefined}
+                        className={`group flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl font-semibold text-sm transition-all duration-300 mb-8 ${
+                          plan.highlighted
+                            ? 'bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/25 hover:shadow-brand-500/30'
+                            : 'bg-slate-800/50 hover:bg-slate-800 text-white border border-slate-700/50 hover:border-slate-600'
+                        }`}
+                      >
+                        {plan.cta}
+                        {plan.whatsappMessage ? (
+                          <MessageSquare className="w-4 h-4" />
+                        ) : (
+                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                        )}
+                      </a>
+                    )}
 
                     {/* Divider */}
                     <div className={`border-t mb-6 ${plan.highlighted ? 'border-slate-700/40' : 'border-slate-800/40'}`} />
@@ -329,15 +375,18 @@ export default function PricingContent() {
             })}
           </div>
 
-          {/* Trust */}
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-slate-500">
+          {/* Trust + Aviso trial y cancelación */}
+          <p className="mt-8 text-center text-sm text-slate-400 max-w-lg mx-auto">
+            14 días de prueba gratis. Después se cobrarán $50/mes de forma automática. Puedes cancelar en cualquier momento desde tu cuenta o contactando a soporte.
+          </p>
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-slate-500">
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-500" />
-              <span>Sin tarjeta de crédito</span>
+              <span>14 días gratis</span>
             </div>
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-500" />
-              <span>Cancela en cualquier momento</span>
+              <span>Cancela cuando quieras</span>
             </div>
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-500" />

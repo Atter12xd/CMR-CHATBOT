@@ -3,11 +3,14 @@ import { Check, ArrowRight, X, MessageSquare, Brain, ShoppingBag, BarChart3, Cre
 
 
 
+const WHATSAPP_SOPORTE = '51933484150';
+
 const plans = [
   {
     name: 'Starter',
     description: 'Para negocios que quieren automatizar su atención',
     price: { monthly: 50, yearly: 40 },
+    trial: '14 días de prueba gratis',
     features: [
       'Hasta 1,000 conversaciones/mes',
       '1 número de WhatsApp',
@@ -19,12 +22,14 @@ const plans = [
     ],
     cta: 'Empezar ahora',
     ctaLink: '/register',
-    highlighted: false,
+    highlighted: true,
+    whatsappMessage: null as string | null,
   },
   {
     name: 'Pro',
-    description: 'Para negocios que quieren vender más por WhatsApp',
+    description: 'Plan personalizado para vender más por WhatsApp',
     price: { monthly: 99, yearly: 79 },
+    trial: null,
     features: [
       'Conversaciones ilimitadas',
       'Hasta 3 números WhatsApp',
@@ -36,14 +41,16 @@ const plans = [
       'Detección de intención de compra',
       'Soporte prioritario 24/7',
     ],
-    cta: 'Probar 14 días gratis',
-    ctaLink: '/register',
-    highlighted: true,
+    cta: 'Contactar soporte',
+    ctaLink: `https://wa.me/${WHATSAPP_SOPORTE}?text=${encodeURIComponent('Hola, me interesa el plan de 99 dólares.')}`,
+    highlighted: false,
+    whatsappMessage: 'Hola, me interesa el plan de 99 dólares.',
   },
   {
     name: 'Business',
-    description: 'Para equipos que necesitan control total',
+    description: 'Plan personalizado para equipos con control total',
     price: { monthly: 150, yearly: 120 },
+    trial: null,
     features: [
       'Todo lo de Pro',
       'Números WhatsApp ilimitados',
@@ -54,9 +61,10 @@ const plans = [
       'Gestor de cuenta dedicado',
       'SLA 99.9%',
     ],
-    cta: 'Contactar ventas',
-    ctaLink: '/contacto',
+    cta: 'Contactar soporte',
+    ctaLink: `https://wa.me/${WHATSAPP_SOPORTE}?text=${encodeURIComponent('Hola, me interesa el plan de 150 dólares.')}`,
     highlighted: false,
+    whatsappMessage: 'Hola, me interesa el plan de 150 dólares.',
   },
 ];
 
@@ -158,7 +166,7 @@ export default function PricingContent() {
               <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
-            <span className="text-sm text-slate-300 font-medium">14 días gratis en todos los planes</span>
+            <span className="text-sm text-slate-300 font-medium">14 días de prueba gratis en el plan de $50</span>
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.1] mb-6">
             Tu vendedor en WhatsApp,
@@ -233,7 +241,7 @@ export default function PricingContent() {
                   {plan.highlighted && (
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                       <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold bg-brand-600 text-white shadow-lg shadow-brand-600/30">
-                        Más popular
+                        Recomendado
                       </span>
                     </div>
                   )}
@@ -266,11 +274,16 @@ export default function PricingContent() {
                           Facturación mensual
                         </p>
                       )}
+                      {plan.trial && (
+                        <p className="text-sm font-medium text-emerald-400 mt-2">{plan.trial}</p>
+                      )}
                     </div>
 
                     {/* CTA */}
                     <a
                       href={plan.ctaLink}
+                      target={plan.ctaLink.startsWith('http') ? '_blank' : undefined}
+                      rel={plan.ctaLink.startsWith('http') ? 'noopener noreferrer' : undefined}
                       className={`group flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl font-semibold text-sm transition-all duration-300 mb-8 ${
                         plan.highlighted
                           ? 'bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/25 hover:shadow-brand-500/30'
@@ -278,7 +291,11 @@ export default function PricingContent() {
                       }`}
                     >
                       {plan.cta}
-                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                      {plan.whatsappMessage ? (
+                        <MessageSquare className="w-4 h-4" />
+                      ) : (
+                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                      )}
                     </a>
 
                     {/* Divider */}

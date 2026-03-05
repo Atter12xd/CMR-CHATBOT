@@ -19,7 +19,7 @@ export async function handleIncomingMessage(
 
   if (!messageText) return;
 
-  console.log(`Mensaje de ${senderPhone}: ${messageText}`);
+  console.log(`[CHAT] Mensaje de ${senderPhone}: ${messageText}`);
 
   try {
     const { data: clientConfig } = await supabase
@@ -43,6 +43,17 @@ export async function handleIncomingMessage(
       status: 'delivered'
     });
 
+    const { data: chatRow } = await supabase
+      .from('chats')
+      .select('bot_active')
+      .eq('id', chatId)
+      .single();
+
+    if (chatRow?.bot_active === false) {
+      console.log(`[CHAT] Modo humano: bot pausado para ${senderPhone}, no se envía respuesta`);
+      return;
+    }
+
     try {
       await updateChatIntentIfBuying(chatId, messageText);
     } catch (e) {
@@ -56,6 +67,7 @@ export async function handleIncomingMessage(
     if (isPaymentReportMessage(messageText)) {
       try {
         await registerPaymentReported(clientConfig.id, chatId);
+        console.log(`[PAGO] Registrado pago reportado por ${senderPhone} (chat ${chatId})`);
       } catch (e) {
         console.error('Error registrando pago reportado:', e);
       }
@@ -68,7 +80,7 @@ export async function handleIncomingMessage(
       status: 'sent'
     });
 
-    console.log(`Respuesta enviada a ${senderPhone}`);
+    console.log(`[CHAT] Respuesta enviada a ${senderPhone} | ${aiResponse.length > 60 ? aiResponse.slice(0, 60) + '...' : aiResponse}`);
   } catch (error) {
     console.error('Error procesando mensaje:', error);
   }
@@ -109,6 +121,7 @@ async function getOrCreateChat(
       platform: 'whatsapp',
       platform_conversation_id: remoteJid,
       status: 'active',
+      bot_active: true,
       last_message_at: new Date().toISOString()
     })
     .select('id')
@@ -369,6 +382,7 @@ async function updateChatIntentIfBuying(chatId: string, text: string): Promise<v
           last_intent_at: new Date().toISOString()
         })
         .eq('id', chatId);
+      console.log(`[LEAD] Intención "${intent}" registrada en chat ${chatId}`);
       return;
     }
   }

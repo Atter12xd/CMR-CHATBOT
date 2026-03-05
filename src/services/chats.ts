@@ -286,6 +286,27 @@ export async function clearChat(chatId: string): Promise<{ success: boolean; err
 }
 
 /**
+ * Activa o pausa el bot en un chat (modo humano = bot pausado).
+ */
+export async function updateChatBotActive(chatId: string, botActive: boolean): Promise<{ success: boolean; error?: string }> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return { success: false, error: 'No hay sesión' };
+
+  try {
+    const { error } = await supabase
+      .from('chats')
+      .update({ bot_active: botActive })
+      .eq('id', chatId);
+
+    if (error) throw error;
+    return { success: true };
+  } catch (e: any) {
+    console.error('Error actualizando bot_active:', e);
+    return { success: false, error: e.message || 'Error al actualizar' };
+  }
+}
+
+/**
  * Actualiza el nombre del contacto del chat.
  */
 export async function updateChatName(chatId: string, customerName: string): Promise<{ success: boolean; error?: string }> {

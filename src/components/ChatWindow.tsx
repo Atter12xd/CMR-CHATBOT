@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Send, Bot, User, UserCircle, Loader2, Paperclip, MoreVertical, Pencil, Trash2, Info, X } from 'lucide-react';
+import { ArrowLeft, Send, Bot, User, UserCircle, Loader2, Paperclip, MoreVertical, Pencil, Trash2, Info, X, UserRound } from 'lucide-react';
 import type { Chat, Message } from '../data/mockData';
-import { loadChatWithMessages, subscribeToChatMessages, clearChat, updateChatName } from '../services/chats';
+import { loadChatWithMessages, subscribeToChatMessages, clearChat, updateChatName, updateChatBotActive } from '../services/chats';
 import { sendTextMessage, sendImageMessage, sendDocumentMessage, markMessagesAsRead } from '../services/whatsapp-messages';
 import MessageStatusIndicator from './MessageStatusIndicator';
 import FileUploadModal from './FileUploadModal';
@@ -29,6 +29,8 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
   const [clearing, setClearing] = useState(false);
   const [showInfoPanel, setShowInfoPanel] = useState(false);
   const [displayName, setDisplayName] = useState(chat.customerName);
+  const [botActive, setBotActive] = useState(chat.botActive);
+  const [togglingBot, setTogglingBot] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -37,7 +39,8 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
   useEffect(() => {
     setDisplayName(chat.customerName);
     setRenameValue(chat.customerName);
-  }, [chat.id, chat.customerName]);
+    setBotActive(chat.botActive);
+  }, [chat.id, chat.customerName, chat.botActive]);
 
 
   useEffect(() => {
@@ -312,11 +315,28 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
           </div>
         </div>
         <div className="flex items-center gap-1.5">
-          {chat.botActive && (
-            <span className="text-[10px] px-2.5 py-1 bg-violet-50 text-violet-600 rounded-lg font-semibold border border-violet-100/80">
-              Bot activo
-            </span>
-          )}
+          <button
+            onClick={async () => {
+              if (togglingBot) return;
+              setTogglingBot(true);
+              const res = await updateChatBotActive(chat.id, !botActive);
+              if (res.success) {
+                setBotActive(!botActive);
+                onRefetchChats?.();
+              }
+              setTogglingBot(false);
+            }}
+            disabled={togglingBot}
+            className={`text-[10px] px-2.5 py-1 rounded-lg font-semibold border transition-colors flex items-center gap-1.5 ${
+              botActive
+                ? 'bg-violet-50 text-violet-600 border-violet-100/80 hover:bg-violet-100/80'
+                : 'bg-amber-50 text-amber-700 border-amber-200/80 hover:bg-amber-100/80'
+            } ${togglingBot ? 'opacity-60 cursor-not-allowed' : ''}`}
+            title={botActive ? 'Pausar bot (modo humano)' : 'Activar bot'}
+          >
+            {togglingBot ? <Loader2 size={12} className="animate-spin" /> : botActive ? <Bot size={12} /> : <UserRound size={12} />}
+            {botActive ? 'Bot activo' : 'Modo humano'}
+          </button>
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setMenuOpen((o) => !o)}
@@ -340,6 +360,23 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                 >
                   <Pencil size={15} className="text-slate-400" />
                   Cambiar nombre
+                </button>
+                <button
+                  onClick={async () => {
+                    setMenuOpen(false);
+                    if (togglingBot) return;
+                    setTogglingBot(true);
+                    const res = await updateChatBotActive(chat.id, !botActive);
+                    if (res.success) {
+                      setBotActive(!botActive);
+                      onRefetchChats?.();
+                    }
+                    setTogglingBot(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  {botActive ? <UserRound size={15} className="text-amber-500" /> : <Bot size={15} className="text-violet-500" />}
+                  {botActive ? 'Pausar bot (modo humano)' : 'Activar bot'}
                 </button>
                 <div className="my-1 border-t border-slate-100" />
                 <button

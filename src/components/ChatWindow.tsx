@@ -7,12 +7,14 @@ import MessageStatusIndicator from './MessageStatusIndicator';
 import FileUploadModal from './FileUploadModal';
 
 
+
 interface ChatWindowProps {
   chat: Chat;
   onBack: () => void;
   whatsAppNumber?: string;
   onRefetchChats?: () => void | Promise<void>;
 }
+
 
 
 export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChats }: ChatWindowProps) {
@@ -36,11 +38,13 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
   const menuRef = useRef<HTMLDivElement>(null);
 
 
+
   useEffect(() => {
     setDisplayName(chat.customerName);
     setRenameValue(chat.customerName);
     setBotActive(chat.botActive);
   }, [chat.id, chat.customerName, chat.botActive]);
+
 
 
   useEffect(() => {
@@ -61,7 +65,9 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
     };
 
 
+
     loadMessages(true);
+
 
 
     const unsubscribe = subscribeToChatMessages(chat.id, (newMessages) => {
@@ -69,7 +75,9 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
     });
 
 
+
     const poll = setInterval(() => loadMessages(false), 8_000);
+
 
 
     return () => {
@@ -77,6 +85,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
       clearInterval(poll);
     };
   }, [chat.id, onRefetchChats]);
+
 
 
   useEffect(() => {
@@ -92,9 +101,11 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
   }, [messages]);
 
 
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
 
 
   useEffect(() => {
@@ -105,6 +116,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
   }, [newMessage]);
 
 
+
   useEffect(() => {
     const fn = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
@@ -112,6 +124,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
     document.addEventListener('mousedown', fn);
     return () => document.removeEventListener('mousedown', fn);
   }, []);
+
 
 
   const handleRename = async () => {
@@ -136,6 +149,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
   };
 
 
+
   const handleClearChat = async () => {
     setClearing(true);
     try {
@@ -156,13 +170,16 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
   };
 
 
+
   const handleSendMessage = async () => {
     if (!newMessage.trim() || sending) return;
+
 
 
     const messageText = newMessage.trim();
     setNewMessage('');
     setSending(true);
+
 
 
     const optimisticMessage: Message = {
@@ -175,11 +192,13 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
     setMessages([...messages, optimisticMessage]);
 
 
+
     try {
       const result = await sendTextMessage({
         chatId: chat.id,
         text: messageText,
       });
+
 
 
       if (result.success && result.messageId) {
@@ -200,6 +219,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
   };
 
 
+
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -208,9 +228,11 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
   };
 
 
+
   const handleSendFile = async (fileUrl: string, fileType: 'image' | 'document', caption?: string) => {
     try {
       setSending(true);
+
 
 
       const optimisticMessage: Message = {
@@ -222,6 +244,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
         image: fileType === 'image' ? fileUrl : undefined,
       };
       setMessages([...messages, optimisticMessage]);
+
 
 
       if (fileType === 'image') {
@@ -248,6 +271,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
         });
 
 
+
         if (result.success) {
           const fullChat = await loadChatWithMessages(chat.id);
           if (fullChat) setMessages(fullChat.messages);
@@ -267,18 +291,20 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
   };
 
 
+
   const getMessageSender = (sender: Message['sender']) => {
     switch (sender) {
       case 'bot':
-        return { icon: Bot, bgColor: 'bg-violet-500', name: 'Bot' };
+        return { icon: Bot, bgColor: 'bg-violet-600', name: 'Bot' };
       case 'agent':
-        return { icon: UserCircle, bgColor: 'bg-violet-500', name: 'Tú' };
+        return { icon: UserCircle, bgColor: 'bg-violet-600', name: 'Tú' };
       case 'user':
-        return { icon: User, bgColor: 'bg-slate-400', name: displayName };
+        return { icon: User, bgColor: 'bg-slate-500', name: displayName };
       default:
-        return { icon: User, bgColor: 'bg-slate-400', name: 'Usuario' };
+        return { icon: User, bgColor: 'bg-slate-500', name: 'Usuario' };
     }
   };
+
 
 
   const formatMessageTime = (date: Date) => {
@@ -289,32 +315,59 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
   };
 
 
+
+  // Group messages by date
+  const getDateLabel = (date: Date) => {
+    const d = new Date(date);
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (d.toDateString() === today.toDateString()) return 'Hoy';
+    if (d.toDateString() === yesterday.toDateString()) return 'Ayer';
+    return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
+  const shouldShowDateSeparator = (index: number) => {
+    if (index === 0) return true;
+    const curr = new Date(messages[index].timestamp).toDateString();
+    const prev = new Date(messages[index - 1].timestamp).toDateString();
+    return curr !== prev;
+  };
+
+
+
   return (
-    <div className="h-full w-full flex flex-col bg-slate-50">
+    <div className="h-full w-full flex flex-col bg-white">
       {/* Header */}
-      <div className="px-4 md:px-5 py-3 border-b border-slate-200/80 bg-white flex items-center justify-between">
+      <div className="px-4 md:px-5 py-2.5 border-b border-slate-200/60 bg-white flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <button
             onClick={onBack}
-            className="md:hidden p-2 hover:bg-slate-100 rounded-xl transition-colors"
+            className="md:hidden p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
           >
             <ArrowLeft size={18} className="text-slate-500" />
           </button>
-          <img
-            src={chat.customerAvatar}
-            alt={displayName}
-            className="w-10 h-10 rounded-xl object-cover"
-          />
-          <div>
-            <h2 className="font-semibold text-slate-900 text-sm tracking-tight">{displayName}</h2>
-            <p className="text-[11px] text-slate-400 mt-0.5 font-medium">
+          <div className="relative">
+            <img
+              src={chat.customerAvatar}
+              alt={displayName}
+              className="w-9 h-9 rounded-full object-cover ring-2 ring-slate-100"
+            />
+            <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white ${
+              chat.status === 'active' ? 'bg-emerald-500' : chat.status === 'waiting' ? 'bg-amber-400' : 'bg-slate-300'
+            }`} />
+          </div>
+          <div className="min-w-0">
+            <h2 className="font-semibold text-slate-900 text-[13px] leading-tight truncate">{displayName}</h2>
+            <p className="text-[11px] text-slate-400 leading-tight mt-0.5">
               {chat.platform === 'whatsapp' && (whatsAppNumber ? `WhatsApp · ${whatsAppNumber}` : 'WhatsApp')}
-              {chat.platform === 'facebook' && 'Facebook'}
-              {chat.platform === 'web' && 'Web'}
+              {chat.platform === 'facebook' && 'Facebook Messenger'}
+              {chat.platform === 'web' && 'Chat Web'}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <button
             onClick={async () => {
               if (togglingBot) return;
@@ -327,38 +380,38 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
               setTogglingBot(false);
             }}
             disabled={togglingBot}
-            className={`text-[10px] px-2.5 py-1 rounded-lg font-semibold border transition-colors flex items-center gap-1.5 ${
+            className={`text-[11px] px-2.5 py-1.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-1.5 ${
               botActive
-                ? 'bg-violet-50 text-violet-600 border-violet-100/80 hover:bg-violet-100/80'
-                : 'bg-amber-50 text-amber-700 border-amber-200/80 hover:bg-amber-100/80'
-            } ${togglingBot ? 'opacity-60 cursor-not-allowed' : ''}`}
+                ? 'bg-violet-50 text-violet-700 hover:bg-violet-100'
+                : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+            } ${togglingBot ? 'opacity-50 cursor-not-allowed' : ''}`}
             title={botActive ? 'Pausar bot (modo humano)' : 'Activar bot'}
           >
             {togglingBot ? <Loader2 size={12} className="animate-spin" /> : botActive ? <Bot size={12} /> : <UserRound size={12} />}
-            {botActive ? 'Bot activo' : 'Modo humano'}
+            {botActive ? 'Bot' : 'Humano'}
           </button>
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setMenuOpen((o) => !o)}
-              className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-400 hover:text-slate-600"
+              className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-slate-600"
               aria-label="Más opciones"
             >
-              <MoreVertical size={18} />
+              <MoreVertical size={16} />
             </button>
             {menuOpen && (
-              <div className="absolute right-0 top-full mt-1.5 w-52 bg-white rounded-xl shadow-lg border border-slate-200/80 py-1 z-50">
+              <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg shadow-slate-200/50 border border-slate-200/80 py-1 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
                 <button
                   onClick={() => { setShowInfoPanel(true); setMenuOpen(false); }}
-                  className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px] text-slate-600 hover:bg-slate-50 transition-colors"
                 >
-                  <Info size={15} className="text-slate-400" />
+                  <Info size={14} className="text-slate-400" />
                   Ver información
                 </button>
                 <button
                   onClick={() => { setShowRenameModal(true); setRenameValue(displayName); setMenuOpen(false); }}
-                  className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px] text-slate-600 hover:bg-slate-50 transition-colors"
                 >
-                  <Pencil size={15} className="text-slate-400" />
+                  <Pencil size={14} className="text-slate-400" />
                   Cambiar nombre
                 </button>
                 <button
@@ -373,17 +426,17 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                     }
                     setTogglingBot(false);
                   }}
-                  className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px] text-slate-600 hover:bg-slate-50 transition-colors"
                 >
-                  {botActive ? <UserRound size={15} className="text-amber-500" /> : <Bot size={15} className="text-violet-500" />}
-                  {botActive ? 'Pausar bot (modo humano)' : 'Activar bot'}
+                  {botActive ? <UserRound size={14} className="text-amber-500" /> : <Bot size={14} className="text-violet-500" />}
+                  {botActive ? 'Pausar bot' : 'Activar bot'}
                 </button>
                 <div className="my-1 border-t border-slate-100" />
                 <button
                   onClick={() => { setShowClearConfirm(true); setMenuOpen(false); }}
-                  className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px] text-red-500 hover:bg-red-50 transition-colors"
                 >
-                  <Trash2 size={15} className="text-red-400" />
+                  <Trash2 size={14} className="text-red-400" />
                   Vaciar chat
                 </button>
               </div>
@@ -392,56 +445,82 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 md:px-8 py-5 space-y-2.5 bg-[#f0ede8]">
+
+      {/* Messages area */}
+      <div
+        className="flex-1 overflow-y-auto px-3 md:px-6 py-4 space-y-1"
+        style={{
+          backgroundColor: '#e8e2db',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4cec6' fill-opacity='0.25'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }}
+      >
         {loading ? (
           <div className="flex items-center justify-center h-full">
-            <Loader2 className="h-6 w-6 animate-spin text-violet-400" />
+            <div className="flex flex-col items-center gap-3">
+              <Loader2 className="h-5 w-5 animate-spin text-violet-500" />
+              <span className="text-[12px] text-slate-500 font-medium">Cargando mensajes</span>
+            </div>
           </div>
         ) : (
           <>
             {messages.map((message, index) => {
               const senderInfo = getMessageSender(message.sender);
-              const SenderIcon = senderInfo.icon;
               const isOwnMessage = message.sender === 'agent';
+              const isBot = message.sender === 'bot';
               const prevMessage = index > 0 ? messages[index - 1] : null;
               const showAvatar = !prevMessage || prevMessage.sender !== message.sender ||
                 (new Date(message.timestamp).getTime() - new Date(prevMessage.timestamp).getTime()) > 300000;
+              const showDateSep = shouldShowDateSeparator(index);
 
+              // Tail logic: show tail only on first message of a group
+              const nextMessage = index < messages.length - 1 ? messages[index + 1] : null;
+              const isLastInGroup = !nextMessage || nextMessage.sender !== message.sender ||
+                (new Date(nextMessage.timestamp).getTime() - new Date(message.timestamp).getTime()) > 300000;
 
               return (
-                <div key={message.id} className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`flex ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'} items-end gap-2 max-w-[82%] md:max-w-[58%]`}>
-                    {showAvatar ? (
-                      <div className={`${senderInfo.bgColor} text-white rounded-xl p-1.5 flex-shrink-0 w-8 h-8 flex items-center justify-center hidden sm:flex`}>
-                        <SenderIcon size={15} />
-                      </div>
-                    ) : (
-                      <div className="w-8 flex-shrink-0 hidden sm:block" />
-                    )}
-                    <div className={`flex flex-col ${isOwnMessage ? 'items-end' : 'items-start'}`}>
+                <div key={message.id}>
+                  {/* Date separator */}
+                  {showDateSep && (
+                    <div className="flex justify-center my-3">
+                      <span className="text-[11px] font-medium text-slate-500 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-md shadow-sm">
+                        {getDateLabel(message.timestamp)}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Bot label */}
+                  {isBot && showAvatar && (
+                    <div className="flex items-center gap-1.5 mb-1 ml-1">
+                      <div className="w-1.5 h-1.5 rounded-full bg-violet-400" />
+                      <span className="text-[10px] font-semibold text-violet-500 uppercase tracking-wider">Bot</span>
+                    </div>
+                  )}
+
+                  <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} ${showAvatar && index > 0 ? 'mt-2' : ''}`}>
+                    <div className={`max-w-[80%] md:max-w-[55%]`}>
                       <div
-                        className={`rounded-2xl px-3.5 py-2.5 ${
+                        className={`relative px-3 py-2 ${
                           isOwnMessage
-                            ? 'bg-[#d9fdd3] text-slate-900 rounded-br-sm'
-                            : message.sender === 'bot'
-                            ? 'bg-violet-50 text-slate-900 border border-violet-100/60 rounded-bl-sm'
-                            : 'bg-white text-slate-900 rounded-bl-sm shadow-[0_1px_2px_rgba(0,0,0,0.04)]'
+                            ? `bg-[#dcf8c6] text-slate-900 ${showAvatar ? 'rounded-2xl rounded-tr-sm' : 'rounded-2xl'}`
+                            : isBot
+                            ? `bg-violet-50 text-slate-900 border border-violet-100/50 ${showAvatar ? 'rounded-2xl rounded-tl-sm' : 'rounded-2xl'}`
+                            : `bg-white text-slate-900 shadow-[0_1px_1px_rgba(0,0,0,0.06)] ${showAvatar ? 'rounded-2xl rounded-tl-sm' : 'rounded-2xl'}`
                         }`}
                       >
-                        <p className="text-[14px] leading-relaxed whitespace-pre-wrap break-words">{message.text}</p>
+                        <p className="text-[13.5px] leading-[1.45] whitespace-pre-wrap break-words">{message.text}</p>
                         {message.image && (
-                          <img src={message.image} alt="Adjunto" className="mt-2 rounded-xl max-w-[240px]" />
+                          <img src={message.image} alt="Adjunto" className="mt-1.5 rounded-lg max-w-[220px] cursor-pointer hover:opacity-95 transition-opacity" />
                         )}
-                      </div>
-                      <div className={`flex items-center gap-1.5 mt-1 px-0.5 ${isOwnMessage ? 'flex-row-reverse' : ''}`}>
-                        <span className="text-[10px] text-slate-400 font-medium">{formatMessageTime(message.timestamp)}</span>
-                        {isOwnMessage && (
-                          <MessageStatusIndicator
-                            status={message.status || (message.read ? 'read' : 'sent')}
-                            className="flex-shrink-0"
-                          />
-                        )}
+                        {/* Inline timestamp */}
+                        <div className={`flex items-center gap-1 mt-0.5 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
+                          <span className="text-[10px] text-slate-400/80 leading-none select-none">{formatMessageTime(message.timestamp)}</span>
+                          {isOwnMessage && (
+                            <MessageStatusIndicator
+                              status={message.status || (message.read ? 'read' : 'sent')}
+                              className="flex-shrink-0"
+                            />
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -451,17 +530,12 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
           </>
         )}
         {chat.botTyping && (
-          <div className="flex justify-start">
-            <div className="flex items-end gap-2">
-              <div className="bg-violet-500 text-white rounded-xl p-1.5 w-8 h-8 flex items-center justify-center">
-                <Bot size={15} />
-              </div>
-              <div className="bg-white rounded-2xl rounded-bl-sm px-4 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-                <div className="flex gap-1.5">
-                  <div className="w-2 h-2 bg-slate-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 bg-slate-300 rounded-full animate-bounce" style={{ animationDelay: '120ms' }} />
-                  <div className="w-2 h-2 bg-slate-300 rounded-full animate-bounce" style={{ animationDelay: '240ms' }} />
-                </div>
+          <div className="flex justify-start mt-2">
+            <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-[0_1px_1px_rgba(0,0,0,0.06)]">
+              <div className="flex gap-1">
+                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '140ms' }} />
+                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '280ms' }} />
               </div>
             </div>
           </div>
@@ -469,18 +543,19 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
         <div ref={messagesEndRef} />
       </div>
 
+
       {/* Input area */}
-      <div className="px-4 md:px-5 py-3 border-t border-slate-200/80 bg-white">
-        <div className="flex items-end gap-2">
+      <div className="px-3 md:px-4 py-2.5 border-t border-slate-200/60 bg-white shrink-0">
+        <div className="flex items-end gap-1.5">
           <button
             onClick={() => setShowFileModal(true)}
             disabled={sending}
-            className="p-2.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all disabled:opacity-50 flex-shrink-0"
+            className="p-2 text-slate-400 hover:text-violet-500 hover:bg-violet-50 rounded-lg transition-all duration-200 disabled:opacity-40 flex-shrink-0"
             title="Adjuntar"
           >
             <Paperclip size={18} />
           </button>
-          <div className="flex-1 min-w-0 bg-slate-50 rounded-2xl border border-slate-200/80 focus-within:border-violet-300 focus-within:ring-2 focus-within:ring-violet-500/15 transition-all">
+          <div className="flex-1 min-w-0 bg-slate-50/80 rounded-xl border border-slate-200/60 focus-within:border-violet-300 focus-within:ring-1 focus-within:ring-violet-500/10 focus-within:bg-white transition-all duration-200">
             <textarea
               ref={textareaRef}
               value={newMessage}
@@ -488,19 +563,24 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
               onKeyDown={handleKeyPress}
               placeholder="Escribe un mensaje..."
               rows={1}
-              className="w-full resize-none rounded-2xl px-4 py-2.5 bg-transparent focus:outline-none text-sm text-slate-900 placeholder-slate-400"
-              style={{ minHeight: '42px', maxHeight: '120px' }}
+              className="w-full resize-none rounded-xl px-3.5 py-2.5 bg-transparent focus:outline-none text-[13px] text-slate-900 placeholder-slate-400"
+              style={{ minHeight: '40px', maxHeight: '120px' }}
             />
           </div>
           <button
             onClick={handleSendMessage}
             disabled={!newMessage.trim() || sending}
-            className="p-2.5 bg-violet-500 text-white rounded-xl hover:bg-violet-600 disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0 shadow-sm hover:shadow transition-all"
+            className={`p-2 rounded-lg flex-shrink-0 transition-all duration-200 ${
+              newMessage.trim() && !sending
+                ? 'bg-violet-600 text-white hover:bg-violet-700 shadow-sm shadow-violet-200'
+                : 'bg-slate-100 text-slate-300 cursor-not-allowed'
+            }`}
           >
             {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
           </button>
         </div>
       </div>
+
 
 
       <FileUploadModal
@@ -511,14 +591,15 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
       />
 
 
+
       {/* Modal: Cambiar nombre */}
       {showRenameModal && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5 border border-slate-200/50">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl shadow-slate-200/50 w-full max-w-sm p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-slate-900 text-sm">Cambiar nombre</h3>
-              <button onClick={() => setShowRenameModal(false)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
-                <X size={16} className="text-slate-400" />
+              <button onClick={() => setShowRenameModal(false)} className="p-1 hover:bg-slate-100 rounded-md transition-colors">
+                <X size={15} className="text-slate-400" />
               </button>
             </div>
             <input
@@ -526,21 +607,21 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
               value={renameValue}
               onChange={(e) => setRenameValue(e.target.value)}
               placeholder="Nombre del contacto"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 text-sm text-slate-900 placeholder-slate-400 transition-all"
+              className="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-violet-500/20 focus:border-violet-300 text-[13px] text-slate-900 placeholder-slate-400 transition-all"
               onKeyDown={(e) => e.key === 'Enter' && handleRename()}
               autoFocus
             />
             <div className="flex gap-2 mt-4">
               <button
                 onClick={() => setShowRenameModal(false)}
-                className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium transition-colors"
+                className="flex-1 py-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-[13px] font-medium transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleRename}
                 disabled={renaming || !renameValue.trim()}
-                className="flex-1 py-2.5 rounded-xl bg-violet-500 text-white hover:bg-violet-600 disabled:opacity-50 text-sm font-medium transition-colors"
+                className="flex-1 py-2.5 rounded-lg bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-40 text-[13px] font-medium transition-colors"
               >
                 {renaming ? 'Guardando...' : 'Guardar'}
               </button>
@@ -550,34 +631,35 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
       )}
 
 
+
       {/* Modal: Vaciar chat */}
       {showClearConfirm && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5 border border-slate-200/50">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl shadow-slate-200/50 w-full max-w-sm p-5">
             <div className="flex items-start gap-3 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
-                <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+              <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
+                <Trash2 size={14} className="text-red-500" />
               </div>
               <div>
                 <h3 className="font-semibold text-slate-900 text-sm">Vaciar conversación</h3>
-                <p className="text-sm text-slate-500 mt-1 leading-relaxed">
-                  Se eliminarán todos los mensajes de este chat. Esta acción no se puede deshacer.
+                <p className="text-[13px] text-slate-500 mt-1 leading-relaxed">
+                  Se eliminarán todos los mensajes. Esta acción no se puede deshacer.
                 </p>
               </div>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => setShowClearConfirm(false)}
-                className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium transition-colors"
+                className="flex-1 py-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-[13px] font-medium transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleClearChat}
                 disabled={clearing}
-                className="flex-1 py-2.5 rounded-xl bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 text-sm font-medium transition-colors"
+                className="flex-1 py-2.5 rounded-lg bg-red-500 text-white hover:bg-red-600 disabled:opacity-40 text-[13px] font-medium transition-colors"
               >
-                {clearing ? 'Vaciando...' : 'Vaciar chat'}
+                {clearing ? 'Vaciando...' : 'Vaciar'}
               </button>
             </div>
           </div>
@@ -585,62 +667,65 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
       )}
 
 
+
       {/* Panel: Info contacto */}
       {showInfoPanel && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div
-            className="bg-white w-full sm:max-w-sm sm:rounded-2xl rounded-t-2xl shadow-xl overflow-hidden border border-slate-200/50"
+            className="bg-white w-full sm:max-w-sm sm:rounded-xl rounded-t-xl shadow-xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+            <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
               <h3 className="font-semibold text-slate-900 text-sm">Información del contacto</h3>
-              <button onClick={() => setShowInfoPanel(false)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
-                <X size={16} className="text-slate-400" />
+              <button onClick={() => setShowInfoPanel(false)} className="p-1 hover:bg-slate-100 rounded-md transition-colors">
+                <X size={15} className="text-slate-400" />
               </button>
             </div>
-            <div className="p-5 space-y-4">
+            <div className="p-5 space-y-5">
               <div className="flex justify-center">
                 <img
                   src={chat.customerAvatar}
                   alt={displayName}
-                  className="w-16 h-16 rounded-2xl object-cover"
+                  className="w-16 h-16 rounded-full object-cover ring-2 ring-slate-100"
                 />
               </div>
-              <div>
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Nombre</p>
-                <p className="text-slate-900 text-sm font-medium">{displayName}</p>
-              </div>
-              {chat.customerEmail && (
-                <div>
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Email</p>
-                  <p className="text-slate-900 text-sm">{chat.customerEmail}</p>
+              <div className="space-y-3">
+                <div className="bg-slate-50/80 rounded-lg px-3 py-2.5">
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Nombre</p>
+                  <p className="text-slate-900 text-[13px] font-medium">{displayName}</p>
                 </div>
-              )}
-              {chat.customerPhone && (
-                <div>
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Teléfono</p>
-                  <p className="text-slate-900 text-sm">{chat.customerPhone}</p>
-                </div>
-              )}
-              <div>
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Plataforma</p>
-                <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${
-                    chat.platform === 'whatsapp' ? 'bg-emerald-400' :
-                    chat.platform === 'facebook' ? 'bg-blue-500' : 'bg-slate-400'
-                  }`} />
-                  <p className="text-slate-900 text-sm">
-                    {chat.platform === 'whatsapp' && 'WhatsApp'}
-                    {chat.platform === 'facebook' && 'Facebook'}
-                    {chat.platform === 'web' && 'Web'}
-                  </p>
+                {chat.customerEmail && (
+                  <div className="bg-slate-50/80 rounded-lg px-3 py-2.5">
+                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Email</p>
+                    <p className="text-slate-900 text-[13px]">{chat.customerEmail}</p>
+                  </div>
+                )}
+                {chat.customerPhone && (
+                  <div className="bg-slate-50/80 rounded-lg px-3 py-2.5">
+                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Teléfono</p>
+                    <p className="text-slate-900 text-[13px]">{chat.customerPhone}</p>
+                  </div>
+                )}
+                <div className="bg-slate-50/80 rounded-lg px-3 py-2.5">
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Plataforma</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <div className={`w-2 h-2 rounded-full ${
+                      chat.platform === 'whatsapp' ? 'bg-emerald-500' :
+                      chat.platform === 'facebook' ? 'bg-blue-500' : 'bg-slate-400'
+                    }`} />
+                    <p className="text-slate-900 text-[13px]">
+                      {chat.platform === 'whatsapp' && 'WhatsApp'}
+                      {chat.platform === 'facebook' && 'Facebook'}
+                      {chat.platform === 'web' && 'Web'}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="p-4 bg-slate-50/80 border-t border-slate-100">
+            <div className="px-4 py-3 bg-slate-50/60 border-t border-slate-100">
               <button
                 onClick={() => setShowInfoPanel(false)}
-                className="w-full py-2.5 rounded-xl bg-slate-200/80 text-slate-700 hover:bg-slate-300/80 text-sm font-medium transition-colors"
+                className="w-full py-2.5 rounded-lg bg-slate-200/70 text-slate-600 hover:bg-slate-300/70 text-[13px] font-medium transition-colors"
               >
                 Cerrar
               </button>

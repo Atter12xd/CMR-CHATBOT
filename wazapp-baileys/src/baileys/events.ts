@@ -62,6 +62,10 @@ export async function handleIncomingMessage(
 
     const aiResponse = await generateAIResponse(clientConfig, chatId, messageText);
 
+    if (isProductQuestion(messageText)) {
+      await sendProductImages(socket, remoteJid, clientConfig.id, chatId);
+    }
+
     await socket.sendMessage(remoteJid, { text: aiResponse });
 
     if (isPaymentReportMessage(messageText)) {
@@ -203,13 +207,13 @@ async function generateAIResponse(
 CONTEXTO DE LA EMPRESA:
 ${contextText}
 
-PRODUCTOS DISPONIBLES (usa solo esta lista; si hay URL de imagen, menciónala):
+PRODUCTOS DISPONIBLES (responde con nombre y precio; las fotos se envían por separado):
 ${productsContext}
 ${paymentMethodsContext ? `\n${paymentMethodsContext}\n` : ''}
 
 CÓMO HABLAR:
 - Tono: amable, claro, profesional pero cercano.
-- Productos: cuando pregunten por productos, responde con nombre, precio en S/ y, si en la lista hay "Imagen: [URL]", di que pueden ver la foto en ese enlace.
+- Productos: cuando pregunten por productos, responde con nombre y precio en S/. NO pongas enlaces de imagen; las fotos se envían aparte en el chat.
 - Pagos: Yape y Plin son pagos por celular; BCP es transferencia o depósito. Solo indica los métodos que aparecen arriba en "MÉTODOS DE PAGO"; di exactamente el nombre y "a nombre de [nombre]". No inventes datos de pago.
 - Si preguntan "¿cómo pago?" o "¿Yape?", responde solo con los métodos de la lista con su nombre y a nombre de quién (o número de cuenta para BCP).
 
@@ -384,6 +388,57 @@ async function updateChatIntentIfBuying(chatId: string, text: string): Promise<v
         .eq('id', chatId);
       console.log(`[LEAD] Intención "${intent}" registrada en chat ${chatId}`);
       return;
+    }
+  }
+}
+
+const PRODUCT_QUESTION_KEYWORDS = [
+  'producto', 'productos', 'qué venden', 'que venden', 'catálogo', 'catalogo', 'qué tienen',
+  'que tienen', 'precio', 'precios', 'cuánto cuesta', 'cuanto cuesta', 'cuánto es', 'cuanto es',
+  'foto', 'fotos', 'imagen', 'ver', 'mostrar', 'tienen', 'venden', 'ofrecen', 'lista'
+];
+
+function isProductQuestion(text: string): boolean {
+  const lower = text.toLowerCase().trim();
+  if (lower.length < 2) return false;
+  return PRODUCT_QUESTION_KEYWORDS.some(k => lower.includes(k));
+}
+
+async function sendProductImages(
+  socket: WASocket,
+  remoteJid: string,
+  organizationId: string,
+  chatId: string
+): Promise<void> {
+  const { data: products } = await supabase
+    .from('products')
+    .select('name, price, image_url')
+    .eq('organization_id', organizationId)
+    .not('image_url', 'is', null)
+    .limit(5);
+
+  if (!products?.length) return;
+
+  for (const p of products) {
+    const url = (p as { image_url: string }).image_url?.trim();
+    if (!url) continue;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const arrayBuffer = await res.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const caption = `${p.name} - S/ ${Number(p.price)}`;
+      await socket.sendMessage(remoteJid, { image: buffer, caption });
+
+      await supabase.from('messages').insert({
+        chat_id: chatId,
+        sender: 'bot',
+        text: caption,
+        image_url: url,
+        status: 'sent'
+      });
+    } catch (e) {
+      console.error('Error enviando imagen de producto:', p.name, e);
     }
   }
 }

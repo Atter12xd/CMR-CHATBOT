@@ -1,9 +1,17 @@
 import type { APIRoute } from 'astro';
 import Stripe from 'stripe';
+import { createClient } from '@supabase/supabase-js';
 
 export const prerender = false;
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY || '');
+
+function getSupabase() {
+  const url = import.meta.env.PUBLIC_SUPABASE_URL || process.env.PUBLIC_SUPABASE_URL;
+  const key = import.meta.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error('Supabase no configurado');
+  return createClient(url, key);
+}
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -18,27 +26,34 @@ export const POST: APIRoute = async ({ request }) => {
     const body = await request.json().catch(() => ({}));
     const email = typeof body?.email === 'string' ? body.email.trim() : undefined;
 
+    let trialDays = 14;
+    if (email) {
+      const supabase = getSupabase();
+      const { data: excluded } = await supabase
+        .from('stripe_trial_excluded')
+        .select('id')
+        .ilike('customer_email', email)
+        .limit(1)
+        .maybeSingle();
+      if (excluded) trialDays = 0;
+    }
+
     const origin = request.headers.get('origin') || request.headers.get('referer')?.replace(/\/$/, '') || 'https://wazapp.ai';
     const successUrl = `${origin}/register?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${origin}/precios`;
 
-    const session = await stripe.checkout.sessions.create({
+    const sessionConfig: Parameters<typeof stripe.checkout.sessions.create>[0] = {
       mode: 'subscription',
       payment_method_types: ['card'],
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      subscription_data: {
-        trial_period_days: 14,
-      },
+      line_items: [{ price: priceId, quantity: 1 }],
+      subscription_data: trialDays > 0 ? { trial_period_days: trialDays } : {},
       success_url: successUrl,
       cancel_url: cancelUrl,
       customer_email: email || undefined,
       allow_promotion_codes: true,
-    });
+    };
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     return new Response(
       JSON.stringify({ url: session.url }),

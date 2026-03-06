@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Loader2, CheckCircle2, XCircle, Settings } from 'lucide-react';
+import { Loader2, CheckCircle2, XCircle, CreditCard, ExternalLink } from 'lucide-react';
 import { useOrganization } from '../hooks/useOrganization';
+import { createClient } from '../lib/supabase';
 import WhatsAppIntegration from './WhatsAppIntegration';
 import CreateOrganizationButton from './CreateOrganizationButton';
 
@@ -8,6 +9,7 @@ import CreateOrganizationButton from './CreateOrganizationButton';
 export default function ConfigPage() {
   const { organizationId, loading, refetch: loadOrganization } = useOrganization();
   const [oauthStatus, setOauthStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [portalLoading, setPortalLoading] = useState(false);
 
 
   // Verificar parámetros de URL para mensajes de OAuth
@@ -148,6 +150,69 @@ export default function ConfigPage() {
 
           {/* WhatsApp Integration */}
           <WhatsAppIntegration organizationId={organizationId} />
+        </div>
+      </div>
+
+      {/* Facturación / Cancelar suscripción */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div className="px-6 py-5 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-violet-50 ring-1 ring-violet-100 rounded-xl flex items-center justify-center">
+              <CreditCard className="w-5 h-5 text-violet-600" />
+            </div>
+            <div>
+              <h2 className="text-base font-semibold text-slate-900">Facturación y suscripción</h2>
+              <p className="text-[13px] text-slate-500 mt-0.5">
+                Actualiza tu método de pago, descarga facturas o cancela tu suscripción cuando quieras
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="p-6">
+          <p className="text-sm text-slate-600 mb-4">
+            Si cancelas, dejarás de tener acceso al final del periodo de facturación. Si vuelves a suscribirte con el mismo correo, no tendrás de nuevo los 14 días gratis.
+          </p>
+          <button
+            type="button"
+            onClick={async () => {
+              setPortalLoading(true);
+              try {
+                const { data: { session } } = await createClient().auth.getSession();
+                if (!session?.access_token) {
+                  alert('Inicia sesión para gestionar tu suscripción.');
+                  return;
+                }
+                const res = await fetch('/api/create-billing-portal-session', {
+                  method: 'POST',
+                  headers: { Authorization: `Bearer ${session.access_token}` },
+                });
+                const data = await res.json().catch(() => ({}));
+                if (data.url) {
+                  window.location.href = data.url;
+                  return;
+                }
+                alert(data.error || 'No se pudo abrir el portal de facturación.');
+              } catch (e) {
+                alert('Error de conexión. Intenta de nuevo.');
+              } finally {
+                setPortalLoading(false);
+              }
+            }}
+            disabled={portalLoading}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-violet-600 hover:bg-violet-500 text-white shadow-sm disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
+          >
+            {portalLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Abriendo...
+              </>
+            ) : (
+              <>
+                Gestionar suscripción (cancelar, tarjeta, facturas)
+                <ExternalLink className="w-4 h-4" />
+              </>
+            )}
+          </button>
         </div>
       </div>
     </div>

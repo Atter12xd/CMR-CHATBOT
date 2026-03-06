@@ -45,9 +45,10 @@ export const POST: APIRoute = async ({ request }) => {
         const session = event.data.object as Stripe.Checkout.Session;
         if (session.mode !== 'subscription' || !session.subscription || !session.customer) break;
 
-        const sub = await stripe.subscriptions.retrieve(session.subscription as string, { expand: ['items.data.price'] });
+        const sub = await stripe.subscriptions.retrieve(session.subscription as string, { expand: ['items.data.price'] }) as Stripe.Subscription;
         const status = sub.status === 'trialing' ? 'trialing' : sub.status === 'active' ? 'active' : 'incomplete';
         const customerEmail = typeof session.customer_email === 'string' ? session.customer_email : (session.customer as Stripe.Customer).email || '';
+        const periodEnd = (sub as { current_period_end?: number }).current_period_end;
 
         await supabase.from('stripe_subscriptions').upsert(
           {
@@ -56,7 +57,7 @@ export const POST: APIRoute = async ({ request }) => {
             customer_email: customerEmail,
             status,
             trial_end: sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
-            current_period_end: sub.current_period_end ? new Date(sub.current_period_end * 1000).toISOString() : null,
+            current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
             updated_at: new Date().toISOString(),
           },
           { onConflict: 'stripe_subscription_id' }
@@ -70,15 +71,34 @@ export const POST: APIRoute = async ({ request }) => {
         const sub = event.data.object as Stripe.Subscription;
         const status = sub.status === 'canceled' || sub.status === 'unpaid' ? 'canceled' : sub.status === 'trialing' ? 'trialing' : sub.status === 'active' ? 'active' : 'past_due';
 
+        const customerId = typeof sub.customer === 'string' ? sub.customer : sub.customer.id;
+        const { data: existing } = await supabase
+          .from('stripe_subscriptions')
+          .select('customer_email')
+          .eq('stripe_subscription_id', sub.id)
+          .maybeSingle();
+
+        const subPeriodEnd = (sub as { current_period_end?: number }).current_period_end;
         await supabase
           .from('stripe_subscriptions')
           .update({
             status,
             trial_end: sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
-            current_period_end: sub.current_period_end ? new Date(sub.current_period_end * 1000).toISOString() : null,
+            current_period_end: subPeriodEnd ? new Date(subPeriodEnd * 1000).toISOString() : null,
             updated_at: new Date().toISOString(),
           })
           .eq('stripe_subscription_id', sub.id);
+
+        if (event.type === 'customer.subscription.deleted' && (status === 'canceled' || sub.status === 'canceled')) {
+          const customerEmail = existing?.customer_email || (typeof sub.customer === 'object' && 'email' in sub.customer ? sub.customer.email : '') || '';
+          if (customerId && customerEmail) {
+            await supabase.from('stripe_trial_excluded').upsert(
+              { stripe_customer_id: customerId, customer_email: customerEmail },
+              { onConflict: 'stripe_customer_id' }
+            );
+            console.log('[Stripe webhook] trial excluded:', customerEmail);
+          }
+        }
         console.log('[Stripe webhook] subscription updated:', sub.id, status);
         break;
       }

@@ -153,14 +153,25 @@ const faqs = [
 export default function PricingContent() {
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly');
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [checkoutEmail, setCheckoutEmail] = useState('');
 
   const handleCheckout = async () => {
+    setShowEmailModal(true);
+  };
+
+  const handleCheckoutWithEmail = async () => {
+    const email = checkoutEmail.trim();
+    if (!email) {
+      alert('Introduce tu correo para continuar.');
+      return;
+    }
     setCheckoutLoading(true);
     try {
       const res = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ email }),
       });
       const data = await res.json().catch(() => ({}));
       if (data.url) {
@@ -374,6 +385,43 @@ export default function PricingContent() {
               );
             })}
           </div>
+
+          {/* Modal correo antes de checkout */}
+          {showEmailModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm" onClick={() => !checkoutLoading && setShowEmailModal(false)}>
+              <div className="bg-slate-800 border border-slate-700 rounded-2xl shadow-xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+                <h3 className="text-lg font-semibold text-white mb-2">Introduce tu correo</h3>
+                <p className="text-sm text-slate-400 mb-4">
+                  Lo usamos para tu cuenta y facturación. Si ya cancelaste una suscripción antes, no tendrás de nuevo los 14 días gratis.
+                </p>
+                <input
+                  type="email"
+                  value={checkoutEmail}
+                  onChange={(e) => setCheckoutEmail(e.target.value)}
+                  placeholder="tu@correo.com"
+                  className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-600 text-white placeholder-slate-500 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none mb-4"
+                  onKeyDown={(e) => e.key === 'Enter' && handleCheckoutWithEmail()}
+                />
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => !checkoutLoading && setShowEmailModal(false)}
+                    className="flex-1 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-white border border-slate-600 hover:border-slate-500 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCheckoutWithEmail}
+                    disabled={checkoutLoading}
+                    className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 hover:bg-brand-500 text-white disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {checkoutLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Redirigiendo...</> : 'Continuar a pago'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Trust + Aviso trial y cancelación */}
           <p className="mt-8 text-center text-sm text-slate-400 max-w-lg mx-auto">

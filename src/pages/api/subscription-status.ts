@@ -43,6 +43,24 @@ export const GET: APIRoute = async ({ request }) => {
   }
 
   const supabaseAdmin = createClient(supabaseUrl, serviceKey);
+
+  // Acceso sin suscripción: correos autorizados (gerente, admin)
+  const userEmail = user.email?.trim();
+  if (userEmail) {
+    const { data: authorized } = await supabaseAdmin
+      .from('authorized_emails')
+      .select('email')
+      .ilike('email', userEmail)
+      .limit(1)
+      .maybeSingle();
+    if (authorized) {
+      return new Response(
+        JSON.stringify({ active: true }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+  }
+
   const { data: orgs } = await supabaseAdmin
     .from('organizations')
     .select('id')

@@ -36,14 +36,24 @@ export default function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [sessionValid, setSessionValid] = useState<boolean | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [authorizedMode, setAuthorizedMode] = useState(false);
   const { signUp, loading: authLoading, isAuthenticated } = useAuth();
 
   const passwordStrength = useMemo(() => getPasswordStrength(password), [password]);
   const passwordsMatch = password && confirmPassword && password === confirmPassword;
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const autorizado = params.get('autorizado') === '1' || params.get('invite') === '1';
+    setAuthorizedMode(autorizado);
+
     const sid = getSessionIdFromUrl();
     setSessionId(sid);
+    if (autorizado) {
+      setSessionValid(true);
+      return;
+    }
     if (!sid) {
       setSessionValid(false);
       return;
@@ -95,6 +105,16 @@ export default function RegisterForm() {
       return;
     }
 
+    const isAuthorizedSignup = authorizedMode && !sessionId;
+    if (isAuthorizedSignup) {
+      const checkRes = await fetch(`/api/check-authorized-email?email=${encodeURIComponent(email.trim())}`);
+      const checkData = await checkRes.json().catch(() => ({ authorized: false }));
+      if (!checkData.authorized) {
+        setError('Este correo no está en la lista de autorizados. Usa el enlace de precios para registrarte con un plan.');
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       const { data, error: signUpError } = await signUp(email.trim(), password, name.trim());
@@ -127,7 +147,7 @@ export default function RegisterForm() {
         console.error('Error creando organización:', orgError);
       }
 
-      if (sessionId) {
+      if (sessionId && !isAuthorizedSignup) {
         const { data: { session } } = await createClient().auth.getSession();
         if (session?.access_token) {
           await fetch('/api/link-subscription', {
@@ -179,13 +199,13 @@ export default function RegisterForm() {
     );
   }
 
-  // Cargando verificación de sesión de pago
-  if (sessionValid === null && sessionId) {
+  // Cargando: verificando sesión de pago o modo autorizado
+  if (sessionValid === null) {
     return (
       <div className="min-h-screen flex items-center justify-center pt-24 pb-16 px-4">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-10 w-10 animate-spin text-brand-400" />
-          <p className="text-slate-400">Verificando tu pago...</p>
+          <p className="text-slate-400">{sessionId ? 'Verificando tu pago...' : 'Comprobando...'}</p>
         </div>
       </div>
     );
@@ -230,7 +250,7 @@ export default function RegisterForm() {
               Crea tu cuenta
             </h1>
             <p className="mt-2 text-sm text-slate-400">
-              Empieza a vender por WhatsApp en minutos
+              {authorizedMode ? 'Acceso autorizado (gerente/admin). Usa tu correo autorizado.' : 'Empieza a vender por WhatsApp en minutos'}
             </p>
           </div>
 

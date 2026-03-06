@@ -1,18 +1,7 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { createClient } from '../lib/supabase';
 import { Loader2 } from 'lucide-react';
-
-const CACHE_KEY_PREFIX = 'subscription_ok_';
-
-function getCachedSubscription(userId: string): boolean {
-  if (typeof window === 'undefined') return false;
-  try {
-    return sessionStorage.getItem(`${CACHE_KEY_PREFIX}${userId}`) === '1';
-  } catch {
-    return false;
-  }
-}
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -23,9 +12,6 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const [redirecting, setRedirecting] = useState(false);
   const [subscriptionChecked, setSubscriptionChecked] = useState(false);
   const [subscriptionActive, setSubscriptionActive] = useState<boolean | null>(null);
-  const fetchStarted = useRef(false);
-
-  const hasCachedSubscription = user ? getCachedSubscription(user.id) : false;
 
   useEffect(() => {
     if (!loading && !user && !redirecting) {
@@ -37,53 +23,28 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   }, [user, loading, redirecting]);
 
   useEffect(() => {
-    if (!user) return;
-    const cacheKey = `${CACHE_KEY_PREFIX}${user.id}`;
-    if (fetchStarted.current) return;
-    fetchStarted.current = true;
+    if (!user || subscriptionChecked) return;
     let cancelled = false;
-    const done = (active: boolean) => {
-      if (cancelled) return;
-      if (active) {
-        try { sessionStorage.setItem(cacheKey, '1'); } catch { /* ignore */ }
-      } else {
-        try { sessionStorage.removeItem(cacheKey); } catch { /* ignore */ }
-      }
-      setSubscriptionActive(active);
-      setSubscriptionChecked(true);
-    };
-    const timeout = window.setTimeout(() => {
-      if (!cancelled) done(false);
-    }, 12000);
     (async () => {
       try {
         const { data: { session } } = await createClient().auth.getSession();
-        if (cancelled) return;
-        if (!session?.access_token) {
-          done(false);
-          return;
-        }
-        const controller = new AbortController();
-        const timeoutId = window.setTimeout(() => controller.abort(), 10000);
+        if (!session?.access_token || cancelled) return;
         const res = await fetch('/api/subscription-status', {
           headers: { Authorization: `Bearer ${session.access_token}` },
-          signal: controller.signal,
         });
-        window.clearTimeout(timeoutId);
-        if (cancelled) return;
         const data = await res.json().catch(() => ({ active: false }));
-        if (cancelled) return;
-        done(data.active === true);
+        if (!cancelled) {
+          setSubscriptionActive(data.active === true);
+          setSubscriptionChecked(true);
+        }
       } catch {
-        if (!cancelled) done(false);
-      } finally {
-        window.clearTimeout(timeout);
+        if (!cancelled) {
+          setSubscriptionActive(false);
+          setSubscriptionChecked(true);
+        }
       }
     })();
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timeout);
-    };
+    return () => { cancelled = true; };
   }, [user, subscriptionChecked]);
 
   if (loading) {
@@ -120,7 +81,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  if (subscriptionActive === null && !hasCachedSubscription) {
+  if (!subscriptionChecked || subscriptionActive === null) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -133,4 +94,3 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   return <>{children}</>;
 }
-

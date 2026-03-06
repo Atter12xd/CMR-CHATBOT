@@ -1,6 +1,8 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
 
+export const prerender = false;
+
 export const GET: APIRoute = async ({ request }) => {
   const authHeader = request.headers.get('Authorization');
   const token = authHeader?.replace(/^Bearer\s+/i, '');

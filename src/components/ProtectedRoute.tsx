@@ -1,7 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { createClient } from '../lib/supabase';
 import { Loader2 } from 'lucide-react';
+
+const CACHE_KEY_PREFIX = 'subscription_ok_';
+
+function getCachedSubscription(userId: string): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return sessionStorage.getItem(`${CACHE_KEY_PREFIX}${userId}`) === '1';
+  } catch {
+    return false;
+  }
+}
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -12,6 +23,9 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const [redirecting, setRedirecting] = useState(false);
   const [subscriptionChecked, setSubscriptionChecked] = useState(false);
   const [subscriptionActive, setSubscriptionActive] = useState<boolean | null>(null);
+  const fetchStarted = useRef(false);
+
+  const hasCachedSubscription = user ? getCachedSubscription(user.id) : false;
 
   useEffect(() => {
     if (!loading && !user && !redirecting) {
@@ -23,7 +37,10 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   }, [user, loading, redirecting]);
 
   useEffect(() => {
-    if (!user || subscriptionChecked) return;
+    if (!user) return;
+    const cacheKey = `${CACHE_KEY_PREFIX}${user.id}`;
+    if (fetchStarted.current) return;
+    fetchStarted.current = true;
     let cancelled = false;
     (async () => {
       try {
@@ -33,12 +50,18 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
           headers: { Authorization: `Bearer ${session.access_token}` },
         });
         const data = await res.json().catch(() => ({ active: false }));
-        if (!cancelled) {
-          setSubscriptionActive(data.active === true);
-          setSubscriptionChecked(true);
+        if (cancelled) return;
+        const active = data.active === true;
+        if (active) {
+          try { sessionStorage.setItem(cacheKey, '1'); } catch { /* ignore */ }
+        } else {
+          try { sessionStorage.removeItem(cacheKey); } catch { /* ignore */ }
         }
+        setSubscriptionActive(active);
+        setSubscriptionChecked(true);
       } catch {
         if (!cancelled) {
+          try { sessionStorage.removeItem(cacheKey); } catch { /* ignore */ }
           setSubscriptionActive(false);
           setSubscriptionChecked(true);
         }
@@ -81,7 +104,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  if (!subscriptionChecked || subscriptionActive === null) {
+  if (subscriptionActive === null && !hasCachedSubscription) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">

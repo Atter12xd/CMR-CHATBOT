@@ -11,8 +11,9 @@ CREATE INDEX IF NOT EXISTS idx_authorized_emails_lower ON authorized_emails(LOWE
 
 COMMENT ON TABLE authorized_emails IS 'Emails que pueden acceder al dashboard sin suscripción Stripe activa.';
 
--- Insertar los 2 correos autorizados
+-- Insertar los correos autorizados
 INSERT INTO authorized_emails (email) VALUES
   ('ferbasiliorengifo@gmail.com'),
-  ('victor.minas@unmsm.edu.pe')
+  ('victor.minas@unmsm.edu.pe'),
+  ('attermayerbasiliorengifo@gmail.com')
 ON CONFLICT (email) DO NOTHING;

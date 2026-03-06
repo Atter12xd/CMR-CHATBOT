@@ -42,32 +42,48 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     if (fetchStarted.current) return;
     fetchStarted.current = true;
     let cancelled = false;
+    const done = (active: boolean) => {
+      if (cancelled) return;
+      if (active) {
+        try { sessionStorage.setItem(cacheKey, '1'); } catch { /* ignore */ }
+      } else {
+        try { sessionStorage.removeItem(cacheKey); } catch { /* ignore */ }
+      }
+      setSubscriptionActive(active);
+      setSubscriptionChecked(true);
+    };
+    const timeout = window.setTimeout(() => {
+      if (!cancelled) done(false);
+    }, 12000);
     (async () => {
       try {
         const { data: { session } } = await createClient().auth.getSession();
-        if (!session?.access_token || cancelled) return;
+        if (cancelled) return;
+        if (!session?.access_token) {
+          done(false);
+          return;
+        }
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => controller.abort(), 10000);
         const res = await fetch('/api/subscription-status', {
           headers: { Authorization: `Bearer ${session.access_token}` },
+          signal: controller.signal,
         });
+        window.clearTimeout(timeoutId);
+        if (cancelled) return;
         const data = await res.json().catch(() => ({ active: false }));
         if (cancelled) return;
-        const active = data.active === true;
-        if (active) {
-          try { sessionStorage.setItem(cacheKey, '1'); } catch { /* ignore */ }
-        } else {
-          try { sessionStorage.removeItem(cacheKey); } catch { /* ignore */ }
-        }
-        setSubscriptionActive(active);
-        setSubscriptionChecked(true);
+        done(data.active === true);
       } catch {
-        if (!cancelled) {
-          try { sessionStorage.removeItem(cacheKey); } catch { /* ignore */ }
-          setSubscriptionActive(false);
-          setSubscriptionChecked(true);
-        }
+        if (!cancelled) done(false);
+      } finally {
+        window.clearTimeout(timeout);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeout);
+    };
   }, [user, subscriptionChecked]);
 
   if (loading) {

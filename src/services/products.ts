@@ -30,7 +30,7 @@ function rowToProduct(row: {
 }
 
 /**
- * Carga productos de una organización desde Supabase
+ * Carga productos de una organización asadesde Supabase
  */
 export async function loadProducts(organizationId: string): Promise<Product[]> {
   const { data: { session } } = await supabase.auth.getSession();

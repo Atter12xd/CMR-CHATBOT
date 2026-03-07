@@ -59,48 +59,6 @@ function FeatureCard({
   );
 }
 
-// Bento card con estilo glass y blur (estilos que compartiste)
-function BentoCard({
-  title,
-  description,
-  icon: Icon,
-  delay = 0,
-}: {
-  title: string;
-  description: string;
-  icon: any;
-  delay?: number;
-}) {
-  return (
-    <div
-      className="overflow-hidden rounded-2xl border border-white/20 flex flex-col justify-start items-start relative animate-fade-in-up"
-      style={{ animationDelay: `${delay}ms`, animationFillMode: 'both' }}
-    >
-      <div
-        className="absolute inset-0 rounded-2xl"
-        style={{
-          background: 'rgba(231, 236, 235, 0.08)',
-          backdropFilter: 'blur(4px)',
-          WebkitBackdropFilter: 'blur(4px)',
-        }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-2xl" />
-      <div className="self-stretch p-6 flex flex-col justify-start items-start gap-2 relative z-10">
-        <div className="w-12 h-12 rounded-xl bg-brand-500/10 flex items-center justify-center mb-2">
-          <Icon className="w-6 h-6 text-brand-400" />
-        </div>
-        <div className="self-stretch flex flex-col justify-start items-start gap-1.5">
-          <p className="self-stretch text-white text-lg font-normal leading-7">
-            {title}
-            <br />
-            <span className="text-slate-400">{description}</span>
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function LandingPage() {
   const { user, loading } = useAuth();
 
@@ -145,7 +103,7 @@ export default function LandingPage() {
           </div>
 
           {/* Headline */}
-          <h1 className="text-balance text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white tracking-tight leading-[1.1]">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white tracking-tight leading-[1.1]">
             Vende más por WhatsApp
             <span className="block mt-2 text-gradient-brand">sin perder ninguna conversación</span>
           </h1>
@@ -213,37 +171,6 @@ export default function LandingPage() {
       </section>
 
       {/* ============================================
-          BENTO SECTION - Estilo glass/blur
-          ============================================ */}
-      <section className="w-full px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center overflow-visible bg-transparent py-16 md:py-24">
-        <div className="w-full max-w-6xl relative flex flex-col gap-6">
-          <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-primary/10 blur-[130px] rounded-full -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0" style={{ background: 'rgba(42, 139, 255, 0.1)' }} />
-          <div className="self-stretch py-8 md:py-14 flex flex-col justify-center items-center gap-2 z-10">
-            <div className="flex flex-col justify-start items-center gap-4">
-              <h2 className="text-balance w-full max-w-[655px] text-center text-white text-4xl md:text-6xl font-semibold leading-tight md:leading-[66px]">
-                Empodera tu flujo de trabajo
-              </h2>
-              <p className="w-full max-w-[600px] text-center text-slate-400 text-lg md:text-xl font-medium leading-relaxed">
-                Inbox unificado, pedidos, catálogo y métricas en un solo panel. Responde más rápido y vende más desde WhatsApp.
-              </p>
-            </div>
-          </div>
-          <div className="self-stretch grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 z-10">
-            {[
-              { title: 'Inbox unificado', description: 'Todas tus conversaciones en un solo lugar.', icon: MessageSquare, delay: 0 },
-              { title: 'Gestión de pedidos', description: 'Crea y rastrea pedidos desde el chat.', icon: ShoppingCart, delay: 80 },
-              { title: 'Catálogo de productos', description: 'Precios y disponibilidad al instante.', icon: BarChart3, delay: 160 },
-              { title: 'Respuestas rápidas', description: 'Templates y respuestas automáticas.', icon: Zap, delay: 240 },
-              { title: 'Trabajo en equipo', description: 'Asigna chats y comparte historial.', icon: Users, delay: 320 },
-              { title: 'Métricas y reportes', description: 'Tiempos de respuesta y conversión.', icon: TrendingUp, delay: 400 },
-            ].map((card) => (
-              <BentoCard key={card.title} {...card} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ============================================
           FEATURES SECTION
           ============================================ */}
       <section id="caracteristicas" className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8">
@@ -251,7 +178,7 @@ export default function LandingPage() {
           {/* Section Header */}
           <div className="text-center mb-16 lg:mb-20">
             <p className="text-brand-400 font-semibold text-sm uppercase tracking-wider mb-4">Características</p>
-            <h2 className="text-balance text-3xl lg:text-4xl xl:text-5xl font-bold text-white tracking-tight">
+            <h2 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-white tracking-tight">
               Todo lo que necesitas para vender más
             </h2>
             <p className="mt-4 text-lg text-slate-400 max-w-2xl mx-auto">
@@ -518,7 +445,7 @@ export default function LandingPage() {
           ============================================ */}
       <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-900/50 to-slate-950">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-balance text-3xl lg:text-4xl xl:text-5xl font-bold text-white tracking-tight mb-6">
+          <h2 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-white tracking-tight mb-6">
             ¿Listo para vender más?
           </h2>
           <p className="text-lg text-slate-400 mb-10">

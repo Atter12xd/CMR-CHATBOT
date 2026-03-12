@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Check, ArrowRight, MessageSquare, Brain, ShoppingBag, BarChart3, CreditCard, QrCode, Zap, Shield, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Check, ArrowRight, MessageSquare, Brain, ShoppingBag, BarChart3, CreditCard, QrCode, Zap, Shield, Loader2, Clock } from 'lucide-react';
 
 
 
@@ -10,12 +10,13 @@ const plans = [
     name: 'Starter',
     description: 'Para negocios que quieren automatizar su atención',
     price: { monthly: 50, yearly: 40 },
+    priceBefore: 70,
     trial: '14 días de prueba gratis',
     features: [
-      'Hasta 1,000 conversaciones/mes',
+      'Conversaciones ilimitadas',
       '1 número de WhatsApp',
-      'Entrenar bot con texto y URLs',
-      'Catálogo de hasta 100 productos',
+      'Entrenar bot con texto, URLs y PDFs',
+      'Catálogo de hasta 300 productos',
       'Gestión de pedidos',
       'Modo bot y modo humano',
       'Soporte por email',
@@ -150,11 +151,50 @@ const faqs = [
 
 
 
+function getOfertaEndTime() {
+  if (typeof window === 'undefined') return null;
+  const key = 'wazapp_oferta_end';
+  let end = sessionStorage.getItem(key);
+  if (!end) {
+    const t = new Date();
+    t.setDate(t.getDate() + 2);
+    sessionStorage.setItem(key, t.getTime().toString());
+    return t.getTime();
+  }
+  return parseInt(end, 10);
+}
+
+function useCountdown() {
+  const [left, setLeft] = useState<{ d: number; h: number; m: number; s: number } | null>(null);
+  useEffect(() => {
+    const endMs = getOfertaEndTime();
+    if (!endMs) return;
+    const tick = () => {
+      const now = Date.now();
+      const diff = Math.max(0, endMs - now);
+      if (diff <= 0) {
+        setLeft({ d: 0, h: 0, m: 0, s: 0 });
+        return;
+      }
+      const d = Math.floor(diff / (24 * 60 * 60 * 1000));
+      const h = Math.floor((diff % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+      const m = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
+      const s = Math.floor((diff % (60 * 1000)) / 1000);
+      setLeft({ d, h, m, s });
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+  return left;
+}
+
 export default function PricingContent() {
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly');
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [checkoutEmail, setCheckoutEmail] = useState('');
+  const countdown = useCountdown();
 
   const handleCheckout = async () => {
     setShowEmailModal(true);
@@ -293,6 +333,12 @@ export default function PricingContent() {
 
                     {/* Price */}
                     <div className="mb-8">
+                      {(plan as { priceBefore?: number }).priceBefore != null && billing === 'monthly' && (
+                        <div className="flex items-center gap-2 flex-wrap mb-1.5">
+                          <span className="text-sm text-slate-500 line-through">${(plan as { priceBefore: number }).priceBefore}/mes</span>
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-400">Por tiempo limitado</span>
+                        </div>
+                      )}
                       <div className="flex items-baseline gap-1">
                         <span className={`text-5xl font-bold tracking-tight ${plan.highlighted ? 'text-white' : 'text-white'}`}>
                           ${price}
@@ -309,6 +355,15 @@ export default function PricingContent() {
                         <p className={`text-xs mt-1.5 ${plan.highlighted ? 'text-slate-500' : 'text-slate-500'}`}>
                           Facturación mensual
                         </p>
+                      )}
+                      {plan.highlighted && countdown && (
+                        <div className="mt-3 flex items-center gap-2 text-xs text-slate-400">
+                          <Clock className="w-3.5 h-3.5 text-amber-400" />
+                          <span>Oferta termina en:</span>
+                          <span className="font-mono font-semibold text-amber-400 tabular-nums">
+                            {countdown.d}d {countdown.h}h {countdown.m}m {countdown.s}s
+                          </span>
+                        </div>
                       )}
                       {plan.trial && (
                         <p className="text-sm font-medium text-emerald-400 mt-2">{plan.trial}</p>
@@ -544,9 +599,9 @@ export default function PricingContent() {
           <div className="w-12 h-12 mx-auto mb-6 rounded-xl bg-brand-500/10 flex items-center justify-center">
             <Shield className="w-6 h-6 text-brand-400" />
           </div>
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4 tracking-tight">14 días gratis, sin tarjeta</h2>
+          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4 tracking-tight">14 días gratis</h2>
           <p className="text-lg text-slate-400 mb-10 leading-relaxed max-w-lg mx-auto">
-            Prueba el plan Pro completo. Sin compromisos. Cancela en cualquier momento.
+            Prueba el plan completo. Cancela cuando quieras, sin compromisos.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a

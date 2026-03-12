@@ -66,7 +66,7 @@ const faqs = [
   },
   {
     q: '¿Hay límite de productos en el catálogo?',
-    a: 'En el plan Starter hay un límite de 100 productos. En Pro y Business el catálogo es ilimitado.',
+    a: 'En el plan Starter puedes tener hasta 300 productos. En Pro y Business el catálogo es ilimitado.',
   },
   {
     q: '¿Ofrecen soporte técnico?',

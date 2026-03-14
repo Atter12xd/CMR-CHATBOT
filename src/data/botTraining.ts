@@ -7,6 +7,26 @@ export interface BotTrainingData {
   status: 'pending' | 'processing' | 'completed' | 'error';
 }
 
+/** Configuración principal del bot por empresa (formulario fácil para el dueño) */
+export interface OrganizationBotConfig {
+  id?: string;
+  organizationId: string;
+  companyName: string;
+  companyDescription: string;
+  initialGreeting: string;
+  botName: string;
+}
+
+export const defaultOrganizationBotConfig = (
+  organizationId: string
+): OrganizationBotConfig => ({
+  organizationId,
+  companyName: '',
+  companyDescription: '',
+  initialGreeting: '',
+  botName: '',
+});
+
 export interface CompanyInfo {
   name: string;
   description: string;

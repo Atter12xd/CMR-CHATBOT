@@ -139,6 +139,34 @@ async function generateAIResponse(
   chatId: string,
   userMessage: string
 ): Promise<string> {
+  let botConfig: { company_name: string | null; company_description: string | null; initial_greeting: string | null; bot_name: string | null } | null = null;
+  try {
+    const { data } = await supabase
+      .from('organization_bot_config')
+      .select('company_name, company_description, initial_greeting, bot_name')
+      .eq('organization_id', clientConfig.id)
+      .maybeSingle();
+    botConfig = data;
+  } catch {
+    //
+  }
+
+  const companyDisplay = (botConfig?.company_name?.trim() || clientConfig.name).trim();
+  const botNameDisplay = (botConfig?.bot_name?.trim() || 'asistente').trim();
+  const companyDesc = (botConfig?.company_description?.trim() || '').trim();
+  const initialGreeting = (botConfig?.initial_greeting?.trim() || '').trim();
+
+  let presentationBlock = '';
+  if (companyDisplay || botNameDisplay || companyDesc || initialGreeting) {
+    presentationBlock = `
+PRESENTACIÓN DEL BOT (úsala al saludar o cuando pregunten quién eres):
+- Te llamas "${botNameDisplay}". Eres asistente de "${companyDisplay || clientConfig.name}".
+${companyDesc ? `- La empresa se dedica a: ${companyDesc}.` : ''}
+${initialGreeting ? `- Después de presentarte, ofrece: "${initialGreeting}"` : ''}
+- Ejemplo de saludo: "Hola, soy ${botNameDisplay}, asistente de ${companyDisplay}. ${companyDesc ? `Nos dedicamos a ${companyDesc}. ` : ''}${initialGreeting || '¿En qué puedo ayudarte?'}"
+`;
+  }
+
   let contextText = '';
   try {
     const { data: contexts } = await supabase
@@ -202,9 +230,10 @@ async function generateAIResponse(
     `${m.sender === 'user' ? 'Cliente' : 'Asistente'}: ${m.text}`
   ).join('\n') || '';
 
-  const systemPrompt = `Eres un asistente de ventas de "${clientConfig.name}". Hablas siempre en español, de forma amable y cercana. Respuestas cortas (máximo 2-4 oraciones).
+  const systemPrompt = `Eres un asistente de ventas de "${companyDisplay}". Hablas siempre en español, de forma amable y cercana. Respuestas cortas (máximo 2-4 oraciones).
+${presentationBlock}
 
-CONTEXTO DE LA EMPRESA:
+CONTEXTO DE LA EMPRESA (información extra de web/PDF):
 ${contextText}
 
 PRODUCTOS DISPONIBLES (responde con nombre y precio; las fotos se envían por separado):

@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Globe, FileText, Plus, X, CheckCircle, AlertCircle, Loader2, Brain, Info } from 'lucide-react';
+import { Globe, FileText, X, Loader2, Brain, Info, Building2, Save } from 'lucide-react';
 import type { BotTrainingData } from '../data/botTraining';
 import { extractWebInfo, extractPDFInfo } from '../data/botTraining';
 import { useOrganization } from '../hooks/useOrganization';
 import { loadTrainingData, saveTrainingItem, deleteTrainingItem, uploadTrainingFile } from '../services/bot-training';
+import { getOrganizationBotConfig, saveOrganizationBotConfig } from '../services/bot-config';
 
 
 export default function BotTrainingPage() {
@@ -13,6 +14,12 @@ export default function BotTrainingPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showWebForm, setShowWebForm] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const [companyName, setCompanyName] = useState('');
+  const [companyDescription, setCompanyDescription] = useState('');
+  const [initialGreeting, setInitialGreeting] = useState('');
+  const [botName, setBotName] = useState('');
+  const [configSaving, setConfigSaving] = useState(false);
 
   const fetchTraining = useCallback(async () => {
     if (!organizationId) return;
@@ -27,13 +34,53 @@ export default function BotTrainingPage() {
     }
   }, [organizationId]);
 
+  const fetchBotConfig = useCallback(async () => {
+    if (!organizationId) return;
+    try {
+      const config = await getOrganizationBotConfig(organizationId);
+      if (config) {
+        setCompanyName(config.companyName);
+        setCompanyDescription(config.companyDescription);
+        setInitialGreeting(config.initialGreeting);
+        setBotName(config.botName);
+      } else {
+        setCompanyName('');
+        setCompanyDescription('');
+        setInitialGreeting('');
+        setBotName('');
+      }
+    } catch (err) {
+      console.error('Error cargando configuración del bot:', err);
+    }
+  }, [organizationId]);
+
   useEffect(() => {
     if (!organizationId) {
       setLoading(false);
       return;
     }
     fetchTraining();
-  }, [organizationId, fetchTraining]);
+    fetchBotConfig();
+  }, [organizationId, fetchTraining, fetchBotConfig]);
+
+  const handleSaveBotConfig = async () => {
+    if (!organizationId) return;
+    setConfigSaving(true);
+    try {
+      await saveOrganizationBotConfig(organizationId, {
+        companyName,
+        companyDescription,
+        initialGreeting,
+        botName,
+      });
+      alert('Datos guardados. El bot usará esta información para presentarse y hablar de tu empresa.');
+    } catch (err: unknown) {
+      console.error('Error guardando configuración:', err);
+      alert(err instanceof Error ? err.message : 'Error al guardar');
+    } finally {
+      setConfigSaving(false);
+    }
+  };
 
 
   const handleWebExtract = async () => {
@@ -163,6 +210,70 @@ export default function BotTrainingPage() {
         </p>
       </div>
 
+      {/* Datos principales de la empresa (presentación del bot) */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 bg-amber-50 ring-1 ring-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+            <Building2 size={18} className="text-amber-600" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900">Datos de tu empresa</h3>
+            <p className="text-[12px] text-slate-400">El bot se presentará y hablará según estos datos</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-[12px] font-medium text-slate-600 mb-1">Nombre de la empresa</label>
+            <input
+              type="text"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+              placeholder="Ej: Mi Tienda de Zapatillas"
+              className="w-full px-3.5 py-2.5 text-sm border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 placeholder:text-slate-400"
+            />
+          </div>
+          <div>
+            <label className="block text-[12px] font-medium text-slate-600 mb-1">Nombre del bot</label>
+            <input
+              type="text"
+              value={botName}
+              onChange={(e) => setBotName(e.target.value)}
+              placeholder="Ej: Asistente WazApp"
+              className="w-full px-3.5 py-2.5 text-sm border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 placeholder:text-slate-400"
+            />
+          </div>
+        </div>
+        <div className="mt-4">
+          <label className="block text-[12px] font-medium text-slate-600 mb-1">¿A qué se dedica tu empresa?</label>
+          <input
+            type="text"
+            value={companyDescription}
+            onChange={(e) => setCompanyDescription(e.target.value)}
+            placeholder="Ej: Venta de zapatillas y ropa deportiva"
+            className="w-full px-3.5 py-2.5 text-sm border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 placeholder:text-slate-400"
+          />
+        </div>
+        <div className="mt-4">
+          <label className="block text-[12px] font-medium text-slate-600 mb-1">Saludo inicial (opcional)</label>
+          <textarea
+            value={initialGreeting}
+            onChange={(e) => setInitialGreeting(e.target.value)}
+            placeholder="Ej: ¿Desea que le pase nuestro catálogo o algunas zapatillas en tendencia?"
+            rows={2}
+            className="w-full px-3.5 py-2.5 text-sm border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 placeholder:text-slate-400 resize-none"
+          />
+        </div>
+        <div className="mt-4 flex justify-end">
+          <button
+            onClick={handleSaveBotConfig}
+            disabled={configSaving}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-violet-600 text-white text-sm font-medium rounded-xl hover:bg-violet-700 shadow-sm shadow-violet-600/20 transition-all disabled:opacity-50"
+          >
+            {configSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+            {configSaving ? 'Guardando...' : 'Guardar datos'}
+          </button>
+        </div>
+      </div>
 
       {/* Acciones */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -64,6 +64,15 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
+    const sessionEmail = (typeof session.customer_email === 'string' ? session.customer_email : '').trim().toLowerCase();
+    const userEmail = (user.email || '').trim().toLowerCase();
+    if (sessionEmail && userEmail && sessionEmail !== userEmail) {
+      return new Response(
+        JSON.stringify({ error: 'La sesión de pago corresponde a otro correo. Regístrate con el correo que usaste en el pago.' }),
+        { status: 403, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     const customerId = typeof session.customer === 'string' ? session.customer : session.customer.id;
     const subscriptionId = typeof session.subscription === 'string' ? session.subscription : session.subscription.id;
 

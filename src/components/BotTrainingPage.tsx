@@ -1,17 +1,21 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Globe, FileText, X, Loader2, Brain, Info, Building2, Save } from 'lucide-react';
+import { Globe, FileText, X, Loader2, Brain, Info, Building2, Save, Layers } from 'lucide-react';
 import type { BotTrainingData } from '../data/botTraining';
 import { extractWebInfo, extractPDFInfo } from '../data/botTraining';
 import { useOrganization } from '../hooks/useOrganization';
 import { loadTrainingData, saveTrainingItem, deleteTrainingItem, uploadTrainingFile } from '../services/bot-training';
 import { getOrganizationBotConfig, saveOrganizationBotConfig } from '../services/bot-config';
+import { createClient } from '../lib/supabase';
 
 
 export default function BotTrainingPage() {
   const { organizationId, loading: orgLoading } = useOrganization();
   const [trainingData, setTrainingData] = useState<BotTrainingData[]>([]);
   const [webUrl, setWebUrl] = useState('');
+  const [fullSiteUrl, setFullSiteUrl] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isFullSiteProcessing, setIsFullSiteProcessing] = useState(false);
+  const [extractingProducts, setExtractingProducts] = useState(false);
   const [showWebForm, setShowWebForm] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -19,6 +23,8 @@ export default function BotTrainingPage() {
   const [companyDescription, setCompanyDescription] = useState('');
   const [initialGreeting, setInitialGreeting] = useState('');
   const [botName, setBotName] = useState('');
+  const [catalogInvite, setCatalogInvite] = useState('');
+  const [companyWebsiteUrl, setCompanyWebsiteUrl] = useState('');
   const [configSaving, setConfigSaving] = useState(false);
 
   const fetchTraining = useCallback(async () => {
@@ -43,11 +49,17 @@ export default function BotTrainingPage() {
         setCompanyDescription(config.companyDescription);
         setInitialGreeting(config.initialGreeting);
         setBotName(config.botName);
+        setCatalogInvite(config.catalogInvite ?? '');
+        setCompanyWebsiteUrl(config.companyWebsiteUrl ?? '');
+        setFullSiteUrl(config.companyWebsiteUrl ?? '');
       } else {
         setCompanyName('');
         setCompanyDescription('');
         setInitialGreeting('');
         setBotName('');
+        setCatalogInvite('');
+        setCompanyWebsiteUrl('');
+        setFullSiteUrl('');
       }
     } catch (err) {
       console.error('Error cargando configuración del bot:', err);
@@ -72,6 +84,8 @@ export default function BotTrainingPage() {
         companyDescription,
         initialGreeting,
         botName,
+        catalogInvite,
+        companyWebsiteUrl,
       });
       alert('Datos guardados. El bot usará esta información para presentarse y hablar de tu empresa.');
     } catch (err: unknown) {
@@ -97,18 +111,107 @@ export default function BotTrainingPage() {
     setShowWebForm(false);
 
     try {
-      const content = await extractWebInfo(webUrl);
+      let content: string;
+      try {
+        const res = await fetch('/api/extract-web', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: webUrl.trim() }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (data.error) throw new Error(data.error);
+        if (data.content) {
+          content = data.content;
+        } else {
+          throw new Error('Sin contenido');
+        }
+      } catch (apiErr) {
+        content = await extractWebInfo(webUrl);
+      }
       await saveTrainingItem(organizationId, { type: 'web', source: webUrl, content });
       await fetchTraining();
       setWebUrl('');
-    } catch (err: any) {
+      if (content.length > 200 && confirm('¿Extraer también productos de este contenido? Los verás en Productos > Sugeridos desde web.')) {
+        await extractProductsFromContent(organizationId, content, 'Web');
+      }
+    } catch (err: unknown) {
       console.error('Error extrayendo web:', err);
-      alert(err.message || 'Error al procesar la URL');
+      alert(err instanceof Error ? err.message : 'Error al procesar la URL');
     } finally {
       setIsProcessing(false);
     }
   };
 
+  async function extractProductsFromContent(orgId: string, content: string, sourceRef: string) {
+    setExtractingProducts(true);
+    try {
+      const { data: { session } } = await createClient().auth.getSession();
+      if (!session?.access_token) {
+        alert('Inicia sesión para extraer productos.');
+        return;
+      }
+      const res = await fetch('/api/extract-products-from-text', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ content, organizationId: orgId, sourceRef }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (data.error) alert(data.error);
+      else if (data.count > 0) alert(data.message || `Se encontraron ${data.count} productos. Revísalos en Productos > Sugeridos desde web.`);
+      else alert(data.message || 'No se encontraron productos en el texto.');
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Error al extraer productos');
+    } finally {
+      setExtractingProducts(false);
+    }
+  }
+
+  const handleFullSiteExtract = async () => {
+    const urlToUse = (fullSiteUrl || companyWebsiteUrl || '').trim();
+    if (!urlToUse) {
+      alert('Ingresa la URL de tu web (o guarda antes la "URL de tu web" arriba).');
+      return;
+    }
+    if (!organizationId) {
+      alert('No hay organización seleccionada');
+      return;
+    }
+    setIsFullSiteProcessing(true);
+    try {
+      const res = await fetch('/api/extract-website', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: urlToUse, maxPages: 20 }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (data.error) {
+        alert(data.error);
+        return;
+      }
+      if (!data.content) {
+        alert('No se pudo extraer contenido del sitio.');
+        return;
+      }
+      await saveTrainingItem(organizationId, {
+        type: 'web',
+        source: `Sitio completo: ${urlToUse}${data.pagesUsed ? ` (${data.pagesUsed} páginas)` : ''}`,
+        content: data.content,
+      });
+      await fetchTraining();
+      alert(data.pagesUsed ? `Listo. Se estudiaron ${data.pagesUsed} páginas.` : 'Listo. Sitio guardado.');
+      if (data.content?.length > 200 && confirm('¿Extraer también productos de este contenido? Los verás en Productos > Sugeridos desde web.')) {
+        await extractProductsFromContent(organizationId, data.content, `Sitio: ${urlToUse}`);
+      }
+    } catch (err: unknown) {
+      console.error('Error estudiando sitio:', err);
+      alert(err instanceof Error ? err.message : 'Error al procesar el sitio');
+    } finally {
+      setIsFullSiteProcessing(false);
+    }
+  };
 
   const handlePDFUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -205,8 +308,8 @@ export default function BotTrainingPage() {
           <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">IA</p>
         </div>
         <h1 className="text-2xl font-bold text-slate-900">Entrenar Bot</h1>
-        <p className="text-sm text-slate-500 mt-0.5">
-          Alimenta a tu bot con información de tu empresa, productos y documentos
+        <p className="text-sm text-slate-500 mt-0.5 max-w-xl">
+          Configura cómo se presenta tu negocio y de qué fuentes aprende el bot. Todo lo que agregues aquí lo usará para saludar, ofrecer tu web o catálogo y responder a los clientes. Los productos que quieras que recomiende y pueda vender debes cargarlos en <strong>Productos</strong>.
         </p>
       </div>
 
@@ -263,6 +366,28 @@ export default function BotTrainingPage() {
             className="w-full px-3.5 py-2.5 text-sm border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 placeholder:text-slate-400 resize-none"
           />
         </div>
+        <div className="mt-4">
+          <label className="block text-[12px] font-medium text-slate-600 mb-1">Invitación a ver web o catálogo (opcional)</label>
+          <input
+            type="text"
+            value={catalogInvite}
+            onChange={(e) => setCatalogInvite(e.target.value)}
+            placeholder="Ej: Puede ver nuestra web o ¿Le paso el catálogo?"
+            className="w-full px-3.5 py-2.5 text-sm border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 placeholder:text-slate-400"
+          />
+          <p className="text-[11px] text-slate-400 mt-1">El bot usará esto para invitar al cliente a ver tu web o catálogo (según lo que hayas entrenado abajo).</p>
+        </div>
+        <div className="mt-4">
+          <label className="block text-[12px] font-medium text-slate-600 mb-1">URL de tu web</label>
+          <input
+            type="url"
+            value={companyWebsiteUrl}
+            onChange={(e) => setCompanyWebsiteUrl(e.target.value)}
+            placeholder="https://tu-empresa.com"
+            className="w-full px-3.5 py-2.5 text-sm border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 placeholder:text-slate-400"
+          />
+          <p className="text-[11px] text-slate-400 mt-1">La web que el bot estudia y puede ofrecer al cliente. También puedes extraerla abajo en &quot;Extraer de Página Web&quot;.</p>
+        </div>
         <div className="mt-4 flex justify-end">
           <button
             onClick={handleSaveBotConfig}
@@ -276,7 +401,7 @@ export default function BotTrainingPage() {
       </div>
 
       {/* Acciones */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Extraer de Web */}
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
           <div className="flex items-center gap-3 mb-4">
@@ -327,6 +452,41 @@ export default function BotTrainingPage() {
           )}
         </div>
 
+        {/* Estudiar sitio completo (sitemap) */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-emerald-50 ring-1 ring-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Layers size={18} className="text-emerald-600" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-slate-900">Estudiar sitio completo</h3>
+              <p className="text-[12px] text-slate-400">Varias páginas vía sitemap</p>
+            </div>
+          </div>
+          <input
+            type="url"
+            value={fullSiteUrl}
+            onChange={(e) => setFullSiteUrl(e.target.value)}
+            placeholder={companyWebsiteUrl || 'https://tu-empresa.com'}
+            className="w-full px-3.5 py-2.5 text-sm border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 placeholder:text-slate-400 mb-2"
+            disabled={isFullSiteProcessing}
+          />
+          <p className="text-[11px] text-slate-400 mb-3">Página principal o sitemap.xml. Se leerán hasta 20 páginas.</p>
+          <button
+            onClick={handleFullSiteExtract}
+            disabled={isFullSiteProcessing}
+            className="w-full px-4 py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-xl hover:bg-emerald-700 shadow-sm shadow-emerald-600/20 transition-all disabled:opacity-50"
+          >
+            {isFullSiteProcessing ? (
+              <>
+                <Loader2 size={16} className="animate-spin inline mr-2" />
+                Estudiando...
+              </>
+            ) : (
+              'Estudiar sitio completo'
+            )}
+          </button>
+        </div>
 
         {/* Subir PDF */}
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
@@ -423,19 +583,21 @@ export default function BotTrainingPage() {
       </div>
 
 
-      {/* Información */}
+      {/* Contexto para el dueño */}
       <div className="bg-violet-50 border border-violet-200/60 rounded-2xl p-5">
         <div className="flex items-start gap-3">
           <div className="w-9 h-9 bg-violet-100 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
             <Info size={16} className="text-violet-600" />
           </div>
           <div>
-            <h3 className="text-[13px] font-semibold text-violet-900 mb-1.5">Cómo funciona</h3>
+            <h3 className="text-[13px] font-semibold text-violet-900 mb-1.5">Contexto para ti</h3>
+            <p className="text-[13px] text-violet-700/90 mb-2">
+              Orden recomendado: (1) Completa <strong>Datos de tu empresa</strong> y guarda — así el bot se presenta con el nombre de tu negocio y puede ofrecer la URL de tu web. (2) Agrega contenido con <strong>Extraer de Página Web</strong>, <strong>Estudiar sitio completo</strong> o <strong>Subir PDF</strong> — el bot usará ese texto para responder preguntas y hablar de tu negocio. (3) En el menú <strong>Productos</strong> carga los productos que quieras que el bot recomiende y pueda vender; el bot solo puede armar pedidos con esos productos.
+            </p>
             <ul className="text-[13px] text-violet-700/80 space-y-1 list-disc list-inside leading-relaxed">
-              <li>El bot aprenderá automáticamente de la información que agregues</li>
-              <li>Puedes extraer información de tu página web principal</li>
-              <li>Sube PDFs con catálogos, políticas o información de productos</li>
-              <li>El bot usará esta información para responder preguntas de los clientes</li>
+              <li><strong>Una página:</strong> pega la URL y se extrae solo esa página (ideal para home o una landing).</li>
+              <li><strong>Sitio completo:</strong> pon la URL de tu web; se buscan hasta 20 páginas vía sitemap y se estudian todas.</li>
+              <li><strong>PDF:</strong> catálogos, listas de precios o políticas; el bot los usa como contexto.</li>
             </ul>
           </div>
         </div>

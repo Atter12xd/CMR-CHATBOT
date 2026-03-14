@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Search, Grid, List, X, Package, Loader2 } from 'lucide-react';
+import { Plus, Search, Grid, List, X, Package, Loader2, Sparkles, Check, Trash2 } from 'lucide-react';
 import { categories, searchProducts, getProductsByCategory, type Product } from '../data/products';
 import { loadProducts, createProduct, updateProduct, deleteProduct, uploadProductImage } from '../services/products';
+import { loadProductSuggestions, approveProductSuggestion, rejectProductSuggestion, type ProductSuggestion } from '../services/product-suggestions';
 import { useOrganization } from '../hooks/useOrganization';
 import ProductCard from './ProductCard';
 import ProductForm from './ProductForm';
@@ -9,6 +10,7 @@ import ProductForm from './ProductForm';
 export default function ProductsPage() {
   const { organizationId, loading: orgLoading } = useOrganization();
   const [products, setProducts] = useState<Product[]>([]);
+  const [suggestions, setSuggestions] = useState<ProductSuggestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -21,8 +23,12 @@ export default function ProductsPage() {
     if (!organizationId) return;
     try {
       setLoading(true);
-      const list = await loadProducts(organizationId);
+      const [list, sugg] = await Promise.all([
+        loadProducts(organizationId),
+        loadProductSuggestions(organizationId).catch(() => []),
+      ]);
       setProducts(list);
+      setSuggestions(sugg);
     } catch (err) {
       console.error('Error cargando productos:', err);
     } finally {
@@ -203,6 +209,66 @@ export default function ProductsPage() {
                 saving={saving}
               />
             </div>
+          </div>
+        </div>
+      )}
+
+      {suggestions.length > 0 && (
+        <div className="bg-amber-50 border border-amber-200/80 rounded-2xl p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Sparkles size={18} className="text-amber-600" />
+            <h3 className="text-sm font-semibold text-amber-900">Sugeridos desde web</h3>
+          </div>
+          <p className="text-[12px] text-amber-700/90 mb-4">
+            Productos extraídos de tu web por IA. Aprueba para añadirlos al catálogo (el bot podrá recomendarlos y usarlos en pedidos).
+          </p>
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {suggestions.map((s) => (
+              <div
+                key={s.id}
+                className="flex items-center justify-between gap-3 py-2 px-3 bg-white rounded-xl border border-amber-100"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-slate-900 truncate">{s.name}</p>
+                  <p className="text-[12px] text-slate-500">
+                    S/ {Number(s.price).toFixed(2)} · {s.category}
+                    {s.sourceRef ? ` · ${s.sourceRef}` : ''}
+                  </p>
+                </div>
+                <div className="flex gap-2 flex-shrink-0">
+                  <button
+                    onClick={async () => {
+                      try {
+                        await approveProductSuggestion(s.id, organizationId!);
+                        await fetchProducts();
+                      } catch (e) {
+                        alert(e instanceof Error ? e.message : 'Error al aprobar');
+                      }
+                    }}
+                    disabled={saving}
+                    className="p-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50"
+                    title="Añadir al catálogo"
+                  >
+                    <Check size={16} />
+                  </button>
+                  <button
+                    onClick={async () => {
+                      try {
+                        await rejectProductSuggestion(s.id, organizationId!);
+                        await fetchProducts();
+                      } catch (e) {
+                        alert(e instanceof Error ? e.message : 'Error al rechazar');
+                      }
+                    }}
+                    disabled={saving}
+                    className="p-2 rounded-lg bg-slate-200 text-slate-600 hover:bg-slate-300 disabled:opacity-50"
+                    title="Rechazar"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

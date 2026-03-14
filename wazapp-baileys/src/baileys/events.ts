@@ -139,11 +139,11 @@ async function generateAIResponse(
   chatId: string,
   userMessage: string
 ): Promise<string> {
-  let botConfig: { company_name: string | null; company_description: string | null; initial_greeting: string | null; bot_name: string | null } | null = null;
+  let botConfig: { company_name: string | null; company_description: string | null; initial_greeting: string | null; bot_name: string | null; catalog_invite: string | null; company_website_url: string | null } | null = null;
   try {
     const { data } = await supabase
       .from('organization_bot_config')
-      .select('company_name, company_description, initial_greeting, bot_name')
+      .select('company_name, company_description, initial_greeting, bot_name, catalog_invite, company_website_url')
       .eq('organization_id', clientConfig.id)
       .maybeSingle();
     botConfig = data;
@@ -155,6 +155,8 @@ async function generateAIResponse(
   const botNameDisplay = (botConfig?.bot_name?.trim() || 'asistente').trim();
   const companyDesc = (botConfig?.company_description?.trim() || '').trim();
   const initialGreeting = (botConfig?.initial_greeting?.trim() || '').trim();
+  const catalogInvitePhrase = (botConfig?.catalog_invite?.trim() || '').trim();
+  const companyWebsiteUrl = (botConfig?.company_website_url?.trim() || '').trim();
 
   let presentationBlock = '';
   if (companyDisplay || botNameDisplay || companyDesc || initialGreeting) {
@@ -179,6 +181,28 @@ ${initialGreeting ? `- Después de presentarte, ofrece: "${initialGreeting}"` : 
   } catch {
     // tabla puede no existir
   }
+
+  const hasWebOrCatalog = contextText.length > 50;
+  let webCatalogBlock = '';
+  if (hasWebOrCatalog || companyWebsiteUrl) {
+    const urlLine = companyWebsiteUrl ? `- URL de la web para ofrecer al cliente: ${companyWebsiteUrl}. Puedes decir "Puede ver nuestra web: ${companyWebsiteUrl}".` : '';
+    const inviteLine = catalogInvitePhrase
+      ? `- Para invitar a ver web o catálogo di algo como: "${catalogInvitePhrase}".`
+      : '- Si tienes información de web o PDF/catálogo entrenada, invita al cliente a ver la web o a que le pases el catálogo. Ej: "Puede ver nuestra web" o "¿Le paso el catálogo?" según lo que hayas entrenado.';
+    webCatalogBlock = `
+INVITAR A VER WEB O CATÁLOGO:
+${urlLine}
+${inviteLine}
+- Después invita a elegir: "Si le gusta algún producto, dime el nombre y la talla (si aplica) y hacemos el pedido."
+`;
+  }
+
+  const orderFlowBlock = `
+CÓMO TOMAR PEDIDOS (elegante y claro):
+- Pide al cliente que indique el nombre del producto y la talla (o variante) si aplica. Ej: "Si te gusta la zapatilla X, dime el nombre y la talla y armamos tu pedido."
+- Cuando tengas nombre, cantidad y (si aplica) talla, confirma el pedido y usa la herramienta create_order. Responde con el código de pedido de forma amable.
+- Mantén un tono cercano pero profesional. No inventes productos ni precios; usa solo la lista de PRODUCTOS DISPONIBLES.
+`;
 
   let productsContext = 'No hay productos cargados';
   try {
@@ -230,28 +254,28 @@ ${initialGreeting ? `- Después de presentarte, ofrece: "${initialGreeting}"` : 
     `${m.sender === 'user' ? 'Cliente' : 'Asistente'}: ${m.text}`
   ).join('\n') || '';
 
-  const systemPrompt = `Eres un asistente de ventas de "${companyDisplay}". Hablas siempre en español, de forma amable y cercana. Respuestas cortas (máximo 2-4 oraciones).
+  const systemPrompt = `Eres un asistente de ventas de "${companyDisplay}". Hablas siempre en español, de forma amable, clara y elegante. Respuestas cortas (máximo 2-4 oraciones), salvo al dar listas.
 ${presentationBlock}
 
-CONTEXTO DE LA EMPRESA (información extra de web/PDF):
-${contextText}
+CONTEXTO DE LA EMPRESA (información de web o catálogo que entrenaron):
+${contextText || '(Aún no hay web ni catálogo entrenado.)'}
+${webCatalogBlock}
 
 PRODUCTOS DISPONIBLES (responde con nombre y precio; las fotos se envían por separado):
 ${productsContext}
 ${paymentMethodsContext ? `\n${paymentMethodsContext}\n` : ''}
+${orderFlowBlock}
 
 CÓMO HABLAR:
-- Tono: amable, claro, profesional pero cercano.
-- Productos: cuando pregunten por productos, responde con nombre y precio en S/. NO pongas enlaces de imagen; las fotos se envían aparte en el chat.
-- Pagos: Yape y Plin son pagos por celular; BCP es transferencia o depósito. Solo indica los métodos que aparecen arriba en "MÉTODOS DE PAGO"; di exactamente el nombre y "a nombre de [nombre]". No inventes datos de pago.
-- Si preguntan "¿cómo pago?" o "¿Yape?", responde solo con los métodos de la lista con su nombre y a nombre de quién (o número de cuenta para BCP).
+- Tono: amable, claro, profesional y cercano.
+- Productos: responde con nombre y precio en S/. NO pongas enlaces de imagen; las fotos se envían aparte.
+- Pagos: solo indica los métodos que aparecen en "MÉTODOS DE PAGO"; di el nombre y "a nombre de [nombre]". No inventes datos.
 
 REGLAS:
-- Responde solo en español. Máximo 2-4 oraciones salvo que pidan lista de productos o métodos de pago.
+- Responde solo en español. Máximo 2-4 oraciones salvo listas de productos o métodos de pago.
 - Si no sabes algo, ofrece contactar con un agente.
-- Sugiere productos cuando sea apropiado.
-- Pedidos: cuando el cliente confirme un pedido (nombre, dirección, productos con cantidades y precios de la lista), usa la herramienta create_order y luego informa el código de pedido.
-- Si el cliente dice que ya pagó o que enviará comprobante, agradece brevemente y confirma que lo verificarán.`;
+- Pedidos: pide nombre completo, DNI, dirección de entrega y productos con cantidades. Cuando tengas todo, usa create_order e informa el código de pedido.
+- Si el cliente dice que ya pagó o enviará comprobante, agradece y confirma que lo verificarán.`;
 
   const openai = new OpenAI({
     apiKey: clientConfig.openai_api_key || process.env.OPENAI_API_KEY || ''
@@ -262,11 +286,12 @@ REGLAS:
       type: 'function',
       function: {
         name: 'create_order',
-        description: 'Registra un pedido cuando el cliente confirma: nombre, dirección/referencia y productos con cantidades y precios.',
+        description: 'Registra un pedido cuando el cliente confirma: nombre, DNI, dirección de envío y productos con cantidades y precios.',
         parameters: {
           type: 'object',
           properties: {
-            customer_name: { type: 'string', description: 'Nombre del cliente' },
+            customer_name: { type: 'string', description: 'Nombre completo del cliente' },
+            customer_dni: { type: 'string', description: 'DNI del cliente' },
             address_or_reference: { type: 'string', description: 'Dirección de envío o referencia' },
             items: {
               type: 'array',
@@ -313,13 +338,13 @@ REGLAS:
   if (toolCalls?.length) {
     for (const tc of toolCalls) {
       if (tc.function?.name === 'create_order') {
-        let args: { customer_name: string; address_or_reference?: string; items: { product_name: string; quantity: number; price: number }[] };
+        let args: { customer_name: string; customer_dni?: string; address_or_reference?: string; items: { product_name: string; quantity: number; price: number }[] };
         try {
           args = JSON.parse(tc.function.arguments);
         } catch {
           continue;
         }
-        const orderCode = await createOrderInDb(clientConfig.id, chatId, args.customer_name, args.address_or_reference || '', args.items);
+        const orderCode = await createOrderInDb(clientConfig.id, chatId, args.customer_name, args.address_or_reference || '', args.items, args.customer_dni || '');
         if (orderCode) {
           const extra = `\n\n✅ Pedido registrado. Tu código de pedido es: **${orderCode}**. Guárdalo para seguimiento.`;
           return (msg.content || '').trim() + extra;
@@ -336,7 +361,8 @@ async function createOrderInDb(
   chatId: string,
   customerName: string,
   addressOrReference: string,
-  items: { product_name: string; quantity: number; price: number }[]
+  items: { product_name: string; quantity: number; price: number }[],
+  customerDni: string
 ): Promise<string | null> {
   if (!items?.length) return null;
   const total = items.reduce((sum, i) => sum + i.quantity * i.price, 0);
@@ -366,6 +392,8 @@ async function createOrderInDb(
     chat_id: chatId,
     customer_name: customerName,
     customer_email: null,
+    delivery_address: addressOrReference || null,
+    customer_dni: customerDni || null,
     total: Math.round(total * 100) / 100,
     status: 'pending',
     code

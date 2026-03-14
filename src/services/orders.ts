@@ -40,6 +40,8 @@ export async function loadOrders(organizationId: string): Promise<Order[]> {
     code: (o as { code?: string }).code,
     customerName: o.customer_name,
     customerEmail: o.customer_email || '',
+    deliveryAddress: (o as { delivery_address?: string }).delivery_address ?? undefined,
+    customerDni: (o as { customer_dni?: string }).customer_dni ?? undefined,
     items: itemsByOrder.get(o.id) || [],
     total: Number(o.total),
     status: o.status as Order['status'],

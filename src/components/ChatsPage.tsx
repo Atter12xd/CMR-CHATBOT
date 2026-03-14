@@ -94,7 +94,16 @@ export default function ChatsPage() {
 
   const selectedChat = chats.find(chat => chat.id === selectedChatId) || null;
 
-
+  // Abrir chat desde URL (ej. /chats?chat=uuid desde Pedidos > Ir al chat)
+  useEffect(() => {
+    if (typeof window === 'undefined' || !chats.length) return;
+    const params = new URLSearchParams(window.location.search);
+    const chatId = params.get('chat');
+    if (chatId && chats.some(c => c.id === chatId)) {
+      setSelectedChatId(chatId);
+      setShowChatList(false);
+    }
+  }, [chats]);
 
   const handleSelectChat = (chatId: string) => {
     setSelectedChatId(chatId);

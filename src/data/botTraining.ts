@@ -15,6 +15,8 @@ export interface OrganizationBotConfig {
   companyDescription: string;
   initialGreeting: string;
   botName: string;
+  catalogInvite: string;
+  companyWebsiteUrl: string;
 }
 
 export const defaultOrganizationBotConfig = (
@@ -25,6 +27,8 @@ export const defaultOrganizationBotConfig = (
   companyDescription: '',
   initialGreeting: '',
   botName: '',
+  catalogInvite: '',
+  companyWebsiteUrl: '',
 });
 
 export interface CompanyInfo {

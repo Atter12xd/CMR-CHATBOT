@@ -10,6 +10,8 @@ function rowToConfig(row: {
   company_description: string | null;
   initial_greeting: string | null;
   bot_name: string | null;
+  catalog_invite?: string | null;
+  company_website_url?: string | null;
 }): OrganizationBotConfig {
   return {
     id: row.id,
@@ -18,6 +20,8 @@ function rowToConfig(row: {
     companyDescription: row.company_description ?? '',
     initialGreeting: row.initial_greeting ?? '',
     botName: row.bot_name ?? '',
+    catalogInvite: row.catalog_invite ?? '',
+    companyWebsiteUrl: row.company_website_url ?? '',
   };
 }
 
@@ -29,7 +33,7 @@ export async function getOrganizationBotConfig(
 
   const { data, error } = await supabase
     .from('organization_bot_config')
-    .select('id, organization_id, company_name, company_description, initial_greeting, bot_name')
+    .select('id, organization_id, company_name, company_description, initial_greeting, bot_name, catalog_invite, company_website_url')
     .eq('organization_id', organizationId)
     .maybeSingle();
 
@@ -44,6 +48,8 @@ export async function saveOrganizationBotConfig(
     companyDescription: string;
     initialGreeting: string;
     botName: string;
+    catalogInvite: string;
+    companyWebsiteUrl: string;
   }
 ): Promise<OrganizationBotConfig> {
   const { data: { session } } = await supabase.auth.getSession();
@@ -55,6 +61,8 @@ export async function saveOrganizationBotConfig(
     company_description: config.companyDescription.trim() || null,
     initial_greeting: config.initialGreeting.trim() || null,
     bot_name: config.botName.trim() || null,
+    catalog_invite: config.catalogInvite.trim() || null,
+    company_website_url: config.companyWebsiteUrl.trim() || null,
     updated_at: new Date().toISOString(),
   };
 

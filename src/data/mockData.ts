@@ -32,9 +32,11 @@ export interface Order {
   code?: string;
   customerName: string;
   customerEmail: string;
+  deliveryAddress?: string;
+  customerDni?: string;
   items: OrderItem[];
   total: number;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'completed';
   createdAt: Date;
   chatId?: string;
 }

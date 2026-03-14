@@ -16,30 +16,27 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <ProtectedRoute>
-      <div className="flex h-screen overflow-hidden bg-slate-50">
+      <div className="flex h-screen overflow-hidden bg-[#0a0f1a]">
         {/* Overlay para sidebar en móvil */}
         {isSidebarOpen && (
           <div
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 md:hidden transition-opacity"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden transition-opacity"
             onClick={() => setIsSidebarOpen(false)}
           ></div>
         )}
-
 
         {/* Sidebar */}
         <div className={`fixed inset-y-0 left-0 z-50 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-250 ease-in-out md:relative md:translate-x-0`}>
           <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
         </div>
 
-
         {/* Contenido principal */}
         <main className="flex-1 flex flex-col overflow-hidden md:ml-0">
           {/* Header */}
           <Header onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
 
-
-          {/* Área de contenido */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-5 md:p-6">
+          {/* Área de contenido con fondo oscuro */}
+          <div className="flex-1 overflow-y-auto p-4 sm:p-5 md:p-7 bg-[#0d1220]">
             {children}
           </div>
         </main>

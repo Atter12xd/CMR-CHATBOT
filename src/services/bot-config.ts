@@ -25,6 +25,9 @@ function rowToConfig(row: {
   };
 }
 
+const SELECT_COLUMNS_FULL = 'id, organization_id, company_name, company_description, initial_greeting, bot_name, catalog_invite, company_website_url';
+const SELECT_COLUMNS_BASE = 'id, organization_id, company_name, company_description, initial_greeting, bot_name';
+
 export async function getOrganizationBotConfig(
   organizationId: string
 ): Promise<OrganizationBotConfig | null> {
@@ -33,10 +36,19 @@ export async function getOrganizationBotConfig(
 
   const { data, error } = await supabase
     .from('organization_bot_config')
-    .select('id, organization_id, company_name, company_description, initial_greeting, bot_name, catalog_invite, company_website_url')
+    .select(SELECT_COLUMNS_FULL)
     .eq('organization_id', organizationId)
     .maybeSingle();
 
+  if (error && (error.message?.includes('catalog_invite') || error.message?.includes('company_website_url'))) {
+    const { data: dataBase, error: errBase } = await supabase
+      .from('organization_bot_config')
+      .select(SELECT_COLUMNS_BASE)
+      .eq('organization_id', organizationId)
+      .maybeSingle();
+    if (errBase) throw errBase;
+    return dataBase ? rowToConfig({ ...dataBase, catalog_invite: null, company_website_url: null }) : null;
+  }
   if (error) throw error;
   return data ? rowToConfig(data) : null;
 }
@@ -55,7 +67,7 @@ export async function saveOrganizationBotConfig(
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) throw new Error('No hay sesión activa');
 
-  const row = {
+  const rowFull: Record<string, unknown> = {
     organization_id: organizationId,
     company_name: config.companyName.trim() || null,
     company_description: config.companyDescription.trim() || null,
@@ -66,12 +78,30 @@ export async function saveOrganizationBotConfig(
     updated_at: new Date().toISOString(),
   };
 
-  const { data, error } = await supabase
+  const result = await supabase
     .from('organization_bot_config')
-    .upsert(row, { onConflict: 'organization_id' })
+    .upsert(rowFull, { onConflict: 'organization_id' })
     .select()
     .single();
 
-  if (error) throw error;
-  return rowToConfig(data);
+  if (result.error && (result.error.message?.includes('catalog_invite') || result.error.message?.includes('company_website_url'))) {
+    const rowBase = {
+      organization_id: organizationId,
+      company_name: config.companyName.trim() || null,
+      company_description: config.companyDescription.trim() || null,
+      initial_greeting: config.initialGreeting.trim() || null,
+      bot_name: config.botName.trim() || null,
+      updated_at: new Date().toISOString(),
+    };
+    const result2 = await supabase
+      .from('organization_bot_config')
+      .upsert(rowBase, { onConflict: 'organization_id' })
+      .select()
+      .single();
+    if (result2.error) throw result2.error;
+    return rowToConfig(result2.data as Parameters<typeof rowToConfig>[0]);
+  }
+
+  if (result.error) throw result.error;
+  return rowToConfig(result.data as Parameters<typeof rowToConfig>[0]);
 }

@@ -14,12 +14,21 @@ export async function handleIncomingMessage(
 ) {
   const remoteJid = msg.key.remoteJid!;
   const senderPhone = remoteJid.replace('@s.whatsapp.net', '');
+  const hasImage = !!msg.message?.imageMessage;
+  const hasDocument = !!msg.message?.documentMessage;
+  const caption = msg.message?.imageMessage?.caption;
   const messageText = msg.message?.conversation ||
-    msg.message?.extendedTextMessage?.text || '';
+    msg.message?.extendedTextMessage?.text ||
+    caption ||
+    (hasImage ? '[Captura de pago]' : '') ||
+    (hasDocument ? '[Documento/comprobante]' : '') ||
+    '';
 
-  if (!messageText) return;
+  if (!messageText && !hasImage && !hasDocument) return;
 
-  console.log(`[CHAT] Mensaje de ${senderPhone}: ${messageText}`);
+  const isOnlyMediaComprobante = (hasImage || hasDocument) && !caption && !msg.message?.conversation && !msg.message?.extendedTextMessage?.text;
+  const displayText = messageText || (hasImage ? '[Imagen]' : '[Documento]');
+  console.log(`[CHAT] Mensaje de ${senderPhone}: ${displayText}`);
 
   try {
     const { data: clientConfig } = await supabase
@@ -35,10 +44,11 @@ export async function handleIncomingMessage(
 
     const chatId = await getOrCreateChat(clientConfig.id, senderPhone, remoteJid, msg);
 
+    const userMessageText = messageText || (hasImage ? '[Captura de pago enviada]' : '[Documento/comprobante enviado]');
     await supabase.from('messages').insert({
       chat_id: chatId,
       sender: 'user',
-      text: messageText,
+      text: userMessageText,
       platform_message_id: msg.key.id,
       status: 'delivered'
     });
@@ -52,6 +62,34 @@ export async function handleIncomingMessage(
     if (chatRow?.bot_active === false) {
       console.log(`[CHAT] Modo humano: bot pausado para ${senderPhone}, no se envía respuesta`);
       return;
+    }
+
+    if (isOnlyMediaComprobante) {
+      const comprobanteReply = 'Recibimos tu comprobante. Lo verificaremos y en breve te confirmamos tu pedido.';
+      try {
+        await registerPaymentReported(clientConfig.id, chatId);
+        console.log(`[PAGO] Comprobante (imagen/doc) registrado por ${senderPhone} (chat ${chatId})`);
+      } catch (e) {
+        console.error('Error registrando comprobante:', e);
+      }
+      await socket.sendMessage(remoteJid, { text: comprobanteReply });
+      await supabase.from('messages').insert({
+        chat_id: chatId,
+        sender: 'bot',
+        text: comprobanteReply,
+        status: 'sent'
+      });
+      console.log(`[CHAT] Respuesta (comprobante) enviada a ${senderPhone}`);
+      return;
+    }
+
+    if (hasImage || hasDocument) {
+      try {
+        await registerPaymentReported(clientConfig.id, chatId);
+        console.log(`[PAGO] Comprobante con texto registrado por ${senderPhone} (chat ${chatId})`);
+      } catch (e) {
+        console.error('Error registrando comprobante:', e);
+      }
     }
 
     try {
@@ -68,7 +106,7 @@ export async function handleIncomingMessage(
 
     await socket.sendMessage(remoteJid, { text: aiResponse });
 
-    if (isPaymentReportMessage(messageText)) {
+    if (isPaymentReportMessage(messageText) && !hasImage && !hasDocument) {
       try {
         await registerPaymentReported(clientConfig.id, chatId);
         console.log(`[PAGO] Registrado pago reportado por ${senderPhone} (chat ${chatId})`);

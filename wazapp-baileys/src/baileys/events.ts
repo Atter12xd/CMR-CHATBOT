@@ -199,8 +199,8 @@ ${inviteLine}
 
   const orderFlowBlock = `
 CÓMO TOMAR PEDIDOS (elegante y claro):
-- Pide al cliente que indique el nombre del producto y la talla (o variante) si aplica. Ej: "Si te gusta la zapatilla X, dime el nombre y la talla y armamos tu pedido."
-- Cuando tengas nombre, cantidad y (si aplica) talla, confirma el pedido y usa la herramienta create_order. Responde con el código de pedido de forma amable.
+- Pide al cliente que indique el nombre del producto y la talla (o variante) si aplica. Luego pide nombre completo, DNI y dirección de entrega.
+- Cuando tengas nombre, DNI, dirección y productos, usa create_order. Tras crear el pedido, indica al cliente que debe realizar el pago (con los métodos de la lista: Yape/Plin/BCP, nombre y número) y que cuando envíe el comprobante lo verificaremos y le confirmaremos. No digas que el pedido ya está registrado/confirmado hasta que el cliente haya pagado y nosotros lo verifiquemos.
 - Mantén un tono cercano pero profesional. No inventes productos ni precios; usa solo la lista de PRODUCTOS DISPONIBLES.
 `;
 
@@ -274,7 +274,7 @@ CÓMO HABLAR:
 REGLAS:
 - Responde solo en español. Máximo 2-4 oraciones salvo listas de productos o métodos de pago.
 - Si no sabes algo, ofrece contactar con un agente.
-- Pedidos: pide nombre completo, DNI, dirección de entrega y productos con cantidades. Cuando tengas todo, usa create_order e informa el código de pedido.
+- Pedidos: pide nombre completo, DNI, dirección de entrega y productos con cantidades. Cuando tengas todo, usa create_order. IMPORTANTE: Después de create_order NO digas "pedido registrado" ni "listo tu pedido está confirmado". Solo indica cómo debe pagar (Yape/Plin/BCP con nombre y número de la lista) y que al enviar el comprobante lo verificaremos y entonces le confirmaremos el pedido.
 - Si el cliente dice que ya pagó o enviará comprobante, agradece y confirma que lo verificarán.`;
 
   const openai = new OpenAI({
@@ -346,7 +346,10 @@ REGLAS:
         }
         const orderCode = await createOrderInDb(clientConfig.id, chatId, args.customer_name, args.address_or_reference || '', args.items, args.customer_dni || '');
         if (orderCode) {
-          const extra = `\n\n✅ Pedido registrado. Tu código de pedido es: **${orderCode}**. Guárdalo para seguimiento.`;
+          const paymentText = await getPaymentInstructionsForClient(clientConfig.id);
+          const extra = paymentText
+            ? `\n\nListo, ya tenemos tu pedido. Para confirmarlo realiza el pago por:\n\n${paymentText}\n\nCuando envíes el comprobante lo verificaremos y te confirmaremos. Tu código de pedido es **${orderCode}** (guárdalo).`
+            : `\n\nListo, ya tenemos tu pedido. Cuando envíes el comprobante de pago lo verificaremos y te confirmaremos. Tu código de pedido es **${orderCode}** (guárdalo).`;
           return (msg.content || '').trim() + extra;
         }
       }
@@ -421,6 +424,32 @@ async function createOrderInDb(
   }
 
   return code;
+}
+
+async function getPaymentInstructionsForClient(organizationId: string): Promise<string> {
+  try {
+    const { data: paymentMethods } = await supabase
+      .from('payment_methods_config')
+      .select('method, account_name, account_number, account_type')
+      .eq('organization_id', organizationId)
+      .eq('enabled', true);
+    if (!paymentMethods?.length) return '';
+    const lines = paymentMethods.map(p => {
+      if (p.method === 'yape' || p.method === 'plin') {
+        const num = p.account_number?.trim();
+        const name = p.account_name || 'N/A';
+        const numText = num ? ` al número ${num}` : '';
+        return `• ${p.method === 'yape' ? 'Yape' : 'Plin'}${numText}: a nombre de ${name}`;
+      }
+      if (p.method === 'bcp') {
+        return `• BCP ${p.account_type || ''}: cuenta ${p.account_number || 'N/A'} - a nombre de ${p.account_name || 'N/A'}`;
+      }
+      return '';
+    }).filter(Boolean);
+    return lines.join('\n');
+  } catch {
+    return '';
+  }
 }
 
 const BUYING_INTENT_KEYWORDS: { pattern: RegExp | string; intent: string }[] = [

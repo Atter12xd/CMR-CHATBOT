@@ -118,7 +118,7 @@ export async function verifyPayment(
 
   const { data: order } = await supabase
     .from('orders')
-    .select('id, total, customer_name')
+    .select('id, total, customer_name, code')
     .eq('chat_id', chatId)
     .in('status', ['pending', 'processing'])
     .order('created_at', { ascending: false })
@@ -135,11 +135,12 @@ export async function verifyPayment(
     await supabase.from('orders').update({ status: 'completed', updated_at: new Date().toISOString() }).eq('id', order.id);
     await supabase.from('payments').update({ status: 'verified', verified_at: new Date().toISOString(), verified_by: session.user.id }).eq('id', paymentId);
     await supabase.from('chats').update({ bot_active: false }).eq('id', chatId);
+    const codeText = order?.code ? ` Pedido **${order.code}** confirmado. ` : ' ';
     return {
       success: true,
       chatId,
       customerPhone,
-      message: '✅ Pago completado. En unos instantes un asesor se comunicará contigo para coordinar los detalles finales.',
+      message: `✅ Pedido registrado.${codeText}Pago completado. En unos instantes un asesor se comunicará contigo para coordinar los detalles finales.`,
     };
   }
 

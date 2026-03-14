@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ShoppingCart, Loader2, CreditCard, Check } from 'lucide-react';
+import { ShoppingCart, Loader2, CreditCard, Check, AlertTriangle, Package } from 'lucide-react';
 import { useOrganization } from '../hooks/useOrganization';
 import { loadOrders } from '../services/orders';
 import { loadPaymentsPending, verifyPayment, type PaymentWithOrder } from '../services/payments';
@@ -19,6 +19,16 @@ const statusLabels: Record<string, string> = {
   shipped: 'Enviado',
   delivered: 'Entregado',
   cancelled: 'Cancelado',
+};
+
+const statusDotColors: Record<string, string> = {
+  all: 'bg-blue-400',
+  pending: 'bg-amber-400',
+  processing: 'bg-sky-400',
+  completed: 'bg-emerald-400',
+  shipped: 'bg-indigo-400',
+  delivered: 'bg-green-400',
+  cancelled: 'bg-red-400',
 };
 
 
@@ -97,70 +107,112 @@ export default function OrdersPage() {
 
   if (orgLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[320px]">
-        <Loader2 size={24} className="animate-spin text-violet-600" />
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 size={28} className="animate-spin text-blue-500" />
+          <p className="text-sm text-slate-500">Cargando…</p>
+        </div>
       </div>
     );
   }
 
   if (!organizationId) {
     return (
-      <div className="text-sm text-slate-500 p-4">
-        Crea o selecciona una organización para ver pedidos.
+      <div className="flex flex-col items-center justify-center min-h-[300px] gap-3">
+        <div className="w-12 h-12 rounded-2xl bg-slate-800 border border-slate-700/50 flex items-center justify-center">
+          <AlertTriangle size={20} className="text-slate-500" />
+        </div>
+        <p className="text-sm text-slate-400">
+          Crea o selecciona una organización para ver pedidos.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="space-y-6">
+      {/* ── Header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2.5 mb-1">
-            <span className="w-2 h-2 rounded-full bg-violet-500"></span>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Gestión</p>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="h-5 w-1 rounded-full bg-blue-500" />
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
+              Gestión
+            </p>
           </div>
-          <h2 className="text-2xl font-bold text-slate-900">Pedidos</h2>
-          <p className="text-sm text-slate-500 mt-0.5">Gestiona todos tus pedidos</p>
+          <h2 className="text-[28px] font-extrabold text-white tracking-tight leading-tight">
+            Pedidos
+          </h2>
+          <p className="text-sm text-slate-400 mt-1">
+            Gestiona y verifica todos tus pedidos
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-semibold text-slate-500 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/50">
+            {orders.length} total
+          </span>
+          {pendingPayments.length > 0 && (
+            <span className="text-[11px] font-semibold text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/20">
+              {pendingPayments.length} por verificar
+            </span>
+          )}
         </div>
       </div>
 
+      {/* ── Pending Payments ── */}
       {pendingPayments.length > 0 && (
-        <div className="bg-amber-50 border border-amber-200/80 rounded-2xl p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <CreditCard size={18} className="text-amber-600" />
-            <h3 className="text-sm font-semibold text-amber-900">Pagos pendientes de verificar</h3>
+        <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-5 backdrop-blur-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+              <CreditCard size={16} className="text-amber-400" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-white">Pagos pendientes de verificar</h3>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Ingresa monto y nombre del comprobante para validar
+              </p>
+            </div>
           </div>
-          <p className="text-[12px] text-amber-700/90 mb-4">
-            Ingresa el monto y el nombre exactos del comprobante. Si coinciden, el pedido pasará a &quot;Pago completado&quot; y el chat a modo humano.
-          </p>
-          <div className="space-y-4">
+
+          <div className="space-y-3">
             {pendingPayments.map((p) => (
-              <div key={p.id} className="flex flex-wrap items-end gap-3 p-3 bg-white rounded-xl border border-amber-100">
-                <div className="min-w-0">
-                  <p className="text-[13px] font-medium text-slate-900">{p.orderCode || 'Pedido'} · {p.orderCustomerName || p.customerName}</p>
-                  <p className="text-[12px] text-slate-500">Debe coincidir: S/ {(p.orderTotal ?? p.amount).toFixed(2)} · {p.orderCustomerName || p.customerName}</p>
+              <div
+                key={p.id}
+                className="flex flex-wrap items-end gap-3 p-4 bg-[#111827] rounded-xl border border-slate-700/50"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13px] font-semibold text-white">
+                    {p.orderCode || 'Pedido'} · {p.orderCustomerName || p.customerName}
+                  </p>
+                  <p className="text-[11px] text-slate-500 mt-0.5 font-mono">
+                    Esperado: S/ {(p.orderTotal ?? p.amount).toFixed(2)} · {p.orderCustomerName || p.customerName}
+                  </p>
                 </div>
                 <input
                   type="number"
                   step="0.01"
-                  placeholder="Monto comprobante"
+                  placeholder="Monto"
                   value={verifyAmount[p.id] ?? ''}
                   onChange={(e) => setVerifyAmount((prev) => ({ ...prev, [p.id]: e.target.value }))}
-                  className="w-28 px-2.5 py-2 text-sm border border-slate-200 rounded-lg"
+                  className="w-28 px-3 py-2.5 text-sm bg-slate-800 border border-slate-600/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-colors"
                 />
                 <input
                   type="text"
                   placeholder="Nombre en comprobante"
                   value={verifyName[p.id] ?? ''}
                   onChange={(e) => setVerifyName((prev) => ({ ...prev, [p.id]: e.target.value }))}
-                  className="flex-1 min-w-[140px] px-2.5 py-2 text-sm border border-slate-200 rounded-lg"
+                  className="flex-1 min-w-[160px] px-3 py-2.5 text-sm bg-slate-800 border border-slate-600/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-colors"
                 />
                 <button
                   onClick={() => handleVerifyPayment(p)}
                   disabled={verifyingId === p.id}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500 text-white text-sm font-bold rounded-xl hover:bg-emerald-400 disabled:opacity-50 transition-all duration-150 shadow-lg shadow-emerald-500/20"
                 >
-                  {verifyingId === p.id ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                  {verifyingId === p.id ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Check size={14} strokeWidth={3} />
+                  )}
                   Verificar
                 </button>
               </div>
@@ -169,25 +221,37 @@ export default function OrdersPage() {
         </div>
       )}
 
+      {/* ── Status Filters ── */}
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
         {statuses.map((status) => (
           <button
             key={status}
             onClick={() => setSelectedStatus(status)}
-            className={`px-3.5 py-2 rounded-xl text-[13px] font-medium whitespace-nowrap transition-all duration-150 ${
+            className={`group inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold whitespace-nowrap transition-all duration-200 ${
               selectedStatus === status
-                ? 'bg-violet-600 text-white shadow-sm shadow-violet-600/20'
-                : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50 hover:text-slate-800'
+                ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
+                : 'bg-[#111827] text-slate-400 border border-slate-700/50 hover:bg-slate-800 hover:text-white hover:border-slate-600/50'
             }`}
           >
+            <span
+              className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                selectedStatus === status
+                  ? 'bg-white'
+                  : statusDotColors[status] || 'bg-slate-500'
+              }`}
+            />
             {statusLabels[status] || status}
           </button>
         ))}
       </div>
 
+      {/* ── Orders Grid ── */}
       {loading ? (
-        <div className="flex items-center justify-center py-16">
-          <Loader2 size={28} className="animate-spin text-violet-600" />
+        <div className="flex items-center justify-center py-20">
+          <div className="flex flex-col items-center gap-3">
+            <Loader2 size={28} className="animate-spin text-blue-500" />
+            <p className="text-sm text-slate-500">Cargando pedidos…</p>
+          </div>
         </div>
       ) : filteredOrders.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -196,12 +260,17 @@ export default function OrdersPage() {
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-12 text-center">
-          <div className="w-14 h-14 bg-slate-50 ring-1 ring-slate-200/80 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <ShoppingCart size={24} className="text-slate-300" />
+        <div className="bg-[#111827] rounded-2xl border border-slate-700/50 shadow-lg shadow-black/10 p-14 text-center">
+          <div className="w-16 h-16 bg-slate-800 border border-slate-700/50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Package size={28} className="text-slate-600" />
           </div>
-          <p className="text-sm text-slate-500">
-            {selectedStatus === 'all' ? 'No hay pedidos aún' : 'No hay pedidos con este estado'}
+          <p className="text-sm font-medium text-slate-400">
+            {selectedStatus === 'all'
+              ? 'No hay pedidos aún'
+              : `No hay pedidos con estado "${statusLabels[selectedStatus]}"`}
+          </p>
+          <p className="text-[11px] text-slate-600 mt-1">
+            Los pedidos aparecerán aquí cuando se generen
           </p>
         </div>
       )}

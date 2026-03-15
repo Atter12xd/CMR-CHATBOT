@@ -345,11 +345,11 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
   return (
     <div className="h-full w-full flex flex-col bg-white">
       {/* Header */}
-      <div className="px-4 md:px-5 py-2.5 border-b border-slate-200/60 bg-white flex items-center justify-between shrink-0">
+      <div className="px-4 md:px-5 py-2.5 border-b border-slate-200/80 bg-white flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <button
             onClick={onBack}
-            className="md:hidden p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
+            className="md:hidden p-1.5 hover:bg-slate-100 rounded-xl transition-colors"
           >
             <ArrowLeft size={18} className="text-slate-500" />
           </button>
@@ -398,13 +398,13 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setMenuOpen((o) => !o)}
-              className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-slate-600"
+              className="p-1.5 hover:bg-slate-100 rounded-xl transition-colors text-slate-400 hover:text-slate-600"
               aria-label="Más opciones"
             >
               <MoreVertical size={16} />
             </button>
             {menuOpen && (
-              <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg shadow-slate-200/50 border border-slate-200/80 py-1 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+              <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-2xl shadow-sm border border-slate-200/80 py-1.5 z-50">
                 <button
                   onClick={() => { setShowInfoPanel(true); setMenuOpen(false); }}
                   className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px] text-slate-600 hover:bg-slate-50 transition-colors"
@@ -550,7 +550,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
 
 
       {/* Input area */}
-      <div className="px-3 md:px-4 py-2.5 border-t border-slate-200/60 bg-white shrink-0">
+      <div className="px-3 md:px-4 py-2.5 border-t border-slate-200/80 bg-white shrink-0">
         <div className="flex items-end gap-1.5">
           <button
             onClick={() => setShowFileModal(true)}
@@ -560,7 +560,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
           >
             <Paperclip size={18} />
           </button>
-          <div className="flex-1 min-w-0 bg-slate-50/80 rounded-xl border border-slate-200/60 focus-within:border-violet-300 focus-within:ring-1 focus-within:ring-violet-500/10 focus-within:bg-white transition-all duration-200">
+          <div className="flex-1 min-w-0 bg-slate-50/80 rounded-xl border border-slate-200/80 focus-within:border-violet-300 focus-within:ring-2 focus-within:ring-violet-500/20 focus-within:bg-white transition-all duration-200">
             <textarea
               ref={textareaRef}
               value={newMessage}
@@ -575,9 +575,9 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
           <button
             onClick={handleSendMessage}
             disabled={!newMessage.trim() || sending}
-            className={`p-2 rounded-lg flex-shrink-0 transition-all duration-200 ${
+            className={`p-2 rounded-xl flex-shrink-0 transition-all duration-200 ${
               newMessage.trim() && !sending
-                ? 'bg-violet-600 text-white hover:bg-violet-700 shadow-sm shadow-violet-200'
+                ? 'bg-violet-600 text-white hover:bg-violet-700 shadow-sm shadow-violet-600/20'
                 : 'bg-slate-100 text-slate-300 cursor-not-allowed'
             }`}
           >
@@ -599,11 +599,11 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
 
       {/* Modal: Cambiar nombre */}
       {showRenameModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl shadow-slate-200/50 w-full max-w-sm p-5">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 w-full max-w-sm p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-slate-900 text-sm">Cambiar nombre</h3>
-              <button onClick={() => setShowRenameModal(false)} className="p-1 hover:bg-slate-100 rounded-md transition-colors">
+              <button onClick={() => setShowRenameModal(false)} className="p-1.5 hover:bg-slate-100 rounded-xl transition-colors">
                 <X size={15} className="text-slate-400" />
               </button>
             </div>
@@ -612,21 +612,21 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
               value={renameValue}
               onChange={(e) => setRenameValue(e.target.value)}
               placeholder="Nombre del contacto"
-              className="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-violet-500/20 focus:border-violet-300 text-[13px] text-slate-900 placeholder-slate-400 transition-all"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/80 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 text-[13px] text-slate-900 placeholder-slate-400 transition-all"
               onKeyDown={(e) => e.key === 'Enter' && handleRename()}
               autoFocus
             />
             <div className="flex gap-2 mt-4">
               <button
                 onClick={() => setShowRenameModal(false)}
-                className="flex-1 py-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-[13px] font-medium transition-colors"
+                className="flex-1 py-2.5 rounded-xl border border-slate-200/80 text-slate-600 hover:bg-slate-50 text-[13px] font-medium transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleRename}
                 disabled={renaming || !renameValue.trim()}
-                className="flex-1 py-2.5 rounded-lg bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-40 text-[13px] font-medium transition-colors"
+                className="flex-1 py-2.5 rounded-xl bg-violet-600 text-white hover:bg-violet-700 shadow-sm shadow-violet-600/20 disabled:opacity-40 text-[13px] font-medium transition-colors"
               >
                 {renaming ? 'Guardando...' : 'Guardar'}
               </button>
@@ -639,11 +639,11 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
 
       {/* Modal: Vaciar chat */}
       {showClearConfirm && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl shadow-slate-200/50 w-full max-w-sm p-5">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 w-full max-w-sm p-5">
             <div className="flex items-start gap-3 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
-                <Trash2 size={14} className="text-red-500" />
+              <div className="w-10 h-10 rounded-xl bg-rose-50 ring-1 ring-rose-100 flex items-center justify-center flex-shrink-0">
+                <Trash2 size={18} className="text-rose-600" />
               </div>
               <div>
                 <h3 className="font-semibold text-slate-900 text-sm">Vaciar conversación</h3>
@@ -655,14 +655,14 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
             <div className="flex gap-2">
               <button
                 onClick={() => setShowClearConfirm(false)}
-                className="flex-1 py-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-[13px] font-medium transition-colors"
+                className="flex-1 py-2.5 rounded-xl border border-slate-200/80 text-slate-600 hover:bg-slate-50 text-[13px] font-medium transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleClearChat}
                 disabled={clearing}
-                className="flex-1 py-2.5 rounded-lg bg-red-500 text-white hover:bg-red-600 disabled:opacity-40 text-[13px] font-medium transition-colors"
+                className="flex-1 py-2.5 rounded-xl bg-rose-500 text-white hover:bg-rose-600 disabled:opacity-40 text-[13px] font-medium transition-colors"
               >
                 {clearing ? 'Vaciando...' : 'Vaciar'}
               </button>
@@ -675,14 +675,14 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
 
       {/* Panel: Info contacto */}
       {showInfoPanel && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div
-            className="bg-white w-full sm:max-w-sm sm:rounded-xl rounded-t-xl shadow-xl overflow-hidden"
+            className="bg-white w-full sm:max-w-sm sm:rounded-2xl rounded-t-2xl shadow-sm border border-slate-200/80 overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+            <div className="px-4 py-3 border-b border-slate-200/80 flex items-center justify-between">
               <h3 className="font-semibold text-slate-900 text-sm">Información del contacto</h3>
-              <button onClick={() => setShowInfoPanel(false)} className="p-1 hover:bg-slate-100 rounded-md transition-colors">
+              <button onClick={() => setShowInfoPanel(false)} className="p-1.5 hover:bg-slate-100 rounded-xl transition-colors">
                 <X size={15} className="text-slate-400" />
               </button>
             </div>
@@ -695,23 +695,23 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                 />
               </div>
               <div className="space-y-3">
-                <div className="bg-slate-50/80 rounded-lg px-3 py-2.5">
+                <div className="bg-slate-50/80 rounded-xl px-3.5 py-2.5 border border-slate-200/80">
                   <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Nombre</p>
                   <p className="text-slate-900 text-[13px] font-medium">{displayName}</p>
                 </div>
                 {chat.customerEmail && (
-                  <div className="bg-slate-50/80 rounded-lg px-3 py-2.5">
+                  <div className="bg-slate-50/80 rounded-xl px-3.5 py-2.5 border border-slate-200/80">
                     <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Email</p>
                     <p className="text-slate-900 text-[13px]">{chat.customerEmail}</p>
                   </div>
                 )}
                 {chat.customerPhone && (
-                  <div className="bg-slate-50/80 rounded-lg px-3 py-2.5">
+                  <div className="bg-slate-50/80 rounded-xl px-3.5 py-2.5 border border-slate-200/80">
                     <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Teléfono</p>
                     <p className="text-slate-900 text-[13px]">{chat.customerPhone}</p>
                   </div>
                 )}
-                <div className="bg-slate-50/80 rounded-lg px-3 py-2.5">
+                <div className="bg-slate-50/80 rounded-xl px-3.5 py-2.5 border border-slate-200/80">
                   <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Plataforma</p>
                   <div className="flex items-center gap-2 mt-0.5">
                     <div className={`w-2 h-2 rounded-full ${
@@ -727,10 +727,10 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                 </div>
               </div>
             </div>
-            <div className="px-4 py-3 bg-slate-50/60 border-t border-slate-100">
+            <div className="px-4 py-3 bg-slate-50/60 border-t border-slate-200/80">
               <button
                 onClick={() => setShowInfoPanel(false)}
-                className="w-full py-2.5 rounded-lg bg-slate-200/70 text-slate-600 hover:bg-slate-300/70 text-[13px] font-medium transition-colors"
+                className="w-full py-2.5 rounded-xl border border-slate-200/80 bg-white text-slate-600 hover:bg-slate-50 text-[13px] font-medium transition-colors"
               >
                 Cerrar
               </button>

@@ -30,7 +30,7 @@ export default function ProductCard({ product, onEdit, onDelete, viewMode = 'gri
             )}
           </div>
           <div className="text-right flex-shrink-0">
-            <p className="text-lg font-bold text-slate-900">${product.price.toFixed(2)}</p>
+            <p className="text-lg font-bold text-slate-900">S/ {product.price.toFixed(2)}</p>
             {product.stock !== undefined && (
               <p className="text-[11px] text-slate-400 mt-0.5">Stock: {product.stock}</p>
             )}
@@ -80,7 +80,7 @@ export default function ProductCard({ product, onEdit, onDelete, viewMode = 'gri
         )}
         <div className="flex items-end justify-between mt-3 pt-3 border-t border-slate-100">
           <div>
-            <p className="text-lg font-bold text-slate-900">${product.price.toFixed(2)}</p>
+            <p className="text-lg font-bold text-slate-900">S/ {product.price.toFixed(2)}</p>
             {product.stock !== undefined && (
               <p className="text-[11px] text-slate-400 mt-0.5">Stock: {product.stock}</p>
             )}

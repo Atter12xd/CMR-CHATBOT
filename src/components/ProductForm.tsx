@@ -87,7 +87,7 @@ export default function ProductForm({ onSubmit, onCancel, initialProduct, saving
                   setImage('');
                   setImagePreview('');
                 }}
-                className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-rose-500 text-white rounded-lg flex items-center justify-center hover:bg-rose-600 shadow-sm transition-colors"
+                className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-rose-500 text-white rounded-xl flex items-center justify-center hover:bg-rose-600 shadow-sm transition-colors"
               >
                 <X size={13} />
               </button>
@@ -147,7 +147,7 @@ export default function ProductForm({ onSubmit, onCancel, initialProduct, saving
             Precio <span className="text-rose-500">*</span>
           </label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm font-medium">$</span>
+            <span className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm font-medium">S/</span>
             <input
               type="number"
               step="0.01"

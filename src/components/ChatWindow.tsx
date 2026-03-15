@@ -343,29 +343,29 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
 
 
   return (
-    <div className="h-full w-full flex flex-col bg-white">
+    <div className="h-full w-full flex flex-col bg-transparent">
       {/* Header */}
-      <div className="px-4 md:px-5 py-2.5 border-b border-slate-200/80 bg-white flex items-center justify-between shrink-0">
+      <div className="px-4 md:px-5 py-2.5 border-b border-white/[0.06] bg-[#111827]/80 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <button
             onClick={onBack}
-            className="md:hidden p-1.5 hover:bg-slate-100 rounded-xl transition-colors"
+            className="md:hidden p-1.5 hover:bg-white/[0.06] rounded-xl transition-colors"
           >
-            <ArrowLeft size={18} className="text-slate-500" />
+            <ArrowLeft size={18} className="text-slate-400" />
           </button>
           <div className="relative">
             <img
               src={chat.customerAvatar}
               alt={displayName}
-              className="w-9 h-9 rounded-full object-cover ring-2 ring-slate-100"
+              className="w-9 h-9 rounded-full object-cover ring-2 ring-white/[0.08]"
             />
-            <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white ${
-              chat.status === 'active' ? 'bg-emerald-500' : chat.status === 'waiting' ? 'bg-amber-400' : 'bg-slate-300'
+            <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-[#111827] ${
+              chat.status === 'active' ? 'bg-emerald-500' : chat.status === 'waiting' ? 'bg-amber-400' : 'bg-slate-500'
             }`} />
           </div>
           <div className="min-w-0">
-            <h2 className="font-semibold text-slate-900 text-[13px] leading-tight truncate">{displayName}</h2>
-            <p className="text-[11px] text-slate-400 leading-tight mt-0.5">
+            <h2 className="font-semibold text-white text-[13px] leading-tight truncate">{displayName}</h2>
+            <p className="text-[11px] text-slate-500 leading-tight mt-0.5">
               {chat.platform === 'whatsapp' && (whatsAppNumber ? `WhatsApp · ${whatsAppNumber}` : 'WhatsApp')}
               {chat.platform === 'facebook' && 'Facebook Messenger'}
               {chat.platform === 'web' && 'Chat Web'}
@@ -387,8 +387,8 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
             disabled={togglingBot}
             className={`text-[11px] px-2.5 py-1.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-1.5 ${
               botActive
-                ? 'bg-violet-50 text-violet-700 hover:bg-violet-100'
-                : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+                ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20'
+                : 'bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20'
             } ${togglingBot ? 'opacity-50 cursor-not-allowed' : ''}`}
             title={botActive ? 'Pausar bot (modo humano)' : 'Activar bot'}
           >
@@ -398,25 +398,25 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setMenuOpen((o) => !o)}
-              className="p-1.5 hover:bg-slate-100 rounded-xl transition-colors text-slate-400 hover:text-slate-600"
+              className="p-1.5 hover:bg-white/[0.06] rounded-xl transition-colors text-slate-400 hover:text-white"
               aria-label="Más opciones"
             >
               <MoreVertical size={16} />
             </button>
             {menuOpen && (
-              <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-2xl shadow-sm border border-slate-200/80 py-1.5 z-50">
+              <div className="absolute right-0 top-full mt-1 w-48 bg-[#111827] rounded-2xl shadow-lg border border-white/[0.06] py-1.5 z-50">
                 <button
                   onClick={() => { setShowInfoPanel(true); setMenuOpen(false); }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px] text-slate-600 hover:bg-slate-50 transition-colors"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px] text-slate-300 hover:bg-white/[0.06] transition-colors"
                 >
-                  <Info size={14} className="text-slate-400" />
+                  <Info size={14} className="text-slate-500" />
                   Ver información
                 </button>
                 <button
                   onClick={() => { setShowRenameModal(true); setRenameValue(displayName); setMenuOpen(false); }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px] text-slate-600 hover:bg-slate-50 transition-colors"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px] text-slate-300 hover:bg-white/[0.06] transition-colors"
                 >
-                  <Pencil size={14} className="text-slate-400" />
+                  <Pencil size={14} className="text-slate-500" />
                   Cambiar nombre
                 </button>
                 <button
@@ -431,17 +431,17 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                     }
                     setTogglingBot(false);
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px] text-slate-600 hover:bg-slate-50 transition-colors"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px] text-slate-300 hover:bg-white/[0.06] transition-colors"
                 >
-                  {botActive ? <UserRound size={14} className="text-amber-500" /> : <Bot size={14} className="text-violet-500" />}
+                  {botActive ? <UserRound size={14} className="text-amber-400" /> : <Bot size={14} className="text-blue-400" />}
                   {botActive ? 'Pausar bot' : 'Activar bot'}
                 </button>
-                <div className="my-1 border-t border-slate-100" />
+                <div className="my-1 border-t border-white/[0.04]" />
                 <button
                   onClick={() => { setShowClearConfirm(true); setMenuOpen(false); }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px] text-red-500 hover:bg-red-50 transition-colors"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px] text-rose-400 hover:bg-rose-500/10 transition-colors"
                 >
-                  <Trash2 size={14} className="text-red-400" />
+                  <Trash2 size={14} className="text-rose-400" />
                   Vaciar chat
                 </button>
               </div>
@@ -455,14 +455,16 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
       <div
         className="flex-1 overflow-y-auto px-3 md:px-6 py-4 space-y-1"
         style={{
-          backgroundColor: '#e8e2db',
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4cec6' fill-opacity='0.25'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundColor: '#0f172a',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231e293b' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
         }}
       >
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <div className="flex flex-col items-center gap-3">
-              <Loader2 className="h-5 w-5 animate-spin text-violet-500" />
+              <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                <Loader2 className="h-5 w-5 animate-spin text-blue-400" />
+              </div>
               <span className="text-[12px] text-slate-500 font-medium">Cargando mensajes</span>
             </div>
           </div>
@@ -487,7 +489,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                   {/* Date separator */}
                   {showDateSep && (
                     <div className="flex justify-center my-3">
-                      <span className="text-[11px] font-medium text-slate-500 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-md shadow-sm">
+                      <span className="text-[11px] font-medium text-slate-500 bg-white/[0.06] border border-white/[0.06] px-3 py-1 rounded-lg">
                         {getDateLabel(message.timestamp)}
                       </span>
                     </div>
@@ -496,8 +498,8 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                   {/* Bot label */}
                   {isBot && showAvatar && (
                     <div className="flex items-center gap-1.5 mb-1 ml-1">
-                      <div className="w-1.5 h-1.5 rounded-full bg-violet-400" />
-                      <span className="text-[10px] font-semibold text-violet-500 uppercase tracking-wider">Bot</span>
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                      <span className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider">Bot</span>
                     </div>
                   )}
 
@@ -508,8 +510,8 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                           isOwnMessage
                             ? `bg-[#dcf8c6] text-slate-900 ${showAvatar ? 'rounded-2xl rounded-tr-sm' : 'rounded-2xl'}`
                             : isBot
-                            ? `bg-violet-50 text-slate-900 border border-violet-100/50 ${showAvatar ? 'rounded-2xl rounded-tl-sm' : 'rounded-2xl'}`
-                            : `bg-white text-slate-900 shadow-[0_1px_1px_rgba(0,0,0,0.06)] ${showAvatar ? 'rounded-2xl rounded-tl-sm' : 'rounded-2xl'}`
+                            ? `bg-blue-500/20 text-white border border-blue-500/30 ${showAvatar ? 'rounded-2xl rounded-tl-sm' : 'rounded-2xl'}`
+                            : `bg-[#111827]/90 text-slate-100 border border-white/[0.06] ${showAvatar ? 'rounded-2xl rounded-tl-sm' : 'rounded-2xl'}`
                         }`}
                       >
                         <p className="text-[13.5px] leading-[1.45] whitespace-pre-wrap break-words">{message.text}</p>
@@ -536,7 +538,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
         )}
         {chat.botTyping && (
           <div className="flex justify-start mt-2">
-            <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-[0_1px_1px_rgba(0,0,0,0.06)]">
+            <div className="bg-[#111827]/90 border border-white/[0.06] rounded-2xl rounded-tl-sm px-4 py-3">
               <div className="flex gap-1">
                 <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                 <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '140ms' }} />
@@ -550,17 +552,17 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
 
 
       {/* Input area */}
-      <div className="px-3 md:px-4 py-2.5 border-t border-slate-200/80 bg-white shrink-0">
+      <div className="px-3 md:px-4 py-2.5 border-t border-white/[0.06] bg-[#111827]/80 shrink-0">
         <div className="flex items-end gap-1.5">
           <button
             onClick={() => setShowFileModal(true)}
             disabled={sending}
-            className="p-2 text-slate-400 hover:text-violet-500 hover:bg-violet-50 rounded-lg transition-all duration-200 disabled:opacity-40 flex-shrink-0"
+            className="p-2 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-all duration-200 disabled:opacity-40 flex-shrink-0"
             title="Adjuntar"
           >
             <Paperclip size={18} />
           </button>
-          <div className="flex-1 min-w-0 bg-slate-50/80 rounded-xl border border-slate-200/80 focus-within:border-violet-300 focus-within:ring-2 focus-within:ring-violet-500/20 focus-within:bg-white transition-all duration-200">
+          <div className="flex-1 min-w-0 bg-white/[0.04] rounded-xl border border-white/[0.08] focus-within:border-blue-500/40 focus-within:ring-1 focus-within:ring-blue-500/20 transition-all duration-200">
             <textarea
               ref={textareaRef}
               value={newMessage}
@@ -568,7 +570,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
               onKeyDown={handleKeyPress}
               placeholder="Escribe un mensaje..."
               rows={1}
-              className="w-full resize-none rounded-xl px-3.5 py-2.5 bg-transparent focus:outline-none text-[13px] text-slate-900 placeholder-slate-400"
+              className="w-full resize-none rounded-xl px-3.5 py-2.5 bg-transparent focus:outline-none text-[13px] text-white placeholder-slate-500"
               style={{ minHeight: '40px', maxHeight: '120px' }}
             />
           </div>
@@ -577,8 +579,8 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
             disabled={!newMessage.trim() || sending}
             className={`p-2 rounded-xl flex-shrink-0 transition-all duration-200 ${
               newMessage.trim() && !sending
-                ? 'bg-violet-600 text-white hover:bg-violet-700 shadow-sm shadow-violet-600/20'
-                : 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                ? 'bg-blue-500 text-white hover:bg-blue-400 shadow-lg shadow-blue-500/20'
+                : 'bg-white/[0.04] text-slate-500 cursor-not-allowed border border-white/[0.06]'
             }`}
           >
             {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
@@ -599,11 +601,11 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
 
       {/* Modal: Cambiar nombre */}
       {showRenameModal && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 w-full max-w-sm p-5">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#111827] rounded-2xl shadow-lg border border-white/[0.06] w-full max-w-sm p-5">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-slate-900 text-sm">Cambiar nombre</h3>
-              <button onClick={() => setShowRenameModal(false)} className="p-1.5 hover:bg-slate-100 rounded-xl transition-colors">
+              <h3 className="font-semibold text-white text-sm">Cambiar nombre</h3>
+              <button onClick={() => setShowRenameModal(false)} className="p-1.5 hover:bg-white/[0.06] rounded-xl transition-colors">
                 <X size={15} className="text-slate-400" />
               </button>
             </div>
@@ -612,21 +614,21 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
               value={renameValue}
               onChange={(e) => setRenameValue(e.target.value)}
               placeholder="Nombre del contacto"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/80 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 text-[13px] text-slate-900 placeholder-slate-400 transition-all"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500/40 text-[13px] text-white placeholder-slate-500 transition-all"
               onKeyDown={(e) => e.key === 'Enter' && handleRename()}
               autoFocus
             />
             <div className="flex gap-2 mt-4">
               <button
                 onClick={() => setShowRenameModal(false)}
-                className="flex-1 py-2.5 rounded-xl border border-slate-200/80 text-slate-600 hover:bg-slate-50 text-[13px] font-medium transition-colors"
+                className="flex-1 py-2.5 rounded-xl border border-white/[0.06] text-slate-400 hover:bg-white/[0.04] text-[13px] font-medium transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleRename}
                 disabled={renaming || !renameValue.trim()}
-                className="flex-1 py-2.5 rounded-xl bg-violet-600 text-white hover:bg-violet-700 shadow-sm shadow-violet-600/20 disabled:opacity-40 text-[13px] font-medium transition-colors"
+                className="flex-1 py-2.5 rounded-xl bg-blue-500 text-white hover:bg-blue-400 shadow-lg shadow-blue-500/20 disabled:opacity-40 text-[13px] font-medium transition-colors"
               >
                 {renaming ? 'Guardando...' : 'Guardar'}
               </button>
@@ -639,15 +641,15 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
 
       {/* Modal: Vaciar chat */}
       {showClearConfirm && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 w-full max-w-sm p-5">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#111827] rounded-2xl shadow-lg border border-white/[0.06] w-full max-w-sm p-5">
             <div className="flex items-start gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-rose-50 ring-1 ring-rose-100 flex items-center justify-center flex-shrink-0">
-                <Trash2 size={18} className="text-rose-600" />
+              <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/15 flex items-center justify-center flex-shrink-0">
+                <Trash2 size={18} className="text-rose-400" />
               </div>
               <div>
-                <h3 className="font-semibold text-slate-900 text-sm">Vaciar conversación</h3>
-                <p className="text-[13px] text-slate-500 mt-1 leading-relaxed">
+                <h3 className="font-semibold text-white text-sm">Vaciar conversación</h3>
+                <p className="text-[13px] text-slate-400 mt-1 leading-relaxed">
                   Se eliminarán todos los mensajes. Esta acción no se puede deshacer.
                 </p>
               </div>
@@ -655,14 +657,14 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
             <div className="flex gap-2">
               <button
                 onClick={() => setShowClearConfirm(false)}
-                className="flex-1 py-2.5 rounded-xl border border-slate-200/80 text-slate-600 hover:bg-slate-50 text-[13px] font-medium transition-colors"
+                className="flex-1 py-2.5 rounded-xl border border-white/[0.06] text-slate-400 hover:bg-white/[0.04] text-[13px] font-medium transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleClearChat}
                 disabled={clearing}
-                className="flex-1 py-2.5 rounded-xl bg-rose-500 text-white hover:bg-rose-600 disabled:opacity-40 text-[13px] font-medium transition-colors"
+                className="flex-1 py-2.5 rounded-xl bg-rose-500 text-white hover:bg-rose-400 disabled:opacity-40 text-[13px] font-medium transition-colors"
               >
                 {clearing ? 'Vaciando...' : 'Vaciar'}
               </button>
@@ -675,14 +677,14 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
 
       {/* Panel: Info contacto */}
       {showInfoPanel && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div
-            className="bg-white w-full sm:max-w-sm sm:rounded-2xl rounded-t-2xl shadow-sm border border-slate-200/80 overflow-hidden"
+            className="bg-[#111827] w-full sm:max-w-sm sm:rounded-2xl rounded-t-2xl shadow-lg border border-white/[0.06] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-4 py-3 border-b border-slate-200/80 flex items-center justify-between">
-              <h3 className="font-semibold text-slate-900 text-sm">Información del contacto</h3>
-              <button onClick={() => setShowInfoPanel(false)} className="p-1.5 hover:bg-slate-100 rounded-xl transition-colors">
+            <div className="px-4 py-3 border-b border-white/[0.06] flex items-center justify-between">
+              <h3 className="font-semibold text-white text-sm">Información del contacto</h3>
+              <button onClick={() => setShowInfoPanel(false)} className="p-1.5 hover:bg-white/[0.06] rounded-xl transition-colors">
                 <X size={15} className="text-slate-400" />
               </button>
             </div>
@@ -691,34 +693,34 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                 <img
                   src={chat.customerAvatar}
                   alt={displayName}
-                  className="w-16 h-16 rounded-full object-cover ring-2 ring-slate-100"
+                  className="w-16 h-16 rounded-full object-cover ring-2 ring-white/[0.08]"
                 />
               </div>
               <div className="space-y-3">
-                <div className="bg-slate-50/80 rounded-xl px-3.5 py-2.5 border border-slate-200/80">
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Nombre</p>
-                  <p className="text-slate-900 text-[13px] font-medium">{displayName}</p>
+                <div className="bg-white/[0.04] rounded-xl px-3.5 py-2.5 border border-white/[0.06]">
+                  <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">Nombre</p>
+                  <p className="text-white text-[13px] font-medium">{displayName}</p>
                 </div>
                 {chat.customerEmail && (
-                  <div className="bg-slate-50/80 rounded-xl px-3.5 py-2.5 border border-slate-200/80">
-                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Email</p>
-                    <p className="text-slate-900 text-[13px]">{chat.customerEmail}</p>
+                  <div className="bg-white/[0.04] rounded-xl px-3.5 py-2.5 border border-white/[0.06]">
+                    <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">Email</p>
+                    <p className="text-slate-200 text-[13px]">{chat.customerEmail}</p>
                   </div>
                 )}
                 {chat.customerPhone && (
-                  <div className="bg-slate-50/80 rounded-xl px-3.5 py-2.5 border border-slate-200/80">
-                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Teléfono</p>
-                    <p className="text-slate-900 text-[13px]">{chat.customerPhone}</p>
+                  <div className="bg-white/[0.04] rounded-xl px-3.5 py-2.5 border border-white/[0.06]">
+                    <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">Teléfono</p>
+                    <p className="text-slate-200 text-[13px]">{chat.customerPhone}</p>
                   </div>
                 )}
-                <div className="bg-slate-50/80 rounded-xl px-3.5 py-2.5 border border-slate-200/80">
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Plataforma</p>
+                <div className="bg-white/[0.04] rounded-xl px-3.5 py-2.5 border border-white/[0.06]">
+                  <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">Plataforma</p>
                   <div className="flex items-center gap-2 mt-0.5">
                     <div className={`w-2 h-2 rounded-full ${
                       chat.platform === 'whatsapp' ? 'bg-emerald-500' :
                       chat.platform === 'facebook' ? 'bg-blue-500' : 'bg-slate-400'
                     }`} />
-                    <p className="text-slate-900 text-[13px]">
+                    <p className="text-slate-200 text-[13px]">
                       {chat.platform === 'whatsapp' && 'WhatsApp'}
                       {chat.platform === 'facebook' && 'Facebook'}
                       {chat.platform === 'web' && 'Web'}
@@ -727,10 +729,10 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                 </div>
               </div>
             </div>
-            <div className="px-4 py-3 bg-slate-50/60 border-t border-slate-200/80">
+            <div className="px-4 py-3 border-t border-white/[0.06]">
               <button
                 onClick={() => setShowInfoPanel(false)}
-                className="w-full py-2.5 rounded-xl border border-slate-200/80 bg-white text-slate-600 hover:bg-slate-50 text-[13px] font-medium transition-colors"
+                className="w-full py-2.5 rounded-xl border border-white/[0.06] bg-white/[0.04] text-slate-300 hover:bg-white/[0.06] text-[13px] font-medium transition-colors"
               >
                 Cerrar
               </button>

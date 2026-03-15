@@ -170,17 +170,17 @@ export default function FileUploadModal({ isOpen, onClose, onSend, chatId }: Fil
 
 
   return (
-    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-[#111827] rounded-2xl shadow-lg border border-white/[0.06] max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200/80">
-          <h3 className="text-base font-semibold text-slate-900">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+          <h3 className="text-base font-semibold text-white">
             {fileType === 'image' ? 'Enviar Imagen' : fileType === 'document' ? 'Enviar Documento' : 'Adjuntar Archivo'}
           </h3>
           <button
             onClick={handleClose}
             disabled={uploading}
-            className="p-2 hover:bg-slate-100 rounded-xl transition-colors disabled:opacity-50"
+            className="p-2 hover:bg-white/[0.06] rounded-xl transition-colors disabled:opacity-50"
           >
             <X size={18} className="text-slate-400" />
           </button>
@@ -201,20 +201,20 @@ export default function FileUploadModal({ isOpen, onClose, onSend, chatId }: Fil
               />
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full border-2 border-dashed border-slate-200 rounded-2xl p-8 hover:border-violet-300 hover:bg-violet-50/30 transition-all duration-200 group"
+                className="w-full border-2 border-dashed border-white/[0.08] rounded-2xl p-8 hover:border-blue-500/40 hover:bg-blue-500/5 transition-all duration-200 group"
               >
                 <div className="flex flex-col items-center space-y-3">
-                  <div className="w-14 h-14 bg-slate-50 ring-1 ring-slate-200/80 rounded-2xl flex items-center justify-center group-hover:bg-violet-50 group-hover:ring-violet-100 transition-all">
-                    <Upload size={24} className="text-slate-300 group-hover:text-violet-500 transition-colors" />
+                  <div className="w-14 h-14 bg-white/[0.04] border border-white/[0.06] rounded-2xl flex items-center justify-center group-hover:bg-blue-500/10 group-hover:border-blue-500/20 transition-all">
+                    <Upload size={24} className="text-slate-500 group-hover:text-blue-400 transition-colors" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-medium text-slate-700">
+                    <p className="text-sm font-medium text-slate-300">
                       Haz clic para seleccionar un archivo
                     </p>
-                    <p className="text-[12px] text-slate-400 mt-1.5">
+                    <p className="text-[12px] text-slate-500 mt-1.5">
                       Imágenes (JPG, PNG, WEBP) hasta 16MB
                     </p>
-                    <p className="text-[12px] text-slate-400">
+                    <p className="text-[12px] text-slate-500">
                       Documentos (PDF, DOCX, XLSX) hasta 100MB
                     </p>
                   </div>
@@ -225,9 +225,9 @@ export default function FileUploadModal({ isOpen, onClose, onSend, chatId }: Fil
 
           {/* Error (fuera de selección) */}
           {error && !selectedFile && (
-            <div className="bg-rose-50 border border-rose-200/60 rounded-xl p-3 flex items-start gap-2.5">
-              <AlertCircle size={15} className="text-rose-600 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-rose-700">{error}</p>
+            <div className="bg-rose-500/10 border border-rose-500/20 rounded-xl p-3 flex items-start gap-2.5">
+              <AlertCircle size={15} className="text-rose-400 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-rose-300">{error}</p>
             </div>
           )}
 
@@ -236,26 +236,26 @@ export default function FileUploadModal({ isOpen, onClose, onSend, chatId }: Fil
           {selectedFile && (
             <div className="space-y-4">
               {/* File Info */}
-              <div className="bg-slate-50 ring-1 ring-slate-200/80 rounded-xl p-4 flex items-start gap-3">
-                <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-white ring-1 ring-slate-100">
+              <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-4 flex items-start gap-3">
+                <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-white/[0.06] border border-white/[0.06]">
                   {fileType === 'image' ? (
-                    <Image size={18} className="text-violet-600" />
+                    <Image size={18} className="text-blue-400" />
                   ) : (
-                    <FileText size={18} className="text-sky-600" />
+                    <FileText size={18} className="text-sky-400" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-900 truncate">
+                  <p className="text-sm font-medium text-white truncate">
                     {selectedFile.name}
                   </p>
-                  <p className="text-[12px] text-slate-400 mt-0.5">
+                  <p className="text-[12px] text-slate-500 mt-0.5">
                     {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                   </p>
                 </div>
                 <button
                   onClick={resetModal}
                   disabled={uploading}
-                  className="flex-shrink-0 p-1.5 hover:bg-slate-100 rounded-xl transition-colors disabled:opacity-50"
+                  className="flex-shrink-0 p-1.5 hover:bg-white/[0.06] rounded-xl transition-colors disabled:opacity-50"
                 >
                   <X size={15} className="text-slate-400" />
                 </button>
@@ -264,11 +264,11 @@ export default function FileUploadModal({ isOpen, onClose, onSend, chatId }: Fil
 
               {/* Image Preview */}
               {filePreview && fileType === 'image' && (
-                <div className="rounded-xl overflow-hidden border border-slate-200/80">
+                <div className="rounded-xl overflow-hidden border border-white/[0.06]">
                   <img
                     src={filePreview}
                     alt="Preview"
-                    className="w-full h-auto max-h-96 object-contain bg-slate-50"
+                    className="w-full h-auto max-h-96 object-contain bg-white/[0.03]"
                   />
                 </div>
               )}
@@ -276,7 +276,7 @@ export default function FileUploadModal({ isOpen, onClose, onSend, chatId }: Fil
 
               {/* Caption */}
               <div>
-                <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
+                <label className="block text-[13px] font-semibold text-slate-400 mb-1.5">
                   {fileType === 'image' ? 'Descripción (opcional)' : 'Mensaje (opcional)'}
                 </label>
                 <textarea
@@ -285,7 +285,7 @@ export default function FileUploadModal({ isOpen, onClose, onSend, chatId }: Fil
                   placeholder={fileType === 'image' ? 'Agrega una descripción...' : 'Agrega un mensaje...'}
                   rows={3}
                   disabled={uploading}
-                  className="w-full px-3.5 py-2.5 text-sm border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 resize-none disabled:opacity-50 transition-all placeholder:text-slate-400"
+                  className="w-full px-3.5 py-2.5 text-sm bg-white/[0.04] border border-white/[0.08] rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500/40 text-white placeholder-slate-500 resize-none disabled:opacity-50 transition-all"
                 />
               </div>
 
@@ -295,11 +295,11 @@ export default function FileUploadModal({ isOpen, onClose, onSend, chatId }: Fil
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-slate-500">Subiendo archivo...</span>
-                    <span className="text-violet-600 font-semibold text-[13px]">{uploadProgress}%</span>
+                    <span className="text-blue-400 font-semibold text-[13px]">{uploadProgress}%</span>
                   </div>
-                  <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                  <div className="w-full bg-white/[0.06] rounded-full h-1.5 overflow-hidden">
                     <div
-                      className="bg-violet-600 h-1.5 rounded-full transition-all duration-300"
+                      className="bg-blue-500 h-1.5 rounded-full transition-all duration-300"
                       style={{ width: `${uploadProgress}%` }}
                     />
                   </div>
@@ -309,9 +309,9 @@ export default function FileUploadModal({ isOpen, onClose, onSend, chatId }: Fil
 
               {/* Error */}
               {error && (
-                <div className="bg-rose-50 border border-rose-200/60 rounded-xl p-3 flex items-start gap-2.5">
-                  <AlertCircle size={15} className="text-rose-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-rose-700">{error}</p>
+                <div className="bg-rose-500/10 border border-rose-500/20 rounded-xl p-3 flex items-start gap-2.5">
+                  <AlertCircle size={15} className="text-rose-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-rose-300">{error}</p>
                 </div>
               )}
             </div>
@@ -321,18 +321,18 @@ export default function FileUploadModal({ isOpen, onClose, onSend, chatId }: Fil
 
         {/* Footer */}
         {selectedFile && (
-          <div className="flex items-center justify-end gap-2.5 px-5 py-4 border-t border-slate-200/80 bg-slate-50/50 rounded-b-2xl">
+          <div className="flex items-center justify-end gap-2.5 px-5 py-4 border-t border-white/[0.06] rounded-b-2xl">
             <button
               onClick={handleClose}
               disabled={uploading}
-              className="px-4 py-2.5 text-sm font-medium text-slate-600 border border-slate-200/80 hover:bg-slate-50 rounded-xl transition-colors disabled:opacity-50"
+              className="px-4 py-2.5 text-sm font-medium text-slate-400 border border-white/[0.06] hover:bg-white/[0.04] rounded-xl transition-colors disabled:opacity-50"
             >
               Cancelar
             </button>
             <button
               onClick={handleUploadAndSend}
               disabled={uploading || !selectedFile}
-              className="px-5 py-2.5 text-sm font-medium bg-violet-600 text-white rounded-xl hover:bg-violet-700 shadow-sm shadow-violet-600/20 transition-all duration-150 active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-5 py-2.5 text-sm font-medium bg-blue-500 text-white rounded-xl hover:bg-blue-400 shadow-lg shadow-blue-500/20 transition-all duration-150 active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {uploading ? (
                 <>

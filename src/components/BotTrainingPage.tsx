@@ -267,7 +267,7 @@ export default function BotTrainingPage() {
     const config: Record<string, { bg: string; text: string; dot: string; label: string }> = {
       completed: { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500', label: 'Completado' },
       error: { bg: 'bg-rose-50', text: 'text-rose-700', dot: 'bg-rose-500', label: 'Error' },
-      processing: { bg: 'bg-violet-50', text: 'text-violet-700', dot: 'bg-violet-500', label: 'Procesando' },
+      processing: { bg: 'bg-blue-500/10', text: 'text-blue-400', dot: 'bg-blue-400', label: 'Procesando' },
     };
     const c = config[status] || config.processing;
     return (
@@ -286,7 +286,9 @@ export default function BotTrainingPage() {
   if (orgLoading || loading) {
     return (
       <div className="flex items-center justify-center min-h-[320px]">
-        <Loader2 size={24} className="animate-spin text-violet-600" />
+        <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+          <Loader2 size={20} className="animate-spin text-blue-400" />
+        </div>
       </div>
     );
   }
@@ -389,7 +391,7 @@ export default function BotTrainingPage() {
           <button
             onClick={handleSaveBotConfig}
             disabled={configSaving}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-violet-600 text-white text-sm font-medium rounded-xl hover:bg-violet-700 shadow-sm shadow-violet-600/20 transition-all disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-500 text-white text-sm font-semibold rounded-xl hover:bg-blue-400 shadow-lg shadow-blue-500/20 transition-all disabled:opacity-50"
           >
             {configSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
             {configSaving ? 'Guardando...' : 'Guardar datos'}
@@ -413,7 +415,7 @@ export default function BotTrainingPage() {
           {!showWebForm ? (
             <button
               onClick={() => setShowWebForm(true)}
-              className="w-full px-4 py-2.5 bg-violet-600 text-white text-sm font-medium rounded-xl hover:bg-violet-700 shadow-sm shadow-violet-600/20 transition-all duration-150 active:scale-[0.98]"
+              className="w-full px-4 py-2.5 bg-blue-500 text-white text-sm font-semibold rounded-xl hover:bg-blue-400 shadow-lg shadow-blue-500/20 transition-all duration-150 active:scale-[0.98]"
             >
               Agregar URL
             </button>
@@ -431,7 +433,7 @@ export default function BotTrainingPage() {
                 <button
                   onClick={handleWebExtract}
                   disabled={isProcessing}
-                  className="flex-1 px-4 py-2.5 bg-violet-600 text-white text-sm font-medium rounded-xl hover:bg-violet-700 shadow-sm shadow-violet-600/20 transition-all disabled:opacity-50"
+                  className="flex-1 px-4 py-2.5 bg-blue-500 text-white text-sm font-semibold rounded-xl hover:bg-blue-400 shadow-lg shadow-blue-500/20 transition-all disabled:opacity-50"
                 >
                   {isProcessing ? 'Procesando...' : 'Extraer'}
                 </button>
@@ -488,15 +490,15 @@ export default function BotTrainingPage() {
         {/* Subir PDF */}
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-violet-50 ring-1 ring-violet-100 rounded-xl flex items-center justify-center flex-shrink-0">
-              <FileText size={18} className="text-violet-600" />
+            <div className="w-10 h-10 bg-blue-500/10 border border-blue-500/15 rounded-xl flex items-center justify-center flex-shrink-0">
+              <FileText size={18} className="text-blue-400" />
             </div>
             <div>
               <h3 className="text-sm font-semibold text-slate-900">Subir PDF</h3>
               <p className="text-[12px] text-slate-400">Procesa documentos y catálogos</p>
             </div>
           </div>
-          <label className="block w-full px-4 py-2.5 bg-violet-600 text-white text-sm font-medium rounded-xl hover:bg-violet-700 shadow-sm shadow-violet-600/20 transition-all cursor-pointer text-center active:scale-[0.98]">
+          <label className="block w-full px-4 py-2.5 bg-blue-500 text-white text-sm font-semibold rounded-xl hover:bg-blue-400 shadow-lg shadow-blue-500/20 transition-all cursor-pointer text-center active:scale-[0.98]">
             <input
               type="file"
               accept=".pdf"
@@ -514,8 +516,8 @@ export default function BotTrainingPage() {
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-violet-50 ring-1 ring-violet-100 rounded-lg flex items-center justify-center">
-              <Brain size={15} className="text-violet-600" />
+            <div className="w-8 h-8 bg-blue-500/10 border border-blue-500/15 rounded-lg flex items-center justify-center">
+              <Brain size={15} className="text-blue-400" />
             </div>
             <h2 className="text-sm font-semibold text-slate-900">
               Información Entrenada
@@ -543,12 +545,12 @@ export default function BotTrainingPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                       <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                        item.type === 'web' ? 'bg-sky-50 ring-1 ring-sky-100' : 'bg-violet-50 ring-1 ring-violet-100'
+                        item.type === 'web' ? 'bg-sky-50 ring-1 ring-sky-100' : 'bg-blue-500/10 border border-blue-500/15'
                       }`}>
                         {item.type === 'web' ? (
                           <Globe size={13} className="text-sky-600" />
                         ) : (
-                          <FileText size={13} className="text-violet-600" />
+                          <FileText size={13} className="text-blue-400" />
                         )}
                       </div>
                       <span className="text-[13px] font-semibold text-slate-900">
@@ -581,17 +583,17 @@ export default function BotTrainingPage() {
 
 
       {/* Contexto para el dueño */}
-      <div className="bg-violet-50 border border-violet-200/60 rounded-2xl p-5">
+      <div className="bg-blue-500/10 border border-blue-500/15 rounded-2xl p-5">
         <div className="flex items-start gap-3">
-          <div className="w-9 h-9 bg-violet-100 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
-            <Info size={16} className="text-violet-600" />
+          <div className="w-9 h-9 bg-blue-500/10 border border-blue-500/15 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+            <Info size={16} className="text-blue-400" />
           </div>
           <div>
-            <h3 className="text-[13px] font-semibold text-violet-900 mb-1.5">Contexto para ti</h3>
-            <p className="text-[13px] text-violet-700/90 mb-2">
+            <h3 className="text-[13px] font-semibold text-white mb-1.5">Contexto para ti</h3>
+            <p className="text-[13px] text-slate-400 mb-2">
               Orden recomendado: (1) Completa <strong>Datos de tu empresa</strong> y guarda — así el bot se presenta con el nombre de tu negocio y puede ofrecer la URL de tu web. (2) Agrega contenido con <strong>Extraer de Página Web</strong>, <strong>Estudiar sitio completo</strong> o <strong>Subir PDF</strong> — el bot usará ese texto para responder preguntas y hablar de tu negocio. (3) En el menú <strong>Productos</strong> carga los productos que quieras que el bot recomiende y pueda vender; el bot solo puede armar pedidos con esos productos.
             </p>
-            <ul className="text-[13px] text-violet-700/80 space-y-1 list-disc list-inside leading-relaxed">
+            <ul className="text-[13px] text-slate-400 space-y-1 list-disc list-inside leading-relaxed">
               <li><strong>Una página:</strong> pega la URL y se extrae solo esa página (ideal para home o una landing).</li>
               <li><strong>Sitio completo:</strong> pon la URL de tu web; se buscan hasta 20 páginas vía sitemap y se estudian todas.</li>
               <li><strong>PDF:</strong> catálogos, listas de precios o políticas; el bot los usa como contexto.</li>

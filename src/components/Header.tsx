@@ -87,7 +87,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
               placeholder="Buscar..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 focus:bg-white transition-all placeholder:text-slate-400"
+              className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 focus:bg-white transition-all placeholder:text-slate-400"
             />
             {searchQuery && (
               <button
@@ -105,7 +105,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
         <div className="flex items-center gap-1.5">
           {/* New Order Button (hidden on mobile) */}
           <button
-            className="hidden md:flex items-center gap-2 px-3.5 py-2 bg-violet-600 text-white text-sm font-medium rounded-xl hover:bg-violet-700 shadow-sm shadow-violet-600/20 transition-all duration-150 active:scale-[0.97]"
+            className="hidden md:flex items-center gap-2 px-3.5 py-2 bg-blue-500 text-white text-sm font-semibold rounded-xl hover:bg-blue-400 shadow-lg shadow-blue-500/20 transition-all duration-150 active:scale-[0.97]"
             onClick={() => window.location.href = '/pedidos'}
           >
             <Plus size={16} strokeWidth={2.5} />
@@ -131,7 +131,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
               onClick={() => setShowUserMenu(!showUserMenu)}
               className="flex items-center gap-2 p-1.5 hover:bg-slate-100 rounded-xl transition-colors"
             >
-              <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-sm shadow-violet-600/20">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-sm shadow-blue-500/20">
                 <span className="text-[11px] font-bold text-white">
                   {getUserName().substring(0, 2).toUpperCase()}
                 </span>

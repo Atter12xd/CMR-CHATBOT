@@ -87,18 +87,18 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
 
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-transparent">
       {/* Search + Filter bar */}
-      <div className="p-3 border-b border-slate-200/80 space-y-2.5 shrink-0">
+      <div className="p-3 border-b border-white/[0.04] space-y-2.5 shrink-0">
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
             <input
               type="text"
               placeholder="Buscar conversaciones..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-2 bg-white border border-slate-200/80 rounded-xl text-[13px] text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all"
+              className="w-full pl-8 pr-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-[13px] text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
             />
             {searchQuery && (
               <button
@@ -113,14 +113,14 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
             onClick={() => setShowFilters(!showFilters)}
             className={`p-2 rounded-xl transition-all relative ${
               showFilters || activeFiltersCount > 0
-                ? 'bg-violet-50 text-violet-600 ring-1 ring-violet-100'
-                : 'bg-white border border-slate-200/80 text-slate-400 hover:bg-slate-50 hover:text-slate-600'
+                ? 'bg-blue-500/10 border border-blue-500/15 text-blue-400'
+                : 'bg-white/[0.04] border border-white/[0.06] text-slate-500 hover:bg-white/[0.06] hover:text-slate-300'
             }`}
             title="Filtros"
           >
             <Filter size={14} />
             {activeFiltersCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-violet-600 text-white text-[8px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center">
+              <span className="absolute -top-0.5 -right-0.5 bg-blue-500 text-white text-[8px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center">
                 {activeFiltersCount}
               </span>
             )}
@@ -130,11 +130,11 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
 
         {/* Filter panel */}
         {showFilters && (
-          <div className="bg-slate-50/80 rounded-xl p-3 space-y-3 border border-slate-200/80">
+          <div className="bg-white/[0.03] rounded-xl p-3 space-y-3 border border-white/[0.06]">
             <div className="flex justify-between items-center">
               <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Filtros</span>
               {activeFiltersCount > 0 && (
-                <button onClick={() => { setPlatformFilter('all'); setStatusFilter('all'); setOnlyLeads(false); }} className="text-[10px] font-medium text-violet-600 hover:text-violet-700 transition-colors">
+                <button onClick={() => { setPlatformFilter('all'); setStatusFilter('all'); setOnlyLeads(false); }} className="text-[10px] font-medium text-blue-400 hover:text-blue-300 transition-colors">
                   Limpiar
                 </button>
               )}
@@ -148,8 +148,8 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
                     onClick={() => setPlatformFilter(p)}
                     className={`px-3 py-1.5 text-[11px] rounded-xl font-medium transition-all ${
                       platformFilter === p
-                        ? 'bg-violet-600 text-white shadow-sm shadow-violet-600/20'
-                        : 'bg-white text-slate-500 border border-slate-200/80 hover:bg-slate-50 hover:text-slate-600'
+                        ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
+                        : 'bg-white/[0.04] text-slate-500 border border-white/[0.06] hover:bg-white/[0.06] hover:text-slate-300'
                     }`}
                   >
                     {p === 'all' ? 'Todas' : p === 'whatsapp' ? 'WhatsApp' : p === 'facebook' ? 'Facebook' : 'Web'}
@@ -166,8 +166,8 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
                     onClick={() => setStatusFilter(s)}
                     className={`px-3 py-1.5 text-[11px] rounded-xl font-medium transition-all ${
                       statusFilter === s
-                        ? 'bg-violet-600 text-white shadow-sm shadow-violet-600/20'
-                        : 'bg-white text-slate-500 border border-slate-200/80 hover:bg-slate-50 hover:text-slate-600'
+                        ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
+                        : 'bg-white/[0.04] text-slate-500 border border-white/[0.06] hover:bg-white/[0.06] hover:text-slate-300'
                     }`}
                   >
                     {s === 'all' ? 'Todos' : s === 'active' ? 'Activos' : s === 'waiting' ? 'Esperando' : 'Resueltos'}
@@ -180,7 +180,7 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
                 type="checkbox"
                 checked={onlyLeads}
                 onChange={(e) => setOnlyLeads(e.target.checked)}
-                className="w-3.5 h-3.5 text-violet-600 rounded border-slate-300 focus:ring-violet-500/20 accent-violet-600"
+                className="w-3.5 h-3.5 text-blue-500 rounded border-slate-300 focus:ring-blue-500/20 accent-blue-500"
               />
               <span className="text-[11px] font-medium text-slate-500">Solo por cerrar (intención de compra)</span>
             </label>
@@ -193,8 +193,8 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
       <div className="flex-1 overflow-y-auto">
         {filteredChats.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="w-14 h-14 mx-auto mb-4 bg-slate-50 ring-1 ring-slate-200/80 rounded-2xl flex items-center justify-center">
-              <MessageCircle size={24} className="text-slate-300" />
+            <div className="w-14 h-14 mx-auto mb-4 bg-white/[0.03] border border-white/[0.06] rounded-2xl flex items-center justify-center">
+              <MessageCircle size={24} className="text-slate-600" />
             </div>
             <p className="text-sm text-slate-500">No hay conversaciones</p>
           </div>
@@ -206,8 +206,8 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
                 onClick={() => onSelectChat(chat.id)}
                 className={`w-full px-3 py-2.5 text-left transition-all duration-150 flex items-start gap-2.5 border-l-2 ${
                   selectedChatId === chat.id
-                    ? 'bg-violet-50/60 border-l-violet-500'
-                    : 'hover:bg-slate-50 border-l-transparent'
+                    ? 'bg-blue-500/10 border-l-blue-500'
+                    : 'hover:bg-white/[0.04] border-l-transparent'
                 }`}
               >
                 {/* Avatar */}
@@ -225,7 +225,7 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 mb-0.5">
                     <h3 className={`font-semibold truncate text-[13px] leading-tight ${
-                      selectedChatId === chat.id ? 'text-violet-900' : 'text-slate-900'
+                      selectedChatId === chat.id ? 'text-blue-400' : 'text-white'
                     }`}>
                       {chat.customerName}
                     </h3>
@@ -235,7 +235,7 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
                   </div>
                   <div className="flex items-center gap-1.5 mb-1.5">
                     {getPlatformIcon(chat.platform)}
-                    <p className="text-[12px] text-slate-500 truncate flex-1 leading-snug">
+                    <p className="text-[12px] text-slate-400 truncate flex-1 leading-snug">
                       {chat.lastMessage || 'Sin mensajes'}
                     </p>
                   </div>
@@ -247,7 +247,7 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
                         </span>
                       )}
                       {chat.botActive && (
-                        <span className="text-[9px] px-1.5 py-0.5 bg-violet-50 text-violet-600 rounded font-medium leading-tight">
+                        <span className="text-[9px] px-1.5 py-0.5 bg-blue-500/10 text-blue-400 rounded font-medium leading-tight">
                           Bot
                         </span>
                       )}
@@ -258,7 +258,7 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
                       )}
                     </div>
                     {chat.unreadCount > 0 && (
-                      <span className="bg-violet-600 text-white text-[9px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1">
+                      <span className="bg-blue-500 text-white text-[9px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1">
                         {chat.unreadCount}
                       </span>
                     )}

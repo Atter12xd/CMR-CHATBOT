@@ -53,16 +53,20 @@ export default function DashboardContent() {
   if (orgLoading || loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 size={24} className="animate-spin text-violet-600" />
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+            <Loader2 size={20} className="animate-spin text-blue-400" />
+          </div>
+          <p className="text-[13px] text-slate-500">Cargando datos…</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-7">
-      {/* Header */}
       <div>
-        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-600 mb-1">
           Overview
         </p>
         <h2 className="text-[32px] font-extrabold text-white tracking-tight leading-none">
@@ -73,7 +77,6 @@ export default function DashboardContent() {
         </p>
       </div>
 
-      {/* Stats Grid - tarjetas blancas como en la imagen */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
           title="Total Chats"
@@ -105,41 +108,81 @@ export default function DashboardContent() {
         />
       </div>
 
-      {/* Actividad reciente - tarjeta blanca */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-        <div className="flex items-center gap-2.5 px-6 py-4 border-b border-slate-100">
-          <div className="w-2 h-2 rounded-full bg-violet-500" />
-          <h3 className="text-sm font-semibold text-slate-900 tracking-tight">Actividad reciente</h3>
+      <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.04]">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/15 flex items-center justify-center">
+              <TrendingUp size={15} className="text-blue-400" />
+            </div>
+            <div>
+              <h3 className="text-[14px] font-bold text-white">Actividad reciente</h3>
+              <p className="text-[11px] text-slate-600">Últimos 5 pedidos</p>
+            </div>
+          </div>
+          {recentOrders.length > 0 && (
+            <span className="text-[11px] font-bold text-slate-500 bg-white/[0.04] border border-white/[0.06] px-2.5 py-1 rounded-lg">
+              {recentOrders.length} pedidos
+            </span>
+          )}
         </div>
+
         <div>
           {recentOrders.length === 0 ? (
-            <p className="text-sm text-slate-500 py-8 px-6 text-center">No hay pedidos recientes</p>
+            <div className="flex flex-col items-center justify-center py-14">
+              <div className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mb-3">
+                <ShoppingCart size={20} className="text-slate-600" />
+              </div>
+              <p className="text-[13px] text-slate-600">No hay pedidos recientes</p>
+            </div>
           ) : (
             recentOrders.map((order, index) => (
               <div
                 key={order.id}
-                className={`flex items-center justify-between px-6 py-3.5 ${
-                  index > 0 ? 'border-t border-slate-100' : ''
+                className={`flex items-center justify-between px-6 py-4 hover:bg-white/[0.02] transition-colors ${
+                  index > 0 ? 'border-t border-white/[0.03]' : ''
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center flex-shrink-0">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center flex-shrink-0">
                     <div
                       className={`w-2 h-2 rounded-full ${
-                        order.status === 'delivered' ? 'bg-emerald-400' :
-                        order.status === 'pending' ? 'bg-amber-400' :
-                        'bg-slate-300'
+                        order.status === 'delivered'
+                          ? 'bg-emerald-400'
+                          : order.status === 'pending'
+                          ? 'bg-amber-400'
+                          : order.status === 'completed'
+                          ? 'bg-emerald-400'
+                          : 'bg-slate-600'
                       }`}
                     />
                   </div>
                   <div>
-                    <p className="font-medium text-slate-900 text-sm">{order.customerName}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">Pedido {order.id.slice(0, 8)}…</p>
+                    <p className="font-semibold text-white text-[13px]">
+                      {order.customerName}
+                    </p>
+                    <p className="text-[11px] text-slate-600 mt-0.5 font-mono">
+                      #{order.id.slice(0, 8)}
+                    </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-slate-900 text-sm">S/ {order.total.toFixed(2)}</p>
-                  <p className="text-xs text-slate-400 mt-0.5 capitalize">{order.status}</p>
+                  <p className="font-bold text-white text-[14px] tabular-nums">
+                    S/ {order.total.toFixed(2)}
+                  </p>
+                  <p
+                    className={`text-[11px] mt-0.5 font-semibold capitalize ${
+                      order.status === 'delivered' || order.status === 'completed'
+                        ? 'text-emerald-400'
+                        : order.status === 'pending'
+                        ? 'text-amber-400'
+                        : 'text-slate-600'
+                    }`}
+                  >
+                    {order.status === 'pending' ? 'Pendiente' :
+                     order.status === 'completed' ? 'Completado' :
+                     order.status === 'delivered' ? 'Entregado' :
+                     order.status}
+                  </p>
                 </div>
               </div>
             ))

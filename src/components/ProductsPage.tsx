@@ -118,7 +118,9 @@ export default function ProductsPage() {
   if (orgLoading || !organizationId) {
     return (
       <div className="flex items-center justify-center min-h-[320px]">
-        <Loader2 size={24} className="animate-spin text-violet-600" />
+        <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+          <Loader2 size={20} className="animate-spin text-blue-400" />
+        </div>
       </div>
     );
   }
@@ -137,29 +139,28 @@ export default function ProductsPage() {
             setEditingProduct(null);
             setShowForm(true);
           }}
-          className="flex items-center gap-2 px-4 py-2.5 bg-violet-600 text-white text-sm font-medium rounded-xl hover:bg-violet-700 shadow-sm shadow-violet-600/20 transition-all duration-150 active:scale-[0.97]"
+          className="flex items-center gap-2 px-4 py-2.5 bg-blue-500 text-white text-sm font-semibold rounded-xl hover:bg-blue-400 shadow-lg shadow-blue-500/20 transition-all duration-150 active:scale-[0.97]"
         >
           <Plus size={16} strokeWidth={2.5} />
           <span>Agregar Producto</span>
         </button>
       </div>
 
-      {/* Barra blanca: búsqueda + categoría + vista (como en la imagen) */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4">
+      <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] p-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1 relative">
-            <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+            <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500" />
             <input
               type="text"
               placeholder="Buscar productos..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-10 py-2.5 text-sm bg-slate-50/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 focus:bg-white transition-all placeholder:text-slate-400"
+              className="w-full pl-9 pr-10 py-2.5 text-sm bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
               >
                 <X size={16} />
               </button>
@@ -168,23 +169,23 @@ export default function ProductsPage() {
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-3 py-2.5 text-sm bg-white border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 text-slate-700 transition-all"
+            className="px-3 py-2.5 text-sm bg-white/[0.04] border border-white/[0.08] rounded-xl text-white focus:outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
           >
             <option value="all">Todas las categorías</option>
             {categories.map(cat => (
               <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>
-          <div className="flex border border-slate-200/80 rounded-xl overflow-hidden">
+          <div className="flex border border-white/[0.06] rounded-xl overflow-hidden">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2.5 transition-all ${viewMode === 'grid' ? 'bg-violet-600 text-white shadow-sm' : 'bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600'}`}
+              className={`p-2.5 transition-all ${viewMode === 'grid' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-white/[0.04] text-slate-500 hover:bg-white/[0.06] hover:text-slate-300'}`}
             >
               <Grid size={16} />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2.5 transition-all ${viewMode === 'list' ? 'bg-violet-600 text-white shadow-sm' : 'bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600'}`}
+              className={`p-2.5 transition-all ${viewMode === 'list' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-white/[0.04] text-slate-500 hover:bg-white/[0.06] hover:text-slate-300'}`}
             >
               <List size={16} />
             </button>
@@ -211,23 +212,27 @@ export default function ProductsPage() {
       )}
 
       {suggestions.length > 0 && (
-        <div className="bg-amber-50 border border-amber-200/80 rounded-2xl p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles size={18} className="text-amber-600" />
-            <h3 className="text-sm font-semibold text-amber-900">Sugeridos desde web</h3>
+        <div className="bg-amber-500/10 border border-amber-500/15 rounded-2xl p-5">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/15 flex items-center justify-center">
+              <Sparkles size={16} className="text-amber-400" />
+            </div>
+            <div>
+              <h3 className="text-[14px] font-bold text-white">Sugeridos desde web</h3>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                Productos extraídos por IA. Aprueba para añadirlos al catálogo.
+              </p>
+            </div>
           </div>
-          <p className="text-[12px] text-amber-700/90 mb-4">
-            Productos extraídos de tu web por IA. Aprueba para añadirlos al catálogo (el bot podrá recomendarlos y usarlos en pedidos).
-          </p>
           <div className="space-y-2 max-h-48 overflow-y-auto">
             {suggestions.map((s) => (
               <div
                 key={s.id}
-                className="flex items-center justify-between gap-3 py-2 px-3 bg-white rounded-xl border border-amber-100"
+                className="flex items-center justify-between gap-3 py-2 px-3 bg-[#111827]/80 rounded-xl border border-white/[0.06]"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-slate-900 truncate">{s.name}</p>
-                  <p className="text-[12px] text-slate-500">
+                  <p className="text-sm font-medium text-white truncate">{s.name}</p>
+                  <p className="text-[12px] text-slate-500 font-mono">
                     S/ {Number(s.price).toFixed(2)} · {s.category}
                     {s.sourceRef ? ` · ${s.sourceRef}` : ''}
                   </p>
@@ -243,7 +248,7 @@ export default function ProductsPage() {
                       }
                     }}
                     disabled={saving}
-                    className="p-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50"
+                    className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 disabled:opacity-50"
                     title="Añadir al catálogo"
                   >
                     <Check size={16} />
@@ -258,7 +263,7 @@ export default function ProductsPage() {
                       }
                     }}
                     disabled={saving}
-                    className="p-2 rounded-lg bg-slate-200 text-slate-600 hover:bg-slate-300 disabled:opacity-50"
+                    className="p-2 rounded-xl bg-white/[0.04] border border-white/[0.06] text-slate-400 hover:bg-white/[0.08] disabled:opacity-50"
                     title="Rechazar"
                   >
                     <Trash2 size={16} />
@@ -272,7 +277,9 @@ export default function ProductsPage() {
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 size={28} className="animate-spin text-violet-600" />
+          <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+            <Loader2 size={20} className="animate-spin text-blue-400" />
+          </div>
         </div>
       ) : filteredProducts.length > 0 ? (
         <div className={viewMode === 'grid'
@@ -290,11 +297,11 @@ export default function ProductsPage() {
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-12 text-center">
-          <div className="w-14 h-14 bg-slate-50 ring-1 ring-slate-200/80 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Package size={24} className="text-slate-300" />
+        <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] p-12 text-center">
+          <div className="w-14 h-14 bg-white/[0.03] border border-white/[0.06] rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Package size={24} className="text-slate-600" />
           </div>
-          <p className="text-sm text-slate-500">
+          <p className="text-[14px] font-medium text-slate-400">
             {searchQuery || selectedCategory !== 'all'
               ? 'No se encontraron productos con estos filtros'
               : 'No hay productos. Agrega tu primer producto.'}

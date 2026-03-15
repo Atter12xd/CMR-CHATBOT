@@ -12,51 +12,51 @@ interface StatsCardProps {
 
 
 export default function StatsCard({ title, value, change, icon: Icon, color = 'primary' }: StatsCardProps) {
-  const colorConfig: Record<string, { bg: string; icon: string; ring: string }> = {
+  const colorConfig: Record<string, { bg: string; icon: string; border: string }> = {
     primary: {
-      bg: 'bg-violet-50',
-      icon: 'text-violet-600',
-      ring: 'ring-violet-100',
+      bg: 'bg-blue-500/10',
+      icon: 'text-blue-400',
+      border: 'border-blue-500/15',
     },
     green: {
-      bg: 'bg-emerald-50',
-      icon: 'text-emerald-600',
-      ring: 'ring-emerald-100',
+      bg: 'bg-emerald-500/10',
+      icon: 'text-emerald-400',
+      border: 'border-emerald-500/15',
     },
     yellow: {
-      bg: 'bg-amber-50',
-      icon: 'text-amber-600',
-      ring: 'ring-amber-100',
+      bg: 'bg-amber-500/10',
+      icon: 'text-amber-400',
+      border: 'border-amber-500/15',
     },
     red: {
-      bg: 'bg-rose-50',
-      icon: 'text-rose-600',
-      ring: 'ring-rose-100',
+      bg: 'bg-rose-500/10',
+      icon: 'text-rose-400',
+      border: 'border-rose-500/15',
     },
   };
 
   const colors = colorConfig[color] || colorConfig.primary;
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+    <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] p-5 hover:border-white/[0.1] transition-all duration-300">
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-600">
             {title}
           </p>
-          <p className="text-[28px] font-bold text-slate-900 mt-1.5 leading-tight">
+          <p className="text-[26px] font-extrabold text-white mt-2 leading-none tracking-tight tabular-nums">
             {value}
           </p>
           {change && (
-            <div className="flex items-center gap-1 mt-2">
-              <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-emerald-50 text-[11px] font-semibold text-emerald-700">
+            <div className="flex items-center gap-1 mt-2.5">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-semibold text-emerald-400">
                 {change}
               </span>
             </div>
           )}
         </div>
-        <div className={`${colors.bg} ${colors.ring} ring-1 p-2.5 rounded-xl flex-shrink-0 ml-3`}>
-          <Icon size={22} className={colors.icon} />
+        <div className={`${colors.bg} ${colors.border} border p-2.5 rounded-xl flex-shrink-0 ml-3`}>
+          <Icon size={20} className={colors.icon} />
         </div>
       </div>
     </div>

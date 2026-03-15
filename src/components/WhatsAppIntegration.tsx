@@ -356,22 +356,24 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[200px]">
-        <Loader2 size={24} className="animate-spin text-violet-600" />
+        <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+          <Loader2 size={20} className="animate-spin text-blue-400" />
+        </div>
       </div>
     );
   }
 
 
   const metricCards = [
-    { label: 'Enviados', value: metrics.messagesSentToday, suffix: 'msgs', icon: Send, color: 'violet' },
+    { label: 'Enviados', value: metrics.messagesSentToday, suffix: 'msgs', icon: Send, color: 'blue' },
     { label: 'Recibidos', value: metrics.messagesReceivedToday, suffix: 'msgs', icon: MessageCircle, color: 'emerald' },
-    { label: 'Entrega', value: `${metrics.deliveryRate}%`, suffix: 'tasa', icon: CheckCircle2, color: 'violet' },
+    { label: 'Entrega', value: `${metrics.deliveryRate}%`, suffix: 'tasa', icon: CheckCircle2, color: 'blue' },
     { label: 'Lectura', value: `${metrics.readRate}%`, suffix: 'tasa', icon: Eye, color: 'amber' },
     { label: 'Respuesta', value: metrics.avgResponseTime > 0 ? metrics.avgResponseTime : '-', suffix: 'min', icon: Clock, color: 'rose' },
   ];
 
   const colorMap: Record<string, { bg: string; iconColor: string; ring: string; valueTxt: string }> = {
-    violet: { bg: 'bg-violet-50', iconColor: 'text-violet-600', ring: 'ring-violet-100', valueTxt: 'text-violet-900' },
+    blue: { bg: 'bg-blue-500/10', iconColor: 'text-blue-400', ring: 'ring-blue-500/15', valueTxt: 'text-blue-400' },
     emerald: { bg: 'bg-emerald-50', iconColor: 'text-emerald-600', ring: 'ring-emerald-100', valueTxt: 'text-emerald-900' },
     amber: { bg: 'bg-amber-50', iconColor: 'text-amber-600', ring: 'ring-amber-100', valueTxt: 'text-amber-900' },
     rose: { bg: 'bg-rose-50', iconColor: 'text-rose-600', ring: 'ring-rose-100', valueTxt: 'text-rose-900' },
@@ -382,7 +384,7 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
     <div className="space-y-5">
       {/* Estado actual - Solo mostrar si está conectado o pendiente */}
       {integration && integration.status !== 'disconnected' && (
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] overflow-hidden">
           <div className="p-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3.5">
@@ -437,7 +439,7 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
 
       {/* Formulario de conexión - Mostrar si no hay integración o está desconectado */}
       {(step === 'input' && (!integration || integration.status === 'disconnected')) && (
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+        <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] p-6">
           <div className="flex items-center gap-2.5 mb-1">
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
             <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Conexión</p>
@@ -465,11 +467,11 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
 
       {/* Paso QR: mostrar imagen y polling (Baileys / Contabo) */}
       {step === 'qr' && (
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+        <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] p-6">
           <div className="flex items-center justify-between mb-5">
             <div>
               <div className="flex items-center gap-2.5 mb-1">
-                <span className="w-2 h-2 rounded-full bg-violet-500"></span>
+                <span className="w-2 h-2 rounded-full bg-blue-500"></span>
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Verificación</p>
               </div>
               <h3 className="text-base font-semibold text-slate-900">Escanear código QR</h3>
@@ -534,11 +536,11 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
 
       {/* Métricas en tiempo real */}
       {integration?.status === 'connected' && (
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] overflow-hidden">
           <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 bg-violet-50 ring-1 ring-violet-100 rounded-lg flex items-center justify-center">
-                <TrendingUp size={16} className="text-violet-600" />
+              <div className="w-8 h-8 bg-blue-500/10 border border-blue-500/15 rounded-lg flex items-center justify-center">
+                <TrendingUp size={16} className="text-blue-400" />
               </div>
               <h3 className="text-sm font-semibold text-slate-900">Métricas de Hoy</h3>
             </div>
@@ -555,12 +557,12 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
           <div className="p-5">
             {loadingMetrics ? (
               <div className="flex items-center justify-center py-10">
-                <Loader2 className="h-6 w-6 animate-spin text-violet-600" />
+                <Loader2 className="h-6 w-6 animate-spin text-blue-400" />
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                 {metricCards.map((m) => {
-                  const c = colorMap[m.color] || colorMap.violet;
+                  const c = colorMap[m.color] || colorMap.blue;
                   const Icon = m.icon;
                   return (
                     <div key={m.label} className={`${c.bg} ring-1 ${c.ring} rounded-xl p-4`}>

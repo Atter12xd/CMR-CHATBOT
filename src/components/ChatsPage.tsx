@@ -122,7 +122,9 @@ export default function ChatsPage() {
   if (orgLoading || loading) {
     return (
       <div className="flex items-center justify-center min-h-[320px]">
-        <Loader2 size={24} className="animate-spin text-violet-600" />
+        <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+          <Loader2 size={20} className="animate-spin text-blue-400" />
+        </div>
       </div>
     );
   }
@@ -137,10 +139,10 @@ export default function ChatsPage() {
           <h2 className="text-[32px] font-extrabold text-white tracking-tight leading-none">Chats</h2>
           <p className="text-slate-500 text-[14px] mt-2">Gestiona tus conversaciones con clientes</p>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
+        <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] p-5">
           <div className="flex items-start gap-2.5">
-            <div className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 flex-shrink-0" />
-            <p className="text-slate-600 text-[13px] leading-relaxed">
+            <div className="w-2 h-2 rounded-full bg-amber-400 mt-1.5 flex-shrink-0" />
+            <p className="text-slate-400 text-[13px] leading-relaxed">
               Necesitas crear una organización para ver tus chats. Ve a Configuración para crear una.
             </p>
           </div>
@@ -162,12 +164,12 @@ export default function ChatsPage() {
 
 
       {/* Contenedor principal */}
-      <div className="flex-1 flex rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden min-h-0">
+      <div className="flex-1 flex rounded-2xl border border-white/[0.06] bg-[#111827]/80 overflow-hidden min-h-0">
         {/* Lista de chats — sidebar */}
         <div
           className={`${
             showChatList ? 'flex' : 'hidden'
-          } md:flex w-full md:w-[340px] lg:w-[360px] xl:w-[380px] flex-shrink-0 border-r border-slate-200/80`}
+          } md:flex w-full md:w-[340px] lg:w-[360px] xl:w-[380px] flex-shrink-0 border-r border-white/[0.04]`}
         >
           <ChatList
             chats={chats}
@@ -192,12 +194,12 @@ export default function ChatsPage() {
               baileysClientId={organizationId ?? undefined}
             />
           ) : (
-            <div className="h-full w-full flex items-center justify-center bg-slate-50/50">
+            <div className="h-full w-full flex items-center justify-center">
               <div className="text-center max-w-xs px-6">
-                <div className="w-14 h-14 mx-auto mb-4 bg-slate-50 ring-1 ring-slate-200/80 rounded-2xl flex items-center justify-center">
-                  <MessageSquare size={24} className="text-slate-300" />
+                <div className="w-14 h-14 mx-auto mb-4 bg-white/[0.03] border border-white/[0.06] rounded-2xl flex items-center justify-center">
+                  <MessageSquare size={24} className="text-slate-600" />
                 </div>
-                <h3 className="text-sm font-semibold text-slate-900 mb-1">Selecciona un chat</h3>
+                <h3 className="text-sm font-semibold text-white mb-1">Selecciona un chat</h3>
                 <p className="text-sm text-slate-500 leading-relaxed">Elige una conversación de la lista para comenzar</p>
               </div>
             </div>

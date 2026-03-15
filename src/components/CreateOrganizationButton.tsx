@@ -54,7 +54,7 @@ export default function CreateOrganizationButton({ onCreated }: CreateOrganizati
       <button
         onClick={handleCreate}
         disabled={loading}
-        className="inline-flex items-center gap-2 px-4 py-2.5 bg-violet-600 text-white text-sm font-medium rounded-xl hover:bg-violet-700 shadow-sm shadow-violet-600/20 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-500 text-white text-sm font-semibold rounded-xl hover:bg-blue-400 shadow-lg shadow-blue-500/20 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? (
           <>

@@ -21,6 +21,17 @@ const statusLabels: Record<string, string> = {
   cancelled: 'Cancelado',
 };
 
+const statusDots: Record<string, string> = {
+  all: 'bg-blue-400',
+  pending: 'bg-amber-400',
+  processing: 'bg-sky-400',
+  completed: 'bg-emerald-400',
+  shipped: 'bg-indigo-400',
+  delivered: 'bg-green-400',
+  cancelled: 'bg-rose-400',
+};
+
+
 export default function OrdersPage() {
   const { organizationId, loading: orgLoading } = useOrganization();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -97,18 +108,23 @@ export default function OrdersPage() {
   if (orgLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 size={24} className="animate-spin text-violet-600" />
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+            <Loader2 size={20} className="animate-spin text-blue-400" />
+          </div>
+          <p className="text-[13px] text-slate-500">Cargando…</p>
+        </div>
       </div>
     );
   }
 
   if (!organizationId) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-12 text-center max-w-md mx-auto">
-        <div className="w-14 h-14 bg-slate-50 ring-1 ring-slate-200/80 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <ShoppingCart size={24} className="text-slate-300" />
+      <div className="flex flex-col items-center justify-center min-h-[300px] gap-3">
+        <div className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
+          <ShoppingCart size={20} className="text-slate-600" />
         </div>
-        <p className="text-sm text-slate-500">
+        <p className="text-[13px] text-slate-500">
           Crea o selecciona una organización para ver pedidos.
         </p>
       </div>
@@ -116,8 +132,7 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
+    <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-600 mb-1">
@@ -135,51 +150,66 @@ export default function OrdersPage() {
             {orders.length} total
           </span>
           {pendingPayments.length > 0 && (
-            <span className="text-[11px] font-bold text-amber-400 bg-amber-500/8 border border-amber-500/15 px-3 py-1.5 rounded-lg">
+            <span className="text-[11px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/15 px-3 py-1.5 rounded-lg">
               {pendingPayments.length} por verificar
             </span>
           )}
         </div>
       </div>
 
-      {/* Pending Payments - tarjeta blanca */}
       {pendingPayments.length > 0 && (
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <CreditCard size={18} className="text-amber-600" />
-            <h3 className="text-sm font-semibold text-slate-900">Pagos pendientes de verificar</h3>
+        <div className="bg-amber-500/10 border border-amber-500/15 rounded-2xl p-5">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/15 flex items-center justify-center">
+              <CreditCard size={16} className="text-amber-400" />
+            </div>
+            <div>
+              <h3 className="text-[14px] font-bold text-white">Pagos pendientes</h3>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                Ingresa monto y nombre del comprobante para validar
+              </p>
+            </div>
           </div>
-          <p className="text-[12px] text-slate-500 mb-4">
-            Ingresa el monto y el nombre exactos del comprobante. Si coinciden, el pedido pasará a &quot;Pago completado&quot; y el chat a modo humano.
-          </p>
-          <div className="space-y-4">
+
+          <div className="space-y-3">
             {pendingPayments.map((p) => (
-              <div key={p.id} className="flex flex-wrap items-end gap-3 p-3 bg-amber-50/50 rounded-xl border border-amber-100">
+              <div
+                key={p.id}
+                className="flex flex-wrap items-end gap-3 p-4 bg-[#111827]/80 rounded-xl border border-white/[0.06]"
+              >
                 <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-medium text-slate-900">{p.orderCode || 'Pedido'} · {p.orderCustomerName || p.customerName}</p>
-                  <p className="text-[12px] text-slate-500">Debe coincidir: S/ {(p.orderTotal ?? p.amount).toFixed(2)} · {p.orderCustomerName || p.customerName}</p>
+                  <p className="text-[13px] font-semibold text-white">
+                    {p.orderCode || 'Pedido'} · {p.orderCustomerName || p.customerName}
+                  </p>
+                  <p className="text-[11px] text-slate-600 mt-0.5 font-mono">
+                    Esperado: S/ {(p.orderTotal ?? p.amount).toFixed(2)} · {p.orderCustomerName || p.customerName}
+                  </p>
                 </div>
                 <input
                   type="number"
                   step="0.01"
-                  placeholder="Monto comprobante"
+                  placeholder="Monto"
                   value={verifyAmount[p.id] ?? ''}
                   onChange={(e) => setVerifyAmount((prev) => ({ ...prev, [p.id]: e.target.value }))}
-                  className="w-28 px-2.5 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300"
+                  className="w-28 px-3 py-2.5 text-[13px] bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
                 />
                 <input
                   type="text"
                   placeholder="Nombre en comprobante"
                   value={verifyName[p.id] ?? ''}
                   onChange={(e) => setVerifyName((prev) => ({ ...prev, [p.id]: e.target.value }))}
-                  className="flex-1 min-w-[140px] px-2.5 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300"
+                  className="flex-1 min-w-[160px] px-3 py-2.5 text-[13px] bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
                 />
                 <button
                   onClick={() => handleVerifyPayment(p)}
                   disabled={verifyingId === p.id}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-600 text-white text-sm font-medium rounded-xl hover:bg-emerald-700 disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500 text-white text-[13px] font-bold rounded-xl hover:bg-emerald-400 disabled:opacity-50 transition-all duration-150 shadow-lg shadow-emerald-500/15"
                 >
-                  {verifyingId === p.id ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                  {verifyingId === p.id ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Check size={14} strokeWidth={3} />
+                  )}
                   Verificar
                 </button>
               </div>
@@ -188,27 +218,35 @@ export default function OrdersPage() {
         </div>
       )}
 
-      {/* Status Filters - violeta activo como en la imagen */}
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
         {statuses.map((status) => (
           <button
             key={status}
             onClick={() => setSelectedStatus(status)}
-            className={`px-3.5 py-2 rounded-xl text-[13px] font-medium whitespace-nowrap transition-all duration-150 ${
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold whitespace-nowrap transition-all duration-200 ${
               selectedStatus === status
-                ? 'bg-violet-600 text-white shadow-sm shadow-violet-600/20'
-                : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50 hover:text-slate-800'
+                ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
+                : 'bg-white/[0.04] text-slate-500 border border-white/[0.06] hover:bg-white/[0.06] hover:text-slate-300'
             }`}
           >
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${
+                selectedStatus === status ? 'bg-white' : (statusDots[status] || 'bg-slate-600')
+              }`}
+            />
             {statusLabels[status] || status}
           </button>
         ))}
       </div>
 
-      {/* Orders Grid */}
       {loading ? (
-        <div className="flex items-center justify-center py-16">
-          <Loader2 size={28} className="animate-spin text-violet-600" />
+        <div className="flex items-center justify-center py-20">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+              <Loader2 size={20} className="animate-spin text-blue-400" />
+            </div>
+            <p className="text-[13px] text-slate-500">Cargando pedidos…</p>
+          </div>
         </div>
       ) : filteredOrders.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -217,12 +255,17 @@ export default function OrdersPage() {
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-12 text-center">
-          <div className="w-14 h-14 bg-slate-50 ring-1 ring-slate-200/80 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Package size={24} className="text-slate-300" />
+        <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] p-16 text-center">
+          <div className="w-14 h-14 bg-white/[0.03] border border-white/[0.06] rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Package size={24} className="text-slate-600" />
           </div>
-          <p className="text-sm text-slate-500">
-            {selectedStatus === 'all' ? 'No hay pedidos aún' : `No hay pedidos con estado "${statusLabels[selectedStatus]}"`}
+          <p className="text-[14px] font-medium text-slate-400">
+            {selectedStatus === 'all'
+              ? 'No hay pedidos aún'
+              : `No hay pedidos "${statusLabels[selectedStatus]}"`}
+          </p>
+          <p className="text-[12px] text-slate-600 mt-1">
+            Los pedidos aparecerán aquí cuando se generen
           </p>
         </div>
       )}

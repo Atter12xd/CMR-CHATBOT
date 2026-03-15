@@ -84,11 +84,11 @@ export default function PaymentMethodsConfig({ methods: propsMethods, onSave: pr
     switch (type) {
       case 'yape':
       case 'plin':
-        return <Smartphone size={18} className="text-violet-600" />;
+        return <Smartphone size={18} className="text-blue-400" />;
       case 'bcp':
-        return <Building2 size={18} className="text-violet-600" />;
+        return <Building2 size={18} className="text-blue-400" />;
       default:
-        return <CreditCard size={18} className="text-violet-600" />;
+        return <CreditCard size={18} className="text-blue-400" />;
     }
   };
 
@@ -96,7 +96,9 @@ export default function PaymentMethodsConfig({ methods: propsMethods, onSave: pr
   if (loading || orgLoading) {
     return (
       <div className="flex items-center justify-center min-h-[280px]">
-        <Loader2 size={24} className="animate-spin text-violet-600" />
+        <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+          <Loader2 size={20} className="animate-spin text-blue-400" />
+        </div>
       </div>
     );
   }
@@ -121,7 +123,7 @@ export default function PaymentMethodsConfig({ methods: propsMethods, onSave: pr
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 px-4 py-2.5 bg-violet-600 text-white text-sm font-medium rounded-xl hover:bg-violet-700 shadow-sm shadow-violet-600/20 transition-all duration-150 active:scale-[0.97] disabled:opacity-60"
+          className="flex items-center gap-2 px-4 py-2.5 bg-blue-500 text-white text-sm font-semibold rounded-xl hover:bg-blue-400 shadow-lg shadow-blue-500/20 transition-all duration-150 active:scale-[0.97] disabled:opacity-60"
         >
           {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
           <span>{saving ? 'Guardando...' : 'Guardar'}</span>
@@ -134,33 +136,33 @@ export default function PaymentMethodsConfig({ methods: propsMethods, onSave: pr
         {paymentMethods.map((method) => (
           <div
             key={method.id}
-            className={`bg-white rounded-2xl border-2 transition-all duration-200 ${
-              method.active ? 'border-violet-300 shadow-sm shadow-violet-100/50' : 'border-slate-200/80'
+            className={`bg-[#111827]/80 rounded-2xl border transition-all duration-200 ${
+              method.active ? 'border-blue-500/30 shadow-lg shadow-blue-500/10' : 'border-white/[0.06] hover:border-white/[0.1]'
             }`}
           >
             <div className="p-5">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                    method.active ? 'bg-violet-50 ring-1 ring-violet-100' : 'bg-slate-50 ring-1 ring-slate-200/80'
+                    method.active ? 'bg-blue-500/10 border border-blue-500/15' : 'bg-white/[0.04] border border-white/[0.06]'
                   }`}>
                     {getIcon(method.type)}
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-slate-900">{method.name}</h3>
+                    <h3 className="text-sm font-semibold text-white">{method.name}</h3>
                     <label className="flex items-center gap-2 cursor-pointer mt-1.5">
                       <input
                         type="checkbox"
                         checked={method.active}
                         onChange={(e) => handleChange(method.id, 'active', e.target.checked)}
-                        className="w-4 h-4 text-violet-600 rounded-md border-slate-300 focus:ring-violet-500/20"
+                        className="w-4 h-4 text-blue-500 rounded-md border-slate-300 focus:ring-blue-500/20"
                       />
                       <span className="text-[13px] text-slate-500">Activar este método</span>
                     </label>
                   </div>
                 </div>
                 {method.active && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-[11px] font-semibold text-emerald-700">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-semibold text-emerald-400">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                     Activo
                   </span>
@@ -169,10 +171,10 @@ export default function PaymentMethodsConfig({ methods: propsMethods, onSave: pr
 
 
               {method.active && (
-                <div className="mt-4 space-y-4 pt-4 border-t border-slate-100">
+                <div className="mt-4 space-y-4 pt-4 border-t border-white/[0.04]">
                   <div>
-                    <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
-                      A nombre de <span className="text-rose-500">*</span>
+                    <label className="block text-[13px] font-semibold text-slate-400 mb-1.5">
+                      A nombre de <span className="text-rose-400">*</span>
                     </label>
                     <input
                       type="text"
@@ -180,13 +182,13 @@ export default function PaymentMethodsConfig({ methods: propsMethods, onSave: pr
                       onChange={(e) => handleChange(method.id, 'accountName', e.target.value)}
                       required={method.active}
                       placeholder="Ej: Juan Pérez"
-                      className="w-full px-3.5 py-2.5 text-sm border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all placeholder:text-slate-400"
+                      className="w-full px-3.5 py-2.5 text-sm bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
                     />
                   </div>
 
                   {(method.type === 'yape' || method.type === 'plin') && (
                     <div>
-                      <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
+                      <label className="block text-[13px] font-semibold text-slate-400 mb-1.5">
                         Número de celular
                       </label>
                       <input
@@ -194,7 +196,7 @@ export default function PaymentMethodsConfig({ methods: propsMethods, onSave: pr
                         value={method.accountNumber || ''}
                         onChange={(e) => handleChange(method.id, 'accountNumber', e.target.value)}
                         placeholder="Ej: 999 888 777 (el número al que te envían el Yape/Plin)"
-                        className="w-full px-3.5 py-2.5 text-sm border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all placeholder:text-slate-400"
+                        className="w-full px-3.5 py-2.5 text-sm bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
                       />
                       <p className="text-[11px] text-slate-400 mt-1">El bot dirá este número a los clientes para que te envíen el pago.</p>
                     </div>
@@ -203,7 +205,7 @@ export default function PaymentMethodsConfig({ methods: propsMethods, onSave: pr
                   {method.type === 'bcp' && (
                     <>
                       <div>
-                        <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
+                        <label className="block text-[13px] font-semibold text-slate-400 mb-1.5">
                           Número de cuenta <span className="text-rose-500">*</span>
                         </label>
                         <input
@@ -212,17 +214,17 @@ export default function PaymentMethodsConfig({ methods: propsMethods, onSave: pr
                           onChange={(e) => handleChange(method.id, 'accountNumber', e.target.value)}
                           required={method.active}
                           placeholder="Ej: 1234567890123456"
-                          className="w-full px-3.5 py-2.5 text-sm border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all placeholder:text-slate-400"
+                          className="w-full px-3.5 py-2.5 text-sm bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
                         />
                       </div>
                       <div>
-                        <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
+                        <label className="block text-[13px] font-semibold text-slate-400 mb-1.5">
                           Tipo de cuenta
                         </label>
                         <select
                           value={method.accountType || 'Ahorros'}
                           onChange={(e) => handleChange(method.id, 'accountType', e.target.value)}
-                          className="w-full px-3.5 py-2.5 text-sm border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all text-slate-700"
+                          className="w-full px-3.5 py-2.5 text-sm bg-white/[0.04] border border-white/[0.08] rounded-xl text-white focus:outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
                         >
                           <option value="Ahorros">Ahorros</option>
                           <option value="Corriente">Corriente</option>
@@ -239,12 +241,12 @@ export default function PaymentMethodsConfig({ methods: propsMethods, onSave: pr
 
 
       {/* Info Note */}
-      <div className="bg-violet-50 border border-violet-200/60 rounded-2xl p-4">
+      <div className="bg-blue-500/10 border border-blue-500/15 rounded-2xl p-4">
         <div className="flex items-start gap-2.5">
-          <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-            <Info size={14} className="text-violet-600" />
+          <div className="w-8 h-8 bg-blue-500/10 border border-blue-500/15 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+            <Info size={14} className="text-blue-400" />
           </div>
-          <p className="text-[13px] text-violet-700/90 leading-relaxed">
+          <p className="text-[13px] text-slate-400 leading-relaxed">
             Cuando un cliente quiera realizar un pago, el bot mostrará automáticamente 
             los métodos de pago activos con la información configurada aquí.
           </p>

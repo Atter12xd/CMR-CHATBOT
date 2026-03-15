@@ -7,26 +7,56 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+/** Obtiene el mensaje “interno” desenrollando viewOnce / ephemeral para detectar imagen/documento. */
+function getContentMessage(m: proto.IMessage | null | undefined): proto.IMessage | null {
+  if (!m) return null;
+  const inner = (m as Record<string, unknown>).viewOnceMessage?.message
+    ?? (m as Record<string, unknown>).viewOnceMessageV2?.message
+    ?? (m as Record<string, unknown>).ephemeralMessage?.message;
+  if (inner && typeof inner === 'object') return inner as proto.IMessage;
+  return m;
+}
+
+function hasImageOrDocument(m: proto.IMessage | null): { hasImage: boolean; hasDocument: boolean; caption?: string } {
+  if (!m) return { hasImage: false, hasDocument: false };
+  const img = (m as Record<string, unknown>).imageMessage;
+  const doc = (m as Record<string, unknown>).documentMessage;
+  const hasImage = !!img;
+  const hasDocument = !!doc;
+  const caption = typeof img === 'object' && img !== null && 'caption' in img
+    ? (img as { caption?: string }).caption
+    : undefined;
+  return { hasImage, hasDocument, caption };
+}
+
 export async function handleIncomingMessage(
   socket: WASocket,
   msg: proto.IWebMessageInfo,
   clientId: string
 ) {
   const remoteJid = msg.key.remoteJid!;
+  if (remoteJid.endsWith('@g.us')) {
+    return;
+  }
   const senderPhone = remoteJid.replace('@s.whatsapp.net', '');
-  const hasImage = !!msg.message?.imageMessage;
-  const hasDocument = !!msg.message?.documentMessage;
-  const caption = msg.message?.imageMessage?.caption;
-  const messageText = msg.message?.conversation ||
-    msg.message?.extendedTextMessage?.text ||
-    caption ||
-    (hasImage ? '[Captura de pago]' : '') ||
-    (hasDocument ? '[Documento/comprobante]' : '') ||
-    '';
+  const content = getContentMessage(msg.message ?? undefined);
+  const { hasImage, hasDocument, caption } = hasImageOrDocument(content);
+  const raw = msg.message ?? {};
+  const messageText = (content?.conversation as string | undefined)
+    || (content?.extendedTextMessage as { text?: string } | undefined)?.text
+    || caption
+    || (hasImage ? '[Captura de pago]' : '')
+    || (hasDocument ? '[Documento/comprobante]' : '')
+    || '';
 
-  if (!messageText && !hasImage && !hasDocument) return;
+  if (!messageText && !hasImage && !hasDocument) {
+    const keys = Object.keys(raw).filter(k => (raw as Record<string, unknown>)[k] != null);
+    console.log(`[CHAT] Mensaje ignorado (sin texto ni imagen/doc) de ${senderPhone}. Keys: ${keys.join(', ')}`);
+    return;
+  }
 
-  const isOnlyMediaComprobante = (hasImage || hasDocument) && !caption && !msg.message?.conversation && !msg.message?.extendedTextMessage?.text;
+  const hasText = !!((content?.conversation as string | undefined) || (content?.extendedTextMessage as { text?: string } | undefined)?.text || caption);
+  const isOnlyMediaComprobante = (hasImage || hasDocument) && !hasText;
   const displayText = messageText || (hasImage ? '[Imagen]' : '[Documento]');
   console.log(`[CHAT] Mensaje de ${senderPhone}: ${displayText}`);
 

@@ -301,14 +301,11 @@ export default function BotTrainingPage() {
 
   return (
     <div className="space-y-5">
-      {/* Header */}
+      {/* Header - título sobre fondo oscuro */}
       <div>
-        <div className="flex items-center gap-2.5 mb-1">
-          <span className="w-2 h-2 rounded-full bg-violet-500"></span>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">IA</p>
-        </div>
-        <h1 className="text-2xl font-bold text-slate-900">Entrenar Bot</h1>
-        <p className="text-sm text-slate-500 mt-0.5 max-w-xl">
+        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">IA</p>
+        <h1 className="text-[32px] font-extrabold text-white tracking-tight leading-none">Entrenar Bot</h1>
+        <p className="text-slate-500 text-[14px] mt-2 max-w-xl">
           Configura cómo se presenta tu negocio y de qué fuentes aprende el bot. Todo lo que agregues aquí lo usará para saludar, ofrecer tu web o catálogo y responder a los clientes. Los productos que quieras que recomiende y pueda vender debes cargarlos en <strong>Productos</strong>.
         </p>
       </div>

@@ -133,17 +133,14 @@ export default function ChatsPage() {
     return (
       <div className="space-y-5">
         <div>
-          <div className="flex items-center gap-2.5 mb-1">
-            <span className="w-2 h-2 rounded-full bg-violet-500" />
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Conversaciones</p>
-          </div>
-          <h2 className="text-2xl font-bold text-slate-900">Chats</h2>
-          <p className="text-sm text-slate-500 mt-0.5">Gestiona tus conversaciones con clientes</p>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Conversaciones</p>
+          <h2 className="text-[32px] font-extrabold text-white tracking-tight leading-none">Chats</h2>
+          <p className="text-slate-500 text-[14px] mt-2">Gestiona tus conversaciones con clientes</p>
         </div>
-        <div className="bg-amber-50 border border-amber-200/80 rounded-2xl p-5">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
           <div className="flex items-start gap-2.5">
             <div className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 flex-shrink-0" />
-            <p className="text-amber-700 text-[13px] leading-relaxed">
+            <p className="text-slate-600 text-[13px] leading-relaxed">
               Necesitas crear una organización para ver tus chats. Ve a Configuración para crear una.
             </p>
           </div>
@@ -156,14 +153,11 @@ export default function ChatsPage() {
 
   return (
     <div className="flex flex-col h-full space-y-5">
-      {/* Header */}
+      {/* Header - texto claro sobre fondo oscuro */}
       <div>
-        <div className="flex items-center gap-2.5 mb-1">
-          <span className="w-2 h-2 rounded-full bg-violet-500" />
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Conversaciones</p>
-        </div>
-        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Chats</h2>
-        <p className="text-sm text-slate-500 mt-0.5">Gestiona tus conversaciones con clientes</p>
+        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Conversaciones</p>
+        <h2 className="text-[32px] font-extrabold text-white tracking-tight leading-none">Chats</h2>
+        <p className="text-slate-500 text-[14px] mt-2">Gestiona tus conversaciones con clientes</p>
       </div>
 
 

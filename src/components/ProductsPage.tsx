@@ -124,15 +124,13 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
+      {/* Título sobre fondo oscuro */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2.5 mb-1">
-            <span className="w-2 h-2 rounded-full bg-violet-500"></span>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Catálogo</p>
-          </div>
-          <h2 className="text-2xl font-bold text-slate-900">Productos</h2>
-          <p className="text-sm text-slate-500 mt-0.5">Gestiona tu catálogo de productos</p>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Catálogo</p>
+          <h2 className="text-[32px] font-extrabold text-white tracking-tight leading-none">Productos</h2>
+          <p className="text-slate-500 text-[14px] mt-2">Gestiona tu catálogo de productos</p>
         </div>
         <button
           onClick={() => {
@@ -146,27 +144,27 @@ export default function ProductsPage() {
         </button>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="flex-1 relative">
-          <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Buscar productos..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-10 py-2.5 text-sm bg-white border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all placeholder:text-slate-400"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-            >
-              <X size={16} />
-            </button>
-          )}
-        </div>
-
-        <div className="flex gap-2">
+      {/* Barra blanca: búsqueda + categoría + vista (como en la imagen) */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1 relative">
+            <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Buscar productos..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-10 py-2.5 text-sm bg-slate-50/80 border border-slate-200/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 focus:bg-white transition-all placeholder:text-slate-400"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
@@ -177,17 +175,16 @@ export default function ProductsPage() {
               <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>
-
           <div className="flex border border-slate-200/80 rounded-xl overflow-hidden">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2.5 transition-all ${viewMode === 'grid' ? 'bg-violet-600 text-white' : 'bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600'}`}
+              className={`p-2.5 transition-all ${viewMode === 'grid' ? 'bg-violet-600 text-white shadow-sm' : 'bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600'}`}
             >
               <Grid size={16} />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2.5 transition-all ${viewMode === 'list' ? 'bg-violet-600 text-white' : 'bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600'}`}
+              className={`p-2.5 transition-all ${viewMode === 'list' ? 'bg-violet-600 text-white shadow-sm' : 'bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600'}`}
             >
               <List size={16} />
             </button>

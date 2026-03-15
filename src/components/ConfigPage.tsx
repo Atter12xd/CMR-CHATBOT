@@ -61,8 +61,8 @@ export default function ConfigPage() {
               Ajustes
             </p>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">Configuración</h1>
-          <p className="text-sm text-slate-500 mt-1">Gestiona la configuración de tu CRM</p>
+          <h1 className="text-[32px] font-extrabold text-white tracking-tight leading-none">Configuración</h1>
+          <p className="text-slate-500 text-[14px] mt-2">Gestiona la configuración de tu CRM</p>
         </div>
 
         {/* Aviso organización */}
@@ -99,8 +99,8 @@ export default function ConfigPage() {
             Ajustes
           </p>
         </div>
-        <h1 className="text-2xl font-bold text-slate-900">Configuración</h1>
-        <p className="text-sm text-slate-500 mt-1">Gestiona la configuración de tu CRM</p>
+        <h1 className="text-[32px] font-extrabold text-white tracking-tight leading-none">Configuración</h1>
+        <p className="text-slate-500 text-[14px] mt-2">Gestiona la configuración de tu CRM</p>
       </div>
 
       {/* Tarjeta de WhatsApp */}

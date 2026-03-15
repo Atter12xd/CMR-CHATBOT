@@ -114,12 +114,9 @@ export default function PaymentMethodsConfig({ methods: propsMethods, onSave: pr
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2.5 mb-1">
-            <span className="w-2 h-2 rounded-full bg-violet-500"></span>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Pagos</p>
-          </div>
-          <h2 className="text-2xl font-bold text-slate-900">Métodos de Pago</h2>
-          <p className="text-sm text-slate-500 mt-0.5">Configura los métodos de pago que el bot ofrecerá a los clientes</p>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Pagos</p>
+          <h2 className="text-[32px] font-extrabold text-white tracking-tight leading-none">Métodos de Pago</h2>
+          <p className="text-slate-500 text-[14px] mt-2">Configura los métodos de pago que el bot ofrecerá a los clientes</p>
         </div>
         <button
           onClick={handleSave}

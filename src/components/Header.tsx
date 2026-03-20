@@ -66,7 +66,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
               {getBreadcrumb()}
             </h1>
             <p className="text-[11px] text-slate-500 hidden sm:block truncate">
-              Panel CMR Chatbot
+              Panel wazapp AI
             </p>
           </div>
         </div>

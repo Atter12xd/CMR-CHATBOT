@@ -77,12 +77,17 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
     <div className="w-[260px] bg-app-shell text-white flex flex-col h-full border-r border-app-line">
       {/* Logo / Header */}
-      <div className="px-5 py-5 flex items-center justify-between">
+      <div className="px-4 sm:px-5 py-4 flex items-center justify-between gap-2">
         <a href="/chats" className="flex items-center gap-3 min-w-0 group">
-          <img src="/logo.png" alt="" className="h-10 w-auto shrink-0 opacity-95 group-hover:opacity-100 transition-opacity" />
-          <div className="min-w-0">
-            <span className="font-display font-bold text-[16px] tracking-tight text-white block leading-tight">
-              CMR <span className="text-brand-400">Chatbot</span>
+          <img
+            src="/logo.png"
+            alt="wazapp AI"
+            className="h-[4.75rem] sm:h-[5.25rem] w-auto max-w-[8.5rem] object-contain object-left shrink-0 opacity-95 group-hover:opacity-100 transition-opacity"
+          />
+          <div className="min-w-0 leading-tight">
+            <span className="font-display font-extrabold text-[18px] sm:text-[19px] tracking-tight block">
+              <span className="text-brand-400">wazapp</span>
+              <span className="text-emerald-400"> AI</span>
             </span>
             <span className="text-[10px] text-slate-500 font-medium tracking-wide">Panel de control</span>
           </div>

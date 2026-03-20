@@ -20,9 +20,9 @@ export default function Layout({ children }: LayoutProps) {
         {/* Overlay para sidebar en móvil */}
         {isSidebarOpen && (
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden transition-opacity"
+            className="fixed inset-0 bg-black/55 backdrop-blur-sm z-40 md:hidden transition-opacity"
             onClick={() => setIsSidebarOpen(false)}
-          ></div>
+          />
         )}
 
         {/* Sidebar */}

@@ -14,6 +14,8 @@ export default {
           'sans-serif',
         ],
         display: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        /** Navegación / UI tipo producto profesional (legible, denso) */
+        professional: ['Inter', '"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
       },
       colors: {
         app: {

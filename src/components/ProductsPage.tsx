@@ -6,6 +6,7 @@ import { loadProductSuggestions, approveProductSuggestion, rejectProductSuggesti
 import { useOrganization } from '../hooks/useOrganization';
 import ProductCard from './ProductCard';
 import ProductForm from './ProductForm';
+import PageHeader from './PageHeader';
 
 export default function ProductsPage() {
   const { organizationId, loading: orgLoading } = useOrganization();
@@ -118,8 +119,8 @@ export default function ProductsPage() {
   if (orgLoading || !organizationId) {
     return (
       <div className="flex items-center justify-center min-h-[320px]">
-        <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-          <Loader2 size={20} className="animate-spin text-blue-400" />
+        <div className="app-spinner">
+          <Loader2 size={20} className="animate-spin text-brand-400" />
         </div>
       </div>
     );
@@ -128,25 +129,26 @@ export default function ProductsPage() {
   return (
     <div className="space-y-6">
       {/* Título sobre fondo oscuro */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Catálogo</p>
-          <h2 className="text-[32px] font-extrabold text-white tracking-tight leading-none">Productos</h2>
-          <p className="text-slate-500 text-[14px] mt-2">Gestiona tu catálogo de productos</p>
-        </div>
-        <button
-          onClick={() => {
-            setEditingProduct(null);
-            setShowForm(true);
-          }}
-          className="flex items-center gap-2 px-4 py-2.5 bg-blue-500 text-white text-sm font-semibold rounded-xl hover:bg-blue-400 shadow-lg shadow-blue-500/20 transition-all duration-150 active:scale-[0.97]"
-        >
-          <Plus size={16} strokeWidth={2.5} />
-          <span>Agregar Producto</span>
-        </button>
-      </div>
+      <PageHeader
+        eyebrow="Catálogo"
+        title="Productos"
+        description="Gestiona tu catálogo de productos."
+        actions={
+          <button
+            type="button"
+            onClick={() => {
+              setEditingProduct(null);
+              setShowForm(true);
+            }}
+            className="app-btn-primary"
+          >
+            <Plus size={16} strokeWidth={2.5} />
+            <span>Agregar producto</span>
+          </button>
+        }
+      />
 
-      <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] p-4">
+      <div className="app-card p-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1 relative">
             <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500" />
@@ -176,16 +178,16 @@ export default function ProductsPage() {
               <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>
-          <div className="flex border border-white/[0.06] rounded-xl overflow-hidden">
+          <div className="flex border border-app-line rounded-xl overflow-hidden">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2.5 transition-all ${viewMode === 'grid' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-white/[0.04] text-slate-500 hover:bg-white/[0.06] hover:text-slate-300'}`}
+              className={`p-2.5 transition-all ${viewMode === 'grid' ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' : 'bg-white/[0.04] text-slate-500 hover:bg-white/[0.06] hover:text-slate-300'}`}
             >
               <Grid size={16} />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2.5 transition-all ${viewMode === 'list' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-white/[0.04] text-slate-500 hover:bg-white/[0.06] hover:text-slate-300'}`}
+              className={`p-2.5 transition-all ${viewMode === 'list' ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' : 'bg-white/[0.04] text-slate-500 hover:bg-white/[0.06] hover:text-slate-300'}`}
             >
               <List size={16} />
             </button>
@@ -228,7 +230,7 @@ export default function ProductsPage() {
             {suggestions.map((s) => (
               <div
                 key={s.id}
-                className="flex items-center justify-between gap-3 py-2 px-3 bg-[#111827]/80 rounded-xl border border-white/[0.06]"
+                className="flex items-center justify-between gap-3 py-2 px-3 rounded-xl border border-app-line bg-app-card/90"
               >
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-white truncate">{s.name}</p>
@@ -277,8 +279,8 @@ export default function ProductsPage() {
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-            <Loader2 size={20} className="animate-spin text-blue-400" />
+          <div className="app-spinner">
+            <Loader2 size={20} className="animate-spin text-brand-400" />
           </div>
         </div>
       ) : filteredProducts.length > 0 ? (
@@ -297,8 +299,8 @@ export default function ProductsPage() {
           ))}
         </div>
       ) : (
-        <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] p-12 text-center">
-          <div className="w-14 h-14 bg-white/[0.03] border border-white/[0.06] rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <div className="app-card p-12 text-center">
+          <div className="w-14 h-14 bg-white/[0.03] border border-app-line rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Package size={24} className="text-slate-600" />
           </div>
           <p className="text-[14px] font-medium text-slate-400">

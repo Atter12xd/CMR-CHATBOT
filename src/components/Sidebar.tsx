@@ -75,15 +75,17 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   };
 
   return (
-    <div className="w-[260px] bg-[#080c16] text-white flex flex-col h-full border-r border-white/[0.06]">
+    <div className="w-[260px] bg-app-shell text-white flex flex-col h-full border-r border-app-line">
       {/* Logo / Header */}
       <div className="px-5 py-5 flex items-center justify-between">
-        <a href="/chats" className="flex items-center gap-2.5">
-          <img src="/logo.png" alt="" className="h-11 w-auto shrink-0" />
-          <span className="font-extrabold text-[17px] tracking-tight">
-            <span className="text-blue-400">wazapp</span>
-            <span className="text-emerald-400">.ai</span>
-          </span>
+        <a href="/chats" className="flex items-center gap-3 min-w-0 group">
+          <img src="/logo.png" alt="" className="h-10 w-auto shrink-0 opacity-95 group-hover:opacity-100 transition-opacity" />
+          <div className="min-w-0">
+            <span className="font-display font-bold text-[16px] tracking-tight text-white block leading-tight">
+              CMR <span className="text-brand-400">Chatbot</span>
+            </span>
+            <span className="text-[10px] text-slate-500 font-medium tracking-wide">Panel de control</span>
+          </div>
         </a>
         {isOpen && (
           <button
@@ -97,7 +99,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       {/* Navigation Label */}
       <div className="px-5 pt-4 pb-2">
-        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-600">
           Menú
         </p>
       </div>
@@ -113,7 +115,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               onClick={() => handleNavClick(item.path)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 group ${
                 active
-                  ? 'bg-blue-500/12 text-blue-400'
+                  ? 'bg-brand-500/12 text-brand-400 shadow-[inset_0_0_0_1px_rgba(42,139,255,0.15)]'
                   : 'text-slate-500 hover:bg-white/[0.04] hover:text-slate-300'
               }`}
             >
@@ -121,7 +123,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 size={18}
                 className={`${
                   active
-                    ? 'text-blue-400'
+                    ? 'text-brand-400'
                     : 'text-slate-600 group-hover:text-slate-400'
                 } transition-colors`}
               />
@@ -129,7 +131,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 {item.label}
               </span>
               {active && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-400" />
+                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-brand-400 shadow-[0_0_8px_rgba(42,139,255,0.6)]" />
               )}
             </button>
           );
@@ -137,9 +139,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       </nav>
 
       {/* User Info */}
-      <div className="p-4 border-t border-white/[0.06]">
+      <div className="p-4 border-t border-app-line">
         <div className="flex items-center gap-3 px-1">
-          <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20 flex-shrink-0">
+          <div className="w-9 h-9 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center shadow-lg shadow-brand-900/40 ring-1 ring-white/10 flex-shrink-0">
             <span className="text-[11px] font-bold text-white">{getUserInitials()}</span>
           </div>
           <div className="flex-1 min-w-0">

@@ -7,12 +7,14 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-/** Obtiene el mensaje “interno” desenrollando viewOnce / ephemeral para detectar imagen/documento. */
+/** Obtiene el mensaje "interno" desenrollando viewOnce / ephemeral para detectar imagen/documento. */
 function getContentMessage(m: proto.IMessage | null | undefined): proto.IMessage | null {
   if (!m) return null;
-  const inner = (m as Record<string, unknown>).viewOnceMessage?.message
-    ?? (m as Record<string, unknown>).viewOnceMessageV2?.message
-    ?? (m as Record<string, unknown>).ephemeralMessage?.message;
+  const r = m as Record<string, { message?: unknown } | undefined>;
+  const v1 = r.viewOnceMessage;
+  const v2 = r.viewOnceMessageV2;
+  const v3 = r.ephemeralMessage;
+  const inner = v1?.message ?? v2?.message ?? v3?.message;
   if (inner && typeof inner === 'object') return inner as proto.IMessage;
   return m;
 }

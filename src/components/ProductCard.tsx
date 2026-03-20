@@ -13,7 +13,7 @@ interface ProductCardProps {
 export default function ProductCard({ product, onEdit, onDelete, viewMode = 'grid' }: ProductCardProps) {
   if (viewMode === 'list') {
     return (
-      <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] p-4 hover:border-white/[0.1] transition-all duration-300">
+      <div className="app-card-interactive p-4">
         <div className="flex items-center gap-4">
           <img
             src={product.image}
@@ -39,7 +39,7 @@ export default function ProductCard({ product, onEdit, onDelete, viewMode = 'gri
             {onEdit && (
               <button
                 onClick={() => onEdit(product)}
-                className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-xl transition-colors"
+                className="p-2 text-brand-400 hover:bg-brand-500/10 rounded-xl transition-colors"
               >
                 <Edit size={16} />
               </button>
@@ -59,7 +59,7 @@ export default function ProductCard({ product, onEdit, onDelete, viewMode = 'gri
   }
 
   return (
-    <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] overflow-hidden hover:border-white/[0.1] transition-all duration-300 group">
+    <div className="app-card-interactive overflow-hidden group">
       <div className="relative overflow-hidden">
         <img
           src={product.image}
@@ -88,7 +88,7 @@ export default function ProductCard({ product, onEdit, onDelete, viewMode = 'gri
             {onEdit && (
               <button
                 onClick={() => onEdit(product)}
-                className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-xl transition-colors"
+                className="p-2 text-brand-400 hover:bg-brand-500/10 rounded-xl transition-colors"
               >
                 <Edit size={16} />
               </button>

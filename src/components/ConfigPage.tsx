@@ -4,6 +4,7 @@ import { useOrganization } from '../hooks/useOrganization';
 import { createClient } from '../lib/supabase';
 import WhatsAppIntegration from './WhatsAppIntegration';
 import CreateOrganizationButton from './CreateOrganizationButton';
+import PageHeader from './PageHeader';
 
 
 export default function ConfigPage() {
@@ -44,8 +45,8 @@ export default function ConfigPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[320px]">
-        <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-          <Loader2 size={20} className="animate-spin text-blue-400" />
+        <div className="app-spinner">
+          <Loader2 size={20} className="animate-spin text-brand-400" />
         </div>
       </div>
     );
@@ -55,23 +56,17 @@ export default function ConfigPage() {
   if (!organizationId) {
     return (
       <div className="space-y-6 max-w-3xl">
-        {/* Encabezado */}
-        <div>
-          <div className="flex items-center gap-2.5 mb-1">
-            <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-              Ajustes
-            </p>
-          </div>
-          <h1 className="text-[32px] font-extrabold text-white tracking-tight leading-none">Configuración</h1>
-          <p className="text-slate-500 text-[14px] mt-2">Gestiona la configuración de tu CRM</p>
-        </div>
+        <PageHeader
+          eyebrow="Ajustes"
+          title="Configuración"
+          description="Gestiona integraciones y facturación de tu organización."
+        />
 
         {/* Aviso organización */}
-        <div className="bg-blue-500/10 border border-blue-500/15 rounded-2xl p-5">
+        <div className="bg-brand-500/10 border border-brand-500/20 rounded-2xl p-5">
           <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 w-9 h-9 bg-blue-500/10 border border-blue-500/15 rounded-xl flex items-center justify-center">
-              <svg className="h-4.5 w-4.5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+            <div className="flex-shrink-0 w-9 h-9 bg-brand-500/10 border border-brand-500/20 rounded-xl flex items-center justify-center">
+              <svg className="h-4.5 w-4.5 text-brand-400" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
               </svg>
             </div>
@@ -93,21 +88,15 @@ export default function ConfigPage() {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      {/* Encabezado */}
-      <div>
-        <div className="flex items-center gap-2.5 mb-1">
-          <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-            Ajustes
-          </p>
-        </div>
-        <h1 className="text-[32px] font-extrabold text-white tracking-tight leading-none">Configuración</h1>
-        <p className="text-slate-500 text-[14px] mt-2">Gestiona la configuración de tu CRM</p>
-      </div>
+      <PageHeader
+        eyebrow="Ajustes"
+        title="Configuración"
+        description="Gestiona integraciones y facturación de tu organización."
+      />
 
       {/* Tarjeta de WhatsApp */}
-      <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] overflow-hidden">
-        <div className="px-6 py-5 border-b border-white/[0.04]">
+      <div className="app-card overflow-hidden">
+        <div className="px-6 py-5 border-b border-app-line">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/15 rounded-xl flex items-center justify-center">
               <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="currentColor">
@@ -155,11 +144,11 @@ export default function ConfigPage() {
       </div>
 
       {/* Facturación / Cancelar suscripción */}
-      <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] overflow-hidden">
-        <div className="px-6 py-5 border-b border-white/[0.04]">
+      <div className="app-card overflow-hidden">
+        <div className="px-6 py-5 border-b border-app-line">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-500/10 border border-blue-500/15 rounded-xl flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-blue-400" />
+            <div className="w-10 h-10 bg-brand-500/10 border border-brand-500/15 rounded-xl flex items-center justify-center">
+              <CreditCard className="w-5 h-5 text-brand-400" />
             </div>
             <div>
               <h2 className="text-base font-semibold text-white">Facturación y suscripción</h2>
@@ -200,7 +189,7 @@ export default function ConfigPage() {
               }
             }}
             disabled={portalLoading}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-blue-500 hover:bg-blue-400 text-white shadow-lg shadow-blue-500/20 disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
+            className="app-btn-primary disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {portalLoading ? (
               <>

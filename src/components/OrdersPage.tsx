@@ -6,6 +6,7 @@ import { loadPaymentsPending, verifyPayment, type PaymentWithOrder } from '../se
 import { sendTextMessage } from '../services/whatsapp-messages';
 import type { Order } from '../data/mockData';
 import OrderCard from './OrderCard';
+import PageHeader from './PageHeader';
 
 
 type OrderStatus = Order['status'] | 'all';
@@ -109,8 +110,8 @@ export default function OrdersPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-            <Loader2 size={20} className="animate-spin text-blue-400" />
+          <div className="app-spinner">
+            <Loader2 size={20} className="animate-spin text-brand-400" />
           </div>
           <p className="text-[13px] text-slate-500">Cargando…</p>
         </div>
@@ -121,8 +122,8 @@ export default function OrdersPage() {
   if (!organizationId) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[300px] gap-3">
-        <div className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
-          <ShoppingCart size={20} className="text-slate-600" />
+        <div className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-app-line flex items-center justify-center">
+          <ShoppingCart size={20} className="text-slate-500" />
         </div>
         <p className="text-[13px] text-slate-500">
           Crea o selecciona una organización para ver pedidos.
@@ -133,29 +134,23 @@ export default function OrdersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-600 mb-1">
-            Gestión
-          </p>
-          <h2 className="text-[32px] font-extrabold text-white tracking-tight leading-none">
-            Pedidos
-          </h2>
-          <p className="text-slate-500 text-[14px] mt-2">
-            Gestiona y verifica todos tus pedidos
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] font-bold text-slate-500 bg-white/[0.04] border border-white/[0.06] px-3 py-1.5 rounded-lg tabular-nums">
-            {orders.length} total
-          </span>
-          {pendingPayments.length > 0 && (
-            <span className="text-[11px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/15 px-3 py-1.5 rounded-lg">
-              {pendingPayments.length} por verificar
+      <PageHeader
+        eyebrow="Gestión"
+        title="Pedidos"
+        description="Gestiona y verifica todos tus pedidos."
+        actions={
+          <>
+            <span className="text-[11px] font-semibold text-slate-400 bg-white/[0.04] border border-app-line px-3 py-1.5 rounded-lg tabular-nums">
+              {orders.length} total
             </span>
-          )}
-        </div>
-      </div>
+            {pendingPayments.length > 0 && (
+              <span className="text-[11px] font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-lg">
+                {pendingPayments.length} por verificar
+              </span>
+            )}
+          </>
+        }
+      />
 
       {pendingPayments.length > 0 && (
         <div className="bg-amber-500/10 border border-amber-500/15 rounded-2xl p-5">
@@ -175,7 +170,7 @@ export default function OrdersPage() {
             {pendingPayments.map((p) => (
               <div
                 key={p.id}
-                className="flex flex-wrap items-end gap-3 p-4 bg-[#111827]/80 rounded-xl border border-white/[0.06]"
+                className="flex flex-wrap items-end gap-3 p-4 rounded-xl border border-app-line bg-app-card/80"
               >
                 <div className="min-w-0 flex-1">
                   <p className="text-[13px] font-semibold text-white">
@@ -225,8 +220,8 @@ export default function OrdersPage() {
             onClick={() => setSelectedStatus(status)}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold whitespace-nowrap transition-all duration-200 ${
               selectedStatus === status
-                ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
-                : 'bg-white/[0.04] text-slate-500 border border-white/[0.06] hover:bg-white/[0.06] hover:text-slate-300'
+                ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
+                : 'bg-white/[0.04] text-slate-500 border border-app-line hover:bg-white/[0.06] hover:text-slate-300'
             }`}
           >
             <span
@@ -242,8 +237,8 @@ export default function OrdersPage() {
       {loading ? (
         <div className="flex items-center justify-center py-20">
           <div className="flex flex-col items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-              <Loader2 size={20} className="animate-spin text-blue-400" />
+            <div className="app-spinner">
+              <Loader2 size={20} className="animate-spin text-brand-400" />
             </div>
             <p className="text-[13px] text-slate-500">Cargando pedidos…</p>
           </div>
@@ -255,8 +250,8 @@ export default function OrdersPage() {
           ))}
         </div>
       ) : (
-        <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] p-16 text-center">
-          <div className="w-14 h-14 bg-white/[0.03] border border-white/[0.06] rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <div className="app-card p-16 text-center">
+          <div className="w-14 h-14 bg-white/[0.03] border border-app-line rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Package size={24} className="text-slate-600" />
           </div>
           <p className="text-[14px] font-medium text-slate-400">

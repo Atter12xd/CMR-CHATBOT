@@ -6,6 +6,7 @@ import { useOrganization } from '../hooks/useOrganization';
 import { loadTrainingData, saveTrainingItem, deleteTrainingItem, uploadTrainingFile } from '../services/bot-training';
 import { getOrganizationBotConfig, saveOrganizationBotConfig } from '../services/bot-config';
 import { createClient } from '../lib/supabase';
+import PageHeader from './PageHeader';
 
 
 export default function BotTrainingPage() {
@@ -265,9 +266,9 @@ export default function BotTrainingPage() {
 
   const getStatusBadge = (status: BotTrainingData['status']) => {
     const config: Record<string, { bg: string; text: string; dot: string; label: string }> = {
-      completed: { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500', label: 'Completado' },
-      error: { bg: 'bg-rose-50', text: 'text-rose-700', dot: 'bg-rose-500', label: 'Error' },
-      processing: { bg: 'bg-blue-500/10', text: 'text-blue-400', dot: 'bg-blue-400', label: 'Procesando' },
+      completed: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', dot: 'bg-emerald-400', label: 'Completado' },
+      error: { bg: 'bg-rose-500/10', text: 'text-rose-400', dot: 'bg-rose-400', label: 'Error' },
+      processing: { bg: 'bg-brand-500/10', text: 'text-brand-400', dot: 'bg-brand-400', label: 'Procesando' },
     };
     const c = config[status] || config.processing;
     return (
@@ -286,8 +287,8 @@ export default function BotTrainingPage() {
   if (orgLoading || loading) {
     return (
       <div className="flex items-center justify-center min-h-[320px]">
-        <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-          <Loader2 size={20} className="animate-spin text-blue-400" />
+        <div className="app-spinner">
+          <Loader2 size={20} className="animate-spin text-brand-400" />
         </div>
       </div>
     );
@@ -303,17 +304,14 @@ export default function BotTrainingPage() {
 
   return (
     <div className="space-y-5">
-      {/* Header - título sobre fondo oscuro */}
-      <div>
-        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">IA</p>
-        <h1 className="text-[32px] font-extrabold text-white tracking-tight leading-none">Entrenar Bot</h1>
-        <p className="text-slate-500 text-[14px] mt-2 max-w-xl">
-          Configura cómo se presenta tu negocio y de qué fuentes aprende el bot. Todo lo que agregues aquí lo usará para saludar, ofrecer tu web o catálogo y responder a los clientes. Los productos que quieras que recomiende y pueda vender debes cargarlos en <strong>Productos</strong>.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="IA"
+        title="Entrenar bot"
+        description="Configura cómo se presenta tu negocio y de qué fuentes aprende el bot. Los productos que quieras vender debes cargarlos en Productos."
+      />
 
       {/* Datos principales de la empresa (presentación del bot) */}
-      <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] p-5">
+      <div className="app-card p-5">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 bg-amber-500/10 border border-amber-500/15 rounded-xl flex items-center justify-center flex-shrink-0">
             <Building2 size={18} className="text-amber-400" />
@@ -391,7 +389,7 @@ export default function BotTrainingPage() {
           <button
             onClick={handleSaveBotConfig}
             disabled={configSaving}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-500 text-white text-sm font-semibold rounded-xl hover:bg-blue-400 shadow-lg shadow-blue-500/20 transition-all disabled:opacity-50"
+            className="app-btn-primary disabled:opacity-50"
           >
             {configSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
             {configSaving ? 'Guardando...' : 'Guardar datos'}
@@ -402,10 +400,10 @@ export default function BotTrainingPage() {
       {/* Acciones */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Extraer de Web */}
-        <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] p-5 hover:border-white/[0.1] transition-all">
+        <div className="app-card-interactive p-5">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-sky-500/10 border border-sky-500/15 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Globe size={18} className="text-sky-400" />
+            <div className="w-10 h-10 bg-brand-500/10 border border-brand-500/15 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Globe size={18} className="text-brand-400" />
             </div>
             <div>
               <h3 className="text-sm font-semibold text-white">Extraer de Página Web</h3>
@@ -415,7 +413,7 @@ export default function BotTrainingPage() {
           {!showWebForm ? (
             <button
               onClick={() => setShowWebForm(true)}
-              className="w-full px-4 py-2.5 bg-blue-500 text-white text-sm font-semibold rounded-xl hover:bg-blue-400 shadow-lg shadow-blue-500/20 transition-all duration-150 active:scale-[0.98]"
+              className="app-btn-primary w-full"
             >
               Agregar URL
             </button>
@@ -433,7 +431,7 @@ export default function BotTrainingPage() {
                 <button
                   onClick={handleWebExtract}
                   disabled={isProcessing}
-                  className="flex-1 px-4 py-2.5 bg-blue-500 text-white text-sm font-semibold rounded-xl hover:bg-blue-400 shadow-lg shadow-blue-500/20 transition-all disabled:opacity-50"
+                  className="app-btn-primary flex-1 disabled:opacity-50"
                 >
                   {isProcessing ? 'Procesando...' : 'Extraer'}
                 </button>
@@ -452,7 +450,7 @@ export default function BotTrainingPage() {
         </div>
 
         {/* Estudiar sitio completo (sitemap) */}
-        <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] p-5 hover:border-white/[0.1] transition-all">
+        <div className="app-card-interactive p-5">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/15 rounded-xl flex items-center justify-center flex-shrink-0">
               <Layers size={18} className="text-emerald-400" />
@@ -488,17 +486,17 @@ export default function BotTrainingPage() {
         </div>
 
         {/* Subir PDF */}
-        <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] p-5 hover:border-white/[0.1] transition-all">
+        <div className="app-card-interactive p-5">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-blue-500/10 border border-blue-500/15 rounded-xl flex items-center justify-center flex-shrink-0">
-              <FileText size={18} className="text-blue-400" />
+            <div className="w-10 h-10 bg-brand-500/10 border border-brand-500/15 rounded-xl flex items-center justify-center flex-shrink-0">
+              <FileText size={18} className="text-brand-400" />
             </div>
             <div>
               <h3 className="text-sm font-semibold text-white">Subir PDF</h3>
               <p className="text-[12px] text-slate-500">Procesa documentos y catálogos</p>
             </div>
           </div>
-          <label className="block w-full px-4 py-2.5 bg-blue-500 text-white text-sm font-semibold rounded-xl hover:bg-blue-400 shadow-lg shadow-blue-500/20 transition-all cursor-pointer text-center active:scale-[0.98]">
+          <label className="app-btn-primary w-full cursor-pointer text-center">
             <input
               type="file"
               accept=".pdf"
@@ -513,11 +511,11 @@ export default function BotTrainingPage() {
 
 
       {/* Lista de entrenamientos */}
-      <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] overflow-hidden">
-        <div className="px-5 py-4 border-b border-white/[0.04] flex items-center justify-between">
+      <div className="app-card overflow-hidden">
+        <div className="px-5 py-4 border-b border-app-line flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-blue-500/10 border border-blue-500/15 rounded-lg flex items-center justify-center">
-              <Brain size={15} className="text-blue-400" />
+            <div className="w-8 h-8 bg-brand-500/10 border border-brand-500/15 rounded-lg flex items-center justify-center">
+              <Brain size={15} className="text-brand-400" />
             </div>
             <h2 className="text-sm font-semibold text-white">
               Información Entrenada
@@ -538,7 +536,7 @@ export default function BotTrainingPage() {
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-white/[0.03]">
+          <div className="divide-y divide-app-line">
             {trainingData.map((item) => (
               <div key={item.id} className="p-4 hover:bg-white/[0.02] transition-colors">
                 <div className="flex items-start justify-between">
@@ -583,10 +581,10 @@ export default function BotTrainingPage() {
 
 
       {/* Contexto para el dueño */}
-      <div className="bg-blue-500/10 border border-blue-500/15 rounded-2xl p-5">
+      <div className="bg-brand-500/10 border border-brand-500/20 rounded-2xl p-5">
         <div className="flex items-start gap-3">
-          <div className="w-9 h-9 bg-blue-500/10 border border-blue-500/15 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
-            <Info size={16} className="text-blue-400" />
+          <div className="w-9 h-9 bg-brand-500/10 border border-brand-500/20 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+            <Info size={16} className="text-brand-400" />
           </div>
           <div>
             <h3 className="text-[13px] font-semibold text-white mb-1.5">Contexto para ti</h3>

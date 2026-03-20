@@ -345,7 +345,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
   return (
     <div className="h-full w-full flex flex-col bg-transparent">
       {/* Header */}
-      <div className="px-4 md:px-5 py-2.5 border-b border-white/[0.06] bg-[#111827]/80 flex items-center justify-between shrink-0">
+      <div className="px-4 md:px-5 py-2.5 border-b border-white/[0.06] bg-app-card/95 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <button
             onClick={onBack}
@@ -359,7 +359,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
               alt={displayName}
               className="w-9 h-9 rounded-full object-cover ring-2 ring-white/[0.08]"
             />
-            <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-[#111827] ${
+            <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-app-card ${
               chat.status === 'active' ? 'bg-emerald-500' : chat.status === 'waiting' ? 'bg-amber-400' : 'bg-slate-500'
             }`} />
           </div>
@@ -404,7 +404,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
               <MoreVertical size={16} />
             </button>
             {menuOpen && (
-              <div className="absolute right-0 top-full mt-1 w-48 bg-[#111827] rounded-2xl shadow-lg border border-white/[0.06] py-1.5 z-50">
+              <div className="absolute right-0 top-full mt-1 w-48 bg-app-card rounded-2xl shadow-lg border border-white/[0.06] py-1.5 z-50">
                 <button
                   onClick={() => { setShowInfoPanel(true); setMenuOpen(false); }}
                   className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px] text-slate-300 hover:bg-white/[0.06] transition-colors"
@@ -511,7 +511,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                             ? `bg-[#dcf8c6] text-slate-900 ${showAvatar ? 'rounded-2xl rounded-tr-sm' : 'rounded-2xl'}`
                             : isBot
                             ? `bg-blue-500/20 text-white border border-blue-500/30 ${showAvatar ? 'rounded-2xl rounded-tl-sm' : 'rounded-2xl'}`
-                            : `bg-[#111827]/90 text-slate-100 border border-white/[0.06] ${showAvatar ? 'rounded-2xl rounded-tl-sm' : 'rounded-2xl'}`
+                            : `bg-app-card/95 text-slate-100 border border-white/[0.06] ${showAvatar ? 'rounded-2xl rounded-tl-sm' : 'rounded-2xl'}`
                         }`}
                       >
                         <p className="text-[13.5px] leading-[1.45] whitespace-pre-wrap break-words">{message.text}</p>
@@ -538,7 +538,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
         )}
         {chat.botTyping && (
           <div className="flex justify-start mt-2">
-            <div className="bg-[#111827]/90 border border-white/[0.06] rounded-2xl rounded-tl-sm px-4 py-3">
+            <div className="bg-app-card/95 border border-white/[0.06] rounded-2xl rounded-tl-sm px-4 py-3">
               <div className="flex gap-1">
                 <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                 <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '140ms' }} />
@@ -552,7 +552,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
 
 
       {/* Input area */}
-      <div className="px-3 md:px-4 py-2.5 border-t border-white/[0.06] bg-[#111827]/80 shrink-0">
+      <div className="px-3 md:px-4 py-2.5 border-t border-white/[0.06] bg-app-card/95 shrink-0">
         <div className="flex items-end gap-1.5">
           <button
             onClick={() => setShowFileModal(true)}
@@ -602,7 +602,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
       {/* Modal: Cambiar nombre */}
       {showRenameModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#111827] rounded-2xl shadow-lg border border-white/[0.06] w-full max-w-sm p-5">
+          <div className="bg-app-card rounded-2xl shadow-lg border border-white/[0.06] w-full max-w-sm p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-white text-sm">Cambiar nombre</h3>
               <button onClick={() => setShowRenameModal(false)} className="p-1.5 hover:bg-white/[0.06] rounded-xl transition-colors">
@@ -642,7 +642,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
       {/* Modal: Vaciar chat */}
       {showClearConfirm && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#111827] rounded-2xl shadow-lg border border-white/[0.06] w-full max-w-sm p-5">
+          <div className="bg-app-card rounded-2xl shadow-lg border border-white/[0.06] w-full max-w-sm p-5">
             <div className="flex items-start gap-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/15 flex items-center justify-center flex-shrink-0">
                 <Trash2 size={18} className="text-rose-400" />
@@ -679,7 +679,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
       {showInfoPanel && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div
-            className="bg-[#111827] w-full sm:max-w-sm sm:rounded-2xl rounded-t-2xl shadow-lg border border-white/[0.06] overflow-hidden"
+            className="bg-app-card w-full sm:max-w-sm sm:rounded-2xl rounded-t-2xl shadow-lg border border-white/[0.06] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="px-4 py-3 border-b border-white/[0.06] flex items-center justify-between">

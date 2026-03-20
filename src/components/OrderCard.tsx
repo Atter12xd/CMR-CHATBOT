@@ -23,7 +23,7 @@ export default function OrderCard({ order, onOpenChat }: OrderCardProps) {
   const status = statusConfig[order.status] || statusConfig.pending;
 
   return (
-    <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] hover:border-white/[0.1] transition-all duration-300 overflow-hidden">
+    <div className="app-card-interactive overflow-hidden">
       <div className="p-5">
         <div className="flex items-start justify-between mb-4">
           <div className="min-w-0">
@@ -72,7 +72,7 @@ export default function OrderCard({ order, onOpenChat }: OrderCardProps) {
             <button
               type="button"
               onClick={() => onOpenChat(order.chatId!)}
-              className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-blue-400 hover:text-blue-300 transition-colors shrink-0"
+              className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-brand-400 hover:text-brand-300 transition-colors shrink-0"
             >
               <MessageSquare size={13} />
               Ir al chat

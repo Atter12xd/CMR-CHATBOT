@@ -16,7 +16,7 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <ProtectedRoute>
-      <div className="flex h-screen overflow-hidden bg-[#0a0f1a]">
+      <div className="flex h-screen overflow-hidden bg-app-shell">
         {/* Overlay para sidebar en móvil */}
         {isSidebarOpen && (
           <div
@@ -36,7 +36,7 @@ export default function Layout({ children }: LayoutProps) {
           <Header onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
 
           {/* Área de contenido con fondo oscuro */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-5 md:p-7 bg-[#0d1220]">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-5 md:p-7 bg-app-canvas">
             {children}
           </div>
         </main>

@@ -4,6 +4,7 @@ import type { PaymentMethod } from '../data/paymentMethods';
 import { defaultPaymentMethods } from '../data/paymentMethods';
 import { useOrganization } from '../hooks/useOrganization';
 import { loadPaymentMethods, savePaymentMethods } from '../services/payment-methods';
+import PageHeader from './PageHeader';
 
 
 interface PaymentMethodsConfigProps {
@@ -84,11 +85,11 @@ export default function PaymentMethodsConfig({ methods: propsMethods, onSave: pr
     switch (type) {
       case 'yape':
       case 'plin':
-        return <Smartphone size={18} className="text-blue-400" />;
+        return <Smartphone size={18} className="text-brand-400" />;
       case 'bcp':
-        return <Building2 size={18} className="text-blue-400" />;
+        return <Building2 size={18} className="text-brand-400" />;
       default:
-        return <CreditCard size={18} className="text-blue-400" />;
+        return <CreditCard size={18} className="text-brand-400" />;
     }
   };
 
@@ -96,8 +97,8 @@ export default function PaymentMethodsConfig({ methods: propsMethods, onSave: pr
   if (loading || orgLoading) {
     return (
       <div className="flex items-center justify-center min-h-[280px]">
-        <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-          <Loader2 size={20} className="animate-spin text-blue-400" />
+        <div className="app-spinner">
+          <Loader2 size={20} className="animate-spin text-brand-400" />
         </div>
       </div>
     );
@@ -113,22 +114,22 @@ export default function PaymentMethodsConfig({ methods: propsMethods, onSave: pr
 
   return (
     <div className="space-y-5">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Pagos</p>
-          <h2 className="text-[32px] font-extrabold text-white tracking-tight leading-none">Métodos de Pago</h2>
-          <p className="text-slate-500 text-[14px] mt-2">Configura los métodos de pago que el bot ofrecerá a los clientes</p>
-        </div>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="flex items-center gap-2 px-4 py-2.5 bg-blue-500 text-white text-sm font-semibold rounded-xl hover:bg-blue-400 shadow-lg shadow-blue-500/20 transition-all duration-150 active:scale-[0.97] disabled:opacity-60"
-        >
-          {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-          <span>{saving ? 'Guardando...' : 'Guardar'}</span>
-        </button>
-      </div>
+      <PageHeader
+        eyebrow="Pagos"
+        title="Métodos de pago"
+        description="Configura los métodos que el bot ofrecerá a los clientes."
+        actions={
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="app-btn-primary disabled:opacity-60"
+          >
+            {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+            <span>{saving ? 'Guardando...' : 'Guardar'}</span>
+          </button>
+        }
+      />
 
 
       {/* Payment Methods */}
@@ -136,15 +137,15 @@ export default function PaymentMethodsConfig({ methods: propsMethods, onSave: pr
         {paymentMethods.map((method) => (
           <div
             key={method.id}
-            className={`bg-[#111827]/80 rounded-2xl border transition-all duration-200 ${
-              method.active ? 'border-blue-500/30 shadow-lg shadow-blue-500/10' : 'border-white/[0.06] hover:border-white/[0.1]'
+            className={`app-card transition-all duration-200 ${
+              method.active ? 'border-brand-500/35 shadow-lg shadow-brand-500/10' : 'hover:border-app-line-strong'
             }`}
           >
             <div className="p-5">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                    method.active ? 'bg-blue-500/10 border border-blue-500/15' : 'bg-white/[0.04] border border-white/[0.06]'
+                    method.active ? 'bg-brand-500/10 border border-brand-500/15' : 'bg-white/[0.04] border border-app-line'
                   }`}>
                     {getIcon(method.type)}
                   </div>
@@ -155,7 +156,7 @@ export default function PaymentMethodsConfig({ methods: propsMethods, onSave: pr
                         type="checkbox"
                         checked={method.active}
                         onChange={(e) => handleChange(method.id, 'active', e.target.checked)}
-                        className="w-4 h-4 text-blue-500 rounded-md border-slate-300 focus:ring-blue-500/20"
+                        className="w-4 h-4 text-brand-500 rounded-md border-app-line bg-app-card focus:ring-brand-500/25"
                       />
                       <span className="text-[13px] text-slate-500">Activar este método</span>
                     </label>
@@ -171,7 +172,7 @@ export default function PaymentMethodsConfig({ methods: propsMethods, onSave: pr
 
 
               {method.active && (
-                <div className="mt-4 space-y-4 pt-4 border-t border-white/[0.04]">
+                <div className="mt-4 space-y-4 pt-4 border-t border-app-line">
                   <div>
                     <label className="block text-[13px] font-semibold text-slate-400 mb-1.5">
                       A nombre de <span className="text-rose-400">*</span>
@@ -241,10 +242,10 @@ export default function PaymentMethodsConfig({ methods: propsMethods, onSave: pr
 
 
       {/* Info Note */}
-      <div className="bg-blue-500/10 border border-blue-500/15 rounded-2xl p-4">
+      <div className="bg-brand-500/10 border border-brand-500/20 rounded-2xl p-4">
         <div className="flex items-start gap-2.5">
-          <div className="w-8 h-8 bg-blue-500/10 border border-blue-500/15 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-            <Info size={14} className="text-blue-400" />
+          <div className="w-8 h-8 bg-brand-500/10 border border-brand-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+            <Info size={14} className="text-brand-400" />
           </div>
           <p className="text-[13px] text-slate-400 leading-relaxed">
             Cuando un cliente quiera realizar un pago, el bot mostrará automáticamente 

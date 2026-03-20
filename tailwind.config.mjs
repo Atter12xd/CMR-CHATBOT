@@ -4,10 +4,27 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
-        display: ['Inter', 'system-ui', 'sans-serif'],
+        sans: [
+          '"Plus Jakarta Sans"',
+          'Inter',
+          'system-ui',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'sans-serif',
+        ],
+        display: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
       },
       colors: {
+        app: {
+          shell: '#06080e',
+          canvas: '#090c14',
+          raised: '#0c1018',
+          card: '#101622',
+          'card-hover': '#141c28',
+          line: 'rgba(255, 255, 255, 0.07)',
+          'line-strong': 'rgba(255, 255, 255, 0.11)',
+        },
         brand: {
           50: '#eef7ff',
           100: '#d8ecff',
@@ -43,6 +60,13 @@ export default {
       boxShadow: {
         'glow': '0 0 40px -10px rgba(42, 139, 255, 0.3)',
         'glow-lg': '0 0 60px -15px rgba(42, 139, 255, 0.4)',
+        'app-card':
+          '0 1px 0 0 rgba(255, 255, 255, 0.04) inset, 0 16px 48px -20px rgba(0, 0, 0, 0.55)',
+        'app-header': '0 1px 0 0 rgba(255, 255, 255, 0.06)',
+      },
+      backgroundImage: {
+        'app-canvas':
+          'radial-gradient(ellipse 90% 60% at 50% -15%, rgba(42, 139, 255, 0.09), transparent 52%), radial-gradient(ellipse 70% 45% at 100% 0%, rgba(16, 185, 129, 0.05), transparent 45%), linear-gradient(180deg, #090c14 0%, #080a10 100%)',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out',

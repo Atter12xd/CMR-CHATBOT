@@ -214,10 +214,10 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
 
   const getStatusBadge = (status: IntegrationStatus) => {
     const config: Record<string, { bg: string; text: string; dot: string; label: string }> = {
-      connected: { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500', label: 'Conectado' },
-      pending: { bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500', label: 'Pendiente' },
-      error: { bg: 'bg-rose-50', text: 'text-rose-700', dot: 'bg-rose-500', label: 'Error' },
-      disconnected: { bg: 'bg-slate-50', text: 'text-slate-500', dot: 'bg-slate-400', label: 'Desconectado' },
+      connected: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', dot: 'bg-emerald-400', label: 'Conectado' },
+      pending: { bg: 'bg-amber-500/10', text: 'text-amber-400', dot: 'bg-amber-400', label: 'Pendiente' },
+      error: { bg: 'bg-rose-500/10', text: 'text-rose-400', dot: 'bg-rose-400', label: 'Error' },
+      disconnected: { bg: 'bg-white/[0.06]', text: 'text-slate-400', dot: 'bg-slate-500', label: 'Desconectado' },
     };
     const c = config[status] || config.disconnected;
     return (
@@ -356,8 +356,8 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[200px]">
-        <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-          <Loader2 size={20} className="animate-spin text-blue-400" />
+        <div className="app-spinner">
+          <Loader2 size={20} className="animate-spin text-brand-400" />
         </div>
       </div>
     );
@@ -373,10 +373,10 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
   ];
 
   const colorMap: Record<string, { bg: string; iconColor: string; ring: string; valueTxt: string }> = {
-    blue: { bg: 'bg-blue-500/10', iconColor: 'text-blue-400', ring: 'ring-blue-500/15', valueTxt: 'text-blue-400' },
-    emerald: { bg: 'bg-emerald-50', iconColor: 'text-emerald-600', ring: 'ring-emerald-100', valueTxt: 'text-emerald-900' },
-    amber: { bg: 'bg-amber-50', iconColor: 'text-amber-600', ring: 'ring-amber-100', valueTxt: 'text-amber-900' },
-    rose: { bg: 'bg-rose-50', iconColor: 'text-rose-600', ring: 'ring-rose-100', valueTxt: 'text-rose-900' },
+    blue: { bg: 'bg-brand-500/10', iconColor: 'text-brand-400', ring: 'ring-brand-500/20', valueTxt: 'text-white' },
+    emerald: { bg: 'bg-emerald-500/10', iconColor: 'text-emerald-400', ring: 'ring-emerald-500/20', valueTxt: 'text-white' },
+    amber: { bg: 'bg-amber-500/10', iconColor: 'text-amber-400', ring: 'ring-amber-500/20', valueTxt: 'text-white' },
+    rose: { bg: 'bg-rose-500/10', iconColor: 'text-rose-400', ring: 'ring-rose-500/20', valueTxt: 'text-white' },
   };
 
 
@@ -384,20 +384,20 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
     <div className="space-y-5">
       {/* Estado actual - Solo mostrar si está conectado o pendiente */}
       {integration && integration.status !== 'disconnected' && (
-        <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] overflow-hidden">
+        <div className="app-card overflow-hidden">
           <div className="p-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3.5">
-                <div className="w-11 h-11 bg-emerald-50 ring-1 ring-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <svg className="w-5 h-5 text-emerald-600" viewBox="0 0 24 24" fill="currentColor">
+                <div className="w-11 h-11 bg-emerald-500/10 ring-1 ring-emerald-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
                     <path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.61.61l4.458-1.495A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.387 0-4.607-.798-6.379-2.145l-.292-.222-3.025 1.01 1.01-3.025-.222-.292A9.935 9.935 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-900">WhatsApp Business</h3>
-                  <p className="text-[13px] text-slate-500 mt-0.5">
-                    Número: <span className="font-medium text-slate-700">{integration.phone_number}</span>
+                  <h3 className="text-sm font-semibold text-white">WhatsApp Business</h3>
+                  <p className="text-[13px] text-slate-400 mt-0.5">
+                    Número: <span className="font-medium text-slate-200">{integration.phone_number}</span>
                   </p>
                 </div>
               </div>
@@ -406,18 +406,18 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
 
 
             {integration.status === 'connected' && (
-              <div className="mt-4 pt-4 border-t border-slate-100">
-                <div className="flex items-center justify-between">
-                  <div className="text-[13px] text-slate-500 space-y-0.5">
-                    <p>Conectado desde: <span className="text-slate-700">{new Date(integration.verified_at || '').toLocaleDateString()}</span></p>
+              <div className="mt-4 pt-4 border-t border-app-line">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-[13px] text-slate-400 space-y-0.5">
+                    <p>Conectado desde: <span className="text-slate-200">{new Date(integration.verified_at || '').toLocaleDateString()}</span></p>
                     {integration.last_sync_at && (
-                      <p>Última sincronización: <span className="text-slate-700">{new Date(integration.last_sync_at).toLocaleString()}</span></p>
+                      <p>Última sincronización: <span className="text-slate-200">{new Date(integration.last_sync_at).toLocaleString()}</span></p>
                     )}
                   </div>
                   <button
                     onClick={handleDisconnect}
                     disabled={connecting}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium text-rose-600 hover:bg-rose-50 rounded-xl transition-colors disabled:opacity-50"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors disabled:opacity-50"
                   >
                     <Trash2 size={14} />
                     <span>Desconectar</span>
@@ -428,8 +428,8 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
 
 
             {integration.error_message && (
-              <div className="mt-4 p-3 bg-rose-50 border border-rose-200/60 rounded-xl">
-                <p className="text-sm text-rose-700">{integration.error_message}</p>
+              <div className="mt-4 p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl">
+                <p className="text-sm text-rose-300">{integration.error_message}</p>
               </div>
             )}
           </div>
@@ -439,24 +439,24 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
 
       {/* Formulario de conexión - Mostrar si no hay integración o está desconectado */}
       {(step === 'input' && (!integration || integration.status === 'disconnected')) && (
-        <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] p-6">
+        <div className="app-card p-6">
           <div className="flex items-center gap-2.5 mb-1">
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Conexión</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Conexión</p>
           </div>
-          <h3 className="text-base font-semibold text-slate-900 mb-1.5">Conectar WhatsApp</h3>
-          <p className="text-[13px] text-slate-500 mb-5 leading-relaxed">
+          <h3 className="text-base font-semibold text-white mb-1.5">Conectar WhatsApp</h3>
+          <p className="text-[13px] text-slate-400 mb-5 leading-relaxed">
             Conecta tu WhatsApp escaneando el código QR desde tu teléfono. Usamos el servidor Contabo (Baileys), sin depender de Meta/Facebook.
           </p>
           {error && (
-            <div className="p-3 bg-rose-50 border border-rose-200/60 rounded-xl mb-4">
-              <p className="text-sm text-rose-700">{error}</p>
+            <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl mb-4">
+              <p className="text-sm text-rose-300">{error}</p>
             </div>
           )}
           <button
             onClick={() => { setError(null); setStep('qr'); }}
             disabled={connecting}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 shadow-sm shadow-emerald-600/20 transition-all duration-150 active:scale-[0.98] disabled:opacity-50 font-semibold text-sm"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm bg-emerald-600 text-white hover:bg-emerald-500 shadow-lg shadow-emerald-900/30 transition-all active:scale-[0.98] disabled:opacity-50"
           >
             <QrCode size={18} />
             <span>Generar QR y conectar</span>
@@ -467,36 +467,37 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
 
       {/* Paso QR: mostrar imagen y polling (Baileys / Contabo) */}
       {step === 'qr' && (
-        <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] p-6">
+        <div className="app-card p-6">
           <div className="flex items-center justify-between mb-5">
             <div>
               <div className="flex items-center gap-2.5 mb-1">
-                <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Verificación</p>
+                <span className="w-2 h-2 rounded-full bg-brand-500"></span>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Verificación</p>
               </div>
-              <h3 className="text-base font-semibold text-slate-900">Escanear código QR</h3>
+              <h3 className="text-base font-semibold text-white">Escanear código QR</h3>
             </div>
             <button
+              type="button"
               onClick={() => { setStep('input'); setError(null); setQrImage(null); }}
-              className="text-[13px] font-medium text-slate-500 hover:text-slate-800 px-3 py-1.5 hover:bg-slate-50 rounded-xl transition-colors"
+              className="text-[13px] font-medium text-slate-400 hover:text-white px-3 py-1.5 hover:bg-white/[0.06] rounded-xl transition-colors"
             >
               Volver
             </button>
           </div>
           {error && (
-            <div className="p-3 bg-rose-50 border border-rose-200/60 rounded-xl mb-4">
-              <p className="text-sm text-rose-700">{error}</p>
+            <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl mb-4">
+              <p className="text-sm text-rose-300">{error}</p>
             </div>
           )}
           {(connecting || (!qrImage && !error)) && (
             <div className="flex flex-col items-center gap-3 py-10">
-              <div className="w-12 h-12 bg-emerald-50 ring-1 ring-emerald-100 rounded-2xl flex items-center justify-center">
-                <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
+              <div className="w-12 h-12 bg-emerald-500/10 ring-1 ring-emerald-500/20 rounded-2xl flex items-center justify-center">
+                <Loader2 className="h-6 w-6 animate-spin text-emerald-400" />
               </div>
-              <span className="text-sm font-medium text-slate-700">
+              <span className="text-sm font-medium text-slate-200">
                 {connecting ? 'Conectando con WhatsApp...' : 'Esperando código QR...'}
               </span>
-              <p className="text-[13px] text-slate-400 text-center max-w-sm leading-relaxed">
+              <p className="text-[13px] text-slate-500 text-center max-w-sm leading-relaxed">
                 La conexión puede tardar 1–2 minutos. Si no aparece el QR, pulsa Volver e intenta de nuevo.
               </p>
             </div>
@@ -506,10 +507,10 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
               <div className="inline-block p-4 bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-100 mb-4">
                 <img src={qrImage} alt="QR WhatsApp" className="max-w-[260px]" />
               </div>
-              <p className="text-sm text-slate-600 font-medium">
+              <p className="text-sm text-slate-300 font-medium">
                 Abre WhatsApp → Dispositivos vinculados → Vincular dispositivo
               </p>
-              <p className="text-[12px] text-slate-400 mt-1.5">Escanea el código con tu teléfono</p>
+              <p className="text-[12px] text-slate-500 mt-1.5">Escanea el código con tu teléfono</p>
             </div>
           )}
         </div>
@@ -518,14 +519,14 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
 
       {/* Conectado - Mensaje de éxito */}
       {step === 'connected' && integration?.status === 'connected' && (
-        <div className="bg-emerald-50 border border-emerald-200/60 rounded-2xl p-5">
+        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
-              <CheckCircle2 size={20} className="text-emerald-600" />
+            <div className="w-10 h-10 bg-emerald-500/15 rounded-xl flex items-center justify-center flex-shrink-0">
+              <CheckCircle2 size={20} className="text-emerald-400" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-emerald-900">WhatsApp conectado exitosamente</h3>
-              <p className="text-[13px] text-emerald-700/80 mt-0.5">
+              <h3 className="text-sm font-semibold text-emerald-300">WhatsApp conectado exitosamente</h3>
+              <p className="text-[13px] text-emerald-400/90 mt-0.5">
                 Tu número {integration.phone_number} está conectado y listo para recibir mensajes.
               </p>
             </div>
@@ -536,18 +537,19 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
 
       {/* Métricas en tiempo real */}
       {integration?.status === 'connected' && (
-        <div className="bg-[#111827]/80 rounded-2xl border border-white/[0.06] overflow-hidden">
-          <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+        <div className="app-card overflow-hidden">
+          <div className="px-5 py-4 border-b border-app-line flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 bg-blue-500/10 border border-blue-500/15 rounded-lg flex items-center justify-center">
-                <TrendingUp size={16} className="text-blue-400" />
+              <div className="w-8 h-8 bg-brand-500/10 border border-brand-500/15 rounded-lg flex items-center justify-center">
+                <TrendingUp size={16} className="text-brand-400" />
               </div>
-              <h3 className="text-sm font-semibold text-slate-900">Métricas de Hoy</h3>
+              <h3 className="text-sm font-semibold text-white">Métricas de hoy</h3>
             </div>
             <button
+              type="button"
               onClick={loadMetrics}
               disabled={loadingMetrics}
-              className="p-2 hover:bg-slate-50 rounded-xl transition-colors disabled:opacity-50"
+              className="p-2 hover:bg-white/[0.06] rounded-xl transition-colors disabled:opacity-50"
               title="Actualizar métricas"
             >
               <RefreshCw size={15} className={`text-slate-400 ${loadingMetrics ? 'animate-spin' : ''}`} />
@@ -557,7 +559,7 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
           <div className="p-5">
             {loadingMetrics ? (
               <div className="flex items-center justify-center py-10">
-                <Loader2 className="h-6 w-6 animate-spin text-blue-400" />
+                <Loader2 className="h-6 w-6 animate-spin text-brand-400" />
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -571,17 +573,17 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
                         <span className={`text-[11px] font-semibold uppercase tracking-wider ${c.iconColor}`}>{m.label}</span>
                       </div>
                       <p className={`text-2xl font-bold ${c.valueTxt}`}>{m.value}</p>
-                      <p className={`text-[11px] ${c.iconColor} mt-0.5`}>{m.suffix}</p>
+                      <p className={`text-[11px] text-slate-400 mt-0.5`}>{m.suffix}</p>
                     </div>
                   );
                 })}
               </div>
             )}
 
-            <div className="mt-4 pt-4 border-t border-slate-100">
-              <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
+            <div className="mt-4 pt-4 border-t border-app-line">
+              <p className="text-[11px] text-slate-500 flex items-center gap-1.5">
                 <Info size={11} />
-                <span>Las métricas se actualizan cada vez que recargues esta página o hagas clic en actualizar.</span>
+                <span>Las métricas se actualizan al recargar la página o al pulsar actualizar.</span>
               </p>
             </div>
           </div>

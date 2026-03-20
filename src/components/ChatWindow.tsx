@@ -1,5 +1,21 @@
 import { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Send, Bot, User, UserCircle, Loader2, Paperclip, MoreVertical, Pencil, Trash2, Info, X, UserRound } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  ArrowLeft,
+  Send,
+  Bot,
+  Loader2,
+  Paperclip,
+  MoreVertical,
+  Pencil,
+  Trash2,
+  Info,
+  X,
+  UserRound,
+  Mail,
+  Phone,
+  MessageSquare,
+} from 'lucide-react';
 import type { Chat, Message } from '../data/mockData';
 import { loadChatWithMessages, subscribeToChatMessages, clearChat, updateChatName, updateChatBotActive } from '../services/chats';
 import { sendTextMessage, sendImageMessage, sendDocumentMessage, markMessagesAsRead } from '../services/whatsapp-messages';
@@ -297,21 +313,6 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
 
 
 
-  const getMessageSender = (sender: Message['sender']) => {
-    switch (sender) {
-      case 'bot':
-        return { icon: Bot, bgColor: 'bg-violet-600', name: 'Bot' };
-      case 'agent':
-        return { icon: UserCircle, bgColor: 'bg-violet-600', name: 'Tú' };
-      case 'user':
-        return { icon: User, bgColor: 'bg-slate-500', name: displayName };
-      default:
-        return { icon: User, bgColor: 'bg-slate-500', name: 'Usuario' };
-    }
-  };
-
-
-
   const formatMessageTime = (date: Date) => {
     return new Date(date).toLocaleTimeString('es-ES', {
       hour: '2-digit',
@@ -343,37 +344,53 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
 
 
   return (
-    <div className="h-full w-full flex flex-col bg-transparent">
-      {/* Header */}
-      <div className="px-4 md:px-5 py-2.5 border-b border-white/[0.06] bg-app-card/95 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
-          <button
+    <div className="h-full w-full flex flex-col bg-transparent min-h-0">
+      {/* Header estilo CRM */}
+      <motion.div
+        initial={{ opacity: 0, y: -6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25 }}
+        className="px-4 md:px-6 min-h-[4rem] py-2 border-b border-app-line bg-gradient-to-r from-app-card via-app-card to-brand-500/[0.06] backdrop-blur-md flex items-center justify-between shrink-0"
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <motion.button
+            type="button"
             onClick={onBack}
-            className="md:hidden p-1.5 hover:bg-white/[0.06] rounded-xl transition-colors"
+            whileTap={{ scale: 0.94 }}
+            className="md:hidden p-2 hover:bg-white/[0.08] rounded-xl transition-colors text-slate-400"
           >
-            <ArrowLeft size={18} className="text-slate-400" />
-          </button>
-          <div className="relative">
-            <img
-              src={chat.customerAvatar}
-              alt={displayName}
-              className="w-9 h-9 rounded-full object-cover ring-2 ring-white/[0.08]"
+            <ArrowLeft size={20} />
+          </motion.button>
+          <div className="relative flex-shrink-0">
+            <div className="rounded-full p-[2px] bg-gradient-to-br from-brand-400 to-purple-600">
+              <img
+                src={chat.customerAvatar}
+                alt={displayName}
+                className="w-11 h-11 rounded-full object-cover bg-app-card"
+              />
+            </div>
+            <div
+              className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-app-card ${
+                chat.status === 'active'
+                  ? 'bg-emerald-500 shadow-[0_0_0_2px_rgba(16,185,129,0.35)]'
+                  : chat.status === 'waiting'
+                    ? 'bg-amber-400'
+                    : 'bg-slate-500'
+              }`}
             />
-            <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-app-card ${
-              chat.status === 'active' ? 'bg-emerald-500' : chat.status === 'waiting' ? 'bg-amber-400' : 'bg-slate-500'
-            }`} />
           </div>
           <div className="min-w-0">
-            <h2 className="font-semibold text-white text-[13px] leading-tight truncate">{displayName}</h2>
-            <p className="text-[11px] text-slate-500 leading-tight mt-0.5">
+            <h2 className="font-semibold text-white text-[15px] leading-tight truncate font-display">{displayName}</h2>
+            <p className="text-[12px] text-slate-500 leading-tight mt-0.5 truncate">
               {chat.platform === 'whatsapp' && (whatsAppNumber ? `WhatsApp · ${whatsAppNumber}` : 'WhatsApp')}
               {chat.platform === 'facebook' && 'Facebook Messenger'}
               {chat.platform === 'web' && 'Chat Web'}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-1">
-          <button
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          <motion.button
+            type="button"
             onClick={async () => {
               if (togglingBot) return;
               setTogglingBot(true);
@@ -385,26 +402,36 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
               setTogglingBot(false);
             }}
             disabled={togglingBot}
-            className={`text-[11px] px-2.5 py-1.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-1.5 ${
+            whileTap={{ scale: togglingBot ? 1 : 0.97 }}
+            className={`text-[11px] px-3 py-2 rounded-xl font-semibold transition-all duration-200 flex items-center gap-1.5 border ${
               botActive
-                ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20'
-                : 'bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20'
+                ? 'bg-brand-500/15 text-brand-300 border-brand-500/25 hover:bg-brand-500/25'
+                : 'bg-amber-500/10 text-amber-300 border-amber-500/25 hover:bg-amber-500/20'
             } ${togglingBot ? 'opacity-50 cursor-not-allowed' : ''}`}
             title={botActive ? 'Pausar bot (modo humano)' : 'Activar bot'}
           >
             {togglingBot ? <Loader2 size={12} className="animate-spin" /> : botActive ? <Bot size={12} /> : <UserRound size={12} />}
             {botActive ? 'Bot' : 'Humano'}
-          </button>
+          </motion.button>
           <div className="relative" ref={menuRef}>
-            <button
+            <motion.button
+              type="button"
               onClick={() => setMenuOpen((o) => !o)}
-              className="p-1.5 hover:bg-white/[0.06] rounded-xl transition-colors text-slate-400 hover:text-white"
+              whileTap={{ scale: 0.95 }}
+              className="p-2 hover:bg-white/[0.08] rounded-xl transition-colors text-slate-400 hover:text-white"
               aria-label="Más opciones"
             >
-              <MoreVertical size={16} />
-            </button>
+              <MoreVertical size={18} />
+            </motion.button>
+            <AnimatePresence>
             {menuOpen && (
-              <div className="absolute right-0 top-full mt-1 w-48 bg-app-card rounded-2xl shadow-lg border border-white/[0.06] py-1.5 z-50">
+              <motion.div
+                initial={{ opacity: 0, y: -4, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                transition={{ duration: 0.15 }}
+                className="absolute right-0 top-full mt-1.5 w-52 bg-app-card rounded-2xl shadow-app-card border border-app-line py-1.5 z-50 overflow-hidden"
+              >
                 <button
                   onClick={() => { setShowInfoPanel(true); setMenuOpen(false); }}
                   className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px] text-slate-300 hover:bg-white/[0.06] transition-colors"
@@ -444,34 +471,54 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                   <Trash2 size={14} className="text-rose-400" />
                   Vaciar chat
                 </button>
-              </div>
+              </motion.div>
             )}
+            </AnimatePresence>
           </div>
         </div>
-      </div>
-
+      </motion.div>
 
       {/* Messages area */}
       <div
-        className="flex-1 overflow-y-auto px-3 md:px-6 py-4 space-y-1"
+        className="flex-1 overflow-y-auto px-3 md:px-8 py-5 space-y-1 min-h-0"
         style={{
-          backgroundColor: '#0f172a',
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231e293b' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundColor: '#0a0e14',
+          backgroundImage: `radial-gradient(ellipse 80% 50% at 50% -20%, rgba(42,139,255,0.09), transparent), radial-gradient(ellipse 60% 40% at 100% 50%, rgba(147,51,234,0.06), transparent), url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231e293b' fill-opacity='0.22'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
         }}
       >
         {loading ? (
-          <div className="flex items-center justify-center h-full">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex items-center justify-center h-full min-h-[200px]"
+          >
             <div className="flex flex-col items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                <Loader2 className="h-5 w-5 animate-spin text-blue-400" />
+              <div className="app-spinner">
+                <Loader2 className="h-5 w-5 animate-spin text-brand-400" />
               </div>
-              <span className="text-[12px] text-slate-500 font-medium">Cargando mensajes</span>
+              <span className="text-[12px] text-slate-500 font-medium">Cargando mensajes…</span>
             </div>
-          </div>
+          </motion.div>
+        ) : messages.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-col items-center justify-center h-full min-h-[240px] text-center px-6"
+          >
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-brand-500/30 to-purple-600/30 border border-brand-500/20 flex items-center justify-center mb-5 shadow-lg shadow-brand-500/10">
+              <MessageSquare className="w-9 h-9 text-brand-300" />
+            </div>
+            <h3 className="text-lg font-semibold text-white font-display mb-2">
+              Inicia la conversación
+            </h3>
+            <p className="text-sm text-slate-500 max-w-sm leading-relaxed">
+              Aún no hay mensajes con {displayName.split(' ')[0]}. Escribe abajo para enviar el primero.
+            </p>
+          </motion.div>
         ) : (
-          <>
+          <div className="max-w-3xl mx-auto w-full">
             {messages.map((message, index) => {
-              const senderInfo = getMessageSender(message.sender);
               const isOwnMessage = message.sender === 'agent';
               const isBot = message.sender === 'bot';
               const prevMessage = index > 0 ? messages[index - 1] : null;
@@ -479,48 +526,59 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                 (new Date(message.timestamp).getTime() - new Date(prevMessage.timestamp).getTime()) > 300000;
               const showDateSep = shouldShowDateSeparator(index);
 
-              // Tail logic: show tail only on first message of a group
-              const nextMessage = index < messages.length - 1 ? messages[index + 1] : null;
-              const isLastInGroup = !nextMessage || nextMessage.sender !== message.sender ||
-                (new Date(nextMessage.timestamp).getTime() - new Date(message.timestamp).getTime()) > 300000;
-
               return (
-                <div key={message.id}>
-                  {/* Date separator */}
+                <motion.div
+                  key={message.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+                >
                   {showDateSep && (
-                    <div className="flex justify-center my-3">
-                      <span className="text-[11px] font-medium text-slate-500 bg-white/[0.06] border border-white/[0.06] px-3 py-1 rounded-lg">
+                    <div className="flex justify-center my-4">
+                      <span className="text-[11px] font-semibold text-slate-400 bg-white/[0.07] border border-app-line px-3.5 py-1 rounded-full shadow-sm">
                         {getDateLabel(message.timestamp)}
                       </span>
                     </div>
                   )}
 
-                  {/* Bot label */}
                   {isBot && showAvatar && (
-                    <div className="flex items-center gap-1.5 mb-1 ml-1">
-                      <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                      <span className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider">Bot</span>
+                    <div className="flex items-center gap-1.5 mb-1.5 ml-1">
+                      <div className="w-1.5 h-1.5 rounded-full bg-brand-400 shadow-[0_0_8px_rgba(42,139,255,0.6)]" />
+                      <span className="text-[10px] font-bold text-brand-400 uppercase tracking-[0.15em]">
+                        Bot
+                      </span>
                     </div>
                   )}
 
-                  <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} ${showAvatar && index > 0 ? 'mt-2' : ''}`}>
-                    <div className={`max-w-[80%] md:max-w-[55%]`}>
+                  <div
+                    className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} ${showAvatar && index > 0 ? 'mt-2' : ''}`}
+                  >
+                    <div className={`max-w-[85%] md:max-w-[58%]`}>
                       <div
-                        className={`relative px-3 py-2 ${
+                        className={`relative px-3.5 py-2.5 shadow-md ${
                           isOwnMessage
-                            ? `bg-[#dcf8c6] text-slate-900 ${showAvatar ? 'rounded-2xl rounded-tr-sm' : 'rounded-2xl'}`
+                            ? `bg-[#d9fdd3] text-slate-900 border border-emerald-200/50 ${showAvatar ? 'rounded-[1.15rem] rounded-tr-md' : 'rounded-[1.15rem]'}`
                             : isBot
-                            ? `bg-blue-500/20 text-white border border-blue-500/30 ${showAvatar ? 'rounded-2xl rounded-tl-sm' : 'rounded-2xl'}`
-                            : `bg-app-card/95 text-slate-100 border border-white/[0.06] ${showAvatar ? 'rounded-2xl rounded-tl-sm' : 'rounded-2xl'}`
+                              ? `bg-gradient-to-br from-brand-500/25 to-purple-600/20 text-white border border-brand-500/25 ${showAvatar ? 'rounded-[1.15rem] rounded-tl-md' : 'rounded-[1.15rem]'}`
+                              : `bg-app-card/95 text-slate-100 border border-app-line ${showAvatar ? 'rounded-[1.15rem] rounded-tl-md' : 'rounded-[1.15rem]'}`
                         }`}
                       >
-                        <p className="text-[13.5px] leading-[1.45] whitespace-pre-wrap break-words">{message.text}</p>
+                        <p className="text-[14px] leading-[1.5] whitespace-pre-wrap break-words">{message.text}</p>
                         {message.image && (
-                          <img src={message.image} alt="Adjunto" className="mt-1.5 rounded-lg max-w-[220px] cursor-pointer hover:opacity-95 transition-opacity" />
+                          <img
+                            src={message.image}
+                            alt="Adjunto"
+                            className="mt-2 rounded-xl max-w-[240px] cursor-pointer hover:opacity-95 transition-opacity ring-1 ring-black/5"
+                          />
                         )}
-                        {/* Inline timestamp */}
-                        <div className={`flex items-center gap-1 mt-0.5 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
-                          <span className="text-[10px] text-slate-400/80 leading-none select-none">{formatMessageTime(message.timestamp)}</span>
+                        <div
+                          className={`flex items-center gap-1 mt-1 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
+                        >
+                          <span
+                            className={`text-[10px] leading-none select-none ${isOwnMessage ? 'text-slate-600/80' : 'text-slate-400/90'}`}
+                          >
+                            {formatMessageTime(message.timestamp)}
+                          </span>
                           {isOwnMessage && (
                             <MessageStatusIndicator
                               status={message.status || (message.read ? 'read' : 'sent')}
@@ -531,62 +589,95 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </>
-        )}
-        {chat.botTyping && (
-          <div className="flex justify-start mt-2">
-            <div className="bg-app-card/95 border border-white/[0.06] rounded-2xl rounded-tl-sm px-4 py-3">
-              <div className="flex gap-1">
-                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '140ms' }} />
-                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '280ms' }} />
-              </div>
-            </div>
+            <AnimatePresence mode="wait">
+              {chat.botTyping && (
+                <motion.div
+                  key="bot-typing"
+                  className="flex justify-start mt-3 gap-2"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 4 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/20">
+                    <Bot className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="bg-app-card border border-app-line rounded-2xl rounded-tl-sm px-4 py-3 shadow-md">
+                    <div className="flex gap-1.5 items-center h-4">
+                      <motion.span
+                        className="w-2 h-2 rounded-full bg-slate-400"
+                        animate={{ y: [0, -5, 0] }}
+                        transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
+                      />
+                      <motion.span
+                        className="w-2 h-2 rounded-full bg-slate-400"
+                        animate={{ y: [0, -5, 0] }}
+                        transition={{ duration: 0.6, repeat: Infinity, delay: 0.15 }}
+                      />
+                      <motion.span
+                        className="w-2 h-2 rounded-full bg-slate-400"
+                        animate={{ y: [0, -5, 0] }}
+                        transition={{ duration: 0.6, repeat: Infinity, delay: 0.3 }}
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
 
-      {/* Input area */}
-      <div className="px-3 md:px-4 py-2.5 border-t border-white/[0.06] bg-app-card/95 shrink-0">
-        <div className="flex items-end gap-1.5">
-          <button
+      {/* Input area — estilo CRM */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, delay: 0.05 }}
+        className="px-3 md:px-6 py-3 border-t border-app-line bg-gradient-to-t from-app-card to-[#0e141c] shrink-0 backdrop-blur-md"
+      >
+        <div className="max-w-3xl mx-auto w-full flex items-end gap-2">
+          <motion.button
+            type="button"
             onClick={() => setShowFileModal(true)}
             disabled={sending}
-            className="p-2 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-all duration-200 disabled:opacity-40 flex-shrink-0"
+            whileTap={{ scale: sending ? 1 : 0.94 }}
+            className="p-2.5 text-slate-400 hover:text-brand-400 hover:bg-brand-500/10 rounded-xl transition-colors disabled:opacity-40 flex-shrink-0 border border-transparent hover:border-brand-500/20"
             title="Adjuntar"
           >
-            <Paperclip size={18} />
-          </button>
-          <div className="flex-1 min-w-0 bg-white/[0.04] rounded-xl border border-white/[0.08] focus-within:border-blue-500/40 focus-within:ring-1 focus-within:ring-blue-500/20 transition-all duration-200">
+            <Paperclip size={20} />
+          </motion.button>
+          <div className="flex-1 min-w-0 rounded-2xl border border-app-line bg-white/[0.05] focus-within:border-brand-500/45 focus-within:ring-2 focus-within:ring-brand-500/15 transition-all duration-200 shadow-inner shadow-black/20">
             <textarea
               ref={textareaRef}
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={handleKeyPress}
-              placeholder="Escribe un mensaje..."
+              placeholder="Escribe un mensaje…"
               rows={1}
-              className="w-full resize-none rounded-xl px-3.5 py-2.5 bg-transparent focus:outline-none text-[13px] text-white placeholder-slate-500"
-              style={{ minHeight: '40px', maxHeight: '120px' }}
+              className="w-full resize-none rounded-2xl px-4 py-3 bg-transparent focus:outline-none text-[14px] text-white placeholder-slate-500 leading-snug"
+              style={{ minHeight: '48px', maxHeight: '120px' }}
             />
           </div>
-          <button
+          <motion.button
+            type="button"
             onClick={handleSendMessage}
             disabled={!newMessage.trim() || sending}
-            className={`p-2 rounded-xl flex-shrink-0 transition-all duration-200 ${
+            whileTap={{ scale: newMessage.trim() && !sending ? 0.94 : 1 }}
+            className={`h-12 w-12 rounded-2xl flex-shrink-0 flex items-center justify-center transition-all duration-200 ${
               newMessage.trim() && !sending
-                ? 'bg-blue-500 text-white hover:bg-blue-400 shadow-lg shadow-blue-500/20'
-                : 'bg-white/[0.04] text-slate-500 cursor-not-allowed border border-white/[0.06]'
+                ? 'bg-gradient-to-br from-brand-500 to-purple-600 text-white shadow-lg shadow-brand-500/30 hover:shadow-brand-500/45 hover:brightness-110'
+                : 'bg-white/[0.05] text-slate-600 cursor-not-allowed border border-app-line'
             }`}
           >
-            {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
-          </button>
+            {sending ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} className="ml-0.5" />}
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
 
 
 
@@ -599,148 +690,224 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
 
 
 
-      {/* Modal: Cambiar nombre */}
-      {showRenameModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-app-card rounded-2xl shadow-lg border border-white/[0.06] w-full max-w-sm p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-white text-sm">Cambiar nombre</h3>
-              <button onClick={() => setShowRenameModal(false)} className="p-1.5 hover:bg-white/[0.06] rounded-xl transition-colors">
-                <X size={15} className="text-slate-400" />
-              </button>
-            </div>
-            <input
-              type="text"
-              value={renameValue}
-              onChange={(e) => setRenameValue(e.target.value)}
-              placeholder="Nombre del contacto"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500/40 text-[13px] text-white placeholder-slate-500 transition-all"
-              onKeyDown={(e) => e.key === 'Enter' && handleRename()}
-              autoFocus
-            />
-            <div className="flex gap-2 mt-4">
-              <button
-                onClick={() => setShowRenameModal(false)}
-                className="flex-1 py-2.5 rounded-xl border border-white/[0.06] text-slate-400 hover:bg-white/[0.04] text-[13px] font-medium transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleRename}
-                disabled={renaming || !renameValue.trim()}
-                className="flex-1 py-2.5 rounded-xl bg-blue-500 text-white hover:bg-blue-400 shadow-lg shadow-blue-500/20 disabled:opacity-40 text-[13px] font-medium transition-colors"
-              >
-                {renaming ? 'Guardando...' : 'Guardar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-
-
-      {/* Modal: Vaciar chat */}
-      {showClearConfirm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-app-card rounded-2xl shadow-lg border border-white/[0.06] w-full max-w-sm p-5">
-            <div className="flex items-start gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/15 flex items-center justify-center flex-shrink-0">
-                <Trash2 size={18} className="text-rose-400" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-white text-sm">Vaciar conversación</h3>
-                <p className="text-[13px] text-slate-400 mt-1 leading-relaxed">
-                  Se eliminarán todos los mensajes. Esta acción no se puede deshacer.
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowClearConfirm(false)}
-                className="flex-1 py-2.5 rounded-xl border border-white/[0.06] text-slate-400 hover:bg-white/[0.04] text-[13px] font-medium transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleClearChat}
-                disabled={clearing}
-                className="flex-1 py-2.5 rounded-xl bg-rose-500 text-white hover:bg-rose-400 disabled:opacity-40 text-[13px] font-medium transition-colors"
-              >
-                {clearing ? 'Vaciando...' : 'Vaciar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-
-
-      {/* Panel: Info contacto */}
-      {showInfoPanel && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div
-            className="bg-app-card w-full sm:max-w-sm sm:rounded-2xl rounded-t-2xl shadow-lg border border-white/[0.06] overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
+      <AnimatePresence>
+        {showRenameModal && (
+          <motion.div
+            key="rename"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
           >
-            <div className="px-4 py-3 border-b border-white/[0.06] flex items-center justify-between">
-              <h3 className="font-semibold text-white text-sm">Información del contacto</h3>
-              <button onClick={() => setShowInfoPanel(false)} className="p-1.5 hover:bg-white/[0.06] rounded-xl transition-colors">
-                <X size={15} className="text-slate-400" />
-              </button>
-            </div>
-            <div className="p-5 space-y-5">
-              <div className="flex justify-center">
-                <img
-                  src={chat.customerAvatar}
-                  alt={displayName}
-                  className="w-16 h-16 rounded-full object-cover ring-2 ring-white/[0.08]"
-                />
+            <motion.div
+              className="absolute inset-0 bg-black/55 backdrop-blur-sm"
+              onClick={() => setShowRenameModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.94, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 8 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+              className="relative bg-app-card rounded-2xl shadow-app-card border border-app-line w-full max-w-sm p-6"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-white text-base font-display">Cambiar nombre</h3>
+                <button
+                  type="button"
+                  onClick={() => setShowRenameModal(false)}
+                  className="p-2 hover:bg-white/[0.08] rounded-xl transition-colors"
+                >
+                  <X size={16} className="text-slate-400" />
+                </button>
               </div>
-              <div className="space-y-3">
-                <div className="bg-white/[0.04] rounded-xl px-3.5 py-2.5 border border-white/[0.06]">
-                  <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">Nombre</p>
-                  <p className="text-white text-[13px] font-medium">{displayName}</p>
+              <input
+                type="text"
+                value={renameValue}
+                onChange={(e) => setRenameValue(e.target.value)}
+                placeholder="Nombre del contacto"
+                className="w-full px-4 py-3 rounded-xl bg-white/[0.05] border border-app-line focus:outline-none focus:ring-2 focus:ring-brand-500/25 focus:border-brand-500/40 text-[14px] text-white placeholder-slate-500 transition-all"
+                onKeyDown={(e) => e.key === 'Enter' && handleRename()}
+                autoFocus
+              />
+              <div className="flex gap-2 mt-5">
+                <button
+                  type="button"
+                  onClick={() => setShowRenameModal(false)}
+                  className="flex-1 py-2.5 rounded-xl border border-app-line text-slate-400 hover:bg-white/[0.05] text-[13px] font-semibold transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRename}
+                  disabled={renaming || !renameValue.trim()}
+                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-brand-500 to-purple-600 text-white shadow-lg shadow-brand-500/25 disabled:opacity-40 text-[13px] font-semibold transition-opacity"
+                >
+                  {renaming ? 'Guardando...' : 'Guardar'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showClearConfirm && (
+          <motion.div
+            key="clear"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/55 backdrop-blur-sm"
+              onClick={() => setShowClearConfirm(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.94, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 8 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+              className="relative bg-app-card rounded-2xl shadow-app-card border border-app-line w-full max-w-sm p-6"
+            >
+              <div className="flex items-start gap-3 mb-5">
+                <div className="w-12 h-12 rounded-xl bg-rose-500/15 border border-rose-500/25 flex items-center justify-center flex-shrink-0">
+                  <Trash2 size={20} className="text-rose-400" />
                 </div>
+                <div>
+                  <h3 className="font-semibold text-white text-base font-display">Vaciar conversación</h3>
+                  <p className="text-[13px] text-slate-400 mt-1.5 leading-relaxed">
+                    Se eliminarán todos los mensajes. Esta acción no se puede deshacer.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowClearConfirm(false)}
+                  className="flex-1 py-2.5 rounded-xl border border-app-line text-slate-400 hover:bg-white/[0.05] text-[13px] font-semibold transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleClearChat}
+                  disabled={clearing}
+                  className="flex-1 py-2.5 rounded-xl bg-rose-500 text-white hover:bg-rose-400 disabled:opacity-40 text-[13px] font-semibold transition-colors"
+                >
+                  {clearing ? 'Vaciando...' : 'Vaciar'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showInfoPanel && (
+          <motion.div
+            key="info"
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/55 backdrop-blur-sm"
+              onClick={() => setShowInfoPanel(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 24 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+              className="relative bg-app-card w-full sm:max-w-md sm:rounded-2xl rounded-t-3xl shadow-app-card border border-app-line overflow-hidden max-h-[90vh] flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 bg-gradient-to-br from-brand-500/10 via-app-card to-purple-600/10 border-b border-app-line">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-white text-sm uppercase tracking-[0.12em] text-slate-400">
+                    Ficha de contacto
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowInfoPanel(false)}
+                    className="p-2 hover:bg-white/[0.08] rounded-xl transition-colors"
+                  >
+                    <X size={16} className="text-slate-400" />
+                  </button>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="rounded-full p-[3px] bg-gradient-to-br from-brand-400 to-purple-600 mb-3">
+                    <img
+                      src={chat.customerAvatar}
+                      alt={displayName}
+                      className="w-20 h-20 rounded-full object-cover bg-app-card"
+                    />
+                  </div>
+                  <h2 className="text-xl font-bold text-white font-display text-center">{displayName}</h2>
+                  <p className="text-sm text-slate-500 mt-1 flex items-center gap-1.5">
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        chat.platform === 'whatsapp'
+                          ? 'bg-emerald-500'
+                          : chat.platform === 'facebook'
+                            ? 'bg-blue-500'
+                            : 'bg-slate-400'
+                      }`}
+                    />
+                    {chat.platform === 'whatsapp' && 'WhatsApp'}
+                    {chat.platform === 'facebook' && 'Facebook'}
+                    {chat.platform === 'web' && 'Web'}
+                  </p>
+                </div>
+              </div>
+              <div className="p-5 space-y-4 overflow-y-auto flex-1">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.14em]">Información de contacto</p>
                 {chat.customerEmail && (
-                  <div className="bg-white/[0.04] rounded-xl px-3.5 py-2.5 border border-white/[0.06]">
-                    <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">Email</p>
-                    <p className="text-slate-200 text-[13px]">{chat.customerEmail}</p>
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.04] border border-app-line">
+                    <Mail className="size-4 text-brand-400 mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-[11px] text-slate-500 font-medium">Email</p>
+                      <p className="text-sm text-slate-100 break-all">{chat.customerEmail}</p>
+                    </div>
                   </div>
                 )}
                 {chat.customerPhone && (
-                  <div className="bg-white/[0.04] rounded-xl px-3.5 py-2.5 border border-white/[0.06]">
-                    <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">Teléfono</p>
-                    <p className="text-slate-200 text-[13px]">{chat.customerPhone}</p>
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.04] border border-app-line">
+                    <Phone className="size-4 text-emerald-400 mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-[11px] text-slate-500 font-medium">Teléfono</p>
+                      <p className="text-sm text-slate-100">{chat.customerPhone}</p>
+                    </div>
                   </div>
                 )}
-                <div className="bg-white/[0.04] rounded-xl px-3.5 py-2.5 border border-white/[0.06]">
-                  <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">Plataforma</p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <div className={`w-2 h-2 rounded-full ${
-                      chat.platform === 'whatsapp' ? 'bg-emerald-500' :
-                      chat.platform === 'facebook' ? 'bg-blue-500' : 'bg-slate-400'
-                    }`} />
-                    <p className="text-slate-200 text-[13px]">
-                      {chat.platform === 'whatsapp' && 'WhatsApp'}
-                      {chat.platform === 'facebook' && 'Facebook'}
-                      {chat.platform === 'web' && 'Web'}
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.04] border border-app-line">
+                  <MessageSquare className="size-4 text-purple-400 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-[11px] text-slate-500 font-medium">Canal</p>
+                    <p className="text-sm text-slate-100">
+                      {chat.platform === 'whatsapp' && 'WhatsApp Business'}
+                      {chat.platform === 'facebook' && 'Facebook Messenger'}
+                      {chat.platform === 'web' && 'Chat web'}
                     </p>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="px-4 py-3 border-t border-white/[0.06]">
-              <button
-                onClick={() => setShowInfoPanel(false)}
-                className="w-full py-2.5 rounded-xl border border-white/[0.06] bg-white/[0.04] text-slate-300 hover:bg-white/[0.06] text-[13px] font-medium transition-colors"
-              >
-                Cerrar
-              </button>
-            </div>
-          </div>
-          <div className="absolute inset-0 -z-10" onClick={() => setShowInfoPanel(false)} aria-hidden="true" />
-        </div>
-      )}
+              <div className="p-4 border-t border-app-line bg-white/[0.02]">
+                <button
+                  type="button"
+                  onClick={() => setShowInfoPanel(false)}
+                  className="w-full py-3 rounded-xl border border-app-line bg-white/[0.05] text-slate-200 hover:bg-white/[0.08] text-sm font-semibold transition-colors"
+                >
+                  Cerrar
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

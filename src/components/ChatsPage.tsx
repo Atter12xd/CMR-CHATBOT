@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Loader2, MessageSquare } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import { Loader2, MessageSquare, Users, Bell, Bot } from 'lucide-react';
 import { createClient } from '../lib/supabase';
 import ChatList from './ChatList';
 import ChatWindow from './ChatWindow';
@@ -95,6 +96,13 @@ export default function ChatsPage() {
 
   const selectedChat = chats.find(chat => chat.id === selectedChatId) || null;
 
+  const chatStats = useMemo(() => {
+    const unread = chats.reduce((acc, c) => acc + (c.unreadCount || 0), 0);
+    const active = chats.filter((c) => c.status === 'active').length;
+    const botOn = chats.filter((c) => c.botActive).length;
+    return { total: chats.length, unread, active, botOn };
+  }, [chats]);
+
   // Abrir chat desde URL (ej. /chats?chat=uuid desde Pedidos > Ir al chat)
   useEffect(() => {
     if (typeof window === 'undefined' || !chats.length) return;
@@ -162,13 +170,40 @@ export default function ChatsPage() {
         description="Gestiona tus conversaciones con clientes."
       />
 
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25 }}
+        className="grid grid-cols-2 sm:grid-cols-4 gap-3"
+      >
+        {[
+          { label: 'Conversaciones', value: chatStats.total, icon: Users, accent: 'text-brand-400' },
+          { label: 'Activas', value: chatStats.active, icon: MessageSquare, accent: 'text-emerald-400' },
+          { label: 'Sin leer', value: chatStats.unread, icon: Bell, accent: 'text-amber-400' },
+          { label: 'Con bot', value: chatStats.botOn, icon: Bot, accent: 'text-purple-400' },
+        ].map((s) => (
+          <div
+            key={s.label}
+            className="rounded-xl border border-app-line bg-gradient-to-br from-white/[0.05] to-transparent px-4 py-3 flex items-center gap-3"
+          >
+            <div className={`p-2 rounded-lg bg-white/[0.06] border border-app-line ${s.accent}`}>
+              <s.icon className="size-4" />
+            </div>
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{s.label}</p>
+              <p className="text-lg font-bold text-white tabular-nums font-display">{s.value}</p>
+            </div>
+          </div>
+        ))}
+      </motion.div>
+
       {/* Contenedor principal */}
-      <div className="flex-1 flex rounded-2xl border border-app-line bg-app-card overflow-hidden min-h-0 shadow-app-card">
+      <div className="flex-1 flex rounded-2xl border border-app-line bg-app-card overflow-hidden min-h-0 shadow-app-card min-h-[420px] md:min-h-[560px]">
         {/* Lista de chats — sidebar */}
         <div
           className={`${
             showChatList ? 'flex' : 'hidden'
-          } md:flex w-full md:w-[340px] lg:w-[360px] xl:w-[380px] flex-shrink-0 border-r border-app-line`}
+          } md:flex w-full md:w-[360px] lg:w-[384px] flex-shrink-0 border-r border-app-line`}
         >
           <ChatList
             chats={chats}
@@ -193,15 +228,21 @@ export default function ChatsPage() {
               baileysClientId={organizationId ?? undefined}
             />
           ) : (
-            <div className="h-full w-full flex items-center justify-center">
-              <div className="text-center max-w-xs px-6">
-                <div className="w-14 h-14 mx-auto mb-4 bg-white/[0.03] border border-app-line rounded-2xl flex items-center justify-center">
-                  <MessageSquare size={24} className="text-slate-600" />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="h-full w-full flex items-center justify-center bg-[#0a0e14]/50"
+            >
+              <div className="text-center max-w-sm px-8">
+                <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-gradient-to-br from-brand-500/25 to-purple-600/25 border border-brand-500/20 flex items-center justify-center shadow-lg shadow-brand-500/10">
+                  <MessageSquare size={36} className="text-brand-300" />
                 </div>
-                <h3 className="text-sm font-semibold text-white mb-1">Selecciona un chat</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">Elige una conversación de la lista para comenzar</p>
+                <h3 className="text-lg font-semibold text-white font-display mb-2">Selecciona una conversación</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">
+                  Elige un chat en la lista para ver mensajes y responder a tus clientes.
+                </p>
               </div>
-            </div>
+            </motion.div>
           )}
         </div>
       </div>

@@ -167,7 +167,7 @@ export default function ChatsPage() {
 
 
   return (
-    <div className="flex flex-col h-full space-y-5">
+    <div className="flex flex-col space-y-5">
       <PageHeader
         eyebrow="Conversaciones"
         title="Chats"
@@ -202,7 +202,7 @@ export default function ChatsPage() {
       </motion.div>
 
       {/* Contenedor principal */}
-      <div className="flex-1 flex min-w-0 rounded-2xl border border-app-line bg-app-card overflow-hidden min-h-0 shadow-app-card min-h-[420px] md:min-h-[560px]">
+      <div className="flex min-w-0 rounded-2xl border border-app-line bg-app-card overflow-hidden min-h-0 shadow-app-card min-h-[420px] md:min-h-[560px]">
         {/* Lista de chats — sidebar */}
         <div
           className={`${

@@ -194,7 +194,7 @@ export default function PaymentMethodsConfig({
   const showData = !loading || !!propsMethods?.length;
 
   return (
-    <div className="flex flex-col h-full space-y-5 font-professional">
+    <div className="space-y-5 font-professional">
       <PageHeader
         eyebrow="Pagos"
         title="Métodos de pago"

@@ -225,7 +225,7 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="flex flex-col h-full space-y-5 font-professional">
+    <div className="space-y-5 font-professional">
       <PageHeader
         eyebrow="Catálogo"
         title="Productos"
@@ -365,12 +365,17 @@ export default function ProductsPage() {
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/55 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl shadow-black/40 border border-slate-200/90">
-            <div className="p-6">
-              <h3 className="text-lg font-bold text-slate-900 mb-4">
-                {editingProduct ? 'Editar producto' : 'Agregar producto'}
-              </h3>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl shadow-black/50 border border-app-line bg-app-card">
+            <div className="p-6 sm:p-7">
+              <div className="mb-5 pb-4 border-b border-app-line">
+                <h3 className="text-lg font-bold text-white font-display tracking-tight">
+                  {editingProduct ? 'Editar producto' : 'Agregar producto'}
+                </h3>
+                <p className="text-[13px] text-slate-500 mt-1">
+                  Completa los datos; la imagen se muestra completa en el catálogo.
+                </p>
+              </div>
               <ProductForm
                 onSubmit={editingProduct ? handleUpdateProduct : handleAddProduct}
                 onCancel={handleCancelForm}

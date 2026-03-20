@@ -3,7 +3,7 @@ export default function ProductCardSkeleton({ viewMode = 'grid' }: { viewMode?: 
     return (
       <div className="rounded-2xl border border-app-line bg-app-card p-4 shadow-app-card animate-pulse">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-xl bg-white/[0.08] shrink-0" />
+          <div className="w-[4.5rem] h-[4.5rem] rounded-xl bg-white/[0.08] shrink-0" />
           <div className="flex-1 space-y-2 min-w-0">
             <div className="h-4 bg-white/[0.1] rounded-md w-2/3 max-w-[200px]" />
             <div className="h-3 bg-white/[0.06] rounded w-24" />
@@ -16,7 +16,7 @@ export default function ProductCardSkeleton({ viewMode = 'grid' }: { viewMode?: 
 
   return (
     <div className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card animate-pulse">
-      <div className="h-44 bg-white/[0.06]" />
+      <div className="aspect-[4/3] bg-white/[0.06]" />
       <div className="p-4 space-y-2">
         <div className="h-4 bg-white/[0.1] rounded-md w-4/5" />
         <div className="h-3 bg-white/[0.06] rounded w-full" />

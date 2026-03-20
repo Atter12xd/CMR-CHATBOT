@@ -20,11 +20,11 @@ export default function ProductCard({ product, onEdit, onDelete, viewMode = 'gri
         <div className="h-0.5 bg-gradient-to-r from-brand-500/50 via-purple-500/35 to-emerald-500/35" />
         <div className="p-4">
           <div className="flex items-center gap-4">
-            <div className="rounded-xl p-[2px] bg-gradient-to-br from-white/15 to-white/5 shrink-0">
+            <div className="rounded-xl p-[2px] bg-gradient-to-br from-white/15 to-white/5 shrink-0 w-[4.5rem] h-[4.5rem] flex items-center justify-center bg-app-raised/40">
               <img
                 src={product.image}
                 alt={product.name}
-                className="w-14 h-14 object-cover rounded-[10px] bg-app-raised"
+                className="max-w-full max-h-full w-full h-full object-contain rounded-[10px] bg-black/20"
               />
             </div>
             <div className="flex-1 min-w-0">
@@ -79,11 +79,11 @@ export default function ProductCard({ product, onEdit, onDelete, viewMode = 'gri
       className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card group font-professional h-full flex flex-col"
     >
       <div className="h-1 bg-gradient-to-r from-brand-500/50 via-purple-500/40 to-emerald-500/35 shrink-0" />
-      <div className="relative overflow-hidden">
+      <div className="relative aspect-[4/3] bg-gradient-to-b from-app-raised to-black/30 flex items-center justify-center overflow-hidden">
         <img
           src={product.image}
           alt={product.name}
-          className="w-full h-44 object-cover group-hover:scale-[1.04] transition-transform duration-300"
+          className="w-full h-full object-contain p-2 group-hover:scale-[1.03] transition-transform duration-300"
         />
         <div className="absolute top-3 left-3">
           <span className="inline-flex items-center px-2.5 py-1 rounded-xl bg-black/45 backdrop-blur-md border border-white/10 text-[11px] font-semibold text-slate-100">

@@ -404,7 +404,7 @@ export default function BotTrainingPage() {
   }
 
   return (
-    <div className="flex flex-col h-full space-y-5 font-professional">
+    <div className="space-y-5 font-professional">
       <PageHeader
         eyebrow="IA"
         title="Entrenar bot"

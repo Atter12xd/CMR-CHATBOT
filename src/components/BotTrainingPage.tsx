@@ -1,5 +1,18 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Globe, FileText, X, Loader2, Brain, Info, Building2, Save, Layers } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import {
+  Globe,
+  FileText,
+  X,
+  Loader2,
+  Brain,
+  Info,
+  Building2,
+  Save,
+  Layers,
+  CheckCircle2,
+  Sparkles,
+} from 'lucide-react';
 import type { BotTrainingData } from '../data/botTraining';
 import { extractWebInfo, extractPDFInfo } from '../data/botTraining';
 import { useOrganization } from '../hooks/useOrganization';
@@ -7,7 +20,37 @@ import { loadTrainingData, saveTrainingItem, deleteTrainingItem, uploadTrainingF
 import { getOrganizationBotConfig, saveOrganizationBotConfig } from '../services/bot-config';
 import { createClient } from '../lib/supabase';
 import PageHeader from './PageHeader';
+import StatsCard from './StatsCard';
+import StatsCardSkeleton from './StatsCardSkeleton';
 
+const fieldClass =
+  'w-full px-3.5 py-2.5 text-[14px] bg-white/[0.05] border border-app-line rounded-xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 transition-all';
+
+const statsContainer = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.06, delayChildren: 0.04 },
+  },
+};
+
+const statsItem = {
+  hidden: { opacity: 0, y: 10 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring', stiffness: 380, damping: 30 },
+  },
+};
+
+const listRow = {
+  hidden: { opacity: 0, x: -8 },
+  show: (i: number) => ({
+    opacity: 1,
+    x: 0,
+    transition: { delay: i * 0.04, type: 'spring', stiffness: 400, damping: 32 },
+  }),
+};
 
 export default function BotTrainingPage() {
   const { organizationId, loading: orgLoading } = useOrganization();
@@ -76,6 +119,13 @@ export default function BotTrainingPage() {
     fetchBotConfig();
   }, [organizationId, fetchTraining, fetchBotConfig]);
 
+  const trainingStats = useMemo(() => {
+    const web = trainingData.filter((t) => t.type === 'web').length;
+    const pdf = trainingData.filter((t) => t.type === 'pdf').length;
+    const completed = trainingData.filter((t) => t.status === 'completed').length;
+    return { total: trainingData.length, web, pdf, completed };
+  }, [trainingData]);
+
   const handleSaveBotConfig = async () => {
     if (!organizationId) return;
     setConfigSaving(true);
@@ -96,7 +146,6 @@ export default function BotTrainingPage() {
       setConfigSaving(false);
     }
   };
-
 
   const handleWebExtract = async () => {
     if (!webUrl.trim()) {
@@ -126,13 +175,16 @@ export default function BotTrainingPage() {
         } else {
           throw new Error('Sin contenido');
         }
-      } catch (apiErr) {
+      } catch {
         content = await extractWebInfo(webUrl);
       }
       await saveTrainingItem(organizationId, { type: 'web', source: webUrl, content });
       await fetchTraining();
       setWebUrl('');
-      if (content.length > 200 && confirm('¿Extraer también productos de este contenido? Los verás en Productos > Sugeridos desde web.')) {
+      if (
+        content.length > 200 &&
+        confirm('¿Extraer también productos de este contenido? Los verás en Productos > Sugeridos desde web.')
+      ) {
         await extractProductsFromContent(organizationId, content, 'Web');
       }
     } catch (err: unknown) {
@@ -146,7 +198,9 @@ export default function BotTrainingPage() {
   async function extractProductsFromContent(orgId: string, content: string, sourceRef: string) {
     setExtractingProducts(true);
     try {
-      const { data: { session } } = await createClient().auth.getSession();
+      const {
+        data: { session },
+      } = await createClient().auth.getSession();
       if (!session?.access_token) {
         alert('Inicia sesión para extraer productos.');
         return;
@@ -161,7 +215,8 @@ export default function BotTrainingPage() {
       });
       const data = await res.json().catch(() => ({}));
       if (data.error) alert(data.error);
-      else if (data.count > 0) alert(data.message || `Se encontraron ${data.count} productos. Revísalos en Productos > Sugeridos desde web.`);
+      else if (data.count > 0)
+        alert(data.message || `Se encontraron ${data.count} productos. Revísalos en Productos > Sugeridos desde web.`);
       else alert(data.message || 'No se encontraron productos en el texto.');
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'Error al extraer productos');
@@ -203,7 +258,10 @@ export default function BotTrainingPage() {
       });
       await fetchTraining();
       alert(data.pagesUsed ? `Listo. Se estudiaron ${data.pagesUsed} páginas.` : 'Listo. Sitio guardado.');
-      if (data.content?.length > 200 && confirm('¿Extraer también productos de este contenido? Los verás en Productos > Sugeridos desde web.')) {
+      if (
+        data.content?.length > 200 &&
+        confirm('¿Extraer también productos de este contenido? Los verás en Productos > Sugeridos desde web.')
+      ) {
         await extractProductsFromContent(organizationId, data.content, `Sitio: ${urlToUse}`);
       }
     } catch (err: unknown) {
@@ -252,7 +310,6 @@ export default function BotTrainingPage() {
     }
   };
 
-
   const handleDelete = async (id: string) => {
     if (!confirm('¿Estás seguro de eliminar este entrenamiento?')) return;
     try {
@@ -263,32 +320,60 @@ export default function BotTrainingPage() {
     }
   };
 
-
   const getStatusBadge = (status: BotTrainingData['status']) => {
-    const config: Record<string, { bg: string; text: string; dot: string; label: string }> = {
-      completed: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', dot: 'bg-emerald-400', label: 'Completado' },
-      error: { bg: 'bg-rose-500/10', text: 'text-rose-400', dot: 'bg-rose-400', label: 'Error' },
-      processing: { bg: 'bg-brand-500/10', text: 'text-brand-400', dot: 'bg-brand-400', label: 'Procesando' },
+    const config: Record<string, { bg: string; text: string; dot: string; label: string; border: string }> = {
+      completed: {
+        bg: 'bg-emerald-500/12',
+        text: 'text-emerald-400',
+        dot: 'bg-emerald-400',
+        label: 'Completado',
+        border: 'border-emerald-500/25',
+      },
+      error: {
+        bg: 'bg-rose-500/12',
+        text: 'text-rose-400',
+        dot: 'bg-rose-400',
+        label: 'Error',
+        border: 'border-rose-500/25',
+      },
+      processing: {
+        bg: 'bg-brand-500/12',
+        text: 'text-brand-400',
+        dot: 'bg-brand-400',
+        label: 'Procesando',
+        border: 'border-brand-500/25',
+      },
+      pending: {
+        bg: 'bg-amber-500/12',
+        text: 'text-amber-400',
+        dot: 'bg-amber-400',
+        label: 'Pendiente',
+        border: 'border-amber-500/25',
+      },
     };
     const c = config[status] || config.processing;
     return (
-      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[11px] font-semibold ${c.bg} ${c.text}`}>
+      <span
+        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold border ${c.bg} ${c.text} ${c.border}`}
+      >
         {status === 'processing' ? (
           <Loader2 size={11} className="animate-spin" />
         ) : (
-          <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`}></span>
+          <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
         )}
         {c.label}
       </span>
     );
   };
 
-
-  if (orgLoading || loading) {
+  if (orgLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[320px]">
-        <div className="app-spinner">
-          <Loader2 size={20} className="animate-spin text-brand-400" />
+      <div className="flex items-center justify-center min-h-[400px] font-professional">
+        <div className="flex flex-col items-center gap-3">
+          <div className="app-spinner">
+            <Loader2 size={20} className="animate-spin text-brand-400" />
+          </div>
+          <p className="text-[14px] text-slate-500">Cargando…</p>
         </div>
       </div>
     );
@@ -296,309 +381,468 @@ export default function BotTrainingPage() {
 
   if (!organizationId) {
     return (
-      <div className="text-sm text-slate-500 p-4">
-        Crea o selecciona una organización para entrenar el bot.
+      <div className="space-y-5 font-professional">
+        <PageHeader
+          eyebrow="IA"
+          title="Entrenar bot"
+          description="Configura cómo se presenta tu negocio y de qué fuentes aprende el bot."
+        />
+        <div className="app-card p-5">
+          <div className="flex items-start gap-2.5">
+            <div className="w-2 h-2 rounded-full bg-amber-400 mt-1.5 shrink-0" />
+            <p className="text-slate-400 text-[14px] leading-relaxed">
+              Crea o selecciona una organización para entrenar el bot. Ve a{' '}
+              <a href="/configuracion" className="text-brand-400 font-semibold hover:text-brand-300">
+                Configuración
+              </a>
+              .
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col h-full space-y-5 font-professional">
       <PageHeader
         eyebrow="IA"
         title="Entrenar bot"
         description="Configura cómo se presenta tu negocio y de qué fuentes aprende el bot. Los productos que quieras vender debes cargarlos en Productos."
+        actions={
+          extractingProducts ? (
+            <span className="text-[11px] font-semibold text-brand-400 bg-brand-500/12 border border-brand-500/25 px-3 py-1.5 rounded-xl inline-flex items-center gap-2">
+              <Loader2 size={12} className="animate-spin" />
+              Extrayendo productos…
+            </span>
+          ) : null
+        }
       />
 
-      {/* Datos principales de la empresa (presentación del bot) */}
-      <div className="app-card p-5">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-amber-500/10 border border-amber-500/15 rounded-xl flex items-center justify-center flex-shrink-0">
-            <Building2 size={18} className="text-amber-400" />
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3" aria-busy="true" aria-label="Cargando métricas">
+          {[0, 1, 2, 3].map((k) => (
+            <StatsCardSkeleton key={k} />
+          ))}
+        </div>
+      ) : (
+        <motion.div
+          variants={statsContainer}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3"
+        >
+          <motion.div variants={statsItem} className="min-w-0">
+            <StatsCard
+              title="Fuentes de conocimiento"
+              value={trainingStats.total}
+              icon={Brain}
+              accentClassName="text-purple-400"
+            />
+          </motion.div>
+          <motion.div variants={statsItem} className="min-w-0">
+            <StatsCard title="Desde web" value={trainingStats.web} icon={Globe} accentClassName="text-sky-400" />
+          </motion.div>
+          <motion.div variants={statsItem} className="min-w-0">
+            <StatsCard title="Documentos PDF" value={trainingStats.pdf} icon={FileText} accentClassName="text-brand-400" />
+          </motion.div>
+          <motion.div variants={statsItem} className="min-w-0">
+            <StatsCard
+              title="Listas para usar"
+              value={trainingStats.completed}
+              icon={CheckCircle2}
+              accentClassName="text-emerald-400"
+            />
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Datos de empresa */}
+      <div className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card">
+        <div className="px-5 py-4 sm:px-6 bg-gradient-to-br from-amber-500/12 via-app-card to-orange-600/10 border-b border-app-line flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-white/[0.06] border border-app-line text-amber-400 shrink-0">
+            <Building2 className="size-[18px]" strokeWidth={2} />
           </div>
-          <div>
-            <h3 className="text-sm font-semibold text-white">Datos de tu empresa</h3>
-            <p className="text-[12px] text-slate-500">El bot se presentará y hablará según estos datos</p>
+          <div className="min-w-0">
+            <h3 className="text-[15px] font-semibold text-white tracking-tight">Datos de tu empresa</h3>
+            <p className="text-[12px] text-slate-500 mt-0.5 font-medium">El bot se presentará y hablará según estos datos</p>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="p-5 sm:p-6 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[12px] font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+                Nombre de la empresa
+              </label>
+              <input
+                type="text"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                placeholder="Ej: Mi Tienda de Zapatillas"
+                className={fieldClass}
+              />
+            </div>
+            <div>
+              <label className="block text-[12px] font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+                Nombre del bot
+              </label>
+              <input
+                type="text"
+                value={botName}
+                onChange={(e) => setBotName(e.target.value)}
+                placeholder="Ej: Asistente WazApp"
+                className={fieldClass}
+              />
+            </div>
+          </div>
           <div>
-            <label className="block text-[12px] font-medium text-slate-400 mb-1">Nombre de la empresa</label>
+            <label className="block text-[12px] font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+              ¿A qué se dedica tu empresa?
+            </label>
             <input
               type="text"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              placeholder="Ej: Mi Tienda de Zapatillas"
-              className="w-full px-3.5 py-2.5 text-sm bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
+              value={companyDescription}
+              onChange={(e) => setCompanyDescription(e.target.value)}
+              placeholder="Ej: Venta de zapatillas y ropa deportiva"
+              className={fieldClass}
             />
           </div>
           <div>
-            <label className="block text-[12px] font-medium text-slate-400 mb-1">Nombre del bot</label>
-            <input
-              type="text"
-              value={botName}
-              onChange={(e) => setBotName(e.target.value)}
-              placeholder="Ej: Asistente WazApp"
-              className="w-full px-3.5 py-2.5 text-sm bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
+            <label className="block text-[12px] font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+              Saludo inicial (opcional)
+            </label>
+            <textarea
+              value={initialGreeting}
+              onChange={(e) => setInitialGreeting(e.target.value)}
+              placeholder="Ej: ¿Desea que le pase nuestro catálogo o algunas zapatillas en tendencia?"
+              rows={2}
+              className={`${fieldClass} resize-none`}
             />
           </div>
-        </div>
-        <div className="mt-4">
-          <label className="block text-[12px] font-medium text-slate-400 mb-1">¿A qué se dedica tu empresa?</label>
-          <input
-            type="text"
-            value={companyDescription}
-            onChange={(e) => setCompanyDescription(e.target.value)}
-            placeholder="Ej: Venta de zapatillas y ropa deportiva"
-            className="w-full px-3.5 py-2.5 text-sm bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
-          />
-        </div>
-        <div className="mt-4">
-          <label className="block text-[12px] font-medium text-slate-400 mb-1">Saludo inicial (opcional)</label>
-          <textarea
-            value={initialGreeting}
-            onChange={(e) => setInitialGreeting(e.target.value)}
-            placeholder="Ej: ¿Desea que le pase nuestro catálogo o algunas zapatillas en tendencia?"
-            rows={2}
-            className="w-full px-3.5 py-2.5 text-sm bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all resize-none"
-          />
-        </div>
-        <div className="mt-4">
-          <label className="block text-[12px] font-medium text-slate-400 mb-1">Invitación a ver web o catálogo (opcional)</label>
-          <input
-            type="text"
-            value={catalogInvite}
-            onChange={(e) => setCatalogInvite(e.target.value)}
-            placeholder="Ej: Puede ver nuestra web o ¿Le paso el catálogo?"
-            className="w-full px-3.5 py-2.5 text-sm bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
-          />
-          <p className="text-[11px] text-slate-500 mt-1">El bot usará esto para invitar al cliente a ver tu web o catálogo (según lo que hayas entrenado abajo).</p>
-        </div>
-        <div className="mt-4">
-          <label className="block text-[12px] font-medium text-slate-400 mb-1">URL de tu web</label>
-          <input
-            type="url"
-            value={companyWebsiteUrl}
-            onChange={(e) => setCompanyWebsiteUrl(e.target.value)}
-            placeholder="https://tu-empresa.com"
-            className="w-full px-3.5 py-2.5 text-sm bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
-          />
-          <p className="text-[11px] text-slate-500 mt-1">La web que el bot estudia y puede ofrecer al cliente. También puedes extraerla abajo en &quot;Extraer de Página Web&quot;.</p>
-        </div>
-        <div className="mt-4 flex justify-end">
-          <button
-            onClick={handleSaveBotConfig}
-            disabled={configSaving}
-            className="app-btn-primary disabled:opacity-50"
-          >
-            {configSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-            {configSaving ? 'Guardando...' : 'Guardar datos'}
-          </button>
+          <div>
+            <label className="block text-[12px] font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+              Invitación a ver web o catálogo (opcional)
+            </label>
+            <input
+              type="text"
+              value={catalogInvite}
+              onChange={(e) => setCatalogInvite(e.target.value)}
+              placeholder="Ej: Puede ver nuestra web o ¿Le paso el catálogo?"
+              className={fieldClass}
+            />
+            <p className="text-[12px] text-slate-500 mt-1.5 leading-relaxed">
+              El bot usará esto para invitar al cliente a ver tu web o catálogo (según lo que hayas entrenado abajo).
+            </p>
+          </div>
+          <div>
+            <label className="block text-[12px] font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+              URL de tu web
+            </label>
+            <input
+              type="url"
+              value={companyWebsiteUrl}
+              onChange={(e) => setCompanyWebsiteUrl(e.target.value)}
+              placeholder="https://tu-empresa.com"
+              className={fieldClass}
+            />
+            <p className="text-[12px] text-slate-500 mt-1.5 leading-relaxed">
+              La web que el bot estudia y puede ofrecer al cliente. También puedes extraerla abajo en «Extraer de página web».
+            </p>
+          </div>
+          <div className="flex justify-end pt-1">
+            <motion.button
+              type="button"
+              onClick={handleSaveBotConfig}
+              disabled={configSaving}
+              whileTap={{ scale: configSaving ? 1 : 0.98 }}
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-[14px] font-semibold bg-brand-500 text-white hover:bg-brand-400 border border-brand-400/30 shadow-lg shadow-brand-500/20 disabled:opacity-50 transition-colors"
+            >
+              {configSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+              {configSaving ? 'Guardando…' : 'Guardar datos'}
+            </motion.button>
+          </div>
         </div>
       </div>
 
-      {/* Acciones */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Extraer de Web */}
-        <div className="app-card-interactive p-5">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-brand-500/10 border border-brand-500/15 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Globe size={18} className="text-brand-400" />
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-white">Extraer de Página Web</h3>
-              <p className="text-[12px] text-slate-500">Obtén información de tu sitio web</p>
-            </div>
-          </div>
-          {!showWebForm ? (
-            <button
-              onClick={() => setShowWebForm(true)}
-              className="app-btn-primary w-full"
-            >
-              Agregar URL
-            </button>
-          ) : (
-            <div className="space-y-2.5">
-              <input
-                type="url"
-                value={webUrl}
-                onChange={(e) => setWebUrl(e.target.value)}
-                placeholder="https://tu-empresa.com"
-                className="w-full px-3.5 py-2.5 text-sm bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
-                disabled={isProcessing}
-              />
-              <div className="flex gap-2">
-                <button
-                  onClick={handleWebExtract}
-                  disabled={isProcessing}
-                  className="app-btn-primary flex-1 disabled:opacity-50"
-                >
-                  {isProcessing ? 'Procesando...' : 'Extraer'}
-                </button>
-                <button
-                  onClick={() => {
-                    setShowWebForm(false);
-                    setWebUrl('');
-                  }}
-                  className="px-4 py-2.5 text-sm font-medium text-slate-400 bg-white/[0.04] border border-white/[0.06] rounded-xl hover:bg-white/[0.06] transition-colors"
-                >
-                  Cancelar
-                </button>
+      {/* Acciones de extracción */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <motion.div
+          whileHover={{ y: -2 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+          className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card flex flex-col"
+        >
+          <div className="h-1 bg-gradient-to-r from-brand-500/60 via-sky-500/40 to-brand-400/50 shrink-0" />
+          <div className="p-5 flex-1 flex flex-col">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-xl bg-white/[0.06] border border-app-line text-brand-400 shrink-0">
+                <Globe className="size-[18px]" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-[15px] font-semibold text-white leading-snug">Extraer de página web</h3>
+                <p className="text-[12px] text-slate-500 mt-0.5">Una URL, una página</p>
               </div>
             </div>
-          )}
-        </div>
-
-        {/* Estudiar sitio completo (sitemap) */}
-        <div className="app-card-interactive p-5">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/15 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Layers size={18} className="text-emerald-400" />
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-white">Estudiar sitio completo</h3>
-              <p className="text-[12px] text-slate-500">Varias páginas vía sitemap</p>
-            </div>
-          </div>
-          <input
-            type="url"
-            value={fullSiteUrl}
-            onChange={(e) => setFullSiteUrl(e.target.value)}
-            placeholder={companyWebsiteUrl || 'https://tu-empresa.com'}
-            className="w-full px-3.5 py-2.5 text-sm bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all mb-2"
-            disabled={isFullSiteProcessing}
-          />
-          <p className="text-[11px] text-slate-500 mb-3">Página principal o sitemap.xml. Se leerán hasta 20 páginas.</p>
-          <button
-            onClick={handleFullSiteExtract}
-            disabled={isFullSiteProcessing}
-            className="w-full px-4 py-2.5 bg-emerald-500 text-white text-sm font-semibold rounded-xl hover:bg-emerald-400 shadow-lg shadow-emerald-500/20 transition-all disabled:opacity-50"
-          >
-            {isFullSiteProcessing ? (
-              <>
-                <Loader2 size={16} className="animate-spin inline mr-2" />
-                Estudiando...
-              </>
+            {!showWebForm ? (
+              <motion.button
+                type="button"
+                onClick={() => setShowWebForm(true)}
+                whileTap={{ scale: 0.98 }}
+                className="mt-auto w-full py-2.5 rounded-xl text-[14px] font-semibold bg-brand-500 text-white hover:bg-brand-400 border border-brand-400/30 shadow-lg shadow-brand-500/15 transition-colors"
+              >
+                Agregar URL
+              </motion.button>
             ) : (
-              'Estudiar sitio completo'
+              <div className="space-y-2.5 mt-auto">
+                <input
+                  type="url"
+                  value={webUrl}
+                  onChange={(e) => setWebUrl(e.target.value)}
+                  placeholder="https://tu-empresa.com"
+                  className={fieldClass}
+                  disabled={isProcessing}
+                />
+                <div className="flex gap-2">
+                  <motion.button
+                    type="button"
+                    onClick={handleWebExtract}
+                    disabled={isProcessing}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex-1 py-2.5 rounded-xl text-[14px] font-semibold bg-brand-500 text-white hover:bg-brand-400 disabled:opacity-50 border border-brand-400/30 transition-colors"
+                  >
+                    {isProcessing ? 'Procesando…' : 'Extraer'}
+                  </motion.button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowWebForm(false);
+                      setWebUrl('');
+                    }}
+                    className="px-4 py-2.5 text-[14px] font-semibold text-slate-400 bg-white/[0.05] border border-app-line rounded-xl hover:bg-white/[0.08] transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
             )}
-          </button>
-        </div>
-
-        {/* Subir PDF */}
-        <div className="app-card-interactive p-5">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-brand-500/10 border border-brand-500/15 rounded-xl flex items-center justify-center flex-shrink-0">
-              <FileText size={18} className="text-brand-400" />
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-white">Subir PDF</h3>
-              <p className="text-[12px] text-slate-500">Procesa documentos y catálogos</p>
-            </div>
           </div>
-          <label className="app-btn-primary w-full cursor-pointer text-center">
+        </motion.div>
+
+        <motion.div
+          whileHover={{ y: -2 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+          className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card flex flex-col"
+        >
+          <div className="h-1 bg-gradient-to-r from-emerald-500/60 via-teal-500/40 to-emerald-400/50 shrink-0" />
+          <div className="p-5 flex-1 flex flex-col">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-xl bg-white/[0.06] border border-app-line text-emerald-400 shrink-0">
+                <Layers className="size-[18px]" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-[15px] font-semibold text-white leading-snug">Estudiar sitio completo</h3>
+                <p className="text-[12px] text-slate-500 mt-0.5">Hasta 20 páginas vía sitemap</p>
+              </div>
+            </div>
             <input
-              type="file"
-              accept=".pdf"
-              onChange={handlePDFUpload}
-              className="hidden"
-              disabled={isProcessing}
+              type="url"
+              value={fullSiteUrl}
+              onChange={(e) => setFullSiteUrl(e.target.value)}
+              placeholder={companyWebsiteUrl || 'https://tu-empresa.com'}
+              className={`${fieldClass} mb-2`}
+              disabled={isFullSiteProcessing}
             />
-            {isProcessing ? 'Procesando...' : 'Seleccionar PDF'}
-          </label>
-        </div>
+            <p className="text-[12px] text-slate-500 mb-3 leading-relaxed">
+              URL principal o sitemap.xml. Se leerán hasta 20 páginas.
+            </p>
+            <motion.button
+              type="button"
+              onClick={handleFullSiteExtract}
+              disabled={isFullSiteProcessing}
+              whileTap={{ scale: isFullSiteProcessing ? 1 : 0.98 }}
+              className="mt-auto w-full px-4 py-2.5 bg-emerald-500 text-white text-[14px] font-semibold rounded-xl hover:bg-emerald-400 border border-emerald-400/30 shadow-lg shadow-emerald-500/20 transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2"
+            >
+              {isFullSiteProcessing ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Estudiando…
+                </>
+              ) : (
+                'Estudiar sitio completo'
+              )}
+            </motion.button>
+          </div>
+        </motion.div>
+
+        <motion.div
+          whileHover={{ y: -2 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+          className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card flex flex-col"
+        >
+          <div className="h-1 bg-gradient-to-r from-purple-500/50 via-brand-500/40 to-purple-400/50 shrink-0" />
+          <div className="p-5 flex-1 flex flex-col">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-xl bg-white/[0.06] border border-app-line text-purple-400 shrink-0">
+                <FileText className="size-[18px]" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-[15px] font-semibold text-white leading-snug">Subir PDF</h3>
+                <p className="text-[12px] text-slate-500 mt-0.5">Catálogos y documentos</p>
+              </div>
+            </div>
+            <label className="mt-auto w-full cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-semibold bg-white/[0.08] text-white border border-app-line hover:bg-white/[0.12] transition-colors">
+              <input
+                type="file"
+                accept=".pdf"
+                onChange={handlePDFUpload}
+                className="hidden"
+                disabled={isProcessing}
+              />
+              {isProcessing ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Procesando…
+                </>
+              ) : (
+                'Seleccionar PDF'
+              )}
+            </label>
+          </div>
+        </motion.div>
       </div>
 
-
-      {/* Lista de entrenamientos */}
-      <div className="app-card overflow-hidden">
-        <div className="px-5 py-4 border-b border-app-line flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-brand-500/10 border border-brand-500/15 rounded-lg flex items-center justify-center">
-              <Brain size={15} className="text-brand-400" />
+      {/* Lista entrenada */}
+      <div className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card">
+        <div className="px-5 py-4 sm:px-6 bg-gradient-to-br from-brand-500/10 via-app-card to-purple-600/10 border-b border-app-line flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="p-2.5 rounded-xl bg-white/[0.06] border border-app-line text-brand-400 shrink-0">
+              <Brain className="size-[18px]" strokeWidth={2} />
             </div>
-            <h2 className="text-sm font-semibold text-white">
-              Información Entrenada
-            </h2>
+            <div className="min-w-0">
+              <h2 className="text-[15px] font-semibold text-white tracking-tight">Información entrenada</h2>
+              <p className="text-[12px] text-slate-500 font-medium">Fuentes que el bot usa como contexto</p>
+            </div>
           </div>
-          <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.06] text-[11px] font-semibold text-slate-500 tabular-nums">
-            {trainingData.length}
+          <span className="text-[11px] font-semibold text-slate-400 bg-white/[0.05] border border-app-line px-3 py-1.5 rounded-xl tabular-nums shrink-0">
+            {loading ? '—' : trainingData.length}
           </span>
         </div>
 
-        {trainingData.length === 0 ? (
-          <div className="p-12 text-center">
-            <div className="w-14 h-14 bg-white/[0.03] border border-white/[0.06] rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Brain size={24} className="text-slate-600" />
+        {loading ? (
+          <div className="divide-y divide-app-line" aria-busy="true">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="p-4 sm:p-5 animate-pulse">
+                <div className="flex gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-white/[0.08] shrink-0" />
+                  <div className="flex-1 space-y-2 min-w-0">
+                    <div className="h-4 w-36 max-w-full bg-white/[0.1] rounded-lg" />
+                    <div className="h-3 w-full bg-white/[0.06] rounded-md" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : trainingData.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-500/20 to-purple-600/15 border border-brand-500/20 flex items-center justify-center mb-4">
+              <Brain className="size-7 text-slate-500" />
             </div>
-            <p className="text-sm text-slate-500">
-              No hay información entrenada. Agrega una página web o sube un PDF para comenzar.
+            <p className="text-[15px] font-medium text-slate-300">Aún no hay fuentes entrenadas</p>
+            <p className="text-[13px] text-slate-500 mt-1 max-w-md leading-relaxed">
+              Agrega una página web, estudia tu sitio completo o sube un PDF para que el bot aprenda de tu negocio.
             </p>
           </div>
         ) : (
           <div className="divide-y divide-app-line">
-            {trainingData.map((item) => (
-              <div key={item.id} className="p-4 hover:bg-white/[0.02] transition-colors">
-                <div className="flex items-start justify-between">
+            {trainingData.map((item, index) => (
+              <motion.div
+                key={item.id}
+                custom={index}
+                variants={listRow}
+                initial="hidden"
+                animate="show"
+                className="p-4 sm:p-5 hover:bg-white/[0.03] transition-colors"
+              >
+                <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                        item.type === 'web' ? 'bg-sky-500/10 border border-sky-500/15' : 'bg-blue-500/10 border border-blue-500/15'
-                      }`}>
+                      <div
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border ${
+                          item.type === 'web'
+                            ? 'bg-sky-500/12 border-sky-500/25'
+                            : 'bg-brand-500/12 border-brand-500/25'
+                        }`}
+                      >
                         {item.type === 'web' ? (
-                          <Globe size={13} className="text-sky-400" />
+                          <Globe size={16} className="text-sky-400" />
                         ) : (
-                          <FileText size={13} className="text-blue-400" />
+                          <FileText size={16} className="text-brand-400" />
                         )}
                       </div>
-                      <span className="text-[13px] font-semibold text-white">
-                        {item.type === 'web' ? 'Página Web' : 'PDF'}
+                      <span className="text-[14px] font-semibold text-white">
+                        {item.type === 'web' ? 'Página web' : 'PDF'}
                       </span>
                       {getStatusBadge(item.status)}
                     </div>
-                    <p className="text-[13px] text-slate-400 truncate ml-9">{item.source}</p>
+                    <p className="text-[13px] text-slate-400 truncate ml-11 sm:ml-11">{item.source}</p>
                     {item.status === 'completed' && item.content && (
-                      <div className="mt-2.5 ml-9 p-3 bg-white/[0.04] border border-white/[0.06] rounded-xl">
+                      <div className="mt-3 ml-0 sm:ml-11 p-3.5 rounded-xl bg-white/[0.04] border border-app-line">
                         <p className="text-[13px] text-slate-400 whitespace-pre-line leading-relaxed">{item.content}</p>
                       </div>
                     )}
-                    <p className="text-[11px] text-slate-500 mt-2 ml-9">
+                    <p className="text-[12px] text-slate-500 mt-2 ml-0 sm:ml-11 tabular-nums">
                       {item.extractedAt.toLocaleString('es-ES')}
                     </p>
                   </div>
-                  <button
+                  <motion.button
+                    type="button"
                     onClick={() => handleDelete(item.id)}
-                    className="ml-3 p-2 text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors flex-shrink-0"
+                    whileTap={{ scale: 0.95 }}
+                    className="p-2.5 text-rose-400 hover:bg-rose-500/12 rounded-xl border border-transparent hover:border-rose-500/20 transition-colors shrink-0"
                   >
-                    <X size={16} />
-                  </button>
+                    <X size={17} />
+                  </motion.button>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
       </div>
 
-
-      {/* Contexto para el dueño */}
-      <div className="bg-brand-500/10 border border-brand-500/20 rounded-2xl p-5">
-        <div className="flex items-start gap-3">
-          <div className="w-9 h-9 bg-brand-500/10 border border-brand-500/20 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
-            <Info size={16} className="text-brand-400" />
+      {/* Ayuda */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25 }}
+        className="rounded-2xl border border-app-line bg-gradient-to-br from-brand-500/10 via-app-card to-purple-600/10 overflow-hidden shadow-app-card"
+      >
+        <div className="p-5 sm:p-6 flex items-start gap-3">
+          <div className="p-2.5 rounded-xl bg-white/[0.06] border border-app-line text-brand-400 shrink-0">
+            <Info className="size-[18px]" />
           </div>
-          <div>
-            <h3 className="text-[13px] font-semibold text-white mb-1.5">Contexto para ti</h3>
-            <p className="text-[13px] text-slate-400 mb-2">
-              Orden recomendado: (1) Completa <strong>Datos de tu empresa</strong> y guarda — así el bot se presenta con el nombre de tu negocio y puede ofrecer la URL de tu web. (2) Agrega contenido con <strong>Extraer de Página Web</strong>, <strong>Estudiar sitio completo</strong> o <strong>Subir PDF</strong> — el bot usará ese texto para responder preguntas y hablar de tu negocio. (3) En el menú <strong>Productos</strong> carga los productos que quieras que el bot recomiende y pueda vender; el bot solo puede armar pedidos con esos productos.
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="size-4 text-brand-400 shrink-0" />
+              <h3 className="text-[15px] font-semibold text-white">Orden recomendado</h3>
+            </div>
+            <p className="text-[13px] text-slate-400 mb-3 leading-relaxed">
+              (1) Completa <strong className="text-slate-300">Datos de tu empresa</strong> y guarda — el bot se presenta con el nombre de tu negocio y puede ofrecer tu URL. (2) Añade contenido con{' '}
+              <strong className="text-slate-300">web</strong>, <strong className="text-slate-300">sitio completo</strong> o{' '}
+              <strong className="text-slate-300">PDF</strong>. (3) En <strong className="text-slate-300">Productos</strong> carga lo que el bot puede vender; solo con esos ítems arma pedidos.
             </p>
-            <ul className="text-[13px] text-slate-400 space-y-1 list-disc list-inside leading-relaxed">
-              <li><strong>Una página:</strong> pega la URL y se extrae solo esa página (ideal para home o una landing).</li>
-              <li><strong>Sitio completo:</strong> pon la URL de tu web; se buscan hasta 20 páginas vía sitemap y se estudian todas.</li>
-              <li><strong>PDF:</strong> catálogos, listas de precios o políticas; el bot los usa como contexto.</li>
+            <ul className="text-[13px] text-slate-500 space-y-1.5 list-disc list-inside leading-relaxed">
+              <li>
+                <strong className="text-slate-400">Una página:</strong> ideal para home o landing.
+              </li>
+              <li>
+                <strong className="text-slate-400">Sitio completo:</strong> hasta 20 páginas vía sitemap.
+              </li>
+              <li>
+                <strong className="text-slate-400">PDF:</strong> catálogos, precios o políticas.
+              </li>
             </ul>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

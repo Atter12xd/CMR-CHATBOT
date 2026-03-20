@@ -1,5 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
-import { ShoppingCart, Loader2, CreditCard, Check, Package } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import {
+  Loader2,
+  CreditCard,
+  Check,
+  Package,
+  DollarSign,
+  Clock,
+  Truck,
+  LayoutGrid,
+} from 'lucide-react';
 import { useOrganization } from '../hooks/useOrganization';
 import { loadOrders } from '../services/orders';
 import { loadPaymentsPending, verifyPayment, type PaymentWithOrder } from '../services/payments';
@@ -7,10 +17,10 @@ import { sendTextMessage } from '../services/whatsapp-messages';
 import type { Order } from '../data/mockData';
 import OrderCard from './OrderCard';
 import PageHeader from './PageHeader';
-
+import StatsCard from './StatsCard';
+import StatsCardSkeleton from './StatsCardSkeleton';
 
 type OrderStatus = Order['status'] | 'all';
-
 
 const statusLabels: Record<string, string> = {
   all: 'Todos',
@@ -23,15 +33,48 @@ const statusLabels: Record<string, string> = {
 };
 
 const statusDots: Record<string, string> = {
-  all: 'bg-blue-400',
+  all: 'bg-brand-400',
   pending: 'bg-amber-400',
   processing: 'bg-sky-400',
   completed: 'bg-emerald-400',
   shipped: 'bg-indigo-400',
-  delivered: 'bg-green-400',
+  delivered: 'bg-emerald-400',
   cancelled: 'bg-rose-400',
 };
 
+const statsContainer = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.06, delayChildren: 0.04 },
+  },
+};
+
+const statsItem = {
+  hidden: { opacity: 0, y: 10 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring', stiffness: 380, damping: 30 },
+  },
+};
+
+const cardGrid = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.05, delayChildren: 0.06 },
+  },
+};
+
+const cardItem = {
+  hidden: { opacity: 0, y: 12 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring', stiffness: 360, damping: 28 },
+  },
+};
 
 export default function OrdersPage() {
   const { organizationId, loading: orgLoading } = useOrganization();
@@ -68,6 +111,15 @@ export default function OrdersPage() {
     fetchOrders();
   }, [organizationId, fetchOrders]);
 
+  const orderStats = useMemo(() => {
+    const pending = orders.filter((o) => o.status === 'pending').length;
+    const inPipeline = orders.filter((o) =>
+      ['processing', 'completed', 'shipped'].includes(o.status)
+    ).length;
+    const revenue = orders.reduce((s, o) => s + o.total, 0);
+    return { total: orders.length, pending, inPipeline, revenue };
+  }, [orders]);
+
   const handleOpenChat = (chatId: string) => {
     window.location.href = `/chats?chat=${encodeURIComponent(chatId)}`;
   };
@@ -100,20 +152,26 @@ export default function OrdersPage() {
     }
   };
 
-  const statuses: OrderStatus[] = ['all', 'pending', 'processing', 'completed', 'shipped', 'delivered', 'cancelled'];
+  const statuses: OrderStatus[] = [
+    'all',
+    'pending',
+    'processing',
+    'completed',
+    'shipped',
+    'delivered',
+    'cancelled',
+  ];
   const filteredOrders =
-    selectedStatus === 'all'
-      ? orders
-      : orders.filter((order) => order.status === selectedStatus);
+    selectedStatus === 'all' ? orders : orders.filter((order) => order.status === selectedStatus);
 
   if (orgLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-[400px] font-professional">
         <div className="flex flex-col items-center gap-3">
           <div className="app-spinner">
             <Loader2 size={20} className="animate-spin text-brand-400" />
           </div>
-          <p className="text-[13px] text-slate-500">Cargando…</p>
+          <p className="text-[14px] text-slate-500">Cargando…</p>
         </div>
       </div>
     );
@@ -121,63 +179,126 @@ export default function OrdersPage() {
 
   if (!organizationId) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[300px] gap-3">
-        <div className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-app-line flex items-center justify-center">
-          <ShoppingCart size={20} className="text-slate-500" />
+      <div className="space-y-5 font-professional">
+        <PageHeader
+          eyebrow="Gestión"
+          title="Pedidos"
+          description="Gestiona y verifica todos tus pedidos."
+        />
+        <div className="app-card p-5">
+          <div className="flex items-start gap-2.5">
+            <div className="w-2 h-2 rounded-full bg-amber-400 mt-1.5 shrink-0" />
+            <p className="text-slate-400 text-[14px] leading-relaxed">
+              Crea o selecciona una organización para ver pedidos. Ve a{' '}
+              <a href="/configuracion" className="text-brand-400 font-semibold hover:text-brand-300">
+                Configuración
+              </a>
+              .
+            </p>
+          </div>
         </div>
-        <p className="text-[13px] text-slate-500">
-          Crea o selecciona una organización para ver pedidos.
-        </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col h-full space-y-5 font-professional">
       <PageHeader
         eyebrow="Gestión"
         title="Pedidos"
         description="Gestiona y verifica todos tus pedidos."
         actions={
-          <>
-            <span className="text-[11px] font-semibold text-slate-400 bg-white/[0.04] border border-app-line px-3 py-1.5 rounded-lg tabular-nums">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[11px] font-semibold text-slate-400 bg-white/[0.05] border border-app-line px-3 py-1.5 rounded-xl tabular-nums">
               {orders.length} total
             </span>
             {pendingPayments.length > 0 && (
-              <span className="text-[11px] font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-lg">
+              <span className="text-[11px] font-semibold text-amber-400 bg-amber-500/12 border border-amber-500/25 px-3 py-1.5 rounded-xl">
                 {pendingPayments.length} por verificar
               </span>
             )}
-          </>
+          </div>
         }
       />
 
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3" aria-busy="true" aria-label="Cargando métricas">
+          {[0, 1, 2, 3].map((k) => (
+            <StatsCardSkeleton key={k} />
+          ))}
+        </div>
+      ) : (
+        <motion.div
+          variants={statsContainer}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3"
+        >
+          <motion.div variants={statsItem} className="min-w-0">
+            <StatsCard
+              title="Total pedidos"
+              value={orderStats.total}
+              icon={LayoutGrid}
+              accentClassName="text-brand-400"
+            />
+          </motion.div>
+          <motion.div variants={statsItem} className="min-w-0">
+            <StatsCard
+              title="Pendientes"
+              value={orderStats.pending}
+              icon={Clock}
+              accentClassName="text-amber-400"
+            />
+          </motion.div>
+          <motion.div variants={statsItem} className="min-w-0">
+            <StatsCard
+              title="En proceso"
+              value={orderStats.inPipeline}
+              icon={Truck}
+              accentClassName="text-sky-400"
+            />
+          </motion.div>
+          <motion.div variants={statsItem} className="min-w-0">
+            <StatsCard
+              title="Ingresos (todos)"
+              value={`S/ ${orderStats.revenue.toFixed(2)}`}
+              icon={DollarSign}
+              accentClassName="text-purple-400"
+            />
+          </motion.div>
+        </motion.div>
+      )}
+
       {pendingPayments.length > 0 && (
-        <div className="bg-amber-500/10 border border-amber-500/15 rounded-2xl p-5">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/15 flex items-center justify-center">
-              <CreditCard size={16} className="text-amber-400" />
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+          className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card"
+        >
+          <div className="px-5 py-4 sm:px-6 bg-gradient-to-br from-amber-500/12 via-app-card to-orange-600/10 border-b border-app-line flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-white/[0.06] border border-app-line text-amber-400 shrink-0">
+              <CreditCard className="size-[18px]" strokeWidth={2} />
             </div>
-            <div>
-              <h3 className="text-[14px] font-bold text-white">Pagos pendientes</h3>
-              <p className="text-[11px] text-slate-500 mt-0.5">
-                Ingresa monto y nombre del comprobante para validar
+            <div className="min-w-0">
+              <h3 className="text-[15px] font-semibold text-white tracking-tight">Pagos pendientes</h3>
+              <p className="text-[12px] text-slate-500 mt-0.5 font-medium">
+                Monto y nombre del comprobante para validar
               </p>
             </div>
           </div>
-
-          <div className="space-y-3">
+          <div className="p-4 sm:p-5 space-y-3">
             {pendingPayments.map((p) => (
               <div
                 key={p.id}
-                className="flex flex-wrap items-end gap-3 p-4 rounded-xl border border-app-line bg-app-card/80"
+                className="flex flex-wrap items-end gap-3 p-4 rounded-xl border border-app-line bg-white/[0.03] hover:bg-white/[0.04] transition-colors"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-semibold text-white">
+                  <p className="text-[15px] font-semibold text-white leading-snug">
                     {p.orderCode || 'Pedido'} · {p.orderCustomerName || p.customerName}
                   </p>
-                  <p className="text-[11px] text-slate-600 mt-0.5 font-mono">
-                    Esperado: S/ {(p.orderTotal ?? p.amount).toFixed(2)} · {p.orderCustomerName || p.customerName}
+                  <p className="text-[12px] text-slate-500 mt-1 font-mono tabular-nums">
+                    Esperado: S/ {(p.orderTotal ?? p.amount).toFixed(2)}
                   </p>
                 </div>
                 <input
@@ -186,52 +307,59 @@ export default function OrdersPage() {
                   placeholder="Monto"
                   value={verifyAmount[p.id] ?? ''}
                   onChange={(e) => setVerifyAmount((prev) => ({ ...prev, [p.id]: e.target.value }))}
-                  className="w-28 px-3 py-2.5 text-[13px] bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
+                  className="w-28 min-w-0 px-3 py-2.5 text-[14px] bg-white/[0.05] border border-app-line rounded-xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 transition-all"
                 />
                 <input
                   type="text"
                   placeholder="Nombre en comprobante"
                   value={verifyName[p.id] ?? ''}
                   onChange={(e) => setVerifyName((prev) => ({ ...prev, [p.id]: e.target.value }))}
-                  className="flex-1 min-w-[160px] px-3 py-2.5 text-[13px] bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
+                  className="flex-1 min-w-[180px] px-3 py-2.5 text-[14px] bg-white/[0.05] border border-app-line rounded-xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 transition-all"
                 />
-                <button
+                <motion.button
+                  type="button"
                   onClick={() => handleVerifyPayment(p)}
                   disabled={verifyingId === p.id}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500 text-white text-[13px] font-bold rounded-xl hover:bg-emerald-400 disabled:opacity-50 transition-all duration-150 shadow-lg shadow-emerald-500/15"
+                  whileTap={{ scale: verifyingId === p.id ? 1 : 0.98 }}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500 text-white text-[14px] font-semibold rounded-xl hover:bg-emerald-400 disabled:opacity-50 border border-emerald-400/30 shadow-lg shadow-emerald-500/20 transition-colors"
                 >
                   {verifyingId === p.id ? (
-                    <Loader2 size={14} className="animate-spin" />
+                    <Loader2 size={16} className="animate-spin" />
                   ) : (
-                    <Check size={14} strokeWidth={3} />
+                    <Check size={16} strokeWidth={2.5} />
                   )}
                   Verificar
-                </button>
+                </motion.button>
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
       )}
 
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-        {statuses.map((status) => (
-          <button
-            key={status}
-            onClick={() => setSelectedStatus(status)}
-            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold whitespace-nowrap transition-all duration-200 ${
-              selectedStatus === status
-                ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
-                : 'bg-white/[0.04] text-slate-500 border border-app-line hover:bg-white/[0.06] hover:text-slate-300'
-            }`}
-          >
-            <span
-              className={`w-1.5 h-1.5 rounded-full ${
-                selectedStatus === status ? 'bg-white' : (statusDots[status] || 'bg-slate-600')
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
+        {statuses.map((status) => {
+          const active = selectedStatus === status;
+          return (
+            <motion.button
+              key={status}
+              type="button"
+              onClick={() => setSelectedStatus(status)}
+              whileTap={{ scale: 0.98 }}
+              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold whitespace-nowrap transition-all duration-200 border ${
+                active
+                  ? 'bg-gradient-to-r from-brand-500 to-purple-600 text-white border-transparent shadow-md shadow-brand-500/25'
+                  : 'bg-white/[0.04] text-slate-400 border-app-line hover:bg-white/[0.07] hover:text-slate-200'
               }`}
-            />
-            {statusLabels[status] || status}
-          </button>
-        ))}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                  active ? 'bg-white' : statusDots[status] || 'bg-slate-600'
+                }`}
+              />
+              {statusLabels[status] || status}
+            </motion.button>
+          );
+        })}
       </div>
 
       {loading ? (
@@ -240,29 +368,42 @@ export default function OrdersPage() {
             <div className="app-spinner">
               <Loader2 size={20} className="animate-spin text-brand-400" />
             </div>
-            <p className="text-[13px] text-slate-500">Cargando pedidos…</p>
+            <p className="text-[14px] text-slate-500">Cargando pedidos…</p>
           </div>
         </div>
       ) : filteredOrders.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <motion.div
+          variants={cardGrid}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
+        >
           {filteredOrders.map((order) => (
-            <OrderCard key={order.id} order={order} onOpenChat={handleOpenChat} />
+            <motion.div key={order.id} variants={cardItem} className="min-w-0">
+              <OrderCard order={order} onOpenChat={handleOpenChat} />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       ) : (
-        <div className="app-card p-16 text-center">
-          <div className="w-14 h-14 bg-white/[0.03] border border-app-line rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Package size={24} className="text-slate-600" />
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl border border-app-line bg-app-card shadow-app-card overflow-hidden"
+        >
+          <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-500/20 to-purple-600/15 border border-brand-500/20 flex items-center justify-center mb-4">
+              <Package className="size-7 text-slate-500" />
+            </div>
+            <p className="text-[15px] font-medium text-slate-300">
+              {selectedStatus === 'all'
+                ? 'No hay pedidos aún'
+                : `No hay pedidos «${statusLabels[selectedStatus]}»`}
+            </p>
+            <p className="text-[13px] text-slate-500 mt-1 max-w-sm">
+              Los pedidos aparecerán aquí cuando se generen desde el chat o el flujo de venta.
+            </p>
           </div>
-          <p className="text-[14px] font-medium text-slate-400">
-            {selectedStatus === 'all'
-              ? 'No hay pedidos aún'
-              : `No hay pedidos "${statusLabels[selectedStatus]}"`}
-          </p>
-          <p className="text-[12px] text-slate-600 mt-1">
-            Los pedidos aparecerán aquí cuando se generen
-          </p>
-        </div>
+        </motion.div>
       )}
     </div>
   );

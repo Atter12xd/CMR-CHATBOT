@@ -1,173 +1,189 @@
 import { useState, useEffect } from 'react';
-import { Loader2, CheckCircle2, XCircle, CreditCard, ExternalLink } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Loader2, CheckCircle2, XCircle, CreditCard, ExternalLink, AlertCircle } from 'lucide-react';
 import { useOrganization } from '../hooks/useOrganization';
 import { createClient } from '../lib/supabase';
 import WhatsAppIntegration from './WhatsAppIntegration';
 import CreateOrganizationButton from './CreateOrganizationButton';
 import PageHeader from './PageHeader';
 
+const sectionMotion = {
+  hidden: { opacity: 0, y: 12 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring', stiffness: 380, damping: 32 },
+  },
+};
 
 export default function ConfigPage() {
   const { organizationId, loading, refetch: loadOrganization } = useOrganization();
   const [oauthStatus, setOauthStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
 
-
-  // Verificar parámetros de URL para mensajes de OAuth
   useEffect(() => {
     if (typeof window === 'undefined') return;
-
 
     const urlParams = new URLSearchParams(window.location.search);
     const success = urlParams.get('success');
     const error = urlParams.get('error');
     const connected = urlParams.get('connected');
 
-
     if (success && connected) {
       setOauthStatus({
         type: 'success',
-        message: '¡WhatsApp conectado exitosamente vía Facebook!',
+        message: '¡WhatsApp conectado correctamente vía Facebook!',
       });
-      // Limpiar URL
       window.history.replaceState({}, '', '/configuracion');
     } else if (error) {
       setOauthStatus({
         type: 'error',
         message: decodeURIComponent(error),
       });
-      // Limpiar URL
       window.history.replaceState({}, '', '/configuracion');
     }
   }, []);
 
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[320px]">
-        <div className="app-spinner">
-          <Loader2 size={20} className="animate-spin text-brand-400" />
+      <div className="flex items-center justify-center min-h-[400px] font-professional">
+        <div className="flex flex-col items-center gap-3">
+          <div className="app-spinner">
+            <Loader2 size={20} className="animate-spin text-brand-400" />
+          </div>
+          <p className="text-[14px] text-slate-500">Cargando configuración…</p>
         </div>
       </div>
     );
   }
 
-
   if (!organizationId) {
     return (
-      <div className="space-y-6 max-w-3xl">
+      <div className="space-y-5 max-w-3xl font-professional">
         <PageHeader
           eyebrow="Ajustes"
           title="Configuración"
           description="Gestiona integraciones y facturación de tu organización."
         />
 
-        {/* Aviso organización */}
-        <div className="bg-brand-500/10 border border-brand-500/20 rounded-2xl p-5">
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 w-9 h-9 bg-brand-500/10 border border-brand-500/20 rounded-xl flex items-center justify-center">
-              <svg className="h-4.5 w-4.5 text-brand-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-              </svg>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card"
+        >
+          <div className="px-5 py-4 sm:px-6 bg-gradient-to-br from-amber-500/12 via-app-card to-orange-600/10 border-b border-app-line flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-white/[0.06] border border-app-line text-amber-400 shrink-0">
+              <AlertCircle className="size-[18px]" strokeWidth={2} />
             </div>
-            <div className="flex-1">
-              <h3 className="text-sm font-semibold text-white mb-1">
-                Organización no encontrada
-              </h3>
-              <p className="text-sm text-slate-400 mb-4 leading-relaxed">
-                Necesitas crear una organización para usar las integraciones. Esto se hace automáticamente al registrarte, pero parece que no se creó.
+            <div className="min-w-0">
+              <h3 className="text-[15px] font-semibold text-white tracking-tight">Organización no encontrada</h3>
+              <p className="text-[12px] text-slate-500 mt-0.5 font-medium">
+                Crea una organización para usar integraciones y el panel completo
               </p>
-              <CreateOrganizationButton onCreated={loadOrganization} />
             </div>
           </div>
-        </div>
+          <div className="p-5 sm:p-6">
+            <p className="text-[14px] text-slate-400 mb-5 leading-relaxed">
+              Suele crearse al registrarte. Si no aparece, puedes crearla aquí y seguir con WhatsApp y el resto del CRM.
+            </p>
+            <CreateOrganizationButton onCreated={loadOrganization} />
+          </div>
+        </motion.div>
       </div>
     );
   }
 
-
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-5 max-w-3xl font-professional">
       <PageHeader
         eyebrow="Ajustes"
         title="Configuración"
         description="Gestiona integraciones y facturación de tu organización."
       />
 
-      {/* Tarjeta de WhatsApp */}
-      <div className="app-card overflow-hidden">
-        <div className="px-6 py-5 border-b border-app-line">
+      <motion.div variants={sectionMotion} initial="hidden" animate="show" className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card">
+        <div className="px-5 py-4 sm:px-6 bg-gradient-to-br from-emerald-500/12 via-app-card to-teal-600/10 border-b border-app-line">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/15 rounded-xl flex items-center justify-center">
-              <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-                <path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.61.61l4.458-1.495A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.387 0-4.607-.798-6.379-2.145l-.292-.222-3.025 1.01 1.01-3.025-.222-.292A9.935 9.935 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+            <div className="p-2.5 rounded-xl bg-white/[0.06] border border-app-line text-emerald-400 shrink-0">
+              <svg className="size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+                <path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.61.61l4.458-1.495A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.387 0-4.607-.798-6.379-2.145l-.292-.222-3.025 1.01 1.01-3.025-.222-.292A9.935 9.935 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
               </svg>
             </div>
-            <div>
-              <h2 className="text-base font-semibold text-white">WhatsApp Business</h2>
-              <p className="text-[13px] text-slate-500 mt-0.5">
-                Conecta tu número de WhatsApp Business para recibir y enviar mensajes desde tu CRM
+            <div className="min-w-0">
+              <h2 className="text-[16px] font-semibold text-white tracking-tight font-display">WhatsApp Business</h2>
+              <p className="text-[13px] text-slate-500 mt-0.5 leading-snug">
+                Conecta tu número para recibir y enviar mensajes desde el panel
               </p>
             </div>
           </div>
         </div>
 
-        {/* Contenido */}
-        <div className="p-6">
-          {/* Mensaje de OAuth */}
+        <div className="p-5 sm:p-6">
           {oauthStatus && (
-            <div className={`mb-6 p-4 rounded-xl border ${
-              oauthStatus.type === 'success'
-                ? 'bg-emerald-500/10 border-emerald-500/15'
-                : 'bg-rose-500/10 border-rose-500/15'
-            }`}>
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`mb-6 p-4 rounded-xl border ${
+                oauthStatus.type === 'success'
+                  ? 'bg-emerald-500/10 border-emerald-500/25'
+                  : 'bg-rose-500/10 border-rose-500/25'
+              }`}
+            >
               <div className="flex items-center gap-2.5">
                 {oauthStatus.type === 'success' ? (
-                  <CheckCircle2 className="h-4.5 w-4.5 text-emerald-400 flex-shrink-0" />
+                  <CheckCircle2 className="size-[18px] text-emerald-400 shrink-0" />
                 ) : (
-                  <XCircle className="h-4.5 w-4.5 text-rose-400 flex-shrink-0" />
+                  <XCircle className="size-[18px] text-rose-400 shrink-0" />
                 )}
-                <p className={`text-sm font-medium ${
-                  oauthStatus.type === 'success' ? 'text-emerald-300' : 'text-rose-300'
-                }`}>
+                <p
+                  className={`text-[14px] font-medium ${
+                    oauthStatus.type === 'success' ? 'text-emerald-300' : 'text-rose-300'
+                  }`}
+                >
                   {oauthStatus.message}
                 </p>
               </div>
-            </div>
+            </motion.div>
           )}
 
-
-          {/* WhatsApp Integration */}
           <WhatsAppIntegration organizationId={organizationId} />
         </div>
-      </div>
+      </motion.div>
 
-      {/* Facturación / Cancelar suscripción */}
-      <div className="app-card overflow-hidden">
-        <div className="px-6 py-5 border-b border-app-line">
+      <motion.div
+        variants={sectionMotion}
+        initial="hidden"
+        animate="show"
+        transition={{ delay: 0.06 }}
+        className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card"
+      >
+        <div className="px-5 py-4 sm:px-6 bg-gradient-to-br from-brand-500/10 via-app-card to-purple-600/10 border-b border-app-line">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-brand-500/10 border border-brand-500/15 rounded-xl flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-brand-400" />
+            <div className="p-2.5 rounded-xl bg-white/[0.06] border border-app-line text-brand-400 shrink-0">
+              <CreditCard className="size-5" strokeWidth={2} />
             </div>
-            <div>
-              <h2 className="text-base font-semibold text-white">Facturación y suscripción</h2>
-              <p className="text-[13px] text-slate-500 mt-0.5">
-                Actualiza tu método de pago, descarga facturas o cancela tu suscripción cuando quieras
+            <div className="min-w-0">
+              <h2 className="text-[16px] font-semibold text-white tracking-tight font-display">Facturación y suscripción</h2>
+              <p className="text-[13px] text-slate-500 mt-0.5 leading-snug">
+                Tarjeta, facturas y cancelación cuando lo necesites
               </p>
             </div>
           </div>
         </div>
-        <div className="p-6">
-          <p className="text-sm text-slate-400 mb-4">
-            Si cancelas, dejarás de tener acceso al final del periodo de facturación. Si vuelves a suscribirte con el mismo correo, no tendrás de nuevo los 14 días gratis.
+        <div className="p-5 sm:p-6">
+          <p className="text-[14px] text-slate-400 mb-5 leading-relaxed">
+            Si cancelas, perderás el acceso al final del periodo pagado. Si vuelves a suscribirte con el mismo correo,{' '}
+            <strong className="text-slate-300">no</strong> se vuelven a aplicar 14 días gratis.
           </p>
-          <button
+          <motion.button
             type="button"
             onClick={async () => {
               setPortalLoading(true);
               try {
-                const { data: { session } } = await createClient().auth.getSession();
+                const {
+                  data: { session },
+                } = await createClient().auth.getSession();
                 if (!session?.access_token) {
                   alert('Inicia sesión para gestionar tu suscripción.');
                   return;
@@ -182,29 +198,30 @@ export default function ConfigPage() {
                   return;
                 }
                 alert(data.error || 'No se pudo abrir el portal de facturación.');
-              } catch (e) {
+              } catch {
                 alert('Error de conexión. Intenta de nuevo.');
               } finally {
                 setPortalLoading(false);
               }
             }}
             disabled={portalLoading}
-            className="app-btn-primary disabled:opacity-70 disabled:cursor-not-allowed"
+            whileTap={{ scale: portalLoading ? 1 : 0.98 }}
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-[14px] font-semibold bg-brand-500 text-white hover:bg-brand-400 border border-brand-400/30 shadow-lg shadow-brand-500/20 disabled:opacity-60 transition-colors w-full sm:w-auto"
           >
             {portalLoading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Abriendo...
+                <Loader2 className="size-4 animate-spin" />
+                Abriendo…
               </>
             ) : (
               <>
-                Gestionar suscripción (cancelar, tarjeta, facturas)
-                <ExternalLink className="w-4 h-4" />
+                Gestionar suscripción
+                <ExternalLink className="size-4" />
               </>
             )}
-          </button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

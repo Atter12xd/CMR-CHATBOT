@@ -51,9 +51,11 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
   const [displayName, setDisplayName] = useState(chat.customerName);
   const [botActive, setBotActive] = useState(chat.botActive);
   const [togglingBot, setTogglingBot] = useState(false);
+  const messagesScrollRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const prevLoadingRef = useRef(loading);
   const isLg = useMediaQuery('(min-width: 1024px)');
 
 
@@ -73,6 +75,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
 
 
   useEffect(() => {
+    setMessages([]);
     const loadMessages = async (showLoader = true) => {
       try {
         if (showLoader) setLoading(true);
@@ -113,23 +116,33 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
 
 
 
+  /** Al terminar la carga inicial (o al cambiar de chat), ir siempre al último mensaje. */
   useEffect(() => {
-    const scrollContainer = messagesEndRef.current?.parentElement;
-    if (scrollContainer) {
-      const isNearBottom = scrollContainer.scrollHeight - scrollContainer.scrollTop < scrollContainer.clientHeight + 200;
-      if (isNearBottom || messages.length === 0) {
-        setTimeout(() => scrollToBottom(), 100);
-      }
-    } else {
-      scrollToBottom();
-    }
-  }, [messages]);
+    const prev = prevLoadingRef.current;
+    prevLoadingRef.current = loading;
+    if (!prev || loading || messages.length === 0) return;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const el = messagesScrollRef.current;
+        if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'auto' });
+      });
+    });
+  }, [loading, messages.length]);
 
 
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  /** Nuevos mensajes mientras chateas: solo auto-scroll si ya estabas abajo (no molestar si leyó arriba). */
+  useEffect(() => {
+    if (loading) return;
+    const el = messagesScrollRef.current;
+    if (!el || messages.length === 0) return;
+    const nearBottom = el.scrollHeight - el.scrollTop <= el.clientHeight + 220;
+    if (!nearBottom) return;
+    const t = window.setTimeout(() => {
+      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    }, 60);
+    return () => window.clearTimeout(t);
+  }, [messages, loading]);
 
 
 
@@ -489,6 +502,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
 
       {/* Messages area */}
       <div
+        ref={messagesScrollRef}
         className="flex-1 overflow-y-auto px-3 md:px-8 py-5 space-y-1 min-h-0"
         style={{
           backgroundColor: '#0a0e14',

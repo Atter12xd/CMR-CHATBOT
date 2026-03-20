@@ -101,11 +101,11 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
       .slice(0, 2);
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-b from-app-card to-[#0c1018]">
+    <div className="h-full min-w-0 max-w-full w-full flex flex-col overflow-hidden bg-gradient-to-b from-app-card to-[#0c1018]">
       {/* Toolbar CRM */}
-      <div className="p-4 border-b border-app-line space-y-3 shrink-0 bg-white/[0.02]">
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1 group">
+      <div className="p-4 border-b border-app-line space-y-3 shrink-0 bg-white/[0.02] min-w-0">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="relative flex-1 min-w-0 group">
             <Search
               size={16}
               className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-brand-400 transition-colors"
@@ -115,7 +115,7 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
               placeholder="Buscar conversaciones..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-9 py-2.5 bg-white/[0.05] border border-app-line rounded-xl text-[13px] text-white placeholder-slate-500 focus:outline-none focus:border-brand-500/45 focus:ring-2 focus:ring-brand-500/15 transition-all"
+              className="w-full min-w-0 max-w-full pl-10 pr-9 py-2.5 bg-white/[0.05] border border-app-line rounded-xl text-[13px] text-white placeholder-slate-500 focus:outline-none focus:border-brand-500/45 focus:ring-2 focus:ring-brand-500/15 transition-all"
             />
             {searchQuery && (
               <button
@@ -241,7 +241,7 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
       </div>
 
       {/* Lista estilo CRM */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+      <div className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden overscroll-contain">
         {filteredChats.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.96 }}
@@ -259,7 +259,7 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
           </motion.div>
         ) : (
           <motion.div
-            className="py-2 px-2"
+            className="py-2 px-2 min-w-0 max-w-full"
             variants={listContainer}
             initial="hidden"
             animate="show"
@@ -275,7 +275,7 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
                   onClick={() => onSelectChat(chat.id)}
                   whileHover={{ backgroundColor: 'rgba(255,255,255,0.04)' }}
                   whileTap={{ scale: 0.995 }}
-                  className={`w-full p-3.5 mb-1 rounded-xl text-left transition-[box-shadow,border-color] flex gap-3.5 items-start border border-transparent ${
+                  className={`w-full min-w-0 max-w-full p-3.5 mb-1 rounded-xl text-left transition-[box-shadow,border-color] flex gap-3 items-start border border-transparent ${
                     isActive
                       ? 'bg-gradient-to-r from-brand-500/12 to-purple-600/10 border-brand-500/25 shadow-[inset_3px_0_0_0_rgb(42,139,255)]'
                       : 'hover:border-app-line'
@@ -298,10 +298,10 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
                     />
                   </div>
 
-                  <div className="flex-1 min-w-0 pt-0.5">
-                    <div className="flex items-center justify-between gap-2 mb-0.5">
+                  <div className="flex-1 min-w-0 pt-0.5 overflow-hidden">
+                    <div className="flex items-center justify-between gap-2 mb-0.5 min-w-0">
                       <h3
-                        className={`truncate text-[14px] leading-tight ${
+                        className={`truncate min-w-0 flex-1 text-[14px] leading-tight ${
                           hasUnread ? 'font-semibold text-white' : 'font-medium text-slate-200'
                         }`}
                       >
@@ -311,11 +311,13 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
                         {formatTime(chat.lastMessageTime)}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-2 mb-2 min-w-0">
                       {getPlatformIcon(chat.platform)}
-                      <p className="text-[12px] text-slate-500 truncate leading-snug">{chat.lastMessage || 'Sin mensajes'}</p>
+                      <p className="text-[12px] text-slate-500 truncate min-w-0 flex-1 leading-snug">
+                        {chat.lastMessage || 'Sin mensajes'}
+                      </p>
                     </div>
-                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div className="flex items-center justify-between gap-2 flex-wrap min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         {chat.lastIntentAt != null && (
                           <span className="text-[10px] px-2 py-0.5 bg-emerald-500/15 text-emerald-400 rounded-md font-medium border border-emerald-500/20">

@@ -202,12 +202,12 @@ export default function ChatsPage() {
       </motion.div>
 
       {/* Contenedor principal */}
-      <div className="flex-1 flex rounded-2xl border border-app-line bg-app-card overflow-hidden min-h-0 shadow-app-card min-h-[420px] md:min-h-[560px]">
+      <div className="flex-1 flex min-w-0 rounded-2xl border border-app-line bg-app-card overflow-hidden min-h-0 shadow-app-card min-h-[420px] md:min-h-[560px]">
         {/* Lista de chats — sidebar */}
         <div
           className={`${
             showChatList ? 'flex' : 'hidden'
-          } md:flex w-full md:w-[360px] lg:w-[384px] flex-shrink-0 border-r border-app-line`}
+          } md:flex w-full md:w-[360px] lg:w-[384px] md:max-w-[384px] flex-shrink-0 border-r border-app-line overflow-hidden`}
         >
           <ChatList
             chats={chats}
@@ -221,9 +221,9 @@ export default function ChatsPage() {
         <div
           className={`${
             !showChatList && selectedChat ? 'flex' : 'hidden'
-          } ${selectedChat ? 'md:flex' : 'md:flex'} flex-1 min-w-0 flex-col lg:flex-row min-h-0`}
+          } ${selectedChat ? 'md:flex' : 'md:flex'} flex-1 min-w-0 flex-col lg:flex-row min-h-0 overflow-hidden bg-gradient-to-b from-app-card to-[#0c1018]`}
         >
-          <div className="flex-1 min-w-0 min-h-0 flex flex-col">
+          <div className="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden">
             {selectedChat ? (
               <ChatWindow
                 chat={selectedChat}
@@ -236,7 +236,7 @@ export default function ChatsPage() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="h-full w-full flex items-center justify-center bg-[#0a0e14]/50"
+                className="h-full w-full min-w-0 flex items-center justify-center"
               >
                 <div className="text-center max-w-sm px-8">
                   <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-gradient-to-br from-brand-500/25 to-purple-600/25 border border-brand-500/20 flex items-center justify-center shadow-lg shadow-brand-500/10">
@@ -256,7 +256,7 @@ export default function ChatsPage() {
               initial={{ opacity: 0, x: 16 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-              className="hidden lg:flex w-[300px] xl:w-[320px] flex-shrink-0 flex-col border-t lg:border-t-0 lg:border-l border-app-line bg-[#080c11]/80 min-h-0 overflow-hidden"
+              className="hidden lg:flex w-[300px] xl:w-[320px] flex-shrink-0 flex-col border-t lg:border-t-0 lg:border-l border-app-line bg-gradient-to-b from-app-card to-[#0c1018] min-h-0 overflow-hidden"
             >
               <ChatContactPanel
                 chat={selectedChat}

@@ -12,8 +12,6 @@ import {
   Info,
   X,
   UserRound,
-  Mail,
-  Phone,
   MessageSquare,
 } from 'lucide-react';
 import type { Chat, Message } from '../data/mockData';
@@ -21,6 +19,8 @@ import { loadChatWithMessages, subscribeToChatMessages, clearChat, updateChatNam
 import { sendTextMessage, sendImageMessage, sendDocumentMessage, markMessagesAsRead } from '../services/whatsapp-messages';
 import MessageStatusIndicator from './MessageStatusIndicator';
 import FileUploadModal from './FileUploadModal';
+import ChatContactPanel from './ChatContactPanel';
+import { useMediaQuery } from '../hooks/useMediaQuery';
 
 
 
@@ -54,6 +54,13 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const isLg = useMediaQuery('(min-width: 1024px)');
+
+
+
+  useEffect(() => {
+    if (isLg) setShowInfoPanel(false);
+  }, [isLg]);
 
 
 
@@ -432,13 +439,15 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                 transition={{ duration: 0.15 }}
                 className="absolute right-0 top-full mt-1.5 w-52 bg-app-card rounded-2xl shadow-app-card border border-app-line py-1.5 z-50 overflow-hidden"
               >
-                <button
-                  onClick={() => { setShowInfoPanel(true); setMenuOpen(false); }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px] text-slate-300 hover:bg-white/[0.06] transition-colors"
-                >
-                  <Info size={14} className="text-slate-500" />
-                  Ver información
-                </button>
+                {!isLg && (
+                  <button
+                    onClick={() => { setShowInfoPanel(true); setMenuOpen(false); }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px] text-slate-300 hover:bg-white/[0.06] transition-colors"
+                  >
+                    <Info size={14} className="text-slate-500" />
+                    Ver información
+                  </button>
+                )}
                 <button
                   onClick={() => { setShowRenameModal(true); setRenameValue(displayName); setMenuOpen(false); }}
                   className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px] text-slate-300 hover:bg-white/[0.06] transition-colors"
@@ -805,7 +814,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
       </AnimatePresence>
 
       <AnimatePresence>
-        {showInfoPanel && (
+        {showInfoPanel && !isLg && (
           <motion.div
             key="info"
             className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
@@ -822,88 +831,15 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 24 }}
               transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-              className="relative bg-app-card w-full sm:max-w-md sm:rounded-2xl rounded-t-3xl shadow-app-card border border-app-line overflow-hidden max-h-[90vh] flex flex-col"
+              className="relative bg-app-card w-full sm:max-w-md sm:rounded-2xl rounded-t-3xl shadow-app-card border border-app-line overflow-hidden flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6 bg-gradient-to-br from-brand-500/10 via-app-card to-purple-600/10 border-b border-app-line">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-white text-sm uppercase tracking-[0.12em] text-slate-400">
-                    Ficha de contacto
-                  </h3>
-                  <button
-                    type="button"
-                    onClick={() => setShowInfoPanel(false)}
-                    className="p-2 hover:bg-white/[0.08] rounded-xl transition-colors"
-                  >
-                    <X size={16} className="text-slate-400" />
-                  </button>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="rounded-full p-[3px] bg-gradient-to-br from-brand-400 to-purple-600 mb-3">
-                    <img
-                      src={chat.customerAvatar}
-                      alt={displayName}
-                      className="w-20 h-20 rounded-full object-cover bg-app-card"
-                    />
-                  </div>
-                  <h2 className="text-xl font-bold text-white font-display text-center">{displayName}</h2>
-                  <p className="text-sm text-slate-500 mt-1 flex items-center gap-1.5">
-                    <span
-                      className={`w-2 h-2 rounded-full ${
-                        chat.platform === 'whatsapp'
-                          ? 'bg-emerald-500'
-                          : chat.platform === 'facebook'
-                            ? 'bg-blue-500'
-                            : 'bg-slate-400'
-                      }`}
-                    />
-                    {chat.platform === 'whatsapp' && 'WhatsApp'}
-                    {chat.platform === 'facebook' && 'Facebook'}
-                    {chat.platform === 'web' && 'Web'}
-                  </p>
-                </div>
-              </div>
-              <div className="p-5 space-y-4 overflow-y-auto flex-1">
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.14em]">Información de contacto</p>
-                {chat.customerEmail && (
-                  <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.04] border border-app-line">
-                    <Mail className="size-4 text-brand-400 mt-0.5 shrink-0" />
-                    <div>
-                      <p className="text-[11px] text-slate-500 font-medium">Email</p>
-                      <p className="text-sm text-slate-100 break-all">{chat.customerEmail}</p>
-                    </div>
-                  </div>
-                )}
-                {chat.customerPhone && (
-                  <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.04] border border-app-line">
-                    <Phone className="size-4 text-emerald-400 mt-0.5 shrink-0" />
-                    <div>
-                      <p className="text-[11px] text-slate-500 font-medium">Teléfono</p>
-                      <p className="text-sm text-slate-100">{chat.customerPhone}</p>
-                    </div>
-                  </div>
-                )}
-                <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.04] border border-app-line">
-                  <MessageSquare className="size-4 text-purple-400 mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-[11px] text-slate-500 font-medium">Canal</p>
-                    <p className="text-sm text-slate-100">
-                      {chat.platform === 'whatsapp' && 'WhatsApp Business'}
-                      {chat.platform === 'facebook' && 'Facebook Messenger'}
-                      {chat.platform === 'web' && 'Chat web'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="p-4 border-t border-app-line bg-white/[0.02]">
-                <button
-                  type="button"
-                  onClick={() => setShowInfoPanel(false)}
-                  className="w-full py-3 rounded-xl border border-app-line bg-white/[0.05] text-slate-200 hover:bg-white/[0.08] text-sm font-semibold transition-colors"
-                >
-                  Cerrar
-                </button>
-              </div>
+              <ChatContactPanel
+                chat={chat}
+                displayName={displayName}
+                variant="modal"
+                onClose={() => setShowInfoPanel(false)}
+              />
             </motion.div>
           </motion.div>
         )}

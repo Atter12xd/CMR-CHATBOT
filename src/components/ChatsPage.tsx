@@ -4,6 +4,7 @@ import { Loader2, MessageSquare, Users, Bell, Bot } from 'lucide-react';
 import { createClient } from '../lib/supabase';
 import ChatList from './ChatList';
 import ChatWindow from './ChatWindow';
+import ChatContactPanel from './ChatContactPanel';
 import type { Chat } from '../data/mockData';
 import { useOrganization } from '../hooks/useOrganization';
 import { loadChats, subscribeToChats } from '../services/chats';
@@ -89,7 +90,10 @@ export default function ChatsPage() {
       .eq('organization_id', organizationId)
       .eq('status', 'connected')
       .maybeSingle()
-      .then(({ data }) => setWhatsAppNumber(data?.phone_number ?? null));
+      .then(({ data }) => {
+        const row = data as { phone_number?: string | null } | null | undefined;
+        setWhatsAppNumber(row?.phone_number ?? null);
+      });
   }, [organizationId]);
 
 
@@ -213,36 +217,53 @@ export default function ChatsPage() {
         </div>
 
 
-        {/* Ventana de chat */}
+        {/* Ventana de chat + ficha (escritorio lg+) */}
         <div
           className={`${
             !showChatList && selectedChat ? 'flex' : 'hidden'
-          } ${selectedChat ? 'md:flex' : 'md:flex'} flex-1 min-w-0`}
+          } ${selectedChat ? 'md:flex' : 'md:flex'} flex-1 min-w-0 flex-col lg:flex-row min-h-0`}
         >
-          {selectedChat ? (
-            <ChatWindow
-              chat={selectedChat}
-              onBack={handleBackToList}
-              whatsAppNumber={selectedChat.platform === 'whatsapp' ? (whatsAppNumber ?? undefined) : undefined}
-              onRefetchChats={refetchChats}
-              baileysClientId={organizationId ?? undefined}
-            />
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="h-full w-full flex items-center justify-center bg-[#0a0e14]/50"
-            >
-              <div className="text-center max-w-sm px-8">
-                <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-gradient-to-br from-brand-500/25 to-purple-600/25 border border-brand-500/20 flex items-center justify-center shadow-lg shadow-brand-500/10">
-                  <MessageSquare size={36} className="text-brand-300" />
+          <div className="flex-1 min-w-0 min-h-0 flex flex-col">
+            {selectedChat ? (
+              <ChatWindow
+                chat={selectedChat}
+                onBack={handleBackToList}
+                whatsAppNumber={selectedChat.platform === 'whatsapp' ? (whatsAppNumber ?? undefined) : undefined}
+                onRefetchChats={refetchChats}
+                baileysClientId={organizationId ?? undefined}
+              />
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="h-full w-full flex items-center justify-center bg-[#0a0e14]/50"
+              >
+                <div className="text-center max-w-sm px-8">
+                  <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-gradient-to-br from-brand-500/25 to-purple-600/25 border border-brand-500/20 flex items-center justify-center shadow-lg shadow-brand-500/10">
+                    <MessageSquare size={36} className="text-brand-300" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white font-display mb-2">Selecciona una conversación</h3>
+                  <p className="text-sm text-slate-500 leading-relaxed">
+                    Elige un chat en la lista para ver mensajes y responder a tus clientes.
+                  </p>
                 </div>
-                <h3 className="text-lg font-semibold text-white font-display mb-2">Selecciona una conversación</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">
-                  Elige un chat en la lista para ver mensajes y responder a tus clientes.
-                </p>
-              </div>
-            </motion.div>
+              </motion.div>
+            )}
+          </div>
+          {selectedChat && (
+            <motion.aside
+              key={selectedChat.id}
+              initial={{ opacity: 0, x: 16 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+              className="hidden lg:flex w-[300px] xl:w-[320px] flex-shrink-0 flex-col border-t lg:border-t-0 lg:border-l border-app-line bg-[#080c11]/80 min-h-0 overflow-hidden"
+            >
+              <ChatContactPanel
+                chat={selectedChat}
+                displayName={selectedChat.customerName}
+                variant="sidebar"
+              />
+            </motion.aside>
           )}
         </div>
       </div>

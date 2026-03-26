@@ -4,6 +4,7 @@ import { Loader2, CheckCircle2, XCircle, CreditCard, ExternalLink, AlertCircle }
 import { useOrganization } from '../hooks/useOrganization';
 import { createClient } from '../lib/supabase';
 import WhatsAppIntegration from './WhatsAppIntegration';
+import ShopifyIntegration from './ShopifyIntegration';
 import CreateOrganizationButton from './CreateOrganizationButton';
 import PageHeader from './PageHeader';
 
@@ -156,6 +157,42 @@ export default function ConfigPage() {
         initial="hidden"
         animate="show"
         transition={{ delay: 0.06 }}
+        className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card"
+      >
+        <div className="px-5 py-4 sm:px-6 bg-gradient-to-br from-brand-500/12 via-app-card to-indigo-600/10 border-b border-app-line">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-white/[0.06] border border-app-line text-brand-400 shrink-0">
+                <svg className="size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                  <path d="M15.337 2.01a1 1 0 011 1v2.035c0 .23.079.454.224.633l1.207 1.49a1 1 0 00.776.37h2.45a1 1 0 01.78 1.625l-1.82 2.307a1 1 0 00-.14.93l.972 2.595a1 1 0 01-1.25 1.282l-2.685-.845a1 1 0 00-.947.176l-2.15 1.612a1 1 0 01-1.594-.801v-2.62a1 1 0 00-.408-.806l-2.105-1.548a1 1 0 01.078-1.662l2.256-1.422a1 1 0 00.453-.846V3.01a1 1 0 011-1h2.753z" />
+                  <path d="M4.5 6A2.5 2.5 0 002 8.5v8A2.5 2.5 0 004.5 19h5.085a6.5 6.5 0 01-.66-2H4.5a.5.5 0 01-.5-.5v-8a.5.5 0 01.5-.5h4.425A6.5 6.5 0 019.585 6H4.5z" />
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-[16px] font-semibold text-white tracking-tight font-display">Integración Shopify</h2>
+                  <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-brand-500/15 text-brand-300 border border-brand-500/30">
+                    Nuevo
+                  </span>
+                </div>
+                <p className="text-[13px] text-slate-500 mt-0.5 leading-snug">
+                  Conecta tu tienda para traer productos, fotos, precios e información comercial al CRM
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-5 sm:p-6">
+          <ShopifyIntegration organizationId={organizationId} />
+        </div>
+      </motion.div>
+
+      <motion.div
+        variants={sectionMotion}
+        initial="hidden"
+        animate="show"
+        transition={{ delay: 0.1 }}
         className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card"
       >
         <div className="px-5 py-4 sm:px-6 bg-gradient-to-br from-brand-500/10 via-app-card to-purple-600/10 border-b border-app-line">

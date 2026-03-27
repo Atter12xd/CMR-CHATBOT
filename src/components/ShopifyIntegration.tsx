@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
-import { AlertCircle, CheckCircle2, Loader2, RefreshCw, ShoppingBag, Store } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { AlertCircle, CheckCircle2, Loader2, RefreshCw, Store } from 'lucide-react';
+import { createClient } from '../lib/supabase';
 
 interface ShopifyIntegrationProps {
   organizationId: string;
@@ -7,48 +8,111 @@ interface ShopifyIntegrationProps {
 
 type ShopifyStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 
-interface ShopifyProductPreview {
-  id: string;
-  title: string;
-  price: string;
-  image: string;
-}
-
-const MOCK_PRODUCTS: ShopifyProductPreview[] = [
-  {
-    id: 'shopify-1',
-    title: 'Producto ejemplo #1',
-    price: '$29.99',
-    image:
-      'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=300&auto=format&fit=crop',
-  },
-  {
-    id: 'shopify-2',
-    title: 'Producto ejemplo #2',
-    price: '$49.90',
-    image:
-      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop',
-  },
-  {
-    id: 'shopify-3',
-    title: 'Producto ejemplo #3',
-    price: '$79.00',
-    image:
-      'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=300&auto=format&fit=crop',
-  },
-];
-
 export default function ShopifyIntegration({ organizationId }: ShopifyIntegrationProps) {
   const hasOrganization = Boolean(organizationId);
   const [shopDomain, setShopDomain] = useState('');
   const [status, setStatus] = useState<ShopifyStatus>('disconnected');
   const [error, setError] = useState<string | null>(null);
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
-  const [syncedProducts, setSyncedProducts] = useState<ShopifyProductPreview[]>([]);
+  const [connectedShop, setConnectedShop] = useState<string | null>(null);
+  const [loadingStatus, setLoadingStatus] = useState(true);
+  const supabase = createClient();
 
   const normalizedDomain = useMemo(() => {
     return shopDomain.trim().replace(/^https?:\/\//, '').replace(/\/+$/, '');
   }, [shopDomain]);
+
+  const getAccessToken = async (): Promise<string | null> => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    return session?.access_token || null;
+  };
+
+  const loadStatus = async () => {
+    if (!hasOrganization) {
+      setLoadingStatus(false);
+      return;
+    }
+
+    try {
+      setLoadingStatus(true);
+      const token = await getAccessToken();
+      if (!token) {
+        console.warn('[ShopifyIntegration] No session token while loading status');
+        setStatus('disconnected');
+        return;
+      }
+
+      const res = await fetch(`/api/shopify/status?organizationId=${encodeURIComponent(organizationId)}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json().catch(() => ({}));
+      console.info('[ShopifyIntegration] Status response', data);
+
+      if (!res.ok) {
+        throw new Error(data.error || 'No se pudo cargar estado de Shopify');
+      }
+
+      if (!data.integration) {
+        setStatus('disconnected');
+        setConnectedShop(null);
+        return;
+      }
+
+      setStatus(data.integration.status === 'connected' ? 'connected' : 'disconnected');
+      setConnectedShop(data.integration.shop_domain || null);
+      setLastSyncAt(data.integration.last_sync_at || data.integration.connected_at || null);
+      if (data.integration.error_message) {
+        setError(data.integration.error_message);
+      }
+    } catch (err: any) {
+      console.error('[ShopifyIntegration] loadStatus error', err);
+      setStatus('error');
+      setError(err.message || 'No se pudo cargar estado de Shopify');
+    } finally {
+      setLoadingStatus(false);
+    }
+  };
+
+  useEffect(() => {
+    loadStatus();
+  }, [organizationId]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const shopifyState = params.get('shopify');
+    const message = params.get('message');
+    const requestId = params.get('requestId');
+    const shop = params.get('shop');
+    if (!shopifyState) return;
+
+    console.info('[ShopifyIntegration] OAuth redirect params', {
+      shopifyState,
+      message,
+      requestId,
+      shop,
+    });
+
+    if (shopifyState === 'connected') {
+      setStatus('connected');
+      setConnectedShop(shop || connectedShop);
+      setError(null);
+      setLastSyncAt(new Date().toISOString());
+      loadStatus();
+    } else if (shopifyState === 'error') {
+      setStatus('error');
+      setError(message || 'Error conectando con Shopify');
+    }
+
+    const cleanUrl = new URL(window.location.href);
+    cleanUrl.searchParams.delete('shopify');
+    cleanUrl.searchParams.delete('message');
+    cleanUrl.searchParams.delete('requestId');
+    cleanUrl.searchParams.delete('shop');
+    window.history.replaceState({}, '', cleanUrl.pathname + cleanUrl.search);
+  }, []);
 
   const handleConnect = async () => {
     if (!hasOrganization) {
@@ -65,38 +129,92 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
     setStatus('connecting');
 
     try {
-      // Base visual lista para conectar endpoint real de Shopify OAuth + sync.
-      await new Promise((resolve) => setTimeout(resolve, 1400));
+      const token = await getAccessToken();
+      if (!token) {
+        throw new Error('Tu sesión expiró, vuelve a iniciar sesión');
+      }
 
-      setStatus('connected');
-      setSyncedProducts(MOCK_PRODUCTS);
-      setLastSyncAt(new Date().toISOString());
-    } catch {
+      const res = await fetch('/api/shopify/connect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          shopDomain: normalizedDomain,
+          organizationId,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      console.info('[ShopifyIntegration] Connect response', data);
+
+      if (!res.ok || !data.authUrl) {
+        throw new Error(data.error || 'No se pudo iniciar conexión OAuth');
+      }
+
+      window.location.href = data.authUrl as string;
+    } catch (err: any) {
+      console.error('[ShopifyIntegration] handleConnect error', err);
       setStatus('error');
-      setError('No se pudo conectar con Shopify. Intenta nuevamente.');
+      setError(err.message || 'No se pudo conectar con Shopify. Intenta nuevamente.');
     }
   };
 
   const handleSync = async () => {
     if (status !== 'connected') return;
 
+    console.info('[ShopifyIntegration] Manual sync requested', {
+      organizationId,
+      shop: connectedShop || normalizedDomain,
+    });
     setStatus('connecting');
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setStatus('connected');
       setLastSyncAt(new Date().toISOString());
-    } catch {
+      console.info('[ShopifyIntegration] Manual sync finished');
+    } catch (err) {
+      console.error('[ShopifyIntegration] Manual sync error', err);
       setStatus('error');
       setError('No se pudo sincronizar los productos.');
     }
   };
 
-  const handleDisconnect = () => {
-    setStatus('disconnected');
-    setError(null);
-    setLastSyncAt(null);
-    setSyncedProducts([]);
-    setShopDomain('');
+  const handleDisconnect = async () => {
+    if (!confirm('¿Seguro que deseas desconectar Shopify?')) return;
+
+    try {
+      setStatus('connecting');
+      const token = await getAccessToken();
+      if (!token) {
+        throw new Error('Tu sesión expiró, vuelve a iniciar sesión');
+      }
+
+      const res = await fetch('/api/shopify/disconnect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ organizationId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      console.info('[ShopifyIntegration] Disconnect response', data);
+
+      if (!res.ok) {
+        throw new Error(data.error || 'No se pudo desconectar');
+      }
+
+      setStatus('disconnected');
+      setError(null);
+      setLastSyncAt(null);
+      setConnectedShop(null);
+      setShopDomain('');
+    } catch (err: any) {
+      console.error('[ShopifyIntegration] handleDisconnect error', err);
+      setStatus('error');
+      setError(err.message || 'No se pudo desconectar Shopify');
+    }
   };
 
   return (
@@ -107,16 +225,23 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
         </p>
       </div>
 
-      <div className="space-y-3">
-        <label className="text-[13px] font-medium text-slate-300">Dominio Shopify</label>
-        <input
-          value={shopDomain}
-          onChange={(e) => setShopDomain(e.target.value)}
-          placeholder="mi-tienda.myshopify.com"
-          disabled={status === 'connecting' || status === 'connected'}
-          className="w-full bg-app-bg border border-app-line rounded-xl px-3 py-2.5 text-[14px] text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40 disabled:opacity-70"
-        />
-      </div>
+      {loadingStatus ? (
+        <div className="flex items-center gap-2 text-[13px] text-slate-400">
+          <Loader2 className="size-4 animate-spin" />
+          Cargando estado de Shopify...
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <label className="text-[13px] font-medium text-slate-300">Dominio Shopify</label>
+          <input
+            value={shopDomain}
+            onChange={(e) => setShopDomain(e.target.value)}
+            placeholder="mi-tienda.myshopify.com"
+            disabled={status === 'connecting' || status === 'connected'}
+            className="w-full bg-app-bg border border-app-line rounded-xl px-3 py-2.5 text-[14px] text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40 disabled:opacity-70"
+          />
+        </div>
+      )}
 
       {error && (
         <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-start gap-2">
@@ -129,7 +254,7 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
         <button
           type="button"
           onClick={handleConnect}
-          disabled={!hasOrganization || status === 'connecting' || status === 'connected'}
+          disabled={!hasOrganization || loadingStatus || status === 'connecting' || status === 'connected'}
           className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-semibold bg-brand-500 text-white hover:bg-brand-400 border border-brand-400/30 shadow-lg shadow-brand-500/20 disabled:opacity-60 transition-colors"
         >
           {status === 'connecting' ? (
@@ -170,20 +295,17 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
 
       {status === 'connected' && (
         <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-start gap-2.5">
-              <CheckCircle2 className="size-5 text-emerald-400 mt-0.5" />
-              <div>
-                <p className="text-[14px] font-semibold text-emerald-300">Tienda conectada correctamente</p>
-                <p className="text-[13px] text-emerald-200/90 mt-0.5">
-                  El sistema puede sincronizar catálogo y usar la data para entrenamiento del bot.
-                </p>
-              </div>
+          <div className="flex items-start gap-2.5">
+            <CheckCircle2 className="size-5 text-emerald-400 mt-0.5" />
+            <div>
+              <p className="text-[14px] font-semibold text-emerald-300">Tienda conectada correctamente</p>
+              <p className="text-[13px] text-emerald-200/90 mt-0.5">
+                Tienda: <span className="font-semibold">{connectedShop || normalizedDomain}</span>
+              </p>
+              <p className="text-[13px] text-emerald-200/90 mt-0.5">
+                OAuth completo. Ya puedes avanzar a sincronización real de catálogo.
+              </p>
             </div>
-            <span className="inline-flex items-center gap-1 rounded-lg bg-white/[0.08] px-2 py-1 text-[11px] font-semibold text-slate-300">
-              <ShoppingBag className="size-3.5" />
-              {syncedProducts.length} productos
-            </span>
           </div>
 
           {lastSyncAt && (
@@ -192,23 +314,12 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
             </p>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
-            {syncedProducts.map((product) => (
-              <div key={product.id} className="rounded-lg border border-app-line bg-app-card overflow-hidden">
-                <img src={product.image} alt={product.title} className="w-full h-24 object-cover" />
-                <div className="p-2.5">
-                  <p className="text-[12px] font-medium text-slate-200 truncate">{product.title}</p>
-                  <p className="text-[12px] text-emerald-400 mt-0.5">{product.price}</p>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       )}
 
       <p className="text-[12px] text-slate-500 leading-relaxed">
-        Nota: esta es la base visual de la nueva sección. En la siguiente fase conectamos OAuth real de Shopify,
-        sincronización persistente y guardado en base de datos para entrenamiento automático.
+        Nota: abre la consola del navegador y revisa logs con prefijo [ShopifyIntegration]. En el servidor
+        (Vercel/Railway) verás logs con requestId para diagnosticar errores exactos.
       </p>
 
     </div>

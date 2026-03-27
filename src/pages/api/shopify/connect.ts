@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
 import { createHmac } from 'node:crypto';
+import { resolvePublicSiteUrl } from '../../../lib/shopify-public-url';
 
 export const prerender = false;
 const jsonHeaders = { 'Content-Type': 'application/json' };
@@ -86,8 +87,8 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  const origin = request.headers.get('origin') || new URL(request.url).origin;
-  const redirectUri = `${origin}/api/shopify/callback`;
+  const publicBase = resolvePublicSiteUrl(request);
+  const redirectUri = `${publicBase}/api/shopify/callback`;
   const statePayload = Buffer.from(
     JSON.stringify({
       organizationId,
@@ -104,7 +105,16 @@ export const POST: APIRoute = async ({ request }) => {
     redirectUri,
   )}&state=${encodeURIComponent(state)}`;
 
-  console.info(`[${requestId}] OAuth initialized`, { organizationId, shop: normalizedShop, redirectUri });
+  console.info(`[${requestId}] OAuth initialized`, {
+    organizationId,
+    shop: normalizedShop,
+    publicBase,
+    redirectUri,
+    usedEnvOverride: Boolean(
+      (import.meta.env.SHOPIFY_OAUTH_REDIRECT_BASE || process.env.SHOPIFY_OAUTH_REDIRECT_BASE ||
+        import.meta.env.PUBLIC_SITE_URL || process.env.PUBLIC_SITE_URL || '').trim(),
+    ),
+  });
   return new Response(JSON.stringify({ authUrl, requestId }), { status: 200, headers: jsonHeaders });
 };
 

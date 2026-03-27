@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import { resolvePublicSiteUrl } from '../../../lib/shopify-public-url';
 
 export const prerender = false;
 
@@ -58,7 +59,8 @@ function verifyHmac(params: URLSearchParams, secret: string, received: string): 
 
 export const GET: APIRoute = async ({ request, url }) => {
   const requestId = buildRequestId();
-  const origin = request.headers.get('origin') || new URL(request.url).origin;
+  const publicBase = resolvePublicSiteUrl(request);
+  console.info(`[${requestId}] Callback hit`, { publicBase, host: new URL(request.url).host });
 
   const shopifyApiKey = import.meta.env.SHOPIFY_API_KEY || process.env.SHOPIFY_API_KEY;
   const shopifyApiSecret = import.meta.env.SHOPIFY_API_SECRET || process.env.SHOPIFY_API_SECRET;
@@ -67,7 +69,7 @@ export const GET: APIRoute = async ({ request, url }) => {
 
   if (!shopifyApiKey || !shopifyApiSecret || !supabaseUrl || !serviceKey) {
     console.error(`[${requestId}] Missing env vars for callback`);
-    return redirectConfig(origin, 'error', 'Configuración incompleta del servidor', requestId);
+    return redirectConfig(publicBase, 'error', 'Configuración incompleta del servidor', requestId);
   }
 
   const shop = normalizeShopDomain(url.searchParams.get('shop') || '');
@@ -77,18 +79,18 @@ export const GET: APIRoute = async ({ request, url }) => {
 
   if (!shop || !code || !state || !hmac) {
     console.warn(`[${requestId}] Missing callback params`, { shop, hasCode: !!code, hasState: !!state, hasHmac: !!hmac });
-    return redirectConfig(origin, 'error', 'Parámetros incompletos en callback', requestId);
+    return redirectConfig(publicBase, 'error', 'Parámetros incompletos en callback', requestId);
   }
 
   if (!verifyHmac(url.searchParams, shopifyApiSecret, hmac)) {
     console.warn(`[${requestId}] HMAC validation failed`, { shop });
-    return redirectConfig(origin, 'error', 'Validación de seguridad falló (HMAC)', requestId, shop);
+    return redirectConfig(publicBase, 'error', 'Validación de seguridad falló (HMAC)', requestId, shop);
   }
 
   const stateData = verifyState(state, shopifyApiSecret);
   if (!stateData || stateData.shop !== shop) {
     console.warn(`[${requestId}] State validation failed`, { shop, stateShop: stateData?.shop });
-    return redirectConfig(origin, 'error', 'State inválido en OAuth', requestId, shop);
+    return redirectConfig(publicBase, 'error', 'State inválido en OAuth', requestId, shop);
   }
 
   try {
@@ -105,7 +107,7 @@ export const GET: APIRoute = async ({ request, url }) => {
 
     if (!tokenRes.ok || !tokenData?.access_token) {
       console.error(`[${requestId}] Shopify token exchange failed`, tokenData);
-      return redirectConfig(origin, 'error', 'No se pudo obtener token de Shopify', requestId, shop);
+      return redirectConfig(publicBase, 'error', 'No se pudo obtener token de Shopify', requestId, shop);
     }
 
     const supabaseAdmin = createClient(supabaseUrl, serviceKey);
@@ -125,7 +127,7 @@ export const GET: APIRoute = async ({ request, url }) => {
 
     if (upsertError) {
       console.error(`[${requestId}] Failed to save integration`, upsertError);
-      return redirectConfig(origin, 'error', 'No se pudo guardar integración', requestId, shop);
+      return redirectConfig(publicBase, 'error', 'No se pudo guardar integración', requestId, shop);
     }
 
     console.info(`[${requestId}] Shopify connected successfully`, {
@@ -133,10 +135,10 @@ export const GET: APIRoute = async ({ request, url }) => {
       shop,
       scopes: tokenData.scope || null,
     });
-    return redirectConfig(origin, 'connected', 'Shopify conectado correctamente', requestId, shop);
+    return redirectConfig(publicBase, 'connected', 'Shopify conectado correctamente', requestId, shop);
   } catch (error) {
     console.error(`[${requestId}] Unexpected callback error`, error);
-    return redirectConfig(origin, 'error', 'Error inesperado al conectar Shopify', requestId, shop);
+    return redirectConfig(publicBase, 'error', 'Error inesperado al conectar Shopify', requestId, shop);
   }
 };
 

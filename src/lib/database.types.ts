@@ -107,6 +107,7 @@ export interface Database {
           category: string
           image_url: string | null
           stock: number | null
+          shopify_product_id: string | null
           created_at: string | null
           updated_at: string | null
         }
@@ -119,6 +120,7 @@ export interface Database {
           category: string
           image_url?: string | null
           stock?: number | null
+          shopify_product_id?: string | null
           created_at?: string | null
           updated_at?: string | null
         }
@@ -130,6 +132,7 @@ export interface Database {
           category?: string
           image_url?: string | null
           stock?: number | null
+          shopify_product_id?: string | null
           updated_at?: string | null
         }
       }

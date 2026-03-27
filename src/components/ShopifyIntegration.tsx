@@ -16,6 +16,7 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
   const [connectedShop, setConnectedShop] = useState<string | null>(null);
   const [loadingStatus, setLoadingStatus] = useState(true);
+  const [syncedCount, setSyncedCount] = useState<number | null>(null);
   const supabase = createClient();
 
   const normalizedDomain = useMemo(() => {
@@ -167,16 +168,38 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
       organizationId,
       shop: connectedShop || normalizedDomain,
     });
+    setError(null);
     setStatus('connecting');
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const token = await getAccessToken();
+      if (!token) {
+        throw new Error('Tu sesión expiró, vuelve a iniciar sesión');
+      }
+
+      const res = await fetch('/api/shopify/sync-products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ organizationId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      console.info('[ShopifyIntegration] Sync response', data);
+
+      if (!res.ok) {
+        throw new Error(data.error || data.detail || 'No se pudo sincronizar productos');
+      }
+
       setStatus('connected');
+      setSyncedCount(typeof data.synced === 'number' ? data.synced : 0);
       setLastSyncAt(new Date().toISOString());
-      console.info('[ShopifyIntegration] Manual sync finished');
+      await loadStatus();
+      console.info('[ShopifyIntegration] Manual sync finished', { synced: data.synced });
     } catch (err) {
       console.error('[ShopifyIntegration] Manual sync error', err);
-      setStatus('error');
-      setError('No se pudo sincronizar los productos.');
+      setStatus('connected');
+      setError(err instanceof Error ? err.message : 'No se pudo sincronizar los productos.');
     }
   };
 
@@ -303,8 +326,14 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
                 Tienda: <span className="font-semibold">{connectedShop || normalizedDomain}</span>
               </p>
               <p className="text-[13px] text-emerald-200/90 mt-0.5">
-                OAuth completo. Ya puedes avanzar a sincronización real de catálogo.
+                Pulsa sincronizar para traer catálogo a tu CRM (productos, precios, imágenes).
               </p>
+              {syncedCount != null && (
+                <p className="text-[12px] text-slate-300 mt-2">
+                  Última sync: <span className="font-semibold text-emerald-200">{syncedCount}</span> productos
+                  guardados en el sistema.
+                </p>
+              )}
             </div>
           </div>
 

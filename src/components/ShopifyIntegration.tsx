@@ -381,10 +381,11 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
 
       {status === 'connected' && (
         <div className="rounded-xl border border-app-line bg-black/20 p-3 font-mono text-[11px] text-slate-300 space-y-1 max-h-44 overflow-y-auto">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Actividad (sync)</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Resumen de sincronización</p>
           {activityLog.length === 0 ? (
             <p className="text-slate-500 text-[11px] font-sans leading-relaxed">
-              Pulsa <span className="text-slate-400">Sincronizar productos</span> para ver aquí cada paso (HTTP, requestId, errores).
+              Cuando pulses <span className="text-slate-400">Sincronizar productos</span>, aquí verás el avance y cualquier
+              mensaje útil si algo falla.
             </p>
           ) : (
             activityLog.map((line, i) => (
@@ -427,8 +428,9 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
       )}
 
       <p className="text-[12px] text-slate-500 leading-relaxed">
-        Al sincronizar, el cuadro “Actividad” y la consola (F12) muestran el mismo trazado; en el servidor busca el{' '}
-        <code className="text-slate-400">requestId</code> del log.
+        Al sincronizar, tus productos de Shopify se copian aquí para usarlos en el CRM y el bot. El recuadro de arriba te
+        muestra cómo va el proceso. Si algo no sale bien, anota el mensaje que aparezca o la hora aproximada y escríbenos:
+        con eso podemos revisarlo contigo sin complicaciones.
       </p>
 
     </div>

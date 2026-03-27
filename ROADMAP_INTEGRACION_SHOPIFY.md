@@ -105,3 +105,6 @@
 | OAuth / sync API | `src/pages/api/shopify/connect.ts`, `callback.ts`, `status.ts`, `disconnect.ts`, `sync-products.ts` |
 | URL publica | `src/lib/shopify-public-url.ts` |
 | SQL | `supabase/migrations/create_shopify_integrations.sql`, `add_products_shopify_product_id.sql` |
+
+
+

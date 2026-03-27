@@ -8,6 +8,10 @@ interface ShopifyIntegrationProps {
 
 type ShopifyStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 
+function ts() {
+  return new Date().toISOString().slice(11, 23);
+}
+
 export default function ShopifyIntegration({ organizationId }: ShopifyIntegrationProps) {
   const hasOrganization = Boolean(organizationId);
   const [shopDomain, setShopDomain] = useState('');
@@ -17,7 +21,15 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
   const [connectedShop, setConnectedShop] = useState<string | null>(null);
   const [loadingStatus, setLoadingStatus] = useState(true);
   const [syncedCount, setSyncedCount] = useState<number | null>(null);
+  const [syncInProgress, setSyncInProgress] = useState(false);
+  const [activityLog, setActivityLog] = useState<string[]>([]);
   const supabase = createClient();
+
+  const pushLog = (line: string) => {
+    const full = `[${ts()}] ${line}`;
+    console.info('[ShopifyIntegration]', full);
+    setActivityLog((prev) => [...prev.slice(-12), full]);
+  };
 
   const normalizedDomain = useMemo(() => {
     return shopDomain.trim().replace(/^https?:\/\//, '').replace(/\/+$/, '');
@@ -62,7 +74,11 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
       }
 
       setStatus(data.integration.status === 'connected' ? 'connected' : 'disconnected');
-      setConnectedShop(data.integration.shop_domain || null);
+      const shop = data.integration.shop_domain || null;
+      setConnectedShop(shop);
+      if (shop && !shopDomain.trim()) {
+        setShopDomain(shop);
+      }
       setLastSyncAt(data.integration.last_sync_at || data.integration.connected_at || null);
       if (data.integration.error_message) {
         setError(data.integration.error_message);
@@ -162,19 +178,30 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
   };
 
   const handleSync = async () => {
-    if (status !== 'connected') return;
+    if (status !== 'connected' || syncInProgress) return;
 
-    console.info('[ShopifyIntegration] Manual sync requested', {
-      organizationId,
-      shop: connectedShop || normalizedDomain,
-    });
+    const url =
+      typeof window !== 'undefined'
+        ? `${window.location.origin}/api/shopify/sync-products`
+        : '/api/shopify/sync-products';
+
+    pushLog('Botón Sincronizar: inicio');
+    pushLog(`POST ${url}`);
+    pushLog(`organizationId=${organizationId}`);
+
+    console.groupCollapsed('[ShopifyIntegration] SYNC — trazado completo');
+    console.info('Tienda', connectedShop || normalizedDomain);
+    console.info('URL', url);
+
     setError(null);
-    setStatus('connecting');
+    setSyncInProgress(true);
     try {
       const token = await getAccessToken();
       if (!token) {
+        pushLog('ERROR: sin token de sesión');
         throw new Error('Tu sesión expiró, vuelve a iniciar sesión');
       }
+      pushLog('Token de sesión OK (longitud ' + token.length + ')');
 
       const res = await fetch('/api/shopify/sync-products', {
         method: 'POST',
@@ -184,22 +211,50 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
         },
         body: JSON.stringify({ organizationId }),
       });
-      const data = await res.json().catch(() => ({}));
-      console.info('[ShopifyIntegration] Sync response', data);
 
-      if (!res.ok) {
-        throw new Error(data.error || data.detail || 'No se pudo sincronizar productos');
+      const rawText = await res.clone().text();
+      pushLog(`HTTP ${res.status} ${res.statusText}`);
+
+      let data: Record<string, unknown> = {};
+      try {
+        data = rawText ? JSON.parse(rawText) : {};
+      } catch {
+        pushLog('Respuesta no es JSON (primeros 200 chars): ' + rawText.slice(0, 200));
+        console.warn('[ShopifyIntegration] Body raw', rawText.slice(0, 800));
+        throw new Error('El servidor no devolvió JSON. ¿Existe /api/shopify/sync-products en este deploy?');
       }
 
-      setStatus('connected');
-      setSyncedCount(typeof data.synced === 'number' ? data.synced : 0);
+      if (data.requestId) {
+        pushLog(`requestId servidor: ${data.requestId}`);
+        console.info('requestId', data.requestId);
+      }
+      console.info('JSON respuesta', data);
+
+      if (!res.ok) {
+        const msg =
+          (typeof data.error === 'string' && data.error) ||
+          (typeof data.detail === 'string' && data.detail) ||
+          `Error HTTP ${res.status}`;
+        pushLog('ERROR: ' + msg);
+        throw new Error(msg);
+      }
+
+      const n = typeof data.synced === 'number' ? data.synced : 0;
+      pushLog(`OK: ${n} productos sincronizados`);
+      if (typeof data.message === 'string' && data.message) pushLog(String(data.message));
+
+      setSyncedCount(n);
       setLastSyncAt(new Date().toISOString());
       await loadStatus();
-      console.info('[ShopifyIntegration] Manual sync finished', { synced: data.synced });
+      console.info('Sync terminado OK', { synced: n });
     } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      pushLog('EXCEPCIÓN: ' + msg);
       console.error('[ShopifyIntegration] Manual sync error', err);
-      setStatus('connected');
-      setError(err instanceof Error ? err.message : 'No se pudo sincronizar los productos.');
+      setError(msg || 'No se pudo sincronizar los productos.');
+    } finally {
+      setSyncInProgress(false);
+      console.groupEnd();
     }
   };
 
@@ -254,14 +309,22 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
           Cargando estado de Shopify...
         </div>
       ) : (
-        <div className="space-y-3">
-          <label className="text-[13px] font-medium text-slate-300">Dominio Shopify</label>
+        <div className="rounded-2xl border border-app-line bg-gradient-to-br from-white/[0.04] to-transparent p-4 sm:p-5 space-y-3">
+          <label className="block text-[12px] font-semibold uppercase tracking-wider text-slate-500 mb-0.5">
+            Dominio Shopify
+          </label>
+          <p className="text-[12px] text-slate-500 leading-snug mb-1">
+            Formato: <span className="text-slate-400 font-medium">tu-tienda.myshopify.com</span> (sin https://)
+          </p>
           <input
+            type="text"
+            autoComplete="off"
+            spellCheck={false}
             value={shopDomain}
             onChange={(e) => setShopDomain(e.target.value)}
             placeholder="mi-tienda.myshopify.com"
             disabled={status === 'connecting' || status === 'connected'}
-            className="w-full bg-app-bg border border-app-line rounded-xl px-3 py-2.5 text-[14px] text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40 disabled:opacity-70"
+            className="w-full px-3.5 py-2.5 text-sm rounded-xl bg-white/[0.06] border border-app-line text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/25 focus:border-brand-500/40 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           />
         </div>
       )}
@@ -298,11 +361,11 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
             <button
               type="button"
               onClick={handleSync}
-              disabled={status === 'connecting'}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-semibold bg-white/[0.06] text-slate-200 hover:bg-white/[0.09] border border-app-line transition-colors"
+              disabled={syncInProgress}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-semibold bg-white/[0.06] text-slate-200 hover:bg-white/[0.09] border border-app-line transition-colors disabled:opacity-60"
             >
-              <RefreshCw className={`size-4 ${status === 'connecting' ? 'animate-spin' : ''}`} />
-              Sincronizar productos
+              <RefreshCw className={`size-4 ${syncInProgress ? 'animate-spin' : ''}`} />
+              {syncInProgress ? 'Sincronizando…' : 'Sincronizar productos'}
             </button>
 
             <button
@@ -315,6 +378,23 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
           </>
         )}
       </div>
+
+      {status === 'connected' && (
+        <div className="rounded-xl border border-app-line bg-black/20 p-3 font-mono text-[11px] text-slate-300 space-y-1 max-h-44 overflow-y-auto">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Actividad (sync)</p>
+          {activityLog.length === 0 ? (
+            <p className="text-slate-500 text-[11px] font-sans leading-relaxed">
+              Pulsa <span className="text-slate-400">Sincronizar productos</span> para ver aquí cada paso (HTTP, requestId, errores).
+            </p>
+          ) : (
+            activityLog.map((line, i) => (
+              <div key={i} className="break-all text-slate-400">
+                {line}
+              </div>
+            ))
+          )}
+        </div>
+      )}
 
       {status === 'connected' && (
         <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4">
@@ -347,8 +427,8 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
       )}
 
       <p className="text-[12px] text-slate-500 leading-relaxed">
-        Nota: abre la consola del navegador y revisa logs con prefijo [ShopifyIntegration]. En el servidor
-        (Vercel/Railway) verás logs con requestId para diagnosticar errores exactos.
+        Al sincronizar, el cuadro “Actividad” y la consola (F12) muestran el mismo trazado; en el servidor busca el{' '}
+        <code className="text-slate-400">requestId</code> del log.
       </p>
 
     </div>

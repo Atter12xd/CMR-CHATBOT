@@ -49,9 +49,17 @@ interface ShopifyProduct {
 
 export const POST: APIRoute = async ({ request }) => {
   const requestId = buildRequestId();
+  console.info(`[${requestId}] sync-products: request recibido`, {
+    method: request.method,
+    url: request.url,
+  });
+
   const authHeader = request.headers.get('Authorization');
   const token = authHeader?.replace(/^Bearer\s+/i, '');
-  const { organizationId } = await request.json().catch(() => ({}));
+  const { organizationId } = await request.json().catch((e) => {
+    console.warn(`[${requestId}] sync-products: body JSON invalido`, e);
+    return {};
+  });
 
   if (!token || !organizationId) {
     console.warn(`[${requestId}] Missing token or organizationId`);

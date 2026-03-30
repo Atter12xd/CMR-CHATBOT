@@ -11,7 +11,7 @@
 | 1 Conexion OAuth | **Hecho** | HMAC, state firmado, `shopify_integrations` |
 | 2 Sync catalogo (MVP) | **Hecho** | REST Admin, paginacion, upsert `products` + `shopify_product_id` |
 | 3 Webhooks / sync automatico | **Hecho** | `products/create`, `update`, `delete` → upsert o borrar en CRM; registro al conectar + boton manual |
-| 4 Bot usa catalogo (WhatsApp) | **Parcial** | El worker Baileys ya arma el prompt con `products` (hasta 100, stock, orden por `updated_at`). Falta embeddings/RAG si el catalogo crece mucho más. |
+| 4 Entrenamiento del bot con catalogo | Pendiente | |
 | 5 Produccion (seguridad, metricas) | Parcial | Logs listos; token en claro; falta panel de salud |
 
 ---
@@ -94,8 +94,7 @@
 - [x] Integracion por organizacion.
 - [x] Sync productos a `products`.
 - [x] Webhooks mantienen catalogo alineado (alta/baja/edita en Shopify).
-- [x] Bot WhatsApp usa filas de `products` en el system prompt (incl. Shopify sync).
-- [ ] RAG / embeddings si el catalogo supera cómodamente el contexto del modelo.
+- [ ] Bot usa catalogo de forma fiable.
 - [ ] Tokens y errores gestionados para operacion estable.
 
 ---

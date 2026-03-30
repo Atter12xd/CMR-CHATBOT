@@ -194,7 +194,7 @@ export default function ProductsPage() {
           <div className="app-spinner">
             <Loader2 size={20} className="animate-spin text-brand-400" />
           </div>
-          <p className="text-[14px] text-app-muted">Cargando…</p>
+          <p className="text-[14px] text-slate-500">Cargando…</p>
         </div>
       </div>
     );
@@ -211,7 +211,7 @@ export default function ProductsPage() {
         <div className="app-card p-5">
           <div className="flex items-start gap-2.5">
             <div className="w-2 h-2 rounded-full bg-amber-400 mt-1.5 shrink-0" />
-            <p className="text-app-muted text-[14px] leading-relaxed">
+            <p className="text-slate-400 text-[14px] leading-relaxed">
               Necesitas una organización para gestionar productos. Ve a{' '}
               <a href="/configuracion" className="text-brand-400 font-semibold hover:text-brand-300">
                 Configuración
@@ -238,7 +238,7 @@ export default function ProductsPage() {
               setShowForm(true);
             }}
             whileTap={{ scale: 0.98 }}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] font-semibold bg-app-charcoal text-white hover:bg-black shadow-md transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-semibold bg-brand-500 text-white hover:bg-brand-400 border border-brand-400/30 shadow-lg shadow-brand-500/20 transition-colors"
           >
             <Plus size={18} strokeWidth={2.5} />
             <span>Agregar producto</span>
@@ -294,29 +294,29 @@ export default function ProductsPage() {
         </motion.div>
       )}
 
-      <div className="rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card">
-        <div className="px-5 py-3.5 sm:px-6 bg-app-field/70 border-b border-app-line">
-          <p className="text-[11px] font-bold text-app-muted uppercase tracking-[0.14em]">Buscar y filtrar</p>
+      <div className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card">
+        <div className="px-5 py-3.5 sm:px-6 bg-gradient-to-br from-brand-500/10 via-app-card to-purple-600/10 border-b border-app-line">
+          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.14em]">Buscar y filtrar</p>
         </div>
         <div className="p-4 sm:p-5">
           <div className="flex flex-col lg:flex-row gap-3">
             <div className="flex-1 relative min-w-0">
               <Search
                 size={17}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-app-muted pointer-events-none"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"
               />
               <input
                 type="text"
                 placeholder="Buscar por nombre, categoría o descripción…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full min-w-0 pl-10 pr-10 py-2.5 text-[14px] bg-app-field border border-app-line rounded-full text-app-ink placeholder:text-app-muted focus:outline-none focus:ring-2 focus:ring-app-charcoal/10 focus:border-app-charcoal/20 transition-all"
+                className="w-full min-w-0 pl-10 pr-10 py-2.5 text-[14px] bg-white/[0.05] border border-app-line rounded-xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 transition-all"
               />
               {searchQuery && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-app-muted hover:text-app-ink transition-colors p-0.5"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors p-0.5"
                 >
                   <X size={16} />
                 </button>
@@ -325,7 +325,7 @@ export default function ProductsPage() {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-2.5 text-[14px] bg-app-field border border-app-line rounded-full text-app-ink focus:outline-none focus:ring-2 focus:ring-app-charcoal/10 focus:border-app-charcoal/20 transition-all min-w-[200px]"
+              className="px-3 py-2.5 text-[14px] bg-white/[0.05] border border-app-line rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 transition-all min-w-[200px]"
             >
               <option value="all">Todas las categorías</option>
               {categories.map((cat) => (
@@ -341,8 +341,8 @@ export default function ProductsPage() {
                 whileTap={{ scale: 0.98 }}
                 className={`p-2.5 transition-all ${
                   viewMode === 'grid'
-                    ? 'bg-app-charcoal text-white shadow-md'
-                    : 'bg-app-field text-app-muted hover:text-app-ink'
+                    ? 'bg-gradient-to-r from-brand-500 to-purple-600 text-white shadow-md shadow-brand-500/20'
+                    : 'bg-white/[0.04] text-slate-500 hover:bg-white/[0.07] hover:text-slate-300'
                 }`}
               >
                 <Grid size={17} />
@@ -353,8 +353,8 @@ export default function ProductsPage() {
                 whileTap={{ scale: 0.98 }}
                 className={`p-2.5 transition-all ${
                   viewMode === 'list'
-                    ? 'bg-app-charcoal text-white shadow-md'
-                    : 'bg-app-field text-app-muted hover:text-app-ink'
+                    ? 'bg-gradient-to-r from-brand-500 to-purple-600 text-white shadow-md shadow-brand-500/20'
+                    : 'bg-white/[0.04] text-slate-500 hover:bg-white/[0.07] hover:text-slate-300'
                 }`}
               >
                 <List size={17} />
@@ -366,13 +366,13 @@ export default function ProductsPage() {
 
       {showForm && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="rounded-[24px] max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-app-card border border-app-line bg-white">
+          <div className="rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl shadow-black/50 border border-app-line bg-app-card">
             <div className="p-6 sm:p-7">
               <div className="mb-5 pb-4 border-b border-app-line">
-                <h3 className="text-lg font-bold text-app-ink font-display tracking-tight">
+                <h3 className="text-lg font-bold text-white font-display tracking-tight">
                   {editingProduct ? 'Editar producto' : 'Agregar producto'}
                 </h3>
-                <p className="text-[13px] text-app-muted mt-1">
+                <p className="text-[13px] text-slate-500 mt-1">
                   Completa los datos; la imagen se muestra completa en el catálogo.
                 </p>
               </div>
@@ -391,15 +391,15 @@ export default function ProductsPage() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card"
+          className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card"
         >
-          <div className="px-5 py-4 sm:px-6 bg-app-field/70 border-b border-app-line flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-white border border-app-line text-amber-600 shrink-0 shadow-sm">
+          <div className="px-5 py-4 sm:px-6 bg-gradient-to-br from-amber-500/12 via-app-card to-orange-600/10 border-b border-app-line flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-white/[0.06] border border-app-line text-amber-400 shrink-0">
               <Sparkles className="size-[18px]" strokeWidth={2} />
             </div>
             <div className="min-w-0">
-              <h3 className="text-[15px] font-semibold text-app-ink tracking-tight">Sugeridos desde web</h3>
-              <p className="text-[12px] text-app-muted mt-0.5 font-medium">
+              <h3 className="text-[15px] font-semibold text-white tracking-tight">Sugeridos desde web</h3>
+              <p className="text-[12px] text-slate-500 mt-0.5 font-medium">
                 Productos detectados por IA. Aprueba para añadirlos al catálogo.
               </p>
             </div>
@@ -408,11 +408,11 @@ export default function ProductsPage() {
             {suggestions.map((s) => (
               <div
                 key={s.id}
-                className="flex items-center justify-between gap-3 py-3 px-4 rounded-2xl border border-app-line bg-app-field/60 hover:bg-app-field transition-colors"
+                className="flex items-center justify-between gap-3 py-3 px-4 rounded-xl border border-app-line bg-white/[0.03] hover:bg-white/[0.05] transition-colors"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="text-[15px] font-semibold text-app-ink truncate">{s.name}</p>
-                  <p className="text-[12px] text-app-muted font-mono tabular-nums mt-0.5">
+                  <p className="text-[15px] font-semibold text-white truncate">{s.name}</p>
+                  <p className="text-[12px] text-slate-500 font-mono tabular-nums mt-0.5">
                     S/ {Number(s.price).toFixed(2)} · {s.category}
                     {s.sourceRef ? ` · ${s.sourceRef}` : ''}
                   </p>
@@ -447,7 +447,7 @@ export default function ProductsPage() {
                     }}
                     disabled={saving}
                     whileTap={{ scale: saving ? 1 : 0.95 }}
-                    className="p-2.5 rounded-2xl bg-white border border-app-line text-app-muted hover:bg-app-field disabled:opacity-50"
+                    className="p-2.5 rounded-xl bg-white/[0.05] border border-app-line text-slate-400 hover:bg-white/[0.08] disabled:opacity-50"
                     title="Rechazar"
                   >
                     <Trash2 size={16} />
@@ -502,18 +502,18 @@ export default function ProductsPage() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-[24px] border border-app-line bg-white shadow-app-card overflow-hidden"
+          className="rounded-2xl border border-app-line bg-app-card shadow-app-card overflow-hidden"
         >
           <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-app-field border border-app-line flex items-center justify-center mb-4">
-              <Package className="size-7 text-app-muted" />
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-500/20 to-purple-600/15 border border-brand-500/20 flex items-center justify-center mb-4">
+              <Package className="size-7 text-slate-500" />
             </div>
-            <p className="text-[15px] font-medium text-app-ink">
+            <p className="text-[15px] font-medium text-slate-300">
               {searchQuery || selectedCategory !== 'all'
                 ? 'No hay productos con estos filtros'
                 : 'No hay productos aún'}
             </p>
-            <p className="text-[13px] text-app-muted mt-1 max-w-sm">
+            <p className="text-[13px] text-slate-500 mt-1 max-w-sm">
               {searchQuery || selectedCategory !== 'all'
                 ? 'Prueba otra búsqueda o categoría.'
                 : 'Agrega tu primer producto con el botón superior.'}

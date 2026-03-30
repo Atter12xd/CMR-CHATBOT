@@ -5,32 +5,27 @@ export default {
     extend: {
       fontFamily: {
         sans: [
-          'Inter',
           '"Plus Jakarta Sans"',
+          'Inter',
           'system-ui',
           '-apple-system',
           'BlinkMacSystemFont',
           'Segoe UI',
           'sans-serif',
         ],
-        display: ['Inter', '"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        display: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
         /** Navegación / UI tipo producto profesional (legible, denso) */
         professional: ['Inter', '"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
       },
       colors: {
         app: {
-          shell: '#F8F9FB',
-          canvas: '#F8F9FB',
-          raised: '#FFFFFF',
-          card: '#FFFFFF',
-          'card-hover': '#F3F4F6',
-          line: 'rgba(15, 23, 42, 0.08)',
-          'line-strong': 'rgba(15, 23, 42, 0.14)',
-          ink: '#000000',
-          muted: '#9EA3AE',
-          charcoal: '#2D2E32',
-          /** Búsquedas / campos suaves */
-          field: '#ECEEF2',
+          shell: '#06080e',
+          canvas: '#090c14',
+          raised: '#0c1018',
+          card: '#101622',
+          'card-hover': '#141c28',
+          line: 'rgba(255, 255, 255, 0.07)',
+          'line-strong': 'rgba(255, 255, 255, 0.11)',
         },
         brand: {
           50: '#eef7ff',
@@ -65,14 +60,15 @@ export default {
         '5xl': '2.5rem',
       },
       boxShadow: {
-        glow: '0 0 40px -10px rgba(42, 139, 255, 0.2)',
-        'glow-lg': '0 0 60px -15px rgba(42, 139, 255, 0.25)',
-        'app-card': '0 4px 24px -6px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04)',
-        'app-header': '0 1px 0 0 rgba(15, 23, 42, 0.06)',
+        'glow': '0 0 40px -10px rgba(42, 139, 255, 0.3)',
+        'glow-lg': '0 0 60px -15px rgba(42, 139, 255, 0.4)',
+        'app-card':
+          '0 1px 0 0 rgba(255, 255, 255, 0.04) inset, 0 16px 48px -20px rgba(0, 0, 0, 0.55)',
+        'app-header': '0 1px 0 0 rgba(255, 255, 255, 0.06)',
       },
       backgroundImage: {
         'app-canvas':
-          'radial-gradient(ellipse 90% 60% at 50% -15%, rgba(42, 139, 255, 0.06), transparent 52%), radial-gradient(ellipse 70% 45% at 100% 0%, rgba(45, 46, 50, 0.04), transparent 45%), linear-gradient(180deg, #F8F9FB 0%, #F3F5F8 100%)',
+          'radial-gradient(ellipse 90% 60% at 50% -15%, rgba(42, 139, 255, 0.09), transparent 52%), radial-gradient(ellipse 70% 45% at 100% 0%, rgba(16, 185, 129, 0.05), transparent 45%), linear-gradient(180deg, #090c14 0%, #080a10 100%)',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out',

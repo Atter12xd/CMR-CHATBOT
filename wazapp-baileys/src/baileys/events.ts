@@ -274,33 +274,16 @@ CÓMO TOMAR PEDIDOS (elegante y claro):
 - Mantén un tono cercano pero profesional. No inventes productos ni precios; usa solo la lista de PRODUCTOS DISPONIBLES.
 `;
 
-  const MAX_PRODUCTS_IN_PROMPT = 100;
-  const MAX_DESC_CHARS = 140;
-
   let productsContext = 'No hay productos cargados';
   try {
     const { data: products } = await supabase
       .from('products')
-      .select('name, description, price, category, image_url, stock, updated_at')
+      .select('name, description, price, category, image_url')
       .eq('organization_id', clientConfig.id)
-      .order('updated_at', { ascending: false })
-      .limit(MAX_PRODUCTS_IN_PROMPT);
-
-    productsContext =
-      products?.map((p) => {
-        const raw = (p.description || '').trim();
-        const shortDesc =
-          raw.length > MAX_DESC_CHARS ? `${raw.slice(0, MAX_DESC_CHARS)}…` : raw || 'Sin descripción';
-        const stockPart =
-          p.stock != null && Number.isFinite(Number(p.stock))
-            ? ` | Stock: ${p.stock}`
-            : '';
-        return `- ${p.name} [${p.category}]: ${shortDesc} — S/${p.price}${stockPart}${p.image_url ? ` | Imagen: ${p.image_url}` : ''}`;
-      }).join('\n') || productsContext;
-
-    if (products && products.length >= MAX_PRODUCTS_IN_PROMPT) {
-      productsContext += `\n(Nota: hay al menos ${MAX_PRODUCTS_IN_PROMPT} productos en catálogo; prioriza coincidencias por nombre o categoría.)`;
-    }
+      .limit(20);
+    productsContext = products?.map(p =>
+      `- ${p.name}: ${p.description || 'Sin descripción'} - S/${p.price}${p.image_url ? ` | Imagen: ${p.image_url}` : ''}`
+    ).join('\n') || productsContext;
   } catch {
     //
   }
@@ -348,7 +331,7 @@ CONTEXTO DE LA EMPRESA (información de web o catálogo que entrenaron):
 ${contextText || '(Aún no hay web ni catálogo entrenado.)'}
 ${webCatalogBlock}
 
-PRODUCTOS DISPONIBLES (catálogo del CRM; puede incluir productos sincronizados desde Shopify — usa solo esta lista, nombres y precios exactos):
+PRODUCTOS DISPONIBLES (responde con nombre y precio; las fotos se envían por separado):
 ${productsContext}
 ${paymentMethodsContext ? `\n${paymentMethodsContext}\n` : ''}
 ${orderFlowBlock}
@@ -588,7 +571,6 @@ async function sendProductImages(
     .select('name, price, image_url')
     .eq('organization_id', organizationId)
     .not('image_url', 'is', null)
-    .order('updated_at', { ascending: false })
     .limit(5);
 
   if (!products?.length) return;

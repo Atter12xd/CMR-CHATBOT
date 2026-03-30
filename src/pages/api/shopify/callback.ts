@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { resolvePublicSiteUrl } from '../../../lib/shopify-public-url';
+import { registerShopifyProductWebhooks } from '../../../lib/shopify-register-webhooks';
 
 export const prerender = false;
 
@@ -135,6 +136,9 @@ export const GET: APIRoute = async ({ request, url }) => {
       shop,
       scopes: tokenData.scope || null,
     });
+
+    await registerShopifyProductWebhooks(shop, tokenData.access_token, publicBase);
+
     return redirectConfig(publicBase, 'connected', 'Shopify conectado correctamente', requestId, shop);
   } catch (error) {
     console.error(`[${requestId}] Unexpected callback error`, error);

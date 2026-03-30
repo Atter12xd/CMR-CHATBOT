@@ -1,21 +1,16 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
+import { getShopifyAdminApiVersion } from '../../../lib/shopify-admin';
+import { mapShopifyProductToRow, type ShopifyProductPayload } from '../../../lib/shopify-product-map';
 
 export const prerender = false;
 
 const jsonHeaders = { 'Content-Type': 'application/json' };
 
-const DEFAULT_API_VERSION = '2024-10';
 const MAX_PAGES = 100;
 
 function buildRequestId() {
   return `shopify_sync_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-}
-
-function stripHtml(html: string | null | undefined): string | null {
-  if (!html) return null;
-  const text = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-  return text.length ? text.slice(0, 8000) : null;
 }
 
 function nextPageUrl(linkHeader: string | null): string | null {
@@ -25,26 +20,6 @@ function nextPageUrl(linkHeader: string | null): string | null {
     if (m) return m[1];
   }
   return null;
-}
-
-interface ShopifyVariant {
-  price?: string;
-  inventory_quantity?: number | null;
-}
-
-interface ShopifyImage {
-  src?: string;
-}
-
-interface ShopifyProduct {
-  id: number;
-  title: string;
-  body_html?: string | null;
-  product_type?: string | null;
-  vendor?: string | null;
-  status?: string;
-  images?: ShopifyImage[];
-  variants?: ShopifyVariant[];
 }
 
 export const POST: APIRoute = async ({ request }) => {
@@ -72,8 +47,7 @@ export const POST: APIRoute = async ({ request }) => {
   const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || process.env.PUBLIC_SUPABASE_URL;
   const supabaseAnon = import.meta.env.PUBLIC_SUPABASE_ANON_KEY || process.env.PUBLIC_SUPABASE_ANON_KEY;
   const serviceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const apiVersion =
-    import.meta.env.SHOPIFY_ADMIN_API_VERSION || process.env.SHOPIFY_ADMIN_API_VERSION || DEFAULT_API_VERSION;
+  const apiVersion = getShopifyAdminApiVersion();
 
   if (!supabaseUrl || !supabaseAnon || !serviceKey) {
     console.error(`[${requestId}] Missing Supabase env`);
@@ -134,16 +108,7 @@ export const POST: APIRoute = async ({ request }) => {
   const shop = integration.shop_domain.replace(/^https?:\/\//, '').replace(/\/+$/, '');
   const accessToken = integration.access_token;
 
-  const rows: {
-    organization_id: string;
-    shopify_product_id: string;
-    name: string;
-    description: string | null;
-    price: number;
-    category: string;
-    image_url: string | null;
-    stock: number | null;
-  }[] = [];
+  const rows: ReturnType<typeof mapShopifyProductToRow>[] = [];
 
   let pageUrl: string | null = `https://${shop}/admin/api/${apiVersion}/products.json?limit=250`;
   let pages = 0;
@@ -171,32 +136,12 @@ export const POST: APIRoute = async ({ request }) => {
         );
       }
 
-      const payload = (await res.json()) as { products?: ShopifyProduct[] };
+      const payload = (await res.json()) as { products?: ShopifyProductPayload[] };
       const products = payload.products || [];
       console.info(`[${requestId}] Page ${pages}`, { count: products.length });
 
       for (const p of products) {
-        const variant = p.variants?.[0];
-        const price = variant?.price != null ? Number.parseFloat(String(variant.price)) : 0;
-        const safePrice = Number.isFinite(price) && price >= 0 ? price : 0;
-        const stock =
-          variant?.inventory_quantity != null && Number.isFinite(Number(variant.inventory_quantity))
-            ? Math.max(0, Math.floor(Number(variant.inventory_quantity)))
-            : null;
-        const image = p.images?.[0]?.src || null;
-        const category =
-          (p.product_type && p.product_type.trim()) || (p.vendor && p.vendor.trim()) || 'Shopify';
-
-        rows.push({
-          organization_id: organizationId,
-          shopify_product_id: String(p.id),
-          name: p.title || `Producto ${p.id}`,
-          description: stripHtml(p.body_html),
-          price: safePrice,
-          category,
-          image_url: image,
-          stock,
-        });
+        rows.push(mapShopifyProductToRow(organizationId, p));
       }
 
       pageUrl = nextPageUrl(res.headers.get('Link'));

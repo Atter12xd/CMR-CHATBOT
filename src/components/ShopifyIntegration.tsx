@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AlertCircle, CheckCircle2, Loader2, RefreshCw, Store } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Loader2, Radio, RefreshCw, Store } from 'lucide-react';
 import { createClient } from '../lib/supabase';
 
 interface ShopifyIntegrationProps {
@@ -22,6 +22,7 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
   const [loadingStatus, setLoadingStatus] = useState(true);
   const [syncedCount, setSyncedCount] = useState<number | null>(null);
   const [syncInProgress, setSyncInProgress] = useState(false);
+  const [webhooksRegistering, setWebhooksRegistering] = useState(false);
   const [activityLog, setActivityLog] = useState<string[]>([]);
   const supabase = createClient();
 
@@ -258,6 +259,38 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
     }
   };
 
+  const handleRegisterWebhooks = async () => {
+    if (status !== 'connected' || webhooksRegistering) return;
+    pushLog('Activar avisos automáticos (webhooks)…');
+    setError(null);
+    setWebhooksRegistering(true);
+    try {
+      const token = await getAccessToken();
+      if (!token) {
+        throw new Error('Tu sesión expiró, vuelve a iniciar sesión');
+      }
+      const res = await fetch('/api/shopify/register-webhooks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ organizationId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error((data.error as string) || 'No se pudieron registrar los avisos automáticos');
+      }
+      pushLog('Listo: cuando cambies productos en Shopify, se actualizarán aquí (sin pulsar sincronizar).');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      pushLog('Error: ' + msg);
+      setError(msg);
+    } finally {
+      setWebhooksRegistering(false);
+    }
+  };
+
   const handleDisconnect = async () => {
     if (!confirm('¿Seguro que deseas desconectar Shopify?')) return;
 
@@ -361,11 +394,22 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
             <button
               type="button"
               onClick={handleSync}
-              disabled={syncInProgress}
+              disabled={syncInProgress || webhooksRegistering}
               className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-semibold bg-white/[0.06] text-slate-200 hover:bg-white/[0.09] border border-app-line transition-colors disabled:opacity-60"
             >
               <RefreshCw className={`size-4 ${syncInProgress ? 'animate-spin' : ''}`} />
               {syncInProgress ? 'Sincronizando…' : 'Sincronizar productos'}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleRegisterWebhooks}
+              disabled={syncInProgress || webhooksRegistering}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-semibold bg-white/[0.06] text-slate-200 hover:bg-white/[0.09] border border-app-line transition-colors disabled:opacity-60"
+              title="Registra avisos en Shopify para que los cambios de productos lleguen solos"
+            >
+              <Radio className={`size-4 ${webhooksRegistering ? 'animate-pulse' : ''}`} />
+              {webhooksRegistering ? 'Activando avisos…' : 'Actualización automática'}
             </button>
 
             <button

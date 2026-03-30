@@ -24,7 +24,7 @@ import StatsCard from './StatsCard';
 import StatsCardSkeleton from './StatsCardSkeleton';
 
 const fieldClass =
-  'w-full px-3.5 py-2.5 text-[14px] bg-white/[0.05] border border-app-line rounded-xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 transition-all';
+  'w-full px-3.5 py-2.5 text-[14px] bg-app-field border border-app-line rounded-xl text-app-ink placeholder:text-app-muted focus:outline-none focus:ring-2 focus:ring-app-charcoal/15 focus:border-app-charcoal/25 transition-all';
 
 const statsContainer = {
   hidden: { opacity: 0 },
@@ -373,7 +373,7 @@ export default function BotTrainingPage() {
           <div className="app-spinner">
             <Loader2 size={20} className="animate-spin text-brand-400" />
           </div>
-          <p className="text-[14px] text-slate-500">Cargando…</p>
+          <p className="text-[14px] text-app-muted">Cargando…</p>
         </div>
       </div>
     );
@@ -390,7 +390,7 @@ export default function BotTrainingPage() {
         <div className="app-card p-5">
           <div className="flex items-start gap-2.5">
             <div className="w-2 h-2 rounded-full bg-amber-400 mt-1.5 shrink-0" />
-            <p className="text-slate-400 text-[14px] leading-relaxed">
+            <p className="text-app-muted text-[14px] leading-relaxed">
               Crea o selecciona una organización para entrenar el bot. Ve a{' '}
               <a href="/configuracion" className="text-brand-400 font-semibold hover:text-brand-300">
                 Configuración
@@ -458,20 +458,20 @@ export default function BotTrainingPage() {
       )}
 
       {/* Datos de empresa */}
-      <div className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card">
-        <div className="px-5 py-4 sm:px-6 bg-gradient-to-br from-amber-500/12 via-app-card to-orange-600/10 border-b border-app-line flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-white/[0.06] border border-app-line text-amber-400 shrink-0">
+      <div className="rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card">
+        <div className="px-5 py-4 sm:px-6 bg-app-field/70 border-b border-app-line flex items-center gap-3">
+          <div className="p-2.5 rounded-2xl bg-white border border-app-line text-amber-600 shrink-0 shadow-sm">
             <Building2 className="size-[18px]" strokeWidth={2} />
           </div>
           <div className="min-w-0">
-            <h3 className="text-[15px] font-semibold text-white tracking-tight">Datos de tu empresa</h3>
-            <p className="text-[12px] text-slate-500 mt-0.5 font-medium">El bot se presentará y hablará según estos datos</p>
+            <h3 className="text-[15px] font-semibold text-app-ink tracking-tight">Datos de tu empresa</h3>
+            <p className="text-[12px] text-app-muted mt-0.5 font-medium">El bot se presentará y hablará según estos datos</p>
           </div>
         </div>
         <div className="p-5 sm:p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[12px] font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+              <label className="block text-[12px] font-semibold text-app-muted mb-1.5 uppercase tracking-wide">
                 Nombre de la empresa
               </label>
               <input
@@ -483,7 +483,7 @@ export default function BotTrainingPage() {
               />
             </div>
             <div>
-              <label className="block text-[12px] font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+              <label className="block text-[12px] font-semibold text-app-muted mb-1.5 uppercase tracking-wide">
                 Nombre del bot
               </label>
               <input
@@ -496,7 +496,7 @@ export default function BotTrainingPage() {
             </div>
           </div>
           <div>
-            <label className="block text-[12px] font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+            <label className="block text-[12px] font-semibold text-app-muted mb-1.5 uppercase tracking-wide">
               ¿A qué se dedica tu empresa?
             </label>
             <input
@@ -508,7 +508,7 @@ export default function BotTrainingPage() {
             />
           </div>
           <div>
-            <label className="block text-[12px] font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+            <label className="block text-[12px] font-semibold text-app-muted mb-1.5 uppercase tracking-wide">
               Saludo inicial (opcional)
             </label>
             <textarea
@@ -520,7 +520,7 @@ export default function BotTrainingPage() {
             />
           </div>
           <div>
-            <label className="block text-[12px] font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+            <label className="block text-[12px] font-semibold text-app-muted mb-1.5 uppercase tracking-wide">
               Invitación a ver web o catálogo (opcional)
             </label>
             <input
@@ -530,12 +530,12 @@ export default function BotTrainingPage() {
               placeholder="Ej: Puede ver nuestra web o ¿Le paso el catálogo?"
               className={fieldClass}
             />
-            <p className="text-[12px] text-slate-500 mt-1.5 leading-relaxed">
+            <p className="text-[12px] text-app-muted mt-1.5 leading-relaxed">
               El bot usará esto para invitar al cliente a ver tu web o catálogo (según lo que hayas entrenado abajo).
             </p>
           </div>
           <div>
-            <label className="block text-[12px] font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+            <label className="block text-[12px] font-semibold text-app-muted mb-1.5 uppercase tracking-wide">
               URL de tu web
             </label>
             <input
@@ -545,7 +545,7 @@ export default function BotTrainingPage() {
               placeholder="https://tu-empresa.com"
               className={fieldClass}
             />
-            <p className="text-[12px] text-slate-500 mt-1.5 leading-relaxed">
+            <p className="text-[12px] text-app-muted mt-1.5 leading-relaxed">
               La web que el bot estudia y puede ofrecer al cliente. También puedes extraerla abajo en «Extraer de página web».
             </p>
           </div>
@@ -555,7 +555,7 @@ export default function BotTrainingPage() {
               onClick={handleSaveBotConfig}
               disabled={configSaving}
               whileTap={{ scale: configSaving ? 1 : 0.98 }}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-[14px] font-semibold bg-brand-500 text-white hover:bg-brand-400 border border-brand-400/30 shadow-lg shadow-brand-500/20 disabled:opacity-50 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-[14px] font-semibold bg-app-charcoal text-white hover:bg-black shadow-md disabled:opacity-50 transition-colors"
             >
               {configSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
               {configSaving ? 'Guardando…' : 'Guardar datos'}
@@ -569,17 +569,17 @@ export default function BotTrainingPage() {
         <motion.div
           whileHover={{ y: -2 }}
           transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-          className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card flex flex-col"
+          className="rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card flex flex-col"
         >
           <div className="h-1 bg-gradient-to-r from-brand-500/60 via-sky-500/40 to-brand-400/50 shrink-0" />
           <div className="p-5 flex-1 flex flex-col">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 rounded-xl bg-white/[0.06] border border-app-line text-brand-400 shrink-0">
+              <div className="p-2.5 rounded-2xl bg-white border border-app-line text-brand-600 shrink-0 shadow-sm">
                 <Globe className="size-[18px]" />
               </div>
               <div className="min-w-0">
-                <h3 className="text-[15px] font-semibold text-white leading-snug">Extraer de página web</h3>
-                <p className="text-[12px] text-slate-500 mt-0.5">Una URL, una página</p>
+                <h3 className="text-[15px] font-semibold text-app-ink leading-snug">Extraer de página web</h3>
+                <p className="text-[12px] text-app-muted mt-0.5">Una URL, una página</p>
               </div>
             </div>
             {!showWebForm ? (
@@ -587,7 +587,7 @@ export default function BotTrainingPage() {
                 type="button"
                 onClick={() => setShowWebForm(true)}
                 whileTap={{ scale: 0.98 }}
-                className="mt-auto w-full py-2.5 rounded-xl text-[14px] font-semibold bg-brand-500 text-white hover:bg-brand-400 border border-brand-400/30 shadow-lg shadow-brand-500/15 transition-colors"
+                className="mt-auto w-full py-2.5 rounded-full text-[14px] font-semibold bg-app-charcoal text-white hover:bg-black shadow-md transition-colors"
               >
                 Agregar URL
               </motion.button>
@@ -607,7 +607,7 @@ export default function BotTrainingPage() {
                     onClick={handleWebExtract}
                     disabled={isProcessing}
                     whileTap={{ scale: 0.98 }}
-                    className="flex-1 py-2.5 rounded-xl text-[14px] font-semibold bg-brand-500 text-white hover:bg-brand-400 disabled:opacity-50 border border-brand-400/30 transition-colors"
+                    className="flex-1 py-2.5 rounded-xl text-[14px] font-semibold bg-app-charcoal text-white hover:bg-black disabled:opacity-50 shadow-md transition-colors"
                   >
                     {isProcessing ? 'Procesando…' : 'Extraer'}
                   </motion.button>
@@ -617,7 +617,7 @@ export default function BotTrainingPage() {
                       setShowWebForm(false);
                       setWebUrl('');
                     }}
-                    className="px-4 py-2.5 text-[14px] font-semibold text-slate-400 bg-white/[0.05] border border-app-line rounded-xl hover:bg-white/[0.08] transition-colors"
+                    className="px-4 py-2.5 text-[14px] font-semibold text-app-muted bg-white border border-app-line rounded-full hover:bg-app-field transition-colors"
                   >
                     Cancelar
                   </button>
@@ -630,17 +630,17 @@ export default function BotTrainingPage() {
         <motion.div
           whileHover={{ y: -2 }}
           transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-          className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card flex flex-col"
+          className="rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card flex flex-col"
         >
           <div className="h-1 bg-gradient-to-r from-emerald-500/60 via-teal-500/40 to-emerald-400/50 shrink-0" />
           <div className="p-5 flex-1 flex flex-col">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 rounded-xl bg-white/[0.06] border border-app-line text-emerald-400 shrink-0">
+              <div className="p-2.5 rounded-2xl bg-white border border-app-line text-emerald-600 shrink-0 shadow-sm">
                 <Layers className="size-[18px]" />
               </div>
               <div className="min-w-0">
-                <h3 className="text-[15px] font-semibold text-white leading-snug">Estudiar sitio completo</h3>
-                <p className="text-[12px] text-slate-500 mt-0.5">Hasta 20 páginas vía sitemap</p>
+                <h3 className="text-[15px] font-semibold text-app-ink leading-snug">Estudiar sitio completo</h3>
+                <p className="text-[12px] text-app-muted mt-0.5">Hasta 20 páginas vía sitemap</p>
               </div>
             </div>
             <input
@@ -651,7 +651,7 @@ export default function BotTrainingPage() {
               className={`${fieldClass} mb-2`}
               disabled={isFullSiteProcessing}
             />
-            <p className="text-[12px] text-slate-500 mb-3 leading-relaxed">
+            <p className="text-[12px] text-app-muted mb-3 leading-relaxed">
               URL principal o sitemap.xml. Se leerán hasta 20 páginas.
             </p>
             <motion.button
@@ -659,7 +659,7 @@ export default function BotTrainingPage() {
               onClick={handleFullSiteExtract}
               disabled={isFullSiteProcessing}
               whileTap={{ scale: isFullSiteProcessing ? 1 : 0.98 }}
-              className="mt-auto w-full px-4 py-2.5 bg-emerald-500 text-white text-[14px] font-semibold rounded-xl hover:bg-emerald-400 border border-emerald-400/30 shadow-lg shadow-emerald-500/20 transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2"
+              className="mt-auto w-full px-4 py-2.5 bg-emerald-600 text-white text-[14px] font-semibold rounded-full hover:bg-emerald-500 shadow-md transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2"
             >
               {isFullSiteProcessing ? (
                 <>
@@ -676,20 +676,20 @@ export default function BotTrainingPage() {
         <motion.div
           whileHover={{ y: -2 }}
           transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-          className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card flex flex-col"
+          className="rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card flex flex-col"
         >
           <div className="h-1 bg-gradient-to-r from-purple-500/50 via-brand-500/40 to-purple-400/50 shrink-0" />
           <div className="p-5 flex-1 flex flex-col">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 rounded-xl bg-white/[0.06] border border-app-line text-purple-400 shrink-0">
+              <div className="p-2.5 rounded-2xl bg-white border border-app-line text-violet-600 shrink-0 shadow-sm">
                 <FileText className="size-[18px]" />
               </div>
               <div className="min-w-0">
-                <h3 className="text-[15px] font-semibold text-white leading-snug">Subir PDF</h3>
-                <p className="text-[12px] text-slate-500 mt-0.5">Catálogos y documentos</p>
+                <h3 className="text-[15px] font-semibold text-app-ink leading-snug">Subir PDF</h3>
+                <p className="text-[12px] text-app-muted mt-0.5">Catálogos y documentos</p>
               </div>
             </div>
-            <label className="mt-auto w-full cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-semibold bg-white/[0.08] text-white border border-app-line hover:bg-white/[0.12] transition-colors">
+            <label className="mt-auto w-full cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-semibold bg-app-field text-app-ink border border-app-line hover:bg-app-field/80 transition-colors">
               <input
                 type="file"
                 accept=".pdf"
@@ -711,18 +711,18 @@ export default function BotTrainingPage() {
       </div>
 
       {/* Lista entrenada */}
-      <div className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card">
-        <div className="px-5 py-4 sm:px-6 bg-gradient-to-br from-brand-500/10 via-app-card to-purple-600/10 border-b border-app-line flex items-center justify-between gap-3">
+      <div className="rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card">
+        <div className="px-5 py-4 sm:px-6 bg-app-field/70 border-b border-app-line flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="p-2.5 rounded-xl bg-white/[0.06] border border-app-line text-brand-400 shrink-0">
+            <div className="p-2.5 rounded-2xl bg-white border border-app-line text-brand-600 shrink-0 shadow-sm">
               <Brain className="size-[18px]" strokeWidth={2} />
             </div>
             <div className="min-w-0">
-              <h2 className="text-[15px] font-semibold text-white tracking-tight">Información entrenada</h2>
-              <p className="text-[12px] text-slate-500 font-medium">Fuentes que el bot usa como contexto</p>
+              <h2 className="text-[15px] font-semibold text-app-ink tracking-tight">Información entrenada</h2>
+              <p className="text-[12px] text-app-muted font-medium">Fuentes que el bot usa como contexto</p>
             </div>
           </div>
-          <span className="text-[11px] font-semibold text-slate-400 bg-white/[0.05] border border-app-line px-3 py-1.5 rounded-xl tabular-nums shrink-0">
+          <span className="text-[11px] font-semibold text-app-muted bg-white border border-app-line px-3 py-1.5 rounded-full tabular-nums shrink-0">
             {loading ? '—' : trainingData.length}
           </span>
         </div>
@@ -732,10 +732,10 @@ export default function BotTrainingPage() {
             {[0, 1, 2].map((i) => (
               <div key={i} className="p-4 sm:p-5 animate-pulse">
                 <div className="flex gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-white/[0.08] shrink-0" />
+                  <div className="w-9 h-9 rounded-xl bg-app-field shrink-0" />
                   <div className="flex-1 space-y-2 min-w-0">
-                    <div className="h-4 w-36 max-w-full bg-white/[0.1] rounded-lg" />
-                    <div className="h-3 w-full bg-white/[0.06] rounded-md" />
+                    <div className="h-4 w-36 max-w-full bg-app-field rounded-lg" />
+                    <div className="h-3 w-full bg-app-field rounded-md" />
                   </div>
                 </div>
               </div>
@@ -743,11 +743,11 @@ export default function BotTrainingPage() {
           </div>
         ) : trainingData.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-500/20 to-purple-600/15 border border-brand-500/20 flex items-center justify-center mb-4">
-              <Brain className="size-7 text-slate-500" />
+            <div className="w-16 h-16 rounded-2xl bg-app-field border border-app-line flex items-center justify-center mb-4">
+              <Brain className="size-7 text-app-muted" />
             </div>
-            <p className="text-[15px] font-medium text-slate-300">Aún no hay fuentes entrenadas</p>
-            <p className="text-[13px] text-slate-500 mt-1 max-w-md leading-relaxed">
+            <p className="text-[15px] font-medium text-app-ink">Aún no hay fuentes entrenadas</p>
+            <p className="text-[13px] text-app-muted mt-1 max-w-md leading-relaxed">
               Agrega una página web, estudia tu sitio completo o sube un PDF para que el bot aprenda de tu negocio.
             </p>
           </div>
@@ -760,7 +760,7 @@ export default function BotTrainingPage() {
                 variants={listRow}
                 initial="hidden"
                 animate="show"
-                className="p-4 sm:p-5 hover:bg-white/[0.03] transition-colors"
+                className="p-4 sm:p-5 hover:bg-app-field/40 transition-colors"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
@@ -778,18 +778,18 @@ export default function BotTrainingPage() {
                           <FileText size={16} className="text-brand-400" />
                         )}
                       </div>
-                      <span className="text-[14px] font-semibold text-white">
+                      <span className="text-[14px] font-semibold text-app-ink">
                         {item.type === 'web' ? 'Página web' : 'PDF'}
                       </span>
                       {getStatusBadge(item.status)}
                     </div>
-                    <p className="text-[13px] text-slate-400 truncate ml-11 sm:ml-11">{item.source}</p>
+                    <p className="text-[13px] text-app-muted truncate ml-11 sm:ml-11">{item.source}</p>
                     {item.status === 'completed' && item.content && (
-                      <div className="mt-3 ml-0 sm:ml-11 p-3.5 rounded-xl bg-white/[0.04] border border-app-line">
-                        <p className="text-[13px] text-slate-400 whitespace-pre-line leading-relaxed">{item.content}</p>
+                      <div className="mt-3 ml-0 sm:ml-11 p-3.5 rounded-xl bg-app-field/70 border border-app-line">
+                        <p className="text-[13px] text-app-muted whitespace-pre-line leading-relaxed">{item.content}</p>
                       </div>
                     )}
-                    <p className="text-[12px] text-slate-500 mt-2 ml-0 sm:ml-11 tabular-nums">
+                    <p className="text-[12px] text-app-muted mt-2 ml-0 sm:ml-11 tabular-nums">
                       {item.extractedAt.toLocaleString('es-ES')}
                     </p>
                   </div>
@@ -813,31 +813,31 @@ export default function BotTrainingPage() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
-        className="rounded-2xl border border-app-line bg-gradient-to-br from-brand-500/10 via-app-card to-purple-600/10 overflow-hidden shadow-app-card"
+        className="rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card"
       >
         <div className="p-5 sm:p-6 flex items-start gap-3">
-          <div className="p-2.5 rounded-xl bg-white/[0.06] border border-app-line text-brand-400 shrink-0">
+          <div className="p-2.5 rounded-2xl bg-white border border-app-line text-brand-600 shrink-0 shadow-sm">
             <Info className="size-[18px]" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="size-4 text-brand-400 shrink-0" />
-              <h3 className="text-[15px] font-semibold text-white">Orden recomendado</h3>
+              <h3 className="text-[15px] font-semibold text-app-ink">Orden recomendado</h3>
             </div>
-            <p className="text-[13px] text-slate-400 mb-3 leading-relaxed">
-              (1) Completa <strong className="text-slate-300">Datos de tu empresa</strong> y guarda — el bot se presenta con el nombre de tu negocio y puede ofrecer tu URL. (2) Añade contenido con{' '}
-              <strong className="text-slate-300">web</strong>, <strong className="text-slate-300">sitio completo</strong> o{' '}
-              <strong className="text-slate-300">PDF</strong>. (3) En <strong className="text-slate-300">Productos</strong> carga lo que el bot puede vender; solo con esos ítems arma pedidos.
+            <p className="text-[13px] text-app-muted mb-3 leading-relaxed">
+              (1) Completa <strong className="text-app-ink">Datos de tu empresa</strong> y guarda — el bot se presenta con el nombre de tu negocio y puede ofrecer tu URL. (2) Añade contenido con{' '}
+              <strong className="text-app-ink">web</strong>, <strong className="text-app-ink">sitio completo</strong> o{' '}
+              <strong className="text-app-ink">PDF</strong>. (3) En <strong className="text-app-ink">Productos</strong> carga lo que el bot puede vender; solo con esos ítems arma pedidos.
             </p>
-            <ul className="text-[13px] text-slate-500 space-y-1.5 list-disc list-inside leading-relaxed">
+            <ul className="text-[13px] text-app-muted space-y-1.5 list-disc list-inside leading-relaxed">
               <li>
-                <strong className="text-slate-400">Una página:</strong> ideal para home o landing.
+                <strong className="text-app-ink">Una página:</strong> ideal para home o landing.
               </li>
               <li>
-                <strong className="text-slate-400">Sitio completo:</strong> hasta 20 páginas vía sitemap.
+                <strong className="text-app-ink">Sitio completo:</strong> hasta 20 páginas vía sitemap.
               </li>
               <li>
-                <strong className="text-slate-400">PDF:</strong> catálogos, precios o políticas.
+                <strong className="text-app-ink">PDF:</strong> catálogos, precios o políticas.
               </li>
             </ul>
           </div>

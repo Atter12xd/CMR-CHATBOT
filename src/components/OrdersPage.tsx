@@ -171,7 +171,7 @@ export default function OrdersPage() {
           <div className="app-spinner">
             <Loader2 size={20} className="animate-spin text-brand-400" />
           </div>
-          <p className="text-[14px] text-slate-500">Cargando…</p>
+          <p className="text-[14px] text-app-muted">Cargando…</p>
         </div>
       </div>
     );
@@ -188,7 +188,7 @@ export default function OrdersPage() {
         <div className="app-card p-5">
           <div className="flex items-start gap-2.5">
             <div className="w-2 h-2 rounded-full bg-amber-400 mt-1.5 shrink-0" />
-            <p className="text-slate-400 text-[14px] leading-relaxed">
+            <p className="text-app-muted text-[14px] leading-relaxed">
               Crea o selecciona una organización para ver pedidos. Ve a{' '}
               <a href="/configuracion" className="text-brand-400 font-semibold hover:text-brand-300">
                 Configuración
@@ -209,7 +209,7 @@ export default function OrdersPage() {
         description="Gestiona y verifica todos tus pedidos."
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-semibold text-slate-400 bg-white/[0.05] border border-app-line px-3 py-1.5 rounded-xl tabular-nums">
+            <span className="text-[11px] font-semibold text-app-muted bg-white border border-app-line px-3 py-1.5 rounded-full tabular-nums">
               {orders.length} total
             </span>
             {pendingPayments.length > 0 && (
@@ -274,15 +274,15 @@ export default function OrdersPage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25 }}
-          className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card"
+          className="rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card"
         >
-          <div className="px-5 py-4 sm:px-6 bg-gradient-to-br from-amber-500/12 via-app-card to-orange-600/10 border-b border-app-line flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-white/[0.06] border border-app-line text-amber-400 shrink-0">
+          <div className="px-5 py-4 sm:px-6 bg-app-field/70 border-b border-app-line flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-white border border-app-line text-amber-600 shrink-0 shadow-sm">
               <CreditCard className="size-[18px]" strokeWidth={2} />
             </div>
             <div className="min-w-0">
-              <h3 className="text-[15px] font-semibold text-white tracking-tight">Pagos pendientes</h3>
-              <p className="text-[12px] text-slate-500 mt-0.5 font-medium">
+              <h3 className="text-[15px] font-semibold text-app-ink tracking-tight">Pagos pendientes</h3>
+              <p className="text-[12px] text-app-muted mt-0.5 font-medium">
                 Monto y nombre del comprobante para validar
               </p>
             </div>
@@ -291,13 +291,13 @@ export default function OrdersPage() {
             {pendingPayments.map((p) => (
               <div
                 key={p.id}
-                className="flex flex-wrap items-end gap-3 p-4 rounded-xl border border-app-line bg-white/[0.03] hover:bg-white/[0.04] transition-colors"
+                className="flex flex-wrap items-end gap-3 p-4 rounded-2xl border border-app-line bg-app-field/60 hover:bg-app-field transition-colors"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="text-[15px] font-semibold text-white leading-snug">
+                  <p className="text-[15px] font-semibold text-app-ink leading-snug">
                     {p.orderCode || 'Pedido'} · {p.orderCustomerName || p.customerName}
                   </p>
-                  <p className="text-[12px] text-slate-500 mt-1 font-mono tabular-nums">
+                  <p className="text-[12px] text-app-muted mt-1 font-mono tabular-nums">
                     Esperado: S/ {(p.orderTotal ?? p.amount).toFixed(2)}
                   </p>
                 </div>
@@ -307,21 +307,21 @@ export default function OrdersPage() {
                   placeholder="Monto"
                   value={verifyAmount[p.id] ?? ''}
                   onChange={(e) => setVerifyAmount((prev) => ({ ...prev, [p.id]: e.target.value }))}
-                  className="w-28 min-w-0 px-3 py-2.5 text-[14px] bg-white/[0.05] border border-app-line rounded-xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 transition-all"
+                  className="w-28 min-w-0 px-3 py-2.5 text-[14px] bg-app-field border border-app-line rounded-full text-app-ink placeholder:text-app-muted focus:outline-none focus:ring-2 focus:ring-app-charcoal/10 focus:border-app-charcoal/20 transition-all"
                 />
                 <input
                   type="text"
                   placeholder="Nombre en comprobante"
                   value={verifyName[p.id] ?? ''}
                   onChange={(e) => setVerifyName((prev) => ({ ...prev, [p.id]: e.target.value }))}
-                  className="flex-1 min-w-[180px] px-3 py-2.5 text-[14px] bg-white/[0.05] border border-app-line rounded-xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 transition-all"
+                  className="flex-1 min-w-[180px] px-3 py-2.5 text-[14px] bg-app-field border border-app-line rounded-full text-app-ink placeholder:text-app-muted focus:outline-none focus:ring-2 focus:ring-app-charcoal/10 focus:border-app-charcoal/20 transition-all"
                 />
                 <motion.button
                   type="button"
                   onClick={() => handleVerifyPayment(p)}
                   disabled={verifyingId === p.id}
                   whileTap={{ scale: verifyingId === p.id ? 1 : 0.98 }}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500 text-white text-[14px] font-semibold rounded-xl hover:bg-emerald-400 disabled:opacity-50 border border-emerald-400/30 shadow-lg shadow-emerald-500/20 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 text-white text-[14px] font-semibold rounded-full hover:bg-emerald-500 disabled:opacity-50 shadow-md transition-colors"
                 >
                   {verifyingId === p.id ? (
                     <Loader2 size={16} className="animate-spin" />
@@ -347,8 +347,8 @@ export default function OrdersPage() {
               whileTap={{ scale: 0.98 }}
               className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold whitespace-nowrap transition-all duration-200 border ${
                 active
-                  ? 'bg-gradient-to-r from-brand-500 to-purple-600 text-white border-transparent shadow-md shadow-brand-500/25'
-                  : 'bg-white/[0.04] text-slate-400 border-app-line hover:bg-white/[0.07] hover:text-slate-200'
+                  ? 'bg-app-charcoal text-white border-transparent shadow-md'
+                  : 'bg-app-field text-app-muted border-app-line hover:text-app-ink'
               }`}
             >
               <span
@@ -368,7 +368,7 @@ export default function OrdersPage() {
             <div className="app-spinner">
               <Loader2 size={20} className="animate-spin text-brand-400" />
             </div>
-            <p className="text-[14px] text-slate-500">Cargando pedidos…</p>
+            <p className="text-[14px] text-app-muted">Cargando pedidos…</p>
           </div>
         </div>
       ) : filteredOrders.length > 0 ? (
@@ -388,18 +388,18 @@ export default function OrdersPage() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-app-line bg-app-card shadow-app-card overflow-hidden"
+          className="rounded-[24px] border border-app-line bg-white shadow-app-card overflow-hidden"
         >
           <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-500/20 to-purple-600/15 border border-brand-500/20 flex items-center justify-center mb-4">
-              <Package className="size-7 text-slate-500" />
+            <div className="w-16 h-16 rounded-2xl bg-app-field border border-app-line flex items-center justify-center mb-4">
+              <Package className="size-7 text-app-muted" />
             </div>
-            <p className="text-[15px] font-medium text-slate-300">
+            <p className="text-[15px] font-medium text-app-ink">
               {selectedStatus === 'all'
                 ? 'No hay pedidos aún'
                 : `No hay pedidos «${statusLabels[selectedStatus]}»`}
             </p>
-            <p className="text-[13px] text-slate-500 mt-1 max-w-sm">
+            <p className="text-[13px] text-app-muted mt-1 max-w-sm">
               Los pedidos aparecerán aquí cuando se generen desde el chat o el flujo de venta.
             </p>
           </div>

@@ -67,7 +67,7 @@ export default function ProductForm({ onSubmit, onCancel, initialProduct, saving
 
 
   const inputClass =
-    'w-full px-3.5 py-2.5 text-sm rounded-xl bg-white/[0.05] border border-app-line text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500/25 focus:border-brand-500/40 transition-all';
+    'w-full px-3.5 py-2.5 text-sm rounded-xl bg-app-field border border-app-line text-app-ink placeholder:text-app-muted focus:outline-none focus:ring-2 focus:ring-app-charcoal/15 focus:border-app-charcoal/25 transition-all';
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5 font-professional">
@@ -75,11 +75,11 @@ export default function ProductForm({ onSubmit, onCancel, initialProduct, saving
         <label className="block text-[12px] font-semibold uppercase tracking-wider text-slate-500 mb-2.5">
           Imagen del producto
         </label>
-        <div className="rounded-2xl border border-app-line bg-gradient-to-br from-white/[0.04] to-transparent p-4 sm:p-5">
+        <div className="rounded-[22px] border border-app-line bg-app-field/50 p-4 sm:p-5">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-4">
             {imagePreview ? (
               <div className="relative shrink-0 mx-auto sm:mx-0">
-                <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl bg-black/25 border border-app-line flex items-center justify-center overflow-hidden">
+                <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl bg-white border border-app-line flex items-center justify-center overflow-hidden">
                   <img src={imagePreview} alt="Vista previa" className="max-w-full max-h-full w-full h-full object-contain" />
                 </div>
                 <button
@@ -95,7 +95,7 @@ export default function ProductForm({ onSubmit, onCancel, initialProduct, saving
                 </button>
               </div>
             ) : (
-              <div className="w-32 h-32 sm:w-36 sm:h-36 shrink-0 mx-auto sm:mx-0 border-2 border-dashed border-app-line rounded-2xl flex items-center justify-center bg-app-raised/50">
+              <div className="w-32 h-32 sm:w-36 sm:h-36 shrink-0 mx-auto sm:mx-0 border-2 border-dashed border-app-line rounded-2xl flex items-center justify-center bg-white">
                 <Upload size={24} className="text-slate-600" />
               </div>
             )}
@@ -168,7 +168,7 @@ export default function ProductForm({ onSubmit, onCancel, initialProduct, saving
             className={`${inputClass} text-slate-200`}
           >
             {categories.map((cat) => (
-              <option key={cat} value={cat} className="bg-[#141a24] text-white">
+              <option key={cat} value={cat} className="bg-white text-app-ink">
                 {cat}
               </option>
             ))}
@@ -206,7 +206,7 @@ export default function ProductForm({ onSubmit, onCancel, initialProduct, saving
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2.5 text-sm font-semibold text-slate-300 bg-white/[0.04] border border-app-line rounded-xl hover:bg-white/[0.08] transition-colors"
+            className="px-4 py-2.5 text-sm font-semibold text-app-muted bg-white border border-app-line rounded-full hover:bg-app-field transition-colors"
           >
             Cancelar
           </button>
@@ -214,7 +214,7 @@ export default function ProductForm({ onSubmit, onCancel, initialProduct, saving
         <button
           type="submit"
           disabled={saving}
-          className="px-4 py-2.5 bg-gradient-to-r from-brand-500 to-purple-600 text-white text-sm font-semibold rounded-xl hover:opacity-95 shadow-md shadow-brand-500/20 transition-all duration-150 active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-4 py-2.5 bg-app-charcoal text-white text-sm font-semibold rounded-full hover:bg-black shadow-md transition-all duration-150 active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? (
             <>

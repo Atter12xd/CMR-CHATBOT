@@ -25,7 +25,7 @@ interface PaymentMethodsConfigProps {
 }
 
 const fieldClass =
-  'w-full px-3.5 py-2.5 text-[14px] bg-white/[0.05] border border-app-line rounded-xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 transition-all';
+  'w-full px-3.5 py-2.5 text-[14px] bg-app-field border border-app-line rounded-xl text-app-ink placeholder:text-app-muted focus:outline-none focus:ring-2 focus:ring-app-charcoal/15 focus:border-app-charcoal/25 transition-all';
 
 const statsContainer = {
   hidden: { opacity: 0 },
@@ -205,7 +205,7 @@ export default function PaymentMethodsConfig({
             onClick={handleSave}
             disabled={saving || !showData}
             whileTap={{ scale: saving || !showData ? 1 : 0.98 }}
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-[14px] font-semibold bg-brand-500 text-white hover:bg-brand-400 border border-brand-400/30 shadow-lg shadow-brand-500/20 disabled:opacity-50 transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-[14px] font-semibold bg-app-charcoal text-white hover:bg-black shadow-md disabled:opacity-50 transition-colors"
           >
             {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
             <span>{saving ? 'Guardando…' : 'Guardar'}</span>
@@ -282,7 +282,7 @@ export default function PaymentMethodsConfig({
                           {getIcon(method.type)}
                         </div>
                         <div className="min-w-0">
-                          <h3 className="text-[15px] font-semibold text-white leading-snug">{method.name}</h3>
+                          <h3 className="text-[15px] font-semibold text-app-ink leading-snug">{method.name}</h3>
                           <label className="flex items-center gap-2 cursor-pointer mt-2">
                             <input
                               type="checkbox"

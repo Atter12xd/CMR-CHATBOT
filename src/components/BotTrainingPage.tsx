@@ -331,21 +331,21 @@ export default function BotTrainingPage() {
       },
       error: {
         bg: 'bg-rose-500/12',
-        text: 'text-rose-400',
+        text: 'text-rose-600',
         dot: 'bg-rose-400',
         label: 'Error',
         border: 'border-rose-500/25',
       },
       processing: {
         bg: 'bg-brand-500/12',
-        text: 'text-brand-400',
+        text: 'text-brand-600',
         dot: 'bg-brand-400',
         label: 'Procesando',
         border: 'border-brand-500/25',
       },
       pending: {
         bg: 'bg-amber-500/12',
-        text: 'text-amber-400',
+        text: 'text-amber-700',
         dot: 'bg-amber-400',
         label: 'Pendiente',
         border: 'border-amber-500/25',
@@ -371,7 +371,7 @@ export default function BotTrainingPage() {
       <div className="flex items-center justify-center min-h-[400px] font-professional">
         <div className="flex flex-col items-center gap-3">
           <div className="app-spinner">
-            <Loader2 size={20} className="animate-spin text-brand-400" />
+            <Loader2 size={20} className="animate-spin text-brand-500" />
           </div>
           <p className="text-[14px] text-app-muted">Cargando…</p>
         </div>
@@ -392,7 +392,7 @@ export default function BotTrainingPage() {
             <div className="w-2 h-2 rounded-full bg-amber-400 mt-1.5 shrink-0" />
             <p className="text-app-muted text-[14px] leading-relaxed">
               Crea o selecciona una organización para entrenar el bot. Ve a{' '}
-              <a href="/configuracion" className="text-brand-400 font-semibold hover:text-brand-300">
+              <a href="/configuracion" className="text-brand-600 font-semibold hover:text-brand-500">
                 Configuración
               </a>
               .
@@ -411,7 +411,7 @@ export default function BotTrainingPage() {
         description="Configura cómo se presenta tu negocio y de qué fuentes aprende el bot. Los productos que quieras vender debes cargarlos en Productos."
         actions={
           extractingProducts ? (
-            <span className="text-[11px] font-semibold text-brand-400 bg-brand-500/12 border border-brand-500/25 px-3 py-1.5 rounded-xl inline-flex items-center gap-2">
+            <span className="text-[11px] font-semibold text-brand-700 bg-brand-500/12 border border-brand-500/25 px-3 py-1.5 rounded-full inline-flex items-center gap-2">
               <Loader2 size={12} className="animate-spin" />
               Extrayendo productos…
             </span>
@@ -437,14 +437,14 @@ export default function BotTrainingPage() {
               title="Fuentes de conocimiento"
               value={trainingStats.total}
               icon={Brain}
-              accentClassName="text-purple-400"
+              accentClassName="text-violet-500"
             />
           </motion.div>
           <motion.div variants={statsItem} className="min-w-0">
-            <StatsCard title="Desde web" value={trainingStats.web} icon={Globe} accentClassName="text-sky-400" />
+            <StatsCard title="Desde web" value={trainingStats.web} icon={Globe} accentClassName="text-sky-500" />
           </motion.div>
           <motion.div variants={statsItem} className="min-w-0">
-            <StatsCard title="Documentos PDF" value={trainingStats.pdf} icon={FileText} accentClassName="text-brand-400" />
+            <StatsCard title="Documentos PDF" value={trainingStats.pdf} icon={FileText} accentClassName="text-brand-500" />
           </motion.div>
           <motion.div variants={statsItem} className="min-w-0">
             <StatsCard
@@ -555,7 +555,7 @@ export default function BotTrainingPage() {
               onClick={handleSaveBotConfig}
               disabled={configSaving}
               whileTap={{ scale: configSaving ? 1 : 0.98 }}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-[14px] font-semibold bg-app-charcoal text-white hover:bg-black shadow-md disabled:opacity-50 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-[14px] font-semibold bg-app-charcoal text-white hover:bg-black shadow-md disabled:opacity-50 transition-colors"
             >
               {configSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
               {configSaving ? 'Guardando…' : 'Guardar datos'}
@@ -607,7 +607,7 @@ export default function BotTrainingPage() {
                     onClick={handleWebExtract}
                     disabled={isProcessing}
                     whileTap={{ scale: 0.98 }}
-                    className="flex-1 py-2.5 rounded-xl text-[14px] font-semibold bg-app-charcoal text-white hover:bg-black disabled:opacity-50 shadow-md transition-colors"
+                    className="flex-1 py-2.5 rounded-full text-[14px] font-semibold bg-app-charcoal text-white hover:bg-black disabled:opacity-50 shadow-md transition-colors"
                   >
                     {isProcessing ? 'Procesando…' : 'Extraer'}
                   </motion.button>
@@ -689,7 +689,7 @@ export default function BotTrainingPage() {
                 <p className="text-[12px] text-app-muted mt-0.5">Catálogos y documentos</p>
               </div>
             </div>
-            <label className="mt-auto w-full cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-semibold bg-app-field text-app-ink border border-app-line hover:bg-app-field/80 transition-colors">
+            <label className="mt-auto w-full cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-[14px] font-semibold bg-app-field text-app-ink border border-app-line hover:bg-app-field/80 transition-colors">
               <input
                 type="file"
                 accept=".pdf"
@@ -773,9 +773,9 @@ export default function BotTrainingPage() {
                         }`}
                       >
                         {item.type === 'web' ? (
-                          <Globe size={16} className="text-sky-400" />
+                          <Globe size={16} className="text-sky-500" />
                         ) : (
-                          <FileText size={16} className="text-brand-400" />
+                          <FileText size={16} className="text-brand-500" />
                         )}
                       </div>
                       <span className="text-[14px] font-semibold text-app-ink">
@@ -797,7 +797,7 @@ export default function BotTrainingPage() {
                     type="button"
                     onClick={() => handleDelete(item.id)}
                     whileTap={{ scale: 0.95 }}
-                    className="p-2.5 text-rose-400 hover:bg-rose-500/12 rounded-xl border border-transparent hover:border-rose-500/20 transition-colors shrink-0"
+                    className="p-2.5 text-rose-600 hover:bg-rose-500/12 rounded-xl border border-transparent hover:border-rose-500/20 transition-colors shrink-0"
                   >
                     <X size={17} />
                   </motion.button>
@@ -821,7 +821,7 @@ export default function BotTrainingPage() {
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="size-4 text-brand-400 shrink-0" />
+              <Sparkles className="size-4 text-brand-500 shrink-0" />
               <h3 className="text-[15px] font-semibold text-app-ink">Orden recomendado</h3>
             </div>
             <p className="text-[13px] text-app-muted mb-3 leading-relaxed">

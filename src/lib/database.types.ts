@@ -43,6 +43,7 @@ export interface Database {
           created_at?: string | null
           updated_at?: string | null
         }
+        Relationships: []
       }
       whatsapp_integrations: {
         Row: {
@@ -96,6 +97,7 @@ export interface Database {
           created_at?: string | null
           updated_at?: string | null
         }
+        Relationships: []
       }
       products: {
         Row: {
@@ -135,6 +137,7 @@ export interface Database {
           shopify_product_id?: string | null
           updated_at?: string | null
         }
+        Relationships: []
       }
       chats: {
         Row: {
@@ -184,6 +187,7 @@ export interface Database {
           unread_count?: number
           updated_at?: string | null
         }
+        Relationships: []
       }
       messages: {
         Row: {
@@ -222,6 +226,7 @@ export interface Database {
           created_at?: string | null
           updated_at?: string | null
         }
+        Relationships: []
       }
       orders: {
         Row: {
@@ -260,6 +265,7 @@ export interface Database {
           created_at?: string | null
           updated_at?: string | null
         }
+        Relationships: []
       }
       order_items: {
         Row: {
@@ -289,6 +295,7 @@ export interface Database {
           price?: number
           created_at?: string | null
         }
+        Relationships: []
       }
       payment_methods: {
         Row: {
@@ -324,6 +331,7 @@ export interface Database {
           created_at?: string | null
           updated_at?: string | null
         }
+        Relationships: []
       }
       bot_trainings: {
         Row: {
@@ -359,6 +367,7 @@ export interface Database {
           created_at?: string | null
           updated_at?: string | null
         }
+        Relationships: []
       }
       tags: {
         Row: {
@@ -384,6 +393,7 @@ export interface Database {
           color?: string
           updated_at?: string | null
         }
+        Relationships: []
       }
       chat_tags: {
         Row: {
@@ -403,19 +413,12 @@ export interface Database {
           chat_id?: string
           tag_id?: string
         }
+        Relationships: []
       }
     }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      [_ in never]: never
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
+    Views: Record<string, never>
+    Functions: Record<string, never>
+    Enums: Record<string, never>
+    CompositeTypes: Record<string, never>
   }
 }

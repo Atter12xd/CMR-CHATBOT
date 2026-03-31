@@ -55,13 +55,13 @@ const methodCard = {
 
 function PaymentMethodCardSkeleton() {
   return (
-    <div className="rounded-2xl border border-app-line bg-app-card p-5 animate-pulse shadow-app-card">
+    <div className="rounded-2xl border border-app-line bg-white p-5 animate-pulse shadow-app-card">
       <div className="flex gap-3">
-        <div className="w-11 h-11 rounded-xl bg-white/[0.08] shrink-0" />
+        <div className="w-11 h-11 rounded-xl bg-app-field shrink-0" />
         <div className="flex-1 space-y-3 min-w-0">
-          <div className="h-4 w-48 max-w-full bg-white/[0.1] rounded-lg" />
-          <div className="h-3 w-32 bg-white/[0.06] rounded-md" />
-          <div className="h-10 w-full bg-white/[0.06] rounded-xl mt-4" />
+          <div className="h-4 w-48 max-w-full bg-app-field rounded-lg" />
+          <div className="h-3 w-32 bg-app-field/80 rounded-md" />
+          <div className="h-10 w-full bg-app-field rounded-xl mt-4" />
         </div>
       </div>
     </div>
@@ -146,11 +146,11 @@ export default function PaymentMethodsConfig({
     switch (type) {
       case 'yape':
       case 'plin':
-        return <Smartphone className="size-[18px] text-brand-400" />;
+        return <Smartphone className="size-[18px] text-brand-500" />;
       case 'bcp':
-        return <Building2 className="size-[18px] text-sky-400" />;
+        return <Building2 className="size-[18px] text-sky-500" />;
       default:
-        return <CreditCard className="size-[18px] text-purple-400" />;
+        return <CreditCard className="size-[18px] text-violet-500" />;
     }
   };
 
@@ -159,9 +159,9 @@ export default function PaymentMethodsConfig({
       <div className="flex items-center justify-center min-h-[400px] font-professional">
         <div className="flex flex-col items-center gap-3">
           <div className="app-spinner">
-            <Loader2 size={20} className="animate-spin text-brand-400" />
+            <Loader2 size={20} className="animate-spin text-brand-500" />
           </div>
-          <p className="text-[14px] text-slate-500">Cargando…</p>
+          <p className="text-[14px] text-app-muted">Cargando…</p>
         </div>
       </div>
     );
@@ -178,9 +178,9 @@ export default function PaymentMethodsConfig({
         <div className="app-card p-5">
           <div className="flex items-start gap-2.5">
             <div className="w-2 h-2 rounded-full bg-amber-400 mt-1.5 shrink-0" />
-            <p className="text-slate-400 text-[14px] leading-relaxed">
+            <p className="text-app-muted text-[14px] leading-relaxed">
               Crea o selecciona una organización para configurar pagos. Ve a{' '}
-              <a href="/configuracion" className="text-brand-400 font-semibold hover:text-brand-300">
+              <a href="/configuracion" className="text-brand-600 font-semibold hover:text-brand-500">
                 Configuración
               </a>
               .
@@ -205,7 +205,7 @@ export default function PaymentMethodsConfig({
             onClick={handleSave}
             disabled={saving || !showData}
             whileTap={{ scale: saving || !showData ? 1 : 0.98 }}
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-[14px] font-semibold bg-app-charcoal text-white hover:bg-black shadow-md disabled:opacity-50 transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-[14px] font-semibold bg-app-charcoal text-white hover:bg-black shadow-md disabled:opacity-50 transition-colors"
           >
             {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
             <span>{saving ? 'Guardando…' : 'Guardar'}</span>
@@ -227,14 +227,14 @@ export default function PaymentMethodsConfig({
           className="grid grid-cols-1 sm:grid-cols-3 gap-3"
         >
           <motion.div variants={statsItem} className="min-w-0">
-            <StatsCard title="Métodos en lista" value={payStats.total} icon={Wallet} accentClassName="text-brand-400" />
+            <StatsCard title="Métodos en lista" value={payStats.total} icon={Wallet} accentClassName="text-brand-500" />
           </motion.div>
           <motion.div variants={statsItem} className="min-w-0">
             <StatsCard
               title="Activos"
               value={payStats.active}
               icon={CheckCircle2}
-              accentClassName="text-emerald-400"
+              accentClassName="text-emerald-500"
             />
           </motion.div>
           <motion.div variants={statsItem} className="min-w-0">
@@ -242,7 +242,7 @@ export default function PaymentMethodsConfig({
               title="Desactivados"
               value={payStats.inactive}
               icon={CircleOff}
-              accentClassName="text-slate-400"
+              accentClassName="text-app-muted"
             />
           </motion.div>
         </motion.div>
@@ -260,7 +260,7 @@ export default function PaymentMethodsConfig({
             {paymentMethods.map((method, index) => (
               <motion.div key={method.id} variants={methodCard} custom={index}>
                 <div
-                  className={`rounded-2xl border bg-app-card overflow-hidden shadow-app-card transition-all duration-200 ${
+                  className={`rounded-2xl border bg-white overflow-hidden shadow-app-card transition-all duration-200 ${
                     method.active
                       ? 'border-brand-500/35 shadow-lg shadow-brand-500/10'
                       : 'border-app-line hover:border-app-line-strong'
@@ -276,7 +276,7 @@ export default function PaymentMethodsConfig({
                           className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border ${
                             method.active
                               ? 'bg-brand-500/12 border-brand-500/25'
-                              : 'bg-white/[0.05] border-app-line'
+                              : 'bg-app-field border-app-line'
                           }`}
                         >
                           {getIcon(method.type)}
@@ -288,15 +288,15 @@ export default function PaymentMethodsConfig({
                               type="checkbox"
                               checked={method.active}
                               onChange={(e) => handleChange(method.id, 'active', e.target.checked)}
-                              className="w-4 h-4 text-brand-500 rounded-md border-app-line bg-app-card focus:ring-brand-500/25 focus:ring-2"
+                              className="w-4 h-4 text-brand-500 rounded-md border-app-line bg-white focus:ring-brand-500/25 focus:ring-2"
                             />
-                            <span className="text-[13px] text-slate-500">Activar este método</span>
+                            <span className="text-[13px] text-app-muted">Activar este método</span>
                           </label>
                         </div>
                       </div>
                       {method.active && (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-500/12 border border-emerald-500/25 text-[11px] font-semibold text-emerald-400 shrink-0">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.45)]" />
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/12 border border-emerald-500/25 text-[11px] font-semibold text-emerald-600 shrink-0">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                           Activo
                         </span>
                       )}
@@ -305,8 +305,8 @@ export default function PaymentMethodsConfig({
                     {method.active && (
                       <div className="mt-5 space-y-4 pt-5 border-t border-app-line">
                         <div>
-                          <label className="block text-[12px] font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
-                            A nombre de <span className="text-rose-400">*</span>
+                          <label className="block text-[12px] font-semibold text-app-muted mb-1.5 uppercase tracking-wide">
+                            A nombre de <span className="text-rose-600">*</span>
                           </label>
                           <input
                             type="text"
@@ -320,7 +320,7 @@ export default function PaymentMethodsConfig({
 
                         {(method.type === 'yape' || method.type === 'plin') && (
                           <div>
-                            <label className="block text-[12px] font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+                            <label className="block text-[12px] font-semibold text-app-muted mb-1.5 uppercase tracking-wide">
                               Número de celular
                             </label>
                             <input
@@ -330,7 +330,7 @@ export default function PaymentMethodsConfig({
                               placeholder="Ej: 999 888 777 (número para Yape/Plin)"
                               className={fieldClass}
                             />
-                            <p className="text-[12px] text-slate-500 mt-1.5 leading-relaxed">
+                            <p className="text-[12px] text-app-muted mt-1.5 leading-relaxed">
                               El bot mostrará este número para que el cliente te envíe el pago.
                             </p>
                           </div>
@@ -339,8 +339,8 @@ export default function PaymentMethodsConfig({
                         {method.type === 'bcp' && (
                           <>
                             <div>
-                              <label className="block text-[12px] font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
-                                Número de cuenta <span className="text-rose-400">*</span>
+                              <label className="block text-[12px] font-semibold text-app-muted mb-1.5 uppercase tracking-wide">
+                                Número de cuenta <span className="text-rose-600">*</span>
                               </label>
                               <input
                                 type="text"
@@ -352,7 +352,7 @@ export default function PaymentMethodsConfig({
                               />
                             </div>
                             <div>
-                              <label className="block text-[12px] font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+                              <label className="block text-[12px] font-semibold text-app-muted mb-1.5 uppercase tracking-wide">
                                 Tipo de cuenta
                               </label>
                               <select
@@ -379,14 +379,14 @@ export default function PaymentMethodsConfig({
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl border border-app-line bg-gradient-to-br from-brand-500/10 via-app-card to-purple-600/10 overflow-hidden shadow-app-card"
+        className="rounded-2xl border border-app-line bg-white overflow-hidden shadow-app-card"
       >
         <div className="p-5 sm:p-6 flex items-start gap-3">
-          <div className="p-2.5 rounded-xl bg-white/[0.06] border border-app-line text-brand-400 shrink-0">
+          <div className="p-2.5 rounded-xl bg-app-field border border-app-line text-brand-600 shrink-0">
             <Info className="size-[18px]" />
           </div>
-          <p className="text-[13px] text-slate-400 leading-relaxed min-w-0">
-            Cuando un cliente quiera pagar, el bot mostrará automáticamente los métodos <strong className="text-slate-300">activos</strong> con los datos que configures aquí.
+          <p className="text-[13px] text-app-muted leading-relaxed min-w-0">
+            Cuando un cliente quiera pagar, el bot mostrará automáticamente los métodos <strong className="text-app-ink">activos</strong> con los datos que configures aquí.
           </p>
         </div>
       </motion.div>

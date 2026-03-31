@@ -167,18 +167,20 @@ export default function ChatsPage() {
 
 
   return (
-    <div className="flex flex-col space-y-5">
-      <PageHeader
-        eyebrow="Conversaciones"
-        title="Chats"
-        description="Gestiona tus conversaciones con clientes."
-      />
+    <div className="h-full min-h-0 flex flex-col gap-5">
+      <div className={`${selectedChat ? 'hidden md:block' : 'block'}`}>
+        <PageHeader
+          eyebrow="Conversaciones"
+          title="Chats"
+          description="Gestiona tus conversaciones con clientes."
+        />
+      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
-        className="grid grid-cols-2 sm:grid-cols-4 gap-3"
+        className={`grid grid-cols-2 sm:grid-cols-4 gap-3 ${selectedChat ? 'hidden md:grid' : 'grid'}`}
       >
         {[
           { label: 'Conversaciones', value: chatStats.total, icon: Users, accent: 'text-brand-500' },
@@ -202,7 +204,7 @@ export default function ChatsPage() {
       </motion.div>
 
       {/* Contenedor principal */}
-      <div className="flex min-w-0 rounded-[24px] border border-app-line bg-white overflow-hidden min-h-0 shadow-app-card min-h-[420px] md:min-h-[560px]">
+      <div className="flex flex-1 min-h-0 min-w-0 rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card md:min-h-[560px]">
         {/* Lista de chats — sidebar */}
         <div
           className={`${

@@ -1,10 +1,11 @@
 // Cliente Supabase para uso en el cliente (browser)
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
 
-let supabaseClient: ReturnType<typeof createSupabaseClient<Database>> | null = null;
+let supabaseClient: SupabaseClient<Database> | null = null;
 
-export function createClient() {
+export function createClient(): SupabaseClient<Database> {
   // Si ya existe, retornarlo
   if (supabaseClient) {
     return supabaseClient;

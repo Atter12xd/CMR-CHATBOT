@@ -192,7 +192,7 @@ export default function ProductsPage() {
       <div className="flex items-center justify-center min-h-[400px] font-professional">
         <div className="flex flex-col items-center gap-3">
           <div className="app-spinner">
-            <Loader2 size={20} className="animate-spin text-brand-400" />
+            <Loader2 size={20} className="animate-spin text-brand-500" />
           </div>
           <p className="text-[14px] text-app-muted">Cargando…</p>
         </div>
@@ -213,7 +213,7 @@ export default function ProductsPage() {
             <div className="w-2 h-2 rounded-full bg-amber-400 mt-1.5 shrink-0" />
             <p className="text-app-muted text-[14px] leading-relaxed">
               Necesitas una organización para gestionar productos. Ve a{' '}
-              <a href="/configuracion" className="text-brand-400 font-semibold hover:text-brand-300">
+              <a href="/configuracion" className="text-brand-600 font-semibold hover:text-brand-500">
                 Configuración
               </a>
               .
@@ -264,7 +264,7 @@ export default function ProductsPage() {
               title="Productos en catálogo"
               value={productStats.total}
               icon={Package}
-              accentClassName="text-brand-400"
+              accentClassName="text-brand-500"
             />
           </motion.div>
           <motion.div variants={statsItem} className="min-w-0">
@@ -272,7 +272,7 @@ export default function ProductsPage() {
               title="Categorías usadas"
               value={productStats.categoryCount}
               icon={Layers}
-              accentClassName="text-sky-400"
+              accentClassName="text-sky-500"
             />
           </motion.div>
           <motion.div variants={statsItem} className="min-w-0">
@@ -280,7 +280,7 @@ export default function ProductsPage() {
               title="Stock bajo (≤5)"
               value={productStats.lowStock}
               icon={AlertTriangle}
-              accentClassName="text-amber-400"
+              accentClassName="text-amber-500"
             />
           </motion.div>
           <motion.div variants={statsItem} className="min-w-0">
@@ -288,7 +288,7 @@ export default function ProductsPage() {
               title="Valor inventario"
               value={`S/ ${productStats.inventoryValue.toFixed(2)}`}
               icon={DollarSign}
-              accentClassName="text-purple-400"
+              accentClassName="text-violet-500"
             />
           </motion.div>
         </motion.div>
@@ -334,7 +334,7 @@ export default function ProductsPage() {
                 </option>
               ))}
             </select>
-            <div className="flex border border-app-line rounded-xl overflow-hidden shrink-0">
+            <div className="flex border border-app-line rounded-full overflow-hidden shrink-0">
               <motion.button
                 type="button"
                 onClick={() => setViewMode('grid')}
@@ -430,7 +430,7 @@ export default function ProductsPage() {
                     }}
                     disabled={saving}
                     whileTap={{ scale: saving ? 1 : 0.95 }}
-                    className="p-2.5 rounded-xl bg-emerald-500/12 border border-emerald-500/25 text-emerald-400 hover:bg-emerald-500/20 disabled:opacity-50"
+                    className="p-2.5 rounded-full bg-emerald-500/12 border border-emerald-500/25 text-emerald-600 hover:bg-emerald-500/20 disabled:opacity-50"
                     title="Añadir al catálogo"
                   >
                     <Check size={16} />

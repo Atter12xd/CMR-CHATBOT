@@ -331,23 +331,23 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
   return (
     <div className="space-y-4">
       <div className="rounded-xl border border-brand-500/20 bg-brand-500/10 px-4 py-3">
-        <p className="text-[13px] text-brand-200 leading-relaxed">
+        <p className="text-[13px] text-brand-700 leading-relaxed">
           Con esta integración podrás traer catálogo, imágenes, precios y datos de tienda para entrenar el bot.
         </p>
       </div>
 
       {loadingStatus ? (
-        <div className="flex items-center gap-2 text-[13px] text-slate-400">
+        <div className="flex items-center gap-2 text-[13px] text-app-muted">
           <Loader2 className="size-4 animate-spin" />
           Cargando estado de Shopify...
         </div>
       ) : (
         <div className="rounded-[22px] border border-app-line bg-app-field/50 p-4 sm:p-5 space-y-3">
-          <label className="block text-[12px] font-semibold uppercase tracking-wider text-slate-500 mb-0.5">
+          <label className="block text-[12px] font-semibold uppercase tracking-wider text-app-muted mb-0.5">
             Dominio Shopify
           </label>
-          <p className="text-[12px] text-slate-500 leading-snug mb-1">
-            Formato: <span className="text-slate-400 font-medium">tu-tienda.myshopify.com</span> (sin https://)
+          <p className="text-[12px] text-app-muted leading-snug mb-1">
+            Formato: <span className="text-app-ink font-medium">tu-tienda.myshopify.com</span> (sin https://)
           </p>
           <input
             type="text"
@@ -364,8 +364,8 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
 
       {error && (
         <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-start gap-2">
-          <AlertCircle className="size-4 text-rose-400 mt-0.5 shrink-0" />
-          <p className="text-sm text-rose-300">{error}</p>
+          <AlertCircle className="size-4 text-rose-600 mt-0.5 shrink-0" />
+          <p className="text-sm text-rose-700">{error}</p>
         </div>
       )}
 
@@ -415,7 +415,7 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
             <button
               type="button"
               onClick={handleDisconnect}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-semibold bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 border border-rose-500/20 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-[14px] font-semibold bg-rose-500/10 text-rose-700 hover:bg-rose-500/20 border border-rose-500/20 transition-colors"
             >
               Desconectar
             </button>
@@ -425,15 +425,15 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
 
       {status === 'connected' && (
         <div className="rounded-xl border border-app-line bg-app-field p-3 font-mono text-[11px] text-app-muted space-y-1 max-h-44 overflow-y-auto">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Resumen de sincronización</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-app-muted mb-1">Resumen de sincronización</p>
           {activityLog.length === 0 ? (
-            <p className="text-slate-500 text-[11px] font-sans leading-relaxed">
-              Cuando pulses <span className="text-slate-400">Sincronizar productos</span>, aquí verás el avance y cualquier
+            <p className="text-app-muted text-[11px] font-sans leading-relaxed">
+              Cuando pulses <span className="text-app-ink">Sincronizar productos</span>, aquí verás el avance y cualquier
               mensaje útil si algo falla.
             </p>
           ) : (
             activityLog.map((line, i) => (
-              <div key={i} className="break-all text-slate-400">
+              <div key={i} className="break-all text-app-muted">
                 {line}
               </div>
             ))
@@ -444,18 +444,18 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
       {status === 'connected' && (
         <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4">
           <div className="flex items-start gap-2.5">
-            <CheckCircle2 className="size-5 text-emerald-400 mt-0.5" />
+            <CheckCircle2 className="size-5 text-emerald-600 mt-0.5" />
             <div>
-              <p className="text-[14px] font-semibold text-emerald-300">Tienda conectada correctamente</p>
-              <p className="text-[13px] text-emerald-200/90 mt-0.5">
+              <p className="text-[14px] font-semibold text-emerald-800">Tienda conectada correctamente</p>
+              <p className="text-[13px] text-emerald-700 mt-0.5">
                 Tienda: <span className="font-semibold">{connectedShop || normalizedDomain}</span>
               </p>
-              <p className="text-[13px] text-emerald-200/90 mt-0.5">
+              <p className="text-[13px] text-emerald-700 mt-0.5">
                 Pulsa sincronizar para traer catálogo a tu CRM (productos, precios, imágenes).
               </p>
               {syncedCount != null && (
-                <p className="text-[12px] text-slate-300 mt-2">
-                  Última sync: <span className="font-semibold text-emerald-200">{syncedCount}</span> productos
+                <p className="text-[12px] text-emerald-700 mt-2">
+                  Última sync: <span className="font-semibold text-emerald-800">{syncedCount}</span> productos
                   guardados en el sistema.
                 </p>
               )}
@@ -463,7 +463,7 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
           </div>
 
           {lastSyncAt && (
-            <p className="text-[12px] text-slate-300 mt-3">
+            <p className="text-[12px] text-emerald-700 mt-3">
               Última sincronización: {new Date(lastSyncAt).toLocaleString()}
             </p>
           )}
@@ -471,7 +471,7 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
         </div>
       )}
 
-      <p className="text-[12px] text-slate-500 leading-relaxed">
+      <p className="text-[12px] text-app-muted leading-relaxed">
         Al sincronizar, tus productos de Shopify se copian aquí para usarlos en el CRM y el bot. El recuadro de arriba te
         muestra cómo va el proceso. Si algo no sale bien, anota el mensaje que aparezca o la hora aproximada y escríbenos:
         con eso podemos revisarlo contigo sin complicaciones.

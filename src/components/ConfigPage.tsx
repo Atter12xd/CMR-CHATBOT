@@ -70,7 +70,7 @@ export default function ConfigPage() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card"
+          className="rounded-2xl border border-app-line bg-white overflow-hidden shadow-app-card"
         >
           <div className="px-5 py-4 sm:px-6 bg-app-field/70 border-b border-app-line flex items-center gap-3">
             <div className="p-2.5 rounded-2xl bg-white border border-app-line text-amber-600 shrink-0 shadow-sm">
@@ -102,7 +102,7 @@ export default function ConfigPage() {
         description="Gestiona integraciones y facturación de tu organización."
       />
 
-      <motion.div variants={sectionMotion} initial="hidden" animate="show" className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card">
+      <motion.div variants={sectionMotion} initial="hidden" animate="show" className="rounded-2xl border border-app-line bg-white overflow-hidden shadow-app-card">
         <div className="px-5 py-4 sm:px-6 bg-app-field/70 border-b border-app-line">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-2xl bg-white border border-app-line text-emerald-600 shrink-0 shadow-sm">
@@ -157,7 +157,7 @@ export default function ConfigPage() {
         initial="hidden"
         animate="show"
         transition={{ delay: 0.06 }}
-        className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card"
+        className="rounded-2xl border border-app-line bg-white overflow-hidden shadow-app-card"
       >
         <div className="px-5 py-4 sm:px-6 bg-app-field/70 border-b border-app-line">
           <div className="flex items-center justify-between gap-3">
@@ -193,7 +193,7 @@ export default function ConfigPage() {
         initial="hidden"
         animate="show"
         transition={{ delay: 0.1 }}
-        className="rounded-2xl border border-app-line bg-app-card overflow-hidden shadow-app-card"
+        className="rounded-2xl border border-app-line bg-white overflow-hidden shadow-app-card"
       >
         <div className="px-5 py-4 sm:px-6 bg-app-field/70 border-b border-app-line">
           <div className="flex items-center gap-3">

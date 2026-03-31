@@ -33,7 +33,7 @@ const statusLabels: Record<string, string> = {
 };
 
 const statusDots: Record<string, string> = {
-  all: 'bg-brand-400',
+  all: 'bg-brand-500',
   pending: 'bg-amber-400',
   processing: 'bg-sky-400',
   completed: 'bg-emerald-400',
@@ -169,7 +169,7 @@ export default function OrdersPage() {
       <div className="flex items-center justify-center min-h-[400px] font-professional">
         <div className="flex flex-col items-center gap-3">
           <div className="app-spinner">
-            <Loader2 size={20} className="animate-spin text-brand-400" />
+            <Loader2 size={20} className="animate-spin text-brand-500" />
           </div>
           <p className="text-[14px] text-app-muted">Cargando…</p>
         </div>
@@ -190,7 +190,7 @@ export default function OrdersPage() {
             <div className="w-2 h-2 rounded-full bg-amber-400 mt-1.5 shrink-0" />
             <p className="text-app-muted text-[14px] leading-relaxed">
               Crea o selecciona una organización para ver pedidos. Ve a{' '}
-              <a href="/configuracion" className="text-brand-400 font-semibold hover:text-brand-300">
+              <a href="/configuracion" className="text-brand-600 font-semibold hover:text-brand-500">
                 Configuración
               </a>
               .
@@ -213,7 +213,7 @@ export default function OrdersPage() {
               {orders.length} total
             </span>
             {pendingPayments.length > 0 && (
-              <span className="text-[11px] font-semibold text-amber-400 bg-amber-500/12 border border-amber-500/25 px-3 py-1.5 rounded-xl">
+              <span className="text-[11px] font-semibold text-amber-700 bg-amber-500/12 border border-amber-500/25 px-3 py-1.5 rounded-full">
                 {pendingPayments.length} por verificar
               </span>
             )}
@@ -239,7 +239,7 @@ export default function OrdersPage() {
               title="Total pedidos"
               value={orderStats.total}
               icon={LayoutGrid}
-              accentClassName="text-brand-400"
+              accentClassName="text-brand-500"
             />
           </motion.div>
           <motion.div variants={statsItem} className="min-w-0">
@@ -247,7 +247,7 @@ export default function OrdersPage() {
               title="Pendientes"
               value={orderStats.pending}
               icon={Clock}
-              accentClassName="text-amber-400"
+              accentClassName="text-amber-500"
             />
           </motion.div>
           <motion.div variants={statsItem} className="min-w-0">
@@ -263,7 +263,7 @@ export default function OrdersPage() {
               title="Ingresos (todos)"
               value={`S/ ${orderStats.revenue.toFixed(2)}`}
               icon={DollarSign}
-              accentClassName="text-purple-400"
+              accentClassName="text-violet-500"
             />
           </motion.div>
         </motion.div>
@@ -345,7 +345,7 @@ export default function OrdersPage() {
               type="button"
               onClick={() => setSelectedStatus(status)}
               whileTap={{ scale: 0.98 }}
-              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold whitespace-nowrap transition-all duration-200 border ${
+              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[13px] font-semibold whitespace-nowrap transition-all duration-200 border ${
                 active
                   ? 'bg-app-charcoal text-white border-transparent shadow-md'
                   : 'bg-app-field text-app-muted border-app-line hover:text-app-ink'
@@ -366,7 +366,7 @@ export default function OrdersPage() {
         <div className="flex items-center justify-center py-20">
           <div className="flex flex-col items-center gap-3">
             <div className="app-spinner">
-              <Loader2 size={20} className="animate-spin text-brand-400" />
+              <Loader2 size={20} className="animate-spin text-brand-500" />
             </div>
             <p className="text-[14px] text-app-muted">Cargando pedidos…</p>
           </div>

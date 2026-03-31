@@ -14,13 +14,15 @@ import {
   Clock,
   Info,
 } from 'lucide-react';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '../lib/supabase';
 import type { Database } from '../lib/database.types';
+
 import { generateBaileysQR, getBaileysStatus, disconnectBaileys } from '../services/whatsapp-baileys';
 
-
-type WhatsAppIntegration = Database['public']['Tables']['whatsapp_integrations']['Row'];
-type IntegrationStatus = WhatsAppIntegration['status'];
+/** Fila de BD (el componente se llama igual que el módulo; evitar colisión nombre tipo/función para el checker de TS). */
+type WhatsAppIntegrationRow = Database['public']['Tables']['whatsapp_integrations']['Row'];
+type IntegrationStatus = WhatsAppIntegrationRow['status'];
 
 
 interface WhatsAppIntegrationProps {
@@ -29,7 +31,7 @@ interface WhatsAppIntegrationProps {
 
 
 export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrationProps) {
-  const [integration, setIntegration] = useState<WhatsAppIntegration | null>(null);
+  const [integration, setIntegration] = useState<WhatsAppIntegrationRow | null>(null);
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState(false);
   const [step, setStep] = useState<'input' | 'connected' | 'qr'>('input');
@@ -44,7 +46,8 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
   });
   const [loadingMetrics, setLoadingMetrics] = useState(false);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const supabase = createClient();
+  /** `Database` local + supabase-js 2.9x: el cliente tipado infiere `never` en upsert; el cast mantiene el runtime igual. */
+  const supabase = createClient() as SupabaseClient<any>;
 
 
   useEffect(() => {
@@ -221,7 +224,7 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
     };
     const c = config[status] || config.disconnected;
     return (
-      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${c.bg} ${c.text}`}>
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${c.bg} ${c.text}`}>
         <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`}></span>
         {c.label}
       </span>
@@ -417,7 +420,7 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
                   <button
                     onClick={handleDisconnect}
                     disabled={connecting}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors disabled:opacity-50"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium text-rose-600 hover:bg-rose-500/10 rounded-xl transition-colors disabled:opacity-50"
                   >
                     <Trash2 size={14} />
                     <span>Desconectar</span>
@@ -492,7 +495,7 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
           {(connecting || (!qrImage && !error)) && (
             <div className="flex flex-col items-center gap-3 py-10">
               <div className="w-12 h-12 bg-emerald-500/10 ring-1 ring-emerald-500/20 rounded-2xl flex items-center justify-center">
-                <Loader2 className="h-6 w-6 animate-spin text-emerald-400" />
+                <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
               </div>
               <span className="text-sm font-medium text-app-ink">
                 {connecting ? 'Conectando con WhatsApp...' : 'Esperando código QR...'}
@@ -522,7 +525,7 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
         <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-emerald-500/15 rounded-xl flex items-center justify-center flex-shrink-0">
-              <CheckCircle2 size={20} className="text-emerald-400" />
+              <CheckCircle2 size={20} className="text-emerald-600" />
             </div>
             <div>
               <h3 className="text-sm font-semibold text-emerald-800">WhatsApp conectado exitosamente</h3>
@@ -541,7 +544,7 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
           <div className="px-5 py-4 border-b border-app-line flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 bg-brand-500/10 border border-brand-500/15 rounded-lg flex items-center justify-center">
-                <TrendingUp size={16} className="text-brand-400" />
+                <TrendingUp size={16} className="text-brand-600" />
               </div>
               <h3 className="text-sm font-semibold text-app-ink">Métricas de hoy</h3>
             </div>
@@ -549,7 +552,7 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
               type="button"
               onClick={loadMetrics}
               disabled={loadingMetrics}
-              className="p-2 hover:bg-app-field rounded-xl transition-colors disabled:opacity-50"
+              className="p-2 hover:bg-app-field rounded-full transition-colors disabled:opacity-50"
               title="Actualizar métricas"
             >
               <RefreshCw size={15} className={`text-app-muted ${loadingMetrics ? 'animate-spin' : ''}`} />

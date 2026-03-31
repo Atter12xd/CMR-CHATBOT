@@ -153,6 +153,14 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
     }
   }, [newMessage]);
 
+  useEffect(() => {
+    // Al abrir/cambiar chat, deja el input listo para escribir.
+    const t = window.setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 80);
+    return () => window.clearTimeout(t);
+  }, [chat.id]);
+
 
 
   useEffect(() => {
@@ -488,9 +496,9 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                 <div className="my-1 border-t border-app-line" />
                 <button
                   onClick={() => { setShowClearConfirm(true); setMenuOpen(false); }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px] text-rose-400 hover:bg-rose-500/10 transition-colors"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px] text-rose-600 hover:bg-rose-500/10 transition-colors"
                 >
-                  <Trash2 size={14} className="text-rose-400" />
+                  <Trash2 size={14} className="text-rose-600" />
                   Vaciar chat
                 </button>
               </motion.div>
@@ -516,7 +524,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
           >
             <div className="flex flex-col items-center gap-3">
               <div className="app-spinner">
-                <Loader2 className="h-5 w-5 animate-spin text-brand-400" />
+                <Loader2 className="h-5 w-5 animate-spin text-brand-500" />
               </div>
               <span className="text-[12px] text-app-muted font-medium">Cargando mensajes…</span>
             </div>
@@ -565,8 +573,8 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
 
                   {isBot && showAvatar && (
                     <div className="flex items-center gap-1.5 mb-1.5 ml-1">
-                      <div className="w-1.5 h-1.5 rounded-full bg-brand-400 shadow-[0_0_8px_rgba(42,139,255,0.6)]" />
-                      <span className="text-[10px] font-bold text-brand-400 uppercase tracking-[0.15em]">
+                      <div className="w-1.5 h-1.5 rounded-full bg-brand-500 shadow-[0_0_8px_rgba(42,139,255,0.6)]" />
+                      <span className="text-[10px] font-bold text-brand-600 uppercase tracking-[0.15em]">
                         Bot
                       </span>
                     </div>

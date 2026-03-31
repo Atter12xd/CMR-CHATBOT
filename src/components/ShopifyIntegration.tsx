@@ -425,11 +425,11 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
 
       {status === 'connected' && (
         <div className="rounded-xl border border-app-line bg-app-field p-3 font-mono text-[11px] text-app-muted space-y-1 max-h-44 overflow-y-auto">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-app-muted mb-1">Resumen de sincronización</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-app-muted mb-1">Actividad de sincronización</p>
           {activityLog.length === 0 ? (
             <p className="text-app-muted text-[11px] font-sans leading-relaxed">
-              Cuando pulses <span className="text-app-ink">Sincronizar productos</span>, aquí verás el avance y cualquier
-              mensaje útil si algo falla.
+              Cuando pulses <span className="text-app-ink">Sincronizar productos</span>, aquí verás el estado de la
+              actualización de tu catálogo.
             </p>
           ) : (
             activityLog.map((line, i) => (

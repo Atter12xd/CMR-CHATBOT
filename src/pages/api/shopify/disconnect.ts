@@ -76,7 +76,21 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  console.info(`[${requestId}] Shopify disconnected`, { organizationId });
+  // Limpiar solo productos sincronizados desde Shopify de esta organización.
+  const { error: deleteProductsError } = await supabaseAdmin
+    .from('products')
+    .delete()
+    .eq('organization_id', organizationId)
+    .not('shopify_product_id', 'is', null);
+  if (deleteProductsError) {
+    console.error(`[${requestId}] Disconnected but failed to delete Shopify products`, deleteProductsError);
+    return new Response(
+      JSON.stringify({ error: 'Tienda desconectada, pero no se pudo limpiar el catálogo sincronizado', requestId }),
+      { status: 500, headers: jsonHeaders },
+    );
+  }
+
+  console.info(`[${requestId}] Shopify disconnected and synced products deleted`, { organizationId });
   return new Response(JSON.stringify({ ok: true, requestId }), { status: 200, headers: jsonHeaders });
 };
 

@@ -63,12 +63,12 @@ export default function LoginForm() {
   return (
     <div className="min-h-screen flex items-center justify-center pt-24 pb-16 px-4 sm:px-6 lg:px-8">
       {/* Background subtle gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 pointer-events-none" />
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-brand-500/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0d1220] via-[#0a0f1a] to-[#0d1220] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
       
       <div className="relative max-w-md w-full">
         {/* Card */}
-        <div className="rounded-2xl border border-slate-800/60 bg-slate-900/70 backdrop-blur-xl shadow-2xl shadow-black/30 p-8 sm:p-10">
+        <div className="rounded-2xl border border-white/[0.06] bg-[#111827]/80 backdrop-blur-xl shadow-2xl shadow-black/30 p-8 sm:p-10">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
@@ -99,7 +99,7 @@ export default function LoginForm() {
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-slate-500 group-focus-within:text-brand-400 transition-colors" />
+                  <Mail className="h-5 w-5 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
                 </div>
                 <input
                   id="email"
@@ -112,7 +112,7 @@ export default function LoginForm() {
                     setEmail(e.target.value);
                     setError(null);
                   }}
-                  className="block w-full pl-12 pr-4 py-3.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50 transition-all duration-200"
+                  className="block w-full pl-12 pr-4 py-3.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500/40 transition-all duration-200"
                   placeholder="tu@email.com"
                 />
               </div>
@@ -126,14 +126,14 @@ export default function LoginForm() {
                 </label>
                 <a
                   href="/forgot-password"
-                  className="text-sm text-brand-400 hover:text-brand-300 transition-colors"
+                  className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
                 >
                   ¿Olvidaste tu contraseña?
                 </a>
               </div>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-slate-500 group-focus-within:text-brand-400 transition-colors" />
+                  <Lock className="h-5 w-5 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
                 </div>
                 <input
                   id="password"
@@ -146,7 +146,7 @@ export default function LoginForm() {
                     setPassword(e.target.value);
                     setError(null);
                   }}
-                  className="block w-full pl-12 pr-12 py-3.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50 transition-all duration-200"
+                  className="block w-full pl-12 pr-12 py-3.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500/40 transition-all duration-200"
                   placeholder="••••••••"
                 />
                 <button
@@ -163,7 +163,7 @@ export default function LoginForm() {
             <button
               type="submit"
               disabled={loading || authLoading || !email.trim() || !password}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-brand-600/20 hover:shadow-brand-500/25 mt-6"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-blue-500 hover:bg-blue-400 text-white rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:ring-offset-2 focus:ring-offset-[#0a0f1a] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/25 mt-6"
             >
               {loading || authLoading ? (
                 <>
@@ -182,17 +182,17 @@ export default function LoginForm() {
           {/* Divider */}
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-800/60"></div>
+              <div className="w-full border-t border-white/[0.06]"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-slate-900/70 text-slate-500">¿Nuevo en Wazapp?</span>
+              <span className="px-4 bg-[#111827]/80 text-slate-500">¿Nuevo en Wazapp?</span>
             </div>
           </div>
 
           {/* Register Link */}
           <a
             href="/register"
-            className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-slate-800/50 hover:bg-slate-800 text-white rounded-xl text-sm font-semibold border border-slate-700/50 hover:border-slate-600 transition-all duration-200"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-white/[0.04] hover:bg-white/[0.06] text-white rounded-xl text-sm font-semibold border border-white/[0.06] hover:border-white/[0.1] transition-all duration-200"
           >
             Crear cuenta gratis
             <ArrowRight className="h-4 w-4" />

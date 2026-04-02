@@ -29,15 +29,15 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
     <>
       {/* Announcement Bar - más sutil y elegante */}
       {showAnnouncement && (
-        <div className="hidden lg:block fixed top-0 left-0 right-0 z-[60] bg-gradient-to-r from-brand-600/90 via-brand-500/90 to-brand-600/90 backdrop-blur-sm">
+        <div className="hidden lg:block fixed top-0 left-0 right-0 z-[60] bg-gradient-to-r from-blue-600/90 via-blue-500/90 to-blue-600/90 backdrop-blur-sm border-b border-white/[0.06]">
           <div className="max-w-7xl mx-auto px-6 py-2.5 flex items-center justify-center gap-3">
-            <Sparkles className="w-4 h-4 text-brand-200" />
+            <Sparkles className="w-4 h-4 text-blue-100" />
             <span className="text-sm text-white/90 font-medium">
               WhatsApp Business API integrado — Empieza a vender por chat hoy
             </span>
             <a 
               href="/#caracteristicas" 
-              className="text-sm text-white font-semibold hover:text-brand-100 transition-colors flex items-center gap-1 ml-2"
+              className="text-sm text-white font-semibold hover:text-blue-100 transition-colors flex items-center gap-1 ml-2"
             >
               Descubrir
               <ArrowRight className="w-3.5 h-3.5" />
@@ -52,7 +52,7 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
           showAnnouncement ? 'lg:top-[44px] top-0' : 'top-0'
         } ${
           scrolled 
-            ? 'bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/50 shadow-lg shadow-slate-950/50' 
+            ? 'bg-[#0a0f1a]/95 backdrop-blur-xl border-b border-white/[0.06] shadow-lg shadow-black/20' 
             : 'bg-transparent border-b border-transparent'
         }`}
       >
@@ -70,7 +70,7 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
                   className="relative px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors rounded-lg group"
                 >
                   {link.label}
-                  <span className="absolute inset-x-4 -bottom-px h-px bg-gradient-to-r from-brand-500/0 via-brand-500/70 to-brand-500/0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <span className="absolute inset-x-4 -bottom-px h-px bg-gradient-to-r from-blue-500/0 via-blue-500/70 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </a>
               ))}
             </div>
@@ -85,7 +85,7 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
               </a>
               <a
                 href="/register"
-                className="group inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-brand-600/25 hover:shadow-brand-500/30 hover:shadow-xl"
+                className="group inline-flex items-center gap-2 px-5 py-2.5 bg-blue-500 hover:bg-blue-400 text-white text-sm font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 hover:shadow-xl"
               >
                 Empezar gratis
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
@@ -95,7 +95,7 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden flex items-center justify-center w-11 h-11 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-xl transition-colors"
+              className="lg:hidden flex items-center justify-center w-11 h-11 text-slate-300 hover:text-white hover:bg-white/[0.06] rounded-xl transition-colors"
               aria-label="Menú"
               aria-expanded={mobileMenuOpen}
             >
@@ -106,7 +106,7 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
 
         {/* Mobile Menu */}
         <div
-          className={`lg:hidden absolute top-full left-0 right-0 bg-slate-950/98 backdrop-blur-xl border-b border-slate-800/50 shadow-2xl transition-all duration-300 ${
+          className={`lg:hidden absolute top-full left-0 right-0 bg-[#0a0f1a]/98 backdrop-blur-xl border-b border-white/[0.06] shadow-2xl transition-all duration-300 ${
             mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
           }`}
         >
@@ -116,18 +116,18 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="block px-4 py-3.5 text-base font-medium text-slate-200 hover:text-white hover:bg-slate-800/50 rounded-xl transition-colors"
+                className="block px-4 py-3.5 text-base font-medium text-slate-200 hover:text-white hover:bg-white/[0.06] rounded-xl transition-colors"
               >
                 {link.label}
               </a>
             ))}
             
-            <div className="my-4 mx-4 border-t border-slate-800/70" />
+            <div className="my-4 mx-4 border-t border-white/[0.06]" />
             
             <a
               href="/login"
               onClick={() => setMobileMenuOpen(false)}
-              className="block px-4 py-3.5 text-base font-medium text-slate-200 hover:text-white hover:bg-slate-800/50 rounded-xl transition-colors"
+              className="block px-4 py-3.5 text-base font-medium text-slate-200 hover:text-white hover:bg-white/[0.06] rounded-xl transition-colors"
             >
               Iniciar sesión
             </a>
@@ -136,7 +136,7 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
               <a
                 href="/register"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-center gap-2 w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl transition-colors shadow-lg shadow-brand-600/25"
+                className="flex items-center justify-center gap-2 w-full py-3.5 bg-blue-500 hover:bg-blue-400 text-white font-semibold rounded-xl transition-colors shadow-lg shadow-blue-500/20"
               >
                 Empezar gratis
                 <ArrowRight className="w-4 h-4" />

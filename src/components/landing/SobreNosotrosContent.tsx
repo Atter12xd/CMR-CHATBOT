@@ -32,7 +32,7 @@ const stats = [
 
 export default function SobreNosotrosContent() {
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-[#0a0f1a] text-white">
       {/* Hero Section */}
       <section className="py-12 lg:py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
@@ -47,7 +47,7 @@ export default function SobreNosotrosContent() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-slate-900/30 border-y border-slate-800/30">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-[#0d1220] border-y border-white/[0.04]">
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat, i) => (
@@ -64,7 +64,7 @@ export default function SobreNosotrosContent() {
       <section className="py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <p className="text-blue-400 font-semibold text-sm uppercase tracking-wider mb-4">Nuestros valores</p>
+            <p className="text-blue-400 font-bold text-[11px] uppercase tracking-[0.14em] mb-4">Nuestros valores</p>
             <h2 className="text-3xl lg:text-4xl font-bold text-white">
               Lo que nos define
             </h2>
@@ -76,7 +76,7 @@ export default function SobreNosotrosContent() {
               return (
                 <div
                   key={v.title}
-                  className="group p-8 rounded-2xl bg-slate-900/50 border border-slate-800/60 hover:border-slate-700/60 transition-all duration-300"
+                  className="group p-8 rounded-2xl bg-[#111827]/80 border border-white/[0.06] hover:border-white/[0.1] transition-all duration-300"
                 >
                   <div className="w-14 h-14 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-5 group-hover:bg-blue-500/15 transition-colors">
                     <Icon className="w-7 h-7 text-blue-400" />
@@ -91,10 +91,10 @@ export default function SobreNosotrosContent() {
       </section>
 
       {/* Story Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-slate-900/30">
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-[#0d1220] border-y border-white/[0.04]">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <p className="text-blue-400 font-semibold text-sm uppercase tracking-wider mb-4">Nuestra historia</p>
+            <p className="text-blue-400 font-bold text-[11px] uppercase tracking-[0.14em] mb-4">Nuestra historia</p>
             <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">
               ¿Por qué creamos Wazapp?
             </h2>
@@ -126,8 +126,8 @@ export default function SobreNosotrosContent() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/60 text-center">
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
+            <div className="p-6 rounded-2xl bg-[#111827]/80 border border-white/[0.06] text-center">
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/15 flex items-center justify-center mx-auto mb-4">
                 <Shield className="w-6 h-6 text-emerald-400" />
               </div>
               <h3 className="font-semibold text-white mb-2">Seguro y confiable</h3>
@@ -136,8 +136,8 @@ export default function SobreNosotrosContent() {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/60 text-center">
-              <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mx-auto mb-4">
+            <div className="p-6 rounded-2xl bg-[#111827]/80 border border-white/[0.06] text-center">
+              <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/15 flex items-center justify-center mx-auto mb-4">
                 <Globe className="w-6 h-6 text-blue-400" />
               </div>
               <h3 className="font-semibold text-white mb-2">Soporte en español</h3>
@@ -146,8 +146,8 @@ export default function SobreNosotrosContent() {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/60 text-center">
-              <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center mx-auto mb-4">
+            <div className="p-6 rounded-2xl bg-[#111827]/80 border border-white/[0.06] text-center">
+              <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/15 flex items-center justify-center mx-auto mb-4">
                 <TrendingUp className="w-6 h-6 text-amber-400" />
               </div>
               <h3 className="font-semibold text-white mb-2">En constante mejora</h3>
@@ -160,7 +160,7 @@ export default function SobreNosotrosContent() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-900/50 to-slate-950">
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#0d1220] to-[#0a0f1a] border-t border-white/[0.04]">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">
             ¿Listo para empezar?
@@ -171,7 +171,7 @@ export default function SobreNosotrosContent() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
               href="/register"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-blue-600/25"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-blue-500 hover:bg-blue-400 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-blue-500/25"
             >
               Crear cuenta gratis
               <ArrowRight className="w-5 h-5" />

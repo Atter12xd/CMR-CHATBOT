@@ -1,4 +1,4 @@
-import { Twitter, Linkedin, Instagram, Github, Mail, MapPin } from 'lucide-react';
+import { Twitter, Linkedin, Instagram, Mail } from 'lucide-react';
 import LogoBrand from './LogoBrand';
 
 const footerLinks = {
@@ -27,9 +27,9 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="relative bg-slate-950 border-t border-slate-800/50">
+    <footer className="relative bg-[#0a0f1a] border-t border-white/[0.06]">
       {/* Subtle gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-900/50 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0d1220]/80 to-transparent pointer-events-none" />
       
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content */}
@@ -48,7 +48,7 @@ export default function Footer() {
                   <a
                     key={social.label}
                     href={social.href}
-                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-800/50 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/[0.04] border border-white/[0.06] text-slate-400 hover:bg-white/[0.06] hover:text-white transition-colors"
                     aria-label={social.label}
                   >
                     <social.icon className="w-4 h-4" />
@@ -70,7 +70,7 @@ export default function Footer() {
 
             {/* Links Columns */}
             <div className="col-span-1 md:col-span-2">
-              <h4 className="text-sm font-semibold text-white mb-4 tracking-wide">Producto</h4>
+              <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.14em] mb-4">Producto</h4>
               <ul className="space-y-3">
                 {footerLinks.producto.map((link) => (
                   <li key={link.href}>
@@ -86,7 +86,7 @@ export default function Footer() {
             </div>
 
             <div className="col-span-1 md:col-span-2">
-              <h4 className="text-sm font-semibold text-white mb-4 tracking-wide">Empresa</h4>
+              <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.14em] mb-4">Empresa</h4>
               <ul className="space-y-3">
                 {footerLinks.empresa.map((link) => (
                   <li key={link.href}>
@@ -102,7 +102,7 @@ export default function Footer() {
             </div>
 
             <div className="col-span-1 md:col-span-2">
-              <h4 className="text-sm font-semibold text-white mb-4 tracking-wide">Legal</h4>
+              <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.14em] mb-4">Legal</h4>
               <ul className="space-y-3">
                 {footerLinks.legal.map((link) => (
                   <li key={link.href}>
@@ -119,13 +119,13 @@ export default function Footer() {
 
             {/* Newsletter or CTA Column */}
             <div className="col-span-2 md:col-span-4 lg:col-span-3">
-              <h4 className="text-sm font-semibold text-white mb-4 tracking-wide">¿Listo para empezar?</h4>
+              <h4 className="text-sm font-semibold text-white mb-4">¿Listo para empezar?</h4>
               <p className="text-sm text-slate-400 mb-4">
                 Crea tu cuenta gratis y empieza a vender más por WhatsApp hoy mismo.
               </p>
               <a
                 href="/register"
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-brand-600/20"
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-400 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-blue-500/20"
               >
                 Crear cuenta gratis
               </a>
@@ -134,7 +134,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="py-6 border-t border-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="py-6 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-slate-500">
             © {new Date().getFullYear()} wazapp.ai — Todos los derechos reservados
           </p>

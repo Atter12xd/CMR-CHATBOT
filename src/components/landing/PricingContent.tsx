@@ -115,9 +115,9 @@ const features = [
 
 
 const accentMap = {
-  brand: 'bg-brand-500/10 text-brand-400 group-hover:bg-brand-500/20',
-  emerald: 'bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20',
-  amber: 'bg-amber-500/10 text-amber-400 group-hover:bg-amber-500/20',
+  brand: 'bg-blue-500/10 text-blue-400 group-hover:bg-blue-500/20 border border-blue-500/15',
+  emerald: 'bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20 border border-emerald-500/15',
+  amber: 'bg-amber-500/10 text-amber-400 group-hover:bg-amber-500/20 border border-amber-500/15',
 };
 
 
@@ -228,16 +228,16 @@ export default function PricingContent() {
 
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white font-sans antialiased">
+    <div className="min-h-screen bg-[#0a0f1a] text-white font-sans antialiased">
 
 
       {/* Hero */}
       <section className="relative pt-20 pb-14 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-950 to-slate-950" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-brand-500/8 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0d1220] via-[#0a0f1a] to-[#0a0f1a]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
 
         <div className="relative max-w-3xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700/50 mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#111827]/80 border border-white/[0.06] mb-8">
             <span className="flex h-2 w-2 relative">
               <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -259,13 +259,13 @@ export default function PricingContent() {
       {/* Billing Toggle */}
       <section className="pb-10 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-center">
-          <div className="inline-flex items-center bg-slate-900/50 border border-slate-800/50 rounded-xl p-1">
+          <div className="inline-flex items-center bg-[#111827]/80 border border-white/[0.06] rounded-xl p-1">
             <button
               onClick={() => setBilling('monthly')}
               className={`px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
                 billing === 'monthly'
-                  ? 'bg-white text-slate-900 shadow-sm'
-                  : 'text-slate-400 hover:text-slate-300'
+                  ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
               Mensual
@@ -274,14 +274,14 @@ export default function PricingContent() {
               onClick={() => setBilling('yearly')}
               className={`px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 flex items-center gap-2 ${
                 billing === 'yearly'
-                  ? 'bg-white text-slate-900 shadow-sm'
-                  : 'text-slate-400 hover:text-slate-300'
+                  ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
               Anual
               <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${
                 billing === 'yearly'
-                  ? 'bg-emerald-100 text-emerald-700'
+                  ? 'bg-emerald-500/20 text-emerald-300'
                   : 'bg-emerald-500/10 text-emerald-400'
               }`}>
                 -20%
@@ -304,19 +304,19 @@ export default function PricingContent() {
                   key={plan.name}
                   className={`relative rounded-2xl transition-all duration-300 ${
                     plan.highlighted
-                      ? 'bg-slate-800/80 border-2 border-brand-500/50 shadow-2xl shadow-brand-500/10 lg:scale-105'
-                      : 'bg-slate-900/50 border border-slate-800/50 hover:border-slate-700/50'
+                      ? 'bg-[#111827]/90 border-2 border-blue-500/40 shadow-2xl shadow-blue-500/10 lg:scale-105'
+                      : 'bg-[#111827]/80 border border-white/[0.06] hover:border-white/[0.1]'
                   }`}
                 >
                   {/* Accent bar */}
                   {plan.highlighted && (
-                    <div className="h-1 rounded-t-2xl bg-gradient-to-r from-brand-500 via-brand-400 to-emerald-400" />
+                    <div className="h-1 rounded-t-2xl bg-gradient-to-r from-blue-500 via-blue-400 to-emerald-400" />
                   )}
 
                   {/* Badge */}
                   {plan.highlighted && (
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                      <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold bg-brand-600 text-white shadow-lg shadow-brand-600/30">
+                      <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold bg-blue-500 text-white shadow-lg shadow-blue-500/30">
                         Recomendado
                       </span>
                     </div>
@@ -376,7 +376,7 @@ export default function PricingContent() {
                         type="button"
                         onClick={handleCheckout}
                         disabled={checkoutLoading}
-                        className="group flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl font-semibold text-sm transition-all duration-300 mb-8 bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/25 hover:shadow-brand-500/30 disabled:opacity-70 disabled:cursor-not-allowed"
+                        className="group flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl font-semibold text-sm transition-all duration-300 mb-8 bg-blue-500 hover:bg-blue-400 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/30 disabled:opacity-70 disabled:cursor-not-allowed"
                       >
                         {checkoutLoading ? (
                           <>
@@ -397,8 +397,8 @@ export default function PricingContent() {
                         rel={plan.ctaLink.startsWith('http') ? 'noopener noreferrer' : undefined}
                         className={`group flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl font-semibold text-sm transition-all duration-300 mb-8 ${
                           plan.highlighted
-                            ? 'bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/25 hover:shadow-brand-500/30'
-                            : 'bg-slate-800/50 hover:bg-slate-800 text-white border border-slate-700/50 hover:border-slate-600'
+                            ? 'bg-blue-500 hover:bg-blue-400 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/30'
+                            : 'bg-white/[0.04] hover:bg-white/[0.06] text-white border border-white/[0.06] hover:border-white/[0.1]'
                         }`}
                       >
                         {plan.cta}
@@ -411,7 +411,7 @@ export default function PricingContent() {
                     )}
 
                     {/* Divider */}
-                    <div className={`border-t mb-6 ${plan.highlighted ? 'border-slate-700/40' : 'border-slate-800/40'}`} />
+                    <div className={`border-t mb-6 border-white/[0.06]`} />
 
                     {/* Features label */}
                     <p className={`text-xs font-semibold uppercase tracking-wider mb-4 ${plan.highlighted ? 'text-slate-500' : 'text-slate-600'}`}>
@@ -443,8 +443,8 @@ export default function PricingContent() {
 
           {/* Modal correo antes de checkout */}
           {showEmailModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm" onClick={() => !checkoutLoading && setShowEmailModal(false)}>
-              <div className="bg-slate-800 border border-slate-700 rounded-2xl shadow-xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => !checkoutLoading && setShowEmailModal(false)}>
+              <div className="bg-[#111827] border border-white/[0.06] rounded-2xl shadow-xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
                 <h3 className="text-lg font-semibold text-white mb-2">Introduce tu correo</h3>
                 <p className="text-sm text-slate-400 mb-4">
                   Lo usamos para tu cuenta y facturación. Si ya cancelaste una suscripción antes, no tendrás de nuevo los 14 días gratis.
@@ -454,14 +454,14 @@ export default function PricingContent() {
                   value={checkoutEmail}
                   onChange={(e) => setCheckoutEmail(e.target.value)}
                   placeholder="tu@correo.com"
-                  className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-600 text-white placeholder-slate-500 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none mb-4"
+                  className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder-slate-500 focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500/40 outline-none mb-4"
                   onKeyDown={(e) => e.key === 'Enter' && handleCheckoutWithEmail()}
                 />
                 <div className="flex gap-3">
                   <button
                     type="button"
                     onClick={() => !checkoutLoading && setShowEmailModal(false)}
-                    className="flex-1 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-white border border-slate-600 hover:border-slate-500 transition-colors"
+                    className="flex-1 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-white border border-white/[0.06] hover:bg-white/[0.04] transition-colors"
                   >
                     Cancelar
                   </button>
@@ -469,7 +469,7 @@ export default function PricingContent() {
                     type="button"
                     onClick={handleCheckoutWithEmail}
                     disabled={checkoutLoading}
-                    className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 hover:bg-brand-500 text-white disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-blue-500 hover:bg-blue-400 text-white disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
                   >
                     {checkoutLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Redirigiendo...</> : 'Continuar a pago'}
                   </button>
@@ -505,7 +505,7 @@ export default function PricingContent() {
       <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16 lg:mb-20">
-            <p className="text-brand-400 font-semibold text-sm uppercase tracking-wider mb-4">Incluido en todos los planes</p>
+            <p className="text-blue-400 font-bold text-[11px] uppercase tracking-[0.14em] mb-4">Incluido en todos los planes</p>
             <h2 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-white tracking-tight">
               De QR a ventas automáticas
             </h2>
@@ -520,7 +520,7 @@ export default function PricingContent() {
               return (
                 <div
                   key={feature.title}
-                  className="group p-6 rounded-2xl bg-slate-900/50 border border-slate-800/50 hover:border-slate-700/50 transition-all duration-300 hover:shadow-xl hover:shadow-slate-900/50"
+                  className="group p-6 rounded-2xl bg-[#111827]/80 border border-white/[0.06] hover:border-white/[0.1] transition-all duration-300 hover:shadow-lg hover:shadow-black/20"
                 >
                   <div className={`w-12 h-12 rounded-xl ${accentMap[feature.accent]} flex items-center justify-center mb-4 transition-colors`}>
                     <Icon className="w-6 h-6" />
@@ -537,7 +537,7 @@ export default function PricingContent() {
 
 
       {/* Social Proof */}
-      <section className="py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-slate-900/30 border-y border-slate-800/30">
+      <section className="py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-[#0d1220] border-y border-white/[0.04]">
         <div className="max-w-5xl mx-auto">
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
             {[
@@ -561,7 +561,7 @@ export default function PricingContent() {
       <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-16">
-            <p className="text-brand-400 font-semibold text-sm uppercase tracking-wider mb-4">Preguntas frecuentes</p>
+            <p className="text-blue-400 font-bold text-[11px] uppercase tracking-[0.14em] mb-4">Preguntas frecuentes</p>
             <h2 className="text-3xl lg:text-4xl font-bold text-white tracking-tight">
               Todo lo que necesitas saber
             </h2>
@@ -571,11 +571,11 @@ export default function PricingContent() {
             {faqs.map((faq, i) => (
               <details
                 key={i}
-                className="group rounded-2xl bg-slate-900/50 border border-slate-800/50 hover:border-slate-700/50 transition-colors overflow-hidden"
+                className="group rounded-2xl bg-[#111827]/80 border border-white/[0.06] hover:border-white/[0.1] transition-colors overflow-hidden"
               >
                 <summary className="flex items-center justify-between cursor-pointer px-6 py-5 text-[15px] font-medium text-white hover:text-slate-200 transition-colors list-none [&::-webkit-details-marker]:hidden">
                   {faq.q}
-                  <span className="ml-4 flex-shrink-0 w-6 h-6 rounded-lg bg-slate-800/50 flex items-center justify-center text-slate-500 group-open:rotate-45 transition-transform duration-200">
+                  <span className="ml-4 flex-shrink-0 w-6 h-6 rounded-lg bg-white/[0.06] flex items-center justify-center text-slate-500 group-open:rotate-45 transition-transform duration-200">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
                       <line x1="6" y1="1" x2="6" y2="11" />
                       <line x1="1" y1="6" x2="11" y2="6" />
@@ -594,10 +594,10 @@ export default function PricingContent() {
 
 
       {/* Bottom CTA */}
-      <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-900/50 to-slate-950">
+      <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#0d1220] to-[#0a0f1a] border-t border-white/[0.04]">
         <div className="max-w-3xl mx-auto text-center">
-          <div className="w-12 h-12 mx-auto mb-6 rounded-xl bg-brand-500/10 flex items-center justify-center">
-            <Shield className="w-6 h-6 text-brand-400" />
+          <div className="w-12 h-12 mx-auto mb-6 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+            <Shield className="w-6 h-6 text-blue-400" />
           </div>
           <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4 tracking-tight">14 días gratis</h2>
           <p className="text-lg text-slate-400 mb-10 leading-relaxed max-w-lg mx-auto">
@@ -606,14 +606,14 @@ export default function PricingContent() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
               href="/register"
-              className="group inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 bg-brand-600 hover:bg-brand-500 text-white text-base font-semibold rounded-xl transition-all duration-300 shadow-xl shadow-brand-600/25 hover:shadow-brand-500/30 hover:scale-[1.02]"
+              className="group inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 bg-blue-500 hover:bg-blue-400 text-white text-base font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/30 hover:scale-[1.02]"
             >
               Empezar gratis
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
             </a>
             <a
               href="/contacto"
-              className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 text-slate-300 hover:text-white text-base font-semibold transition-colors"
+              className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 text-slate-400 hover:text-white text-base font-semibold transition-colors"
             >
               Contactar ventas
             </a>

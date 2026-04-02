@@ -23,7 +23,7 @@ const posts = [
 
 export default function BlogContent() {
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <div className="min-h-screen bg-[#0a0f1a] text-white">
       <section className="py-20 md:py-28 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
@@ -40,7 +40,7 @@ export default function BlogContent() {
               <a
                 key={post.title}
                 href={post.slug}
-                className="block p-8 rounded-2xl bg-slate-900/50 border border-slate-800 hover:border-slate-600 transition-all duration-300 hover:bg-slate-900"
+                className="block p-8 rounded-2xl bg-[#111827]/80 border border-white/[0.06] hover:border-white/[0.1] transition-all duration-300 hover:bg-[#111827]"
               >
                 <span className="text-sm text-slate-500">{post.date}</span>
                 <h2 className="text-2xl font-bold text-white mt-2 mb-3">{post.title}</h2>

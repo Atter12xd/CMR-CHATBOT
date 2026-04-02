@@ -43,13 +43,13 @@ function FeatureCard({
   accent?: 'brand' | 'emerald' | 'amber';
 }) {
   const accentColors = {
-    brand: 'bg-brand-500/10 text-brand-400 group-hover:bg-brand-500/20',
-    emerald: 'bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20',
-    amber: 'bg-amber-500/10 text-amber-400 group-hover:bg-amber-500/20',
+    brand: 'bg-blue-500/10 text-blue-400 group-hover:bg-blue-500/20 border border-blue-500/15',
+    emerald: 'bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20 border border-emerald-500/15',
+    amber: 'bg-amber-500/10 text-amber-400 group-hover:bg-amber-500/20 border border-amber-500/15',
   };
 
   return (
-    <div className="group p-6 rounded-2xl bg-slate-900/50 border border-slate-800/50 hover:border-slate-700/50 transition-all duration-300 hover:shadow-xl hover:shadow-slate-900/50">
+    <div className="group p-6 rounded-2xl bg-[#111827]/80 border border-white/[0.06] hover:border-white/[0.1] transition-all duration-300 hover:shadow-lg hover:shadow-black/20">
       <div className={`w-12 h-12 rounded-xl ${accentColors[accent]} flex items-center justify-center mb-4 transition-colors`}>
         <Icon className="w-6 h-6" />
       </div>
@@ -70,17 +70,17 @@ export default function LandingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950">
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0f1a]">
         <div className="animate-pulse flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-brand-500/30" />
-          <div className="h-4 w-32 bg-slate-800 rounded" />
+          <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20" />
+          <div className="h-4 w-32 bg-white/[0.06] rounded-lg" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 font-sans antialiased text-white">
+    <div className="min-h-screen bg-[#0a0f1a] font-sans antialiased text-white">
       <Navbar showAnnouncement />
 
       {/* ============================================
@@ -88,13 +88,13 @@ export default function LandingPage() {
           ============================================ */}
       <section className="relative pt-32 lg:pt-44 pb-20 lg:pb-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Background Effects */}
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-950 to-slate-950" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-brand-500/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0d1220] via-[#0a0f1a] to-[#0a0f1a]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
         <div className="absolute top-40 right-0 w-[400px] h-[400px] bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
         
         <div className="relative max-w-5xl mx-auto text-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700/50 mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#111827]/80 border border-white/[0.06] mb-8">
             <span className="flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -118,14 +118,14 @@ export default function LandingPage() {
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
               href="/register"
-              className="group inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 bg-brand-600 hover:bg-brand-500 text-white text-base font-semibold rounded-xl transition-all duration-300 shadow-xl shadow-brand-600/25 hover:shadow-brand-500/30 hover:scale-[1.02]"
+              className="group inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 bg-blue-500 hover:bg-blue-400 text-white text-base font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/30 hover:scale-[1.02]"
             >
               Empezar gratis
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
             </a>
             <a
               href="#demo"
-              className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 bg-slate-800/50 hover:bg-slate-800 text-white text-base font-semibold rounded-xl border border-slate-700/50 hover:border-slate-600 transition-all duration-300 hover:scale-[1.02]"
+              className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 bg-white/[0.04] hover:bg-white/[0.06] text-slate-200 text-base font-semibold rounded-xl border border-white/[0.06] hover:border-white/[0.1] transition-all duration-300 hover:scale-[1.02]"
             >
               Ver cómo funciona
             </a>
@@ -152,16 +152,16 @@ export default function LandingPage() {
       {/* ============================================
           SOCIAL PROOF - LOGOS
           ============================================ */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-slate-900/30 border-y border-slate-800/30">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-[#0d1220] border-y border-white/[0.04]">
         <div className="max-w-6xl mx-auto">
-          <p className="text-center text-sm font-medium text-slate-500 uppercase tracking-wider mb-10">
+          <p className="text-center text-[11px] font-bold text-slate-500 uppercase tracking-[0.14em] mb-10">
             Empresas que confían en Wazapp
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-8">
             {['Retail', 'Restaurantes', 'E-commerce', 'Servicios', 'Salud', 'Educación'].map((name) => (
               <span
                 key={name}
-                className="text-lg font-semibold text-slate-600 hover:text-slate-400 transition-colors cursor-default"
+                className="text-lg font-semibold text-slate-500 hover:text-slate-400 transition-colors cursor-default"
               >
                 {name}
               </span>
@@ -177,7 +177,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-16 lg:mb-20">
-            <p className="text-brand-400 font-semibold text-sm uppercase tracking-wider mb-4">Características</p>
+            <p className="text-blue-400 font-bold text-[11px] uppercase tracking-[0.14em] mb-4">Características</p>
             <h2 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-white tracking-tight">
               Todo lo que necesitas para vender más
             </h2>
@@ -231,12 +231,12 @@ export default function LandingPage() {
       {/* ============================================
           DEMO / MOCKUP SECTION
           ============================================ */}
-      <section id="demo" className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-slate-900/30">
+      <section id="demo" className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-[#0d1220] border-y border-white/[0.04]">
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Text Content */}
             <div>
-              <p className="text-brand-400 font-semibold text-sm uppercase tracking-wider mb-4">Cómo funciona</p>
+              <p className="text-blue-400 font-bold text-[11px] uppercase tracking-[0.14em] mb-4">Cómo funciona</p>
               <h2 className="text-3xl lg:text-4xl font-bold text-white tracking-tight mb-6">
                 De la conversación al pedido en segundos
               </h2>
@@ -252,8 +252,8 @@ export default function LandingPage() {
                   { step: '03', title: 'Convierte en ventas', desc: 'Crea pedidos y envía links de pago desde el chat.' },
                 ].map((item, i) => (
                   <div key={i} className="flex gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-brand-500/10 flex items-center justify-center shrink-0">
-                      <span className="text-sm font-bold text-brand-400">{item.step}</span>
+                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/15 flex items-center justify-center shrink-0">
+                      <span className="text-sm font-bold text-blue-400">{item.step}</span>
                     </div>
                     <div>
                       <h3 className="font-semibold text-white mb-1">{item.title}</h3>
@@ -266,24 +266,24 @@ export default function LandingPage() {
 
             {/* Mockup */}
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-brand-500/20 to-emerald-500/20 rounded-3xl blur-2xl" />
-              <div className="relative rounded-2xl overflow-hidden border border-slate-700/50 shadow-2xl bg-slate-900/90 p-6">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/15 to-emerald-500/10 rounded-3xl blur-2xl" />
+              <div className="relative rounded-2xl overflow-hidden border border-white/[0.06] shadow-2xl bg-[#111827]/90 p-6">
                 {/* Chat Mockup */}
                 <div className="space-y-4">
                   <div className="flex gap-3">
                     <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
                       <MessageSquare className="w-5 h-5 text-emerald-400" />
                     </div>
-                    <div className="flex-1 bg-slate-800/50 rounded-2xl rounded-tl-md px-4 py-3">
-                      <p className="text-sm text-slate-300">¡Hola! ¿Tienen disponibilidad para mañana?</p>
+                    <div className="flex-1 bg-white/[0.06] border border-white/[0.06] rounded-2xl rounded-tl-md px-4 py-3">
+                      <p className="text-sm text-slate-200">¡Hola! ¿Tienen disponibilidad para mañana?</p>
                       <p className="text-xs text-slate-500 mt-1">10:23 AM</p>
                     </div>
                   </div>
                   
                   <div className="flex gap-3 justify-end">
-                    <div className="flex-1 bg-brand-600/30 rounded-2xl rounded-tr-md px-4 py-3 max-w-[85%]">
+                    <div className="flex-1 bg-blue-500/25 border border-blue-500/30 rounded-2xl rounded-tr-md px-4 py-3 max-w-[85%]">
                       <p className="text-sm text-white">¡Hola! Sí, tenemos horarios a las 10am y 3pm. ¿Cuál prefieres? 😊</p>
-                      <p className="text-xs text-brand-300 mt-1">10:24 AM · Leído</p>
+                      <p className="text-xs text-blue-300 mt-1">10:24 AM · Leído</p>
                     </div>
                   </div>
                   
@@ -291,15 +291,15 @@ export default function LandingPage() {
                     <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
                       <MessageSquare className="w-5 h-5 text-emerald-400" />
                     </div>
-                    <div className="flex-1 bg-slate-800/50 rounded-2xl rounded-tl-md px-4 py-3">
-                      <p className="text-sm text-slate-300">Perfecto, a las 3pm. ¿Cuánto es el total?</p>
+                    <div className="flex-1 bg-white/[0.06] border border-white/[0.06] rounded-2xl rounded-tl-md px-4 py-3">
+                      <p className="text-sm text-slate-200">Perfecto, a las 3pm. ¿Cuánto es el total?</p>
                       <p className="text-xs text-slate-500 mt-1">10:25 AM</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Stats Bar */}
-                <div className="mt-6 pt-6 border-t border-slate-700/50">
+                <div className="mt-6 pt-6 border-t border-white/[0.06]">
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div>
                       <p className="text-2xl font-bold text-white">5,477</p>
@@ -327,7 +327,7 @@ export default function LandingPage() {
       <section id="por-que" className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <p className="text-brand-400 font-semibold text-sm uppercase tracking-wider mb-4">¿Por qué Wazapp?</p>
+            <p className="text-blue-400 font-bold text-[11px] uppercase tracking-[0.14em] mb-4">¿Por qué Wazapp?</p>
             <h2 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-white tracking-tight">
               Simple, rápido y efectivo
             </h2>
@@ -342,10 +342,10 @@ export default function LandingPage() {
             ].map((item, i) => (
               <div 
                 key={i} 
-                className="p-6 rounded-2xl bg-gradient-to-b from-slate-800/50 to-slate-900/50 border border-slate-800/50 hover:border-slate-700/50 transition-all duration-300"
+                className="p-6 rounded-2xl bg-[#111827]/80 border border-white/[0.06] hover:border-white/[0.1] transition-all duration-300"
               >
-                <div className="w-12 h-12 rounded-xl bg-brand-500/10 flex items-center justify-center mb-4">
-                  <item.icon className="w-6 h-6 text-brand-400" />
+                <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/15 flex items-center justify-center mb-4">
+                  <item.icon className="w-6 h-6 text-blue-400" />
                 </div>
                 <h3 className="text-lg font-semibold text-white mb-2">{item.title}</h3>
                 <p className="text-sm text-slate-400 leading-relaxed">{item.desc}</p>
@@ -358,10 +358,10 @@ export default function LandingPage() {
       {/* ============================================
           STATS / RESULTS SECTION
           ============================================ */}
-      <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-slate-900/30">
+      <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-[#0d1220] border-y border-white/[0.04]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <p className="text-brand-400 font-semibold text-sm uppercase tracking-wider mb-4">Resultados</p>
+            <p className="text-blue-400 font-bold text-[11px] uppercase tracking-[0.14em] mb-4">Resultados</p>
             <h2 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-white tracking-tight">
               Números que hablan
             </h2>
@@ -382,7 +382,7 @@ export default function LandingPage() {
       <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <p className="text-brand-400 font-semibold text-sm uppercase tracking-wider mb-4">Casos de éxito</p>
+            <p className="text-blue-400 font-bold text-[11px] uppercase tracking-[0.14em] mb-4">Casos de éxito</p>
             <h2 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-white tracking-tight">
               Negocios que crecen con Wazapp
             </h2>
@@ -418,19 +418,19 @@ export default function LandingPage() {
               <a
                 key={i}
                 href="/register"
-                className="group block p-6 rounded-2xl bg-slate-900/50 border border-slate-800/50 hover:border-slate-700/50 transition-all duration-300 hover:shadow-xl"
+                className="group block p-6 rounded-2xl bg-[#111827]/80 border border-white/[0.06] hover:border-white/[0.1] transition-all duration-300 hover:shadow-lg hover:shadow-black/20"
               >
                 <div className="flex items-start justify-between mb-4">
-                  <span className="px-3 py-1 rounded-full bg-slate-800 text-xs font-medium text-slate-400">
+                  <span className="px-3 py-1 rounded-full bg-white/[0.06] border border-white/[0.06] text-xs font-medium text-slate-400">
                     {card.industry}
                   </span>
                   <span className="text-lg font-bold text-emerald-400">{card.metric}</span>
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-brand-400 transition-colors">
+                <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-blue-400 transition-colors">
                   {card.title}
                 </h3>
                 <p className="text-sm text-slate-400 mb-4">{card.desc}</p>
-                <span className="text-sm text-brand-400 font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
+                <span className="text-sm text-blue-400 font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
                   Leer más
                   <ArrowRight className="w-4 h-4" />
                 </span>
@@ -443,7 +443,7 @@ export default function LandingPage() {
       {/* ============================================
           FINAL CTA SECTION
           ============================================ */}
-      <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-900/50 to-slate-950">
+      <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#0d1220] to-[#0a0f1a] border-t border-white/[0.04]">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-white tracking-tight mb-6">
             ¿Listo para vender más?
@@ -455,14 +455,14 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
               href="/register"
-              className="group inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 bg-brand-600 hover:bg-brand-500 text-white text-base font-semibold rounded-xl transition-all duration-300 shadow-xl shadow-brand-600/25 hover:shadow-brand-500/30 hover:scale-[1.02]"
+              className="group inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 bg-blue-500 hover:bg-blue-400 text-white text-base font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/30 hover:scale-[1.02]"
             >
               Empezar gratis
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
             </a>
             <a
               href="/contacto"
-              className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 text-slate-300 hover:text-white text-base font-semibold transition-colors"
+              className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 text-slate-400 hover:text-white text-base font-semibold transition-colors"
             >
               Hablar con ventas
             </a>

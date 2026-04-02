@@ -18,7 +18,7 @@ const competitors = [
 
 export default function ComparativasContent() {
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <div className="min-h-screen bg-[#0a0f1a] text-white">
       <section className="py-20 md:py-28 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
@@ -30,10 +30,10 @@ export default function ComparativasContent() {
             </p>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/50">
+          <div className="overflow-x-auto rounded-2xl border border-white/[0.06] bg-[#111827]/80">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-slate-800">
+                <tr className="border-b border-white/[0.06]">
                   <th className="text-left p-6 font-semibold text-white">Característica</th>
                   <th className="p-6 font-semibold text-blue-400">wazapp.ai</th>
                   <th className="p-6 font-semibold text-slate-400">Otras soluciones</th>
@@ -41,7 +41,7 @@ export default function ComparativasContent() {
               </thead>
               <tbody>
                 {features.map((feature, i) => (
-                  <tr key={feature} className="border-b border-slate-800/80 last:border-0">
+                  <tr key={feature} className="border-b border-white/[0.06] last:border-0">
                     <td className="p-6 text-slate-300">{feature}</td>
                     <td className="p-6 text-center">
                       <Check className="w-5 h-5 text-emerald-500 mx-auto" />
@@ -62,7 +62,7 @@ export default function ComparativasContent() {
           <div className="mt-12 text-center">
             <a
               href="/register"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-500 transition-colors"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-blue-500 text-white font-semibold rounded-xl hover:bg-blue-400 transition-colors shadow-lg shadow-blue-500/20"
             >
               Probar wazapp.ai gratis
             </a>

@@ -115,9 +115,9 @@ const features = [
 
 
 const accentMap = {
-  brand: 'bg-blue-500/10 text-blue-400 group-hover:bg-blue-500/20 border border-blue-500/15',
-  emerald: 'bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20 border border-emerald-500/15',
-  amber: 'bg-amber-500/10 text-amber-400 group-hover:bg-amber-500/20 border border-amber-500/15',
+  brand: 'bg-brand-500/10 text-brand-600 group-hover:bg-brand-500/15 border border-brand-500/20',
+  emerald: 'bg-emerald-500/10 text-emerald-600 group-hover:bg-emerald-500/15 border border-emerald-500/20',
+  amber: 'bg-amber-500/10 text-amber-600 group-hover:bg-amber-500/15 border border-amber-500/20',
 };
 
 
@@ -228,27 +228,24 @@ export default function PricingContent() {
 
 
   return (
-    <div className="min-h-screen bg-[#0a0f1a] text-white font-sans antialiased">
+    <div className="min-h-screen bg-app-shell text-app-ink font-professional antialiased">
 
 
       {/* Hero */}
-      <section className="relative pt-20 pb-14 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0d1220] via-[#0a0f1a] to-[#0a0f1a]" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
-
+      <section className="relative pt-20 pb-14 px-4 sm:px-6 lg:px-8 overflow-hidden bg-app-canvas">
         <div className="relative max-w-3xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#111827]/80 border border-white/[0.06] mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-app-line bg-white shadow-app-card mb-8">
             <span className="flex h-2 w-2 relative">
               <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
-            <span className="text-sm text-slate-300 font-medium">14 días de prueba gratis en el plan de $50</span>
+            <span className="text-sm text-app-muted font-medium">14 días de prueba gratis en el plan de $50</span>
           </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.1] mb-6">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-app-ink tracking-tight leading-[1.1] mb-6 font-display">
             Tu vendedor en WhatsApp,
             <span className="block mt-2 text-gradient-brand">activo 24/7</span>
           </h1>
-          <p className="text-lg text-slate-400 max-w-xl mx-auto leading-relaxed">
+          <p className="text-lg text-app-muted max-w-xl mx-auto leading-relaxed">
             Conecta tu WhatsApp con QR, entrena el bot con tu información y empieza a vender en automático.
           </p>
         </div>
@@ -257,32 +254,32 @@ export default function PricingContent() {
 
 
       {/* Billing Toggle */}
-      <section className="pb-10 px-4 sm:px-6 lg:px-8">
+      <section className="pb-10 px-4 sm:px-6 lg:px-8 bg-app-shell">
         <div className="flex items-center justify-center">
-          <div className="inline-flex items-center bg-[#111827]/80 border border-white/[0.06] rounded-xl p-1">
+          <div className="inline-flex items-center bg-white border border-app-line rounded-2xl p-1 shadow-app-card">
             <button
               onClick={() => setBilling('monthly')}
-              className={`px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
+              className={`px-5 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 ${
                 billing === 'monthly'
-                  ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-app-charcoal text-white shadow-md'
+                  : 'text-app-muted hover:text-app-ink'
               }`}
             >
               Mensual
             </button>
             <button
               onClick={() => setBilling('yearly')}
-              className={`px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 flex items-center gap-2 ${
+              className={`px-5 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 flex items-center gap-2 ${
                 billing === 'yearly'
-                  ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-app-charcoal text-white shadow-md'
+                  : 'text-app-muted hover:text-app-ink'
               }`}
             >
               Anual
               <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${
                 billing === 'yearly'
-                  ? 'bg-emerald-500/20 text-emerald-300'
-                  : 'bg-emerald-500/10 text-emerald-400'
+                  ? 'bg-emerald-500/15 text-emerald-700'
+                  : 'bg-emerald-500/10 text-emerald-600'
               }`}>
                 -20%
               </span>
@@ -302,21 +299,21 @@ export default function PricingContent() {
               return (
                 <div
                   key={plan.name}
-                  className={`relative rounded-2xl transition-all duration-300 ${
+                  className={`relative rounded-[22px] transition-all duration-300 ${
                     plan.highlighted
-                      ? 'bg-[#111827]/90 border-2 border-blue-500/40 shadow-2xl shadow-blue-500/10 lg:scale-105'
-                      : 'bg-[#111827]/80 border border-white/[0.06] hover:border-white/[0.1]'
+                      ? 'bg-white border-2 border-brand-500/40 shadow-app-card lg:scale-105'
+                      : 'bg-white border border-app-line hover:border-app-line-strong shadow-app-card'
                   }`}
                 >
                   {/* Accent bar */}
                   {plan.highlighted && (
-                    <div className="h-1 rounded-t-2xl bg-gradient-to-r from-blue-500 via-blue-400 to-emerald-400" />
+                    <div className="h-1 rounded-t-[22px] bg-gradient-to-r from-brand-500 via-brand-400 to-emerald-400" />
                   )}
 
                   {/* Badge */}
                   {plan.highlighted && (
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                      <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold bg-blue-500 text-white shadow-lg shadow-blue-500/30">
+                      <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold bg-app-charcoal text-white shadow-md">
                         Recomendado
                       </span>
                     </div>
@@ -324,10 +321,10 @@ export default function PricingContent() {
 
                   <div className="p-7 lg:p-8">
                     {/* Header */}
-                    <h2 className={`text-xl font-bold mb-1 ${plan.highlighted ? 'text-white' : 'text-white'}`}>
+                    <h2 className="text-xl font-bold mb-1 text-app-ink">
                       {plan.name}
                     </h2>
-                    <p className={`text-sm mb-8 ${plan.highlighted ? 'text-slate-400' : 'text-slate-500'}`}>
+                    <p className="text-sm mb-8 text-app-muted">
                       {plan.description}
                     </p>
 
@@ -335,38 +332,38 @@ export default function PricingContent() {
                     <div className="mb-8">
                       {(plan as { priceBefore?: number }).priceBefore != null && billing === 'monthly' && (
                         <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                          <span className="text-sm text-slate-500 line-through">${(plan as { priceBefore: number }).priceBefore}/mes</span>
-                          <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-400">Por tiempo limitado</span>
+                          <span className="text-sm text-app-muted line-through">${(plan as { priceBefore: number }).priceBefore}/mes</span>
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-700">Por tiempo limitado</span>
                         </div>
                       )}
                       <div className="flex items-baseline gap-1">
-                        <span className={`text-5xl font-bold tracking-tight ${plan.highlighted ? 'text-white' : 'text-white'}`}>
+                        <span className="text-5xl font-bold tracking-tight text-app-ink font-display">
                           ${price}
                         </span>
-                        <span className={`text-base font-medium ${plan.highlighted ? 'text-slate-500' : 'text-slate-500'}`}>
+                        <span className="text-base font-medium text-app-muted">
                           /mes
                         </span>
                       </div>
                       {billing === 'yearly' ? (
-                        <p className={`text-xs mt-1.5 ${plan.highlighted ? 'text-slate-500' : 'text-slate-500'}`}>
+                        <p className="text-xs mt-1.5 text-app-muted">
                           <span className="line-through">${plan.price.monthly}/mes</span> facturado mensual
                         </p>
                       ) : (
-                        <p className={`text-xs mt-1.5 ${plan.highlighted ? 'text-slate-500' : 'text-slate-500'}`}>
+                        <p className="text-xs mt-1.5 text-app-muted">
                           Facturación mensual
                         </p>
                       )}
                       {plan.highlighted && countdown && (
-                        <div className="mt-3 flex items-center gap-2 text-xs text-slate-400">
-                          <Clock className="w-3.5 h-3.5 text-amber-400" />
+                        <div className="mt-3 flex items-center gap-2 text-xs text-app-muted">
+                          <Clock className="w-3.5 h-3.5 text-amber-600" />
                           <span>Oferta termina en:</span>
-                          <span className="font-mono font-semibold text-amber-400 tabular-nums">
+                          <span className="font-mono font-semibold text-amber-700 tabular-nums">
                             {countdown.d}d {countdown.h}h {countdown.m}m {countdown.s}s
                           </span>
                         </div>
                       )}
                       {plan.trial && (
-                        <p className="text-sm font-medium text-emerald-400 mt-2">{plan.trial}</p>
+                        <p className="text-sm font-medium text-emerald-600 mt-2">{plan.trial}</p>
                       )}
                     </div>
 
@@ -376,7 +373,7 @@ export default function PricingContent() {
                         type="button"
                         onClick={handleCheckout}
                         disabled={checkoutLoading}
-                        className="group flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl font-semibold text-sm transition-all duration-300 mb-8 bg-blue-500 hover:bg-blue-400 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/30 disabled:opacity-70 disabled:cursor-not-allowed"
+                        className="group flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-2xl font-semibold text-sm transition-all duration-300 mb-8 bg-app-charcoal hover:bg-app-charcoal/90 text-white shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
                       >
                         {checkoutLoading ? (
                           <>
@@ -395,10 +392,10 @@ export default function PricingContent() {
                         href={plan.ctaLink}
                         target={plan.ctaLink.startsWith('http') ? '_blank' : undefined}
                         rel={plan.ctaLink.startsWith('http') ? 'noopener noreferrer' : undefined}
-                        className={`group flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl font-semibold text-sm transition-all duration-300 mb-8 ${
+                        className={`group flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-2xl font-semibold text-sm transition-all duration-300 mb-8 ${
                           plan.highlighted
-                            ? 'bg-blue-500 hover:bg-blue-400 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/30'
-                            : 'bg-white/[0.04] hover:bg-white/[0.06] text-white border border-white/[0.06] hover:border-white/[0.1]'
+                            ? 'bg-app-charcoal hover:bg-app-charcoal/90 text-white shadow-md'
+                            : 'bg-app-field/80 hover:bg-app-field text-app-ink border border-app-line'
                         }`}
                       >
                         {plan.cta}
@@ -411,10 +408,10 @@ export default function PricingContent() {
                     )}
 
                     {/* Divider */}
-                    <div className={`border-t mb-6 border-white/[0.06]`} />
+                    <div className="border-t mb-6 border-app-line" />
 
                     {/* Features label */}
-                    <p className={`text-xs font-semibold uppercase tracking-wider mb-4 ${plan.highlighted ? 'text-slate-500' : 'text-slate-600'}`}>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] mb-4 text-app-muted">
                       Incluye
                     </p>
 
@@ -422,14 +419,10 @@ export default function PricingContent() {
                     <ul className="space-y-3">
                       {plan.features.map((feature) => (
                         <li key={feature} className="flex items-start gap-3">
-                          <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 mt-0.5 ${
-                            plan.highlighted
-                              ? 'bg-emerald-500/10 text-emerald-400'
-                              : 'bg-emerald-500/10 text-emerald-400'
-                          }`}>
+                          <div className="w-5 h-5 rounded-md flex items-center justify-center shrink-0 mt-0.5 bg-emerald-500/10 text-emerald-600">
                             <Check className="w-3 h-3" strokeWidth={3} />
                           </div>
-                          <span className={`text-sm leading-snug ${plan.highlighted ? 'text-slate-400' : 'text-slate-400'}`}>
+                          <span className="text-sm leading-snug text-app-muted">
                             {feature}
                           </span>
                         </li>
@@ -443,10 +436,10 @@ export default function PricingContent() {
 
           {/* Modal correo antes de checkout */}
           {showEmailModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => !checkoutLoading && setShowEmailModal(false)}>
-              <div className="bg-[#111827] border border-white/[0.06] rounded-2xl shadow-xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
-                <h3 className="text-lg font-semibold text-white mb-2">Introduce tu correo</h3>
-                <p className="text-sm text-slate-400 mb-4">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => !checkoutLoading && setShowEmailModal(false)}>
+              <div className="bg-white border border-app-line rounded-[22px] shadow-app-card max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+                <h3 className="text-lg font-semibold text-app-ink mb-2">Introduce tu correo</h3>
+                <p className="text-sm text-app-muted mb-4">
                   Lo usamos para tu cuenta y facturación. Si ya cancelaste una suscripción antes, no tendrás de nuevo los 14 días gratis.
                 </p>
                 <input
@@ -454,14 +447,14 @@ export default function PricingContent() {
                   value={checkoutEmail}
                   onChange={(e) => setCheckoutEmail(e.target.value)}
                   placeholder="tu@correo.com"
-                  className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder-slate-500 focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500/40 outline-none mb-4"
+                  className="w-full px-4 py-3 rounded-2xl bg-app-field border border-app-line text-app-ink placeholder-app-muted focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 outline-none mb-4"
                   onKeyDown={(e) => e.key === 'Enter' && handleCheckoutWithEmail()}
                 />
                 <div className="flex gap-3">
                   <button
                     type="button"
                     onClick={() => !checkoutLoading && setShowEmailModal(false)}
-                    className="flex-1 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-white border border-white/[0.06] hover:bg-white/[0.04] transition-colors"
+                    className="flex-1 py-2.5 rounded-2xl text-sm font-medium text-app-muted hover:text-app-ink border border-app-line hover:bg-app-field/80 transition-colors"
                   >
                     Cancelar
                   </button>
@@ -469,7 +462,7 @@ export default function PricingContent() {
                     type="button"
                     onClick={handleCheckoutWithEmail}
                     disabled={checkoutLoading}
-                    className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-blue-500 hover:bg-blue-400 text-white disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
+                    className="flex-1 py-2.5 rounded-2xl text-sm font-semibold bg-app-charcoal hover:bg-app-charcoal/90 text-white disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md"
                   >
                     {checkoutLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Redirigiendo...</> : 'Continuar a pago'}
                   </button>
@@ -479,10 +472,10 @@ export default function PricingContent() {
           )}
 
           {/* Trust + Aviso trial y cancelación */}
-          <p className="mt-8 text-center text-sm text-slate-400 max-w-lg mx-auto">
+          <p className="mt-8 text-center text-sm text-app-muted max-w-lg mx-auto">
             14 días de prueba gratis. Después se cobrarán $50/mes de forma automática. Puedes cancelar en cualquier momento desde tu cuenta o contactando a soporte.
           </p>
-          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-slate-500">
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-app-muted">
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-500" />
               <span>14 días gratis</span>
@@ -502,14 +495,14 @@ export default function PricingContent() {
 
 
       {/* How it works — Features */}
-      <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8">
+      <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-app-shell">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16 lg:mb-20">
-            <p className="text-blue-400 font-bold text-[11px] uppercase tracking-[0.14em] mb-4">Incluido en todos los planes</p>
-            <h2 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-white tracking-tight">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-app-muted mb-4">Incluido en todos los planes</p>
+            <h2 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-app-ink tracking-tight font-display">
               De QR a ventas automáticas
             </h2>
-            <p className="mt-4 text-lg text-slate-400 max-w-2xl mx-auto">
+            <p className="mt-4 text-lg text-app-muted max-w-2xl mx-auto">
               Conecta, entrena y vende. Sin código, sin complicaciones.
             </p>
           </div>
@@ -520,13 +513,13 @@ export default function PricingContent() {
               return (
                 <div
                   key={feature.title}
-                  className="group p-6 rounded-2xl bg-[#111827]/80 border border-white/[0.06] hover:border-white/[0.1] transition-all duration-300 hover:shadow-lg hover:shadow-black/20"
+                  className="group p-6 rounded-[22px] bg-white border border-app-line shadow-app-card transition-[border-color] duration-200 hover:border-app-line-strong"
                 >
-                  <div className={`w-12 h-12 rounded-xl ${accentMap[feature.accent]} flex items-center justify-center mb-4 transition-colors`}>
+                  <div className={`w-12 h-12 rounded-2xl ${accentMap[feature.accent]} flex items-center justify-center mb-4 transition-colors`}>
                     <Icon className="w-6 h-6" />
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                  <p className="text-slate-400 text-sm leading-relaxed">{feature.description}</p>
+                  <h3 className="text-lg font-semibold text-app-ink mb-2">{feature.title}</h3>
+                  <p className="text-app-muted text-sm leading-relaxed">{feature.description}</p>
                 </div>
               );
             })}
@@ -537,7 +530,7 @@ export default function PricingContent() {
 
 
       {/* Social Proof */}
-      <section className="py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-[#0d1220] border-y border-white/[0.04]">
+      <section className="py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-white border-y border-app-line">
         <div className="max-w-5xl mx-auto">
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
             {[
@@ -547,8 +540,8 @@ export default function PricingContent() {
               { value: '24/7', label: 'Soporte disponible' },
             ].map((stat, i) => (
               <div key={i}>
-                <p className="text-4xl lg:text-5xl font-bold text-white tracking-tight">{stat.value}</p>
-                <p className="mt-2 text-sm text-slate-400 font-medium">{stat.label}</p>
+                <p className="text-4xl lg:text-5xl font-bold text-app-ink tracking-tight font-display">{stat.value}</p>
+                <p className="mt-2 text-sm text-app-muted font-medium">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -558,11 +551,11 @@ export default function PricingContent() {
 
 
       {/* FAQ */}
-      <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8">
+      <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-app-shell">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-16">
-            <p className="text-blue-400 font-bold text-[11px] uppercase tracking-[0.14em] mb-4">Preguntas frecuentes</p>
-            <h2 className="text-3xl lg:text-4xl font-bold text-white tracking-tight">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-app-muted mb-4">Preguntas frecuentes</p>
+            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-tight font-display">
               Todo lo que necesitas saber
             </h2>
           </div>
@@ -571,11 +564,11 @@ export default function PricingContent() {
             {faqs.map((faq, i) => (
               <details
                 key={i}
-                className="group rounded-2xl bg-[#111827]/80 border border-white/[0.06] hover:border-white/[0.1] transition-colors overflow-hidden"
+                className="group rounded-[22px] bg-white border border-app-line shadow-app-card transition-colors overflow-hidden"
               >
-                <summary className="flex items-center justify-between cursor-pointer px-6 py-5 text-[15px] font-medium text-white hover:text-slate-200 transition-colors list-none [&::-webkit-details-marker]:hidden">
+                <summary className="flex items-center justify-between cursor-pointer px-6 py-5 text-[15px] font-medium text-app-ink hover:text-app-muted transition-colors list-none [&::-webkit-details-marker]:hidden">
                   {faq.q}
-                  <span className="ml-4 flex-shrink-0 w-6 h-6 rounded-lg bg-white/[0.06] flex items-center justify-center text-slate-500 group-open:rotate-45 transition-transform duration-200">
+                  <span className="ml-4 flex-shrink-0 w-6 h-6 rounded-lg bg-app-field flex items-center justify-center text-app-muted group-open:rotate-45 transition-transform duration-200">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
                       <line x1="6" y1="1" x2="6" y2="11" />
                       <line x1="1" y1="6" x2="11" y2="6" />
@@ -583,7 +576,7 @@ export default function PricingContent() {
                   </span>
                 </summary>
                 <div className="px-6 pb-5">
-                  <p className="text-sm text-slate-400 leading-relaxed">{faq.a}</p>
+                  <p className="text-sm text-app-muted leading-relaxed">{faq.a}</p>
                 </div>
               </details>
             ))}
@@ -594,26 +587,26 @@ export default function PricingContent() {
 
 
       {/* Bottom CTA */}
-      <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#0d1220] to-[#0a0f1a] border-t border-white/[0.04]">
+      <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-app-charcoal text-white border-t border-black/10">
         <div className="max-w-3xl mx-auto text-center">
-          <div className="w-12 h-12 mx-auto mb-6 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-            <Shield className="w-6 h-6 text-blue-400" />
+          <div className="w-12 h-12 mx-auto mb-6 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center">
+            <Shield className="w-6 h-6 text-white" />
           </div>
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4 tracking-tight">14 días gratis</h2>
-          <p className="text-lg text-slate-400 mb-10 leading-relaxed max-w-lg mx-auto">
+          <h2 className="text-3xl lg:text-4xl font-bold mb-4 tracking-tight font-display">14 días gratis</h2>
+          <p className="text-lg text-white/80 mb-10 leading-relaxed max-w-lg mx-auto">
             Prueba el plan completo. Cancela cuando quieras, sin compromisos.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
               href="/register"
-              className="group inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 bg-blue-500 hover:bg-blue-400 text-white text-base font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/30 hover:scale-[1.02]"
+              className="group inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 bg-white text-app-charcoal hover:bg-white/95 text-base font-semibold rounded-2xl transition-all duration-200 shadow-lg"
             >
               Empezar gratis
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
             </a>
             <a
               href="/contacto"
-              className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 text-slate-400 hover:text-white text-base font-semibold transition-colors"
+              className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 text-white/90 hover:text-white text-base font-semibold transition-colors"
             >
               Contactar ventas
             </a>

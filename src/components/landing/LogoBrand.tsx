@@ -38,9 +38,9 @@ export default function LogoBrand({ size = 'md', href = '/', showText = true }: 
       
       {/* Brand Text */}
       {showText && (
-        <span className={`${s.text} font-bold tracking-tight leading-none`}>
-          <span className="text-white">wazapp</span>
-          <span className="text-blue-400">.ai</span>
+        <span className={`${s.text} font-bold tracking-tight leading-none font-display`}>
+          <span className="text-app-ink">wazapp</span>
+          <span className="text-brand-600">.ai</span>
         </span>
       )}
     </>

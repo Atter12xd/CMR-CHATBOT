@@ -6,7 +6,6 @@ import {
   ShoppingCart,
   Headphones,
   ChevronDown,
-  ChevronUp,
   Play,
 } from 'lucide-react';
 
@@ -34,18 +33,18 @@ const guides = [
 
 const guideAccentMap = {
   brand: {
-    iconBg: 'bg-blue-500/10 border border-blue-500/15 group-hover:bg-blue-500/20',
-    iconText: 'text-blue-400',
-    bar: 'bg-blue-500',
+    iconBg: 'bg-brand-500/10 border border-brand-500/20 group-hover:bg-brand-500/15',
+    iconText: 'text-brand-600',
+    bar: 'bg-brand-500',
   },
   emerald: {
-    iconBg: 'bg-emerald-500/10 border border-emerald-500/15 group-hover:bg-emerald-500/20',
-    iconText: 'text-emerald-400',
+    iconBg: 'bg-emerald-500/10 border border-emerald-500/20 group-hover:bg-emerald-500/15',
+    iconText: 'text-emerald-600',
     bar: 'bg-emerald-500',
   },
   amber: {
-    iconBg: 'bg-amber-500/10 border border-amber-500/15 group-hover:bg-amber-500/20',
-    iconText: 'text-amber-400',
+    iconBg: 'bg-amber-500/10 border border-amber-500/20 group-hover:bg-amber-500/15',
+    iconText: 'text-amber-600',
     bar: 'bg-amber-500',
   },
 };
@@ -98,23 +97,20 @@ export default function RecursosContent() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-[#0a0f1a] text-white font-sans antialiased">
+    <div className="min-h-screen bg-app-shell text-app-ink font-professional antialiased">
 
       {/* Hero */}
-      <section className="relative pt-20 pb-14 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0d1220] via-[#0a0f1a] to-[#0a0f1a]" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
-
+      <section className="relative pt-20 pb-14 px-4 sm:px-6 lg:px-8 overflow-hidden bg-app-canvas">
         <div className="relative max-w-3xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#111827]/80 border border-white/[0.06] mb-8">
-            <BookOpen className="w-4 h-4 text-blue-400" />
-            <span className="text-sm text-slate-300 font-medium">Centro de recursos</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-app-line bg-white shadow-app-card mb-8">
+            <BookOpen className="w-4 h-4 text-brand-600" />
+            <span className="text-sm text-app-muted font-medium">Centro de recursos</span>
           </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.1] mb-6">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-app-ink tracking-tight leading-[1.1] mb-6 font-display">
             Aprende a vender más
             <span className="block mt-2 text-gradient-brand">por WhatsApp</span>
           </h1>
-          <p className="text-lg text-slate-400 max-w-xl mx-auto leading-relaxed">
+          <p className="text-lg text-app-muted max-w-xl mx-auto leading-relaxed">
             Guías, vídeos y preguntas frecuentes para sacar el máximo partido a wazapp.
           </p>
         </div>
@@ -122,14 +118,14 @@ export default function RecursosContent() {
 
 
       {/* Guías */}
-      <section className="py-20 lg:py-24 px-4 sm:px-6 lg:px-8">
+      <section className="py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-app-shell">
         <div className="max-w-6xl mx-auto">
           <div className="mb-12">
-            <p className="text-blue-400 font-bold text-[11px] uppercase tracking-[0.14em] mb-4">Guías</p>
-            <h2 className="text-3xl lg:text-4xl font-bold text-white tracking-tight">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-app-muted mb-4">Guías</p>
+            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-tight font-display">
               Empieza por aquí
             </h2>
-            <p className="mt-3 text-slate-400 max-w-xl">
+            <p className="mt-3 text-app-muted max-w-xl">
               Todo lo que necesitas para configurar tu negocio en wazapp desde cero.
             </p>
           </div>
@@ -142,18 +138,18 @@ export default function RecursosContent() {
                 <a
                   key={guide.title}
                   href="#"
-                  className="group relative block rounded-2xl bg-[#111827]/80 border border-white/[0.06] hover:border-white/[0.1] transition-all duration-300 hover:shadow-lg hover:shadow-black/20 overflow-hidden"
+                  className="group relative block rounded-[22px] bg-white border border-app-line shadow-app-card transition-[border-color,box-shadow] duration-200 hover:border-app-line-strong overflow-hidden"
                 >
                   <div className={`h-1 ${accent.bar} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
                   <div className="p-6">
-                    <div className={`w-12 h-12 rounded-xl ${accent.iconBg} flex items-center justify-center mb-5 transition-colors`}>
+                    <div className={`w-12 h-12 rounded-2xl ${accent.iconBg} flex items-center justify-center mb-5 transition-colors`}>
                       <Icon className={`w-6 h-6 ${accent.iconText}`} />
                     </div>
-                    <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-slate-100 transition-colors">
+                    <h3 className="text-lg font-semibold text-app-ink mb-2 transition-colors">
                       {guide.title}
                     </h3>
-                    <p className="text-slate-400 text-sm leading-relaxed">{guide.description}</p>
-                    <span className="inline-flex items-center gap-1.5 mt-5 text-sm font-medium text-blue-400 group-hover:text-blue-300 transition-colors">
+                    <p className="text-app-muted text-sm leading-relaxed">{guide.description}</p>
+                    <span className="inline-flex items-center gap-1.5 mt-5 text-sm font-medium text-brand-600 group-hover:text-brand-500 transition-colors">
                       Leer guía
                       <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -169,14 +165,14 @@ export default function RecursosContent() {
 
 
       {/* Vídeos */}
-      <section className="py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-[#0d1220] border-y border-white/[0.04]">
+      <section className="py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-white border-y border-app-line">
         <div className="max-w-6xl mx-auto">
           <div className="mb-12">
-            <p className="text-blue-400 font-bold text-[11px] uppercase tracking-[0.14em] mb-4">Vídeos</p>
-            <h2 className="text-3xl lg:text-4xl font-bold text-white tracking-tight">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-app-muted mb-4">Vídeos</p>
+            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-tight font-display">
               Aprende en minutos
             </h2>
-            <p className="mt-3 text-slate-400 max-w-xl">
+            <p className="mt-3 text-app-muted max-w-xl">
               Tutoriales cortos para que configures todo sin complicaciones.
             </p>
           </div>
@@ -185,26 +181,26 @@ export default function RecursosContent() {
             {videos.map((video) => (
               <div
                 key={video.title}
-                className="group rounded-2xl overflow-hidden bg-[#111827]/80 border border-white/[0.06] hover:border-white/[0.1] transition-all duration-300 hover:shadow-lg hover:shadow-black/20 cursor-pointer"
+                className="group rounded-[22px] overflow-hidden bg-white border border-app-line shadow-app-card transition-[border-color] duration-200 hover:border-app-line-strong cursor-pointer"
               >
-                <div className="relative aspect-video bg-white/[0.04]">
+                <div className="relative aspect-video bg-app-field">
                   <img
                     src={video.thumbnail}
                     alt={video.title}
-                    className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity duration-300"
+                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-14 h-14 rounded-full bg-blue-500/90 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-400 transition-all duration-300 shadow-xl shadow-blue-500/30">
+                    <div className="w-14 h-14 rounded-full bg-app-charcoal flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-lg">
                       <Play className="w-5 h-5 text-white fill-white ml-0.5" />
                     </div>
                   </div>
-                  <span className="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-[#111827]/90 backdrop-blur-sm text-xs text-slate-300 font-medium border border-white/[0.06]">
+                  <span className="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-white/95 backdrop-blur-sm text-xs text-app-ink font-medium border border-app-line">
                     {video.duration}
                   </span>
                 </div>
                 <div className="p-5">
-                  <h3 className="font-semibold text-white group-hover:text-slate-100 transition-colors">{video.title}</h3>
+                  <h3 className="font-semibold text-app-ink transition-colors">{video.title}</h3>
                 </div>
               </div>
             ))}
@@ -214,11 +210,11 @@ export default function RecursosContent() {
 
 
       {/* FAQ */}
-      <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8">
+      <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-app-shell">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-16">
-            <p className="text-blue-400 font-bold text-[11px] uppercase tracking-[0.14em] mb-4">Preguntas frecuentes</p>
-            <h2 className="text-3xl lg:text-4xl font-bold text-white tracking-tight">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-app-muted mb-4">Preguntas frecuentes</p>
+            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-tight font-display">
               Todo lo que necesitas saber
             </h2>
           </div>
@@ -227,18 +223,16 @@ export default function RecursosContent() {
             {faqs.map((faq, i) => (
               <div
                 key={i}
-                className={`rounded-2xl bg-[#111827]/80 border transition-colors overflow-hidden ${
-                  openFaq === i
-                    ? 'border-white/[0.1]'
-                    : 'border-white/[0.06] hover:border-white/[0.1]'
+                className={`rounded-[22px] bg-white border border-app-line shadow-app-card transition-colors overflow-hidden ${
+                  openFaq === i ? 'border-app-line-strong' : 'hover:border-app-line-strong'
                 }`}
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full flex items-center justify-between cursor-pointer px-6 py-5 text-left transition-colors"
                 >
-                  <span className="text-[15px] font-medium text-white pr-4">{faq.q}</span>
-                  <span className={`ml-4 flex-shrink-0 w-6 h-6 rounded-lg bg-white/[0.06] flex items-center justify-center text-slate-500 transition-transform duration-200 ${
+                  <span className="text-[15px] font-medium text-app-ink pr-4">{faq.q}</span>
+                  <span className={`ml-4 flex-shrink-0 w-6 h-6 rounded-lg bg-app-field flex items-center justify-center text-app-muted transition-transform duration-200 ${
                     openFaq === i ? 'rotate-180' : ''
                   }`}>
                     <ChevronDown className="w-4 h-4" />
@@ -251,7 +245,7 @@ export default function RecursosContent() {
                 >
                   <div className="overflow-hidden">
                     <div className="px-6 pb-5">
-                      <p className="text-sm text-slate-400 leading-relaxed">{faq.a}</p>
+                      <p className="text-sm text-app-muted leading-relaxed">{faq.a}</p>
                     </div>
                   </div>
                 </div>
@@ -263,20 +257,20 @@ export default function RecursosContent() {
 
 
       {/* Bottom CTA */}
-      <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#0d1220] to-[#0a0f1a] border-t border-white/[0.04]">
+      <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-app-charcoal text-white border-t border-black/10">
         <div className="max-w-3xl mx-auto text-center">
-          <div className="w-12 h-12 mx-auto mb-6 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-            <HelpCircle className="w-6 h-6 text-blue-400" />
+          <div className="w-12 h-12 mx-auto mb-6 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center">
+            <HelpCircle className="w-6 h-6 text-white" />
           </div>
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4 tracking-tight">
+          <h2 className="text-3xl lg:text-4xl font-bold mb-4 tracking-tight font-display">
             ¿No encuentras lo que buscas?
           </h2>
-          <p className="text-lg text-slate-400 mb-10 leading-relaxed max-w-lg mx-auto">
+          <p className="text-lg text-white/80 mb-10 leading-relaxed max-w-lg mx-auto">
             Nuestro equipo de soporte está listo para ayudarte con cualquier duda.
           </p>
           <a
             href="/contacto"
-            className="group inline-flex items-center gap-2 px-8 py-4 bg-blue-500 hover:bg-blue-400 text-white text-base font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/30 hover:scale-[1.02]"
+            className="group inline-flex items-center gap-2 px-8 py-4 bg-white text-app-charcoal hover:bg-white/95 text-base font-semibold rounded-2xl transition-all duration-200 shadow-lg hover:scale-[1.02]"
           >
             Contactar soporte
             <svg className="w-5 h-5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

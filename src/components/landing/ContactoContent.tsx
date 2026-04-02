@@ -19,15 +19,15 @@ export default function ContactoContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0f1a] text-white">
-      <section className="py-12 lg:py-20 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-app-shell font-professional text-app-ink">
+      <section className="py-12 lg:py-20 px-4 sm:px-6 lg:px-8 bg-app-canvas">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center mb-16">
-            <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight mb-4">
+            <h1 className="text-4xl sm:text-5xl font-bold text-app-ink tracking-tight mb-4 font-display">
               ¿Cómo podemos ayudarte?
             </h1>
-            <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+            <p className="text-lg text-app-muted max-w-2xl mx-auto">
               Estamos aquí para responder tus dudas sobre planes, integraciones o cualquier otra consulta.
             </p>
           </div>
@@ -41,7 +41,7 @@ export default function ContactoContent() {
                   <Mail className="w-5 h-5 text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white mb-1">Email</h3>
+                  <h3 className="font-semibold text-app-ink mb-1">Email</h3>
                   <a 
                     href="mailto:hola@wazapp.ai" 
                     className="text-blue-400 hover:text-blue-300 transition-colors"
@@ -58,8 +58,8 @@ export default function ContactoContent() {
                   <MessageSquare className="w-5 h-5 text-emerald-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white mb-1">Soporte en app</h3>
-                  <p className="text-slate-400 text-sm">
+                  <h3 className="font-semibold text-app-ink mb-1">Soporte en app</h3>
+                  <p className="text-app-muted text-sm">
                     Si ya tienes cuenta, usa el chat de ayuda dentro de la plataforma para soporte más rápido.
                   </p>
                 </div>
@@ -71,8 +71,8 @@ export default function ContactoContent() {
                   <Clock className="w-5 h-5 text-amber-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white mb-1">Horario de atención</h3>
-                  <p className="text-slate-400 text-sm">
+                  <h3 className="font-semibold text-app-ink mb-1">Horario de atención</h3>
+                  <p className="text-app-muted text-sm">
                     Lunes a Viernes: 9:00 - 18:00 (GMT-5)
                   </p>
                   <p className="text-slate-500 text-sm">
@@ -82,24 +82,24 @@ export default function ContactoContent() {
               </div>
 
               {/* Divider */}
-              <div className="border-t border-white/[0.06] pt-8">
-                <h3 className="font-semibold text-white mb-4">¿Buscas algo específico?</h3>
+              <div className="border-t border-app-line pt-8">
+                <h3 className="font-semibold text-app-ink mb-4">¿Buscas algo específico?</h3>
                 <div className="space-y-3">
                   <a 
                     href="/precios" 
-                    className="block text-slate-400 hover:text-white text-sm transition-colors"
+                    className="block text-app-muted hover:text-app-ink text-sm transition-colors"
                   >
                     → Ver planes y precios
                   </a>
                   <a 
                     href="/recursos" 
-                    className="block text-slate-400 hover:text-white text-sm transition-colors"
+                    className="block text-app-muted hover:text-app-ink text-sm transition-colors"
                   >
                     → Centro de ayuda y guías
                   </a>
                   <a 
                     href="/sobre-nosotros" 
-                    className="block text-slate-400 hover:text-white text-sm transition-colors"
+                    className="block text-app-muted hover:text-app-ink text-sm transition-colors"
                   >
                     → Sobre nosotros
                   </a>
@@ -109,14 +109,14 @@ export default function ContactoContent() {
 
             {/* Contact Form */}
             <div className="lg:col-span-3">
-              <div className="rounded-2xl bg-[#111827]/80 border border-white/[0.06] p-8">
+              <div className="rounded-[22px] bg-white border border-app-line shadow-app-card p-8">
                 {sent ? (
                   <div className="text-center py-12">
                     <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-6">
                       <CheckCircle2 className="w-8 h-8 text-emerald-400" />
                     </div>
-                    <h3 className="text-xl font-semibold text-white mb-2">¡Mensaje enviado!</h3>
-                    <p className="text-slate-400">
+                    <h3 className="text-xl font-semibold text-app-ink mb-2 font-display">¡Mensaje enviado!</h3>
+                    <p className="text-app-muted">
                       Te responderemos lo antes posible. Revisa tu bandeja de entrada.
                     </p>
                     <button
@@ -136,7 +136,7 @@ export default function ContactoContent() {
                     {/* Name & Email Row */}
                     <div className="grid sm:grid-cols-2 gap-5">
                       <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-2">
+                        <label htmlFor="name" className="block text-sm font-medium text-app-ink mb-2">
                           Nombre
                         </label>
                         <input
@@ -145,12 +145,12 @@ export default function ContactoContent() {
                           value={name}
                           onChange={(e) => setName(e.target.value)}
                           required
-                          className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500/40 transition-all"
+                          className="w-full px-4 py-3 rounded-2xl bg-app-field border border-app-line text-app-ink placeholder-app-muted focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 transition-all"
                           placeholder="Tu nombre"
                         />
                       </div>
                       <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
+                        <label htmlFor="email" className="block text-sm font-medium text-app-ink mb-2">
                           Email
                         </label>
                         <input
@@ -159,7 +159,7 @@ export default function ContactoContent() {
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
-                          className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500/40 transition-all"
+                          className="w-full px-4 py-3 rounded-2xl bg-app-field border border-app-line text-app-ink placeholder-app-muted focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 transition-all"
                           placeholder="tu@email.com"
                         />
                       </div>
@@ -167,14 +167,14 @@ export default function ContactoContent() {
 
                     {/* Subject */}
                     <div>
-                      <label htmlFor="subject" className="block text-sm font-medium text-slate-300 mb-2">
+                      <label htmlFor="subject" className="block text-sm font-medium text-app-ink mb-2">
                         Asunto
                       </label>
                       <select
                         id="subject"
                         value={subject}
                         onChange={(e) => setSubject(e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white focus:outline-none focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500/40 transition-all"
+                        className="w-full px-4 py-3 rounded-2xl bg-app-field border border-app-line text-app-ink focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 transition-all"
                       >
                         <option value="general">Consulta general</option>
                         <option value="ventas">Planes y precios</option>
@@ -186,7 +186,7 @@ export default function ContactoContent() {
 
                     {/* Message */}
                     <div>
-                      <label htmlFor="message" className="block text-sm font-medium text-slate-300 mb-2">
+                      <label htmlFor="message" className="block text-sm font-medium text-app-ink mb-2">
                         Mensaje
                       </label>
                       <textarea
@@ -195,7 +195,7 @@ export default function ContactoContent() {
                         onChange={(e) => setMessage(e.target.value)}
                         required
                         rows={5}
-                        className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500/40 transition-all resize-none"
+                        className="w-full px-4 py-3 rounded-2xl bg-app-field border border-app-line text-app-ink placeholder-app-muted focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 transition-all resize-none"
                         placeholder="Cuéntanos en qué podemos ayudarte..."
                       />
                     </div>
@@ -204,7 +204,7 @@ export default function ContactoContent() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-blue-500 hover:bg-blue-400 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-app-charcoal hover:bg-app-charcoal/90 text-white font-semibold rounded-2xl transition-all duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? (
                         <>

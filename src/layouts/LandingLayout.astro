@@ -1,4 +1,6 @@
 ---
+import '../styles/app.css';
+
 interface Props {
   title: string;
   description?: string;
@@ -37,22 +39,22 @@ const { title, description = "Wazapp - Centraliza conversaciones de WhatsApp, ge
       }
       
       ::-webkit-scrollbar-track {
-        background: #0a0f1a;
+        background: #f3f5f8;
       }
       
       ::-webkit-scrollbar-thumb {
-        background: #334155;
+        background: #c5cad3;
         border-radius: 4px;
       }
       
       ::-webkit-scrollbar-thumb:hover {
-        background: #475569;
+        background: #9ea3ae;
       }
       
       /* Selection color */
       ::selection {
-        background: rgba(42, 139, 255, 0.3);
-        color: #fff;
+        background: rgba(42, 139, 255, 0.2);
+        color: #0f172a;
       }
       
       /* Focus visible for accessibility */
@@ -134,7 +136,7 @@ const { title, description = "Wazapp - Centraliza conversaciones de WhatsApp, ge
       }
     </style>
   </head>
-  <body class="font-sans bg-[#0a0f1a] text-white antialiased overflow-x-hidden">
+  <body class="font-sans bg-app-shell text-app-ink antialiased overflow-x-hidden">
     <slot />
     <!-- Recarga una vez si falla la hidratación por chunk 404 (deploy nuevo, caché antigua en otro navegador) -->
     <script is:inline>

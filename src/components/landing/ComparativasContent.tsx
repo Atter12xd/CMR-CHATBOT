@@ -18,31 +18,31 @@ const competitors = [
 
 export default function ComparativasContent() {
   return (
-    <div className="min-h-screen bg-[#0a0f1a] text-white">
-      <section className="py-20 md:py-28 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-app-shell font-professional text-app-ink">
+      <section className="py-20 md:py-28 px-4 sm:px-6 lg:px-8 bg-app-canvas">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold text-app-ink mb-4 font-display">
               wazapp.ai vs otras soluciones
             </h1>
-            <p className="text-xl text-slate-400">
+            <p className="text-xl text-app-muted">
               Todo lo que necesitas para vender por WhatsApp, sin pagar de más.
             </p>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-white/[0.06] bg-[#111827]/80">
+          <div className="overflow-x-auto rounded-[22px] border border-app-line bg-white shadow-app-card">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-white/[0.06]">
-                  <th className="text-left p-6 font-semibold text-white">Característica</th>
-                  <th className="p-6 font-semibold text-blue-400">wazapp.ai</th>
-                  <th className="p-6 font-semibold text-slate-400">Otras soluciones</th>
+                <tr className="border-b border-app-line">
+                  <th className="text-left p-6 font-semibold text-app-ink">Característica</th>
+                  <th className="p-6 font-semibold text-brand-600">wazapp.ai</th>
+                  <th className="p-6 font-semibold text-app-muted">Otras soluciones</th>
                 </tr>
               </thead>
               <tbody>
                 {features.map((feature, i) => (
-                  <tr key={feature} className="border-b border-white/[0.06] last:border-0">
-                    <td className="p-6 text-slate-300">{feature}</td>
+                  <tr key={feature} className="border-b border-app-line last:border-0">
+                    <td className="p-6 text-app-ink">{feature}</td>
                     <td className="p-6 text-center">
                       <Check className="w-5 h-5 text-emerald-500 mx-auto" />
                     </td>
@@ -62,7 +62,7 @@ export default function ComparativasContent() {
           <div className="mt-12 text-center">
             <a
               href="/register"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-blue-500 text-white font-semibold rounded-xl hover:bg-blue-400 transition-colors shadow-lg shadow-blue-500/20"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-app-charcoal text-white font-semibold rounded-2xl hover:bg-app-charcoal/90 transition-colors shadow-md"
             >
               Probar wazapp.ai gratis
             </a>

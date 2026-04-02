@@ -27,40 +27,33 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="relative bg-[#0a0f1a] border-t border-white/[0.06]">
-      {/* Subtle gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0d1220]/80 to-transparent pointer-events-none" />
-      
+    <footer className="relative bg-white border-t border-app-line font-professional">
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Main Footer Content */}
         <div className="py-16 lg:py-20">
           <div className="grid grid-cols-2 md:grid-cols-12 gap-8 lg:gap-12">
-            {/* Brand Column */}
             <div className="col-span-2 md:col-span-4 lg:col-span-5">
               <LogoBrand size="md" href="/" />
-              <p className="mt-4 text-slate-400 text-sm leading-relaxed max-w-sm">
+              <p className="mt-4 text-app-muted text-sm leading-relaxed max-w-sm">
                 Centraliza tus conversaciones de WhatsApp, gestiona pedidos y aumenta tus ventas desde un solo lugar.
               </p>
-              
-              {/* Social Links */}
+
               <div className="flex items-center gap-2 mt-6">
                 {socialLinks.map((social) => (
                   <a
                     key={social.label}
                     href={social.href}
-                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/[0.04] border border-white/[0.06] text-slate-400 hover:bg-white/[0.06] hover:text-white transition-colors"
+                    className="w-10 h-10 flex items-center justify-center rounded-2xl border border-app-line bg-app-field/50 text-app-muted hover:bg-app-field hover:text-app-ink transition-colors"
                     aria-label={social.label}
                   >
                     <social.icon className="w-4 h-4" />
                   </a>
                 ))}
               </div>
-              
-              {/* Contact Info */}
+
               <div className="mt-6 space-y-2">
-                <a 
-                  href="mailto:hola@wazapp.ai" 
-                  className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors"
+                <a
+                  href="mailto:hola@wazapp.ai"
+                  className="flex items-center gap-2 text-sm text-app-muted hover:text-app-ink transition-colors"
                 >
                   <Mail className="w-4 h-4" />
                   hola@wazapp.ai
@@ -68,16 +61,12 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* Links Columns */}
             <div className="col-span-1 md:col-span-2">
-              <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.14em] mb-4">Producto</h4>
+              <h4 className="text-[11px] font-semibold text-app-muted uppercase tracking-[0.14em] mb-4">Producto</h4>
               <ul className="space-y-3">
                 {footerLinks.producto.map((link) => (
                   <li key={link.href}>
-                    <a
-                      href={link.href}
-                      className="text-sm text-slate-400 hover:text-white transition-colors inline-block"
-                    >
+                    <a href={link.href} className="text-sm text-app-muted hover:text-app-ink transition-colors inline-block">
                       {link.label}
                     </a>
                   </li>
@@ -86,14 +75,11 @@ export default function Footer() {
             </div>
 
             <div className="col-span-1 md:col-span-2">
-              <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.14em] mb-4">Empresa</h4>
+              <h4 className="text-[11px] font-semibold text-app-muted uppercase tracking-[0.14em] mb-4">Empresa</h4>
               <ul className="space-y-3">
                 {footerLinks.empresa.map((link) => (
                   <li key={link.href}>
-                    <a
-                      href={link.href}
-                      className="text-sm text-slate-400 hover:text-white transition-colors inline-block"
-                    >
+                    <a href={link.href} className="text-sm text-app-muted hover:text-app-ink transition-colors inline-block">
                       {link.label}
                     </a>
                   </li>
@@ -102,14 +88,11 @@ export default function Footer() {
             </div>
 
             <div className="col-span-1 md:col-span-2">
-              <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.14em] mb-4">Legal</h4>
+              <h4 className="text-[11px] font-semibold text-app-muted uppercase tracking-[0.14em] mb-4">Legal</h4>
               <ul className="space-y-3">
                 {footerLinks.legal.map((link) => (
                   <li key={link.href}>
-                    <a
-                      href={link.href}
-                      className="text-sm text-slate-400 hover:text-white transition-colors inline-block"
-                    >
+                    <a href={link.href} className="text-sm text-app-muted hover:text-app-ink transition-colors inline-block">
                       {link.label}
                     </a>
                   </li>
@@ -117,15 +100,14 @@ export default function Footer() {
               </ul>
             </div>
 
-            {/* Newsletter or CTA Column */}
             <div className="col-span-2 md:col-span-4 lg:col-span-3">
-              <h4 className="text-sm font-semibold text-white mb-4">¿Listo para empezar?</h4>
-              <p className="text-sm text-slate-400 mb-4">
-                Crea tu cuenta gratis y empieza a vender más por WhatsApp hoy mismo.
+              <h4 className="text-sm font-semibold text-app-ink mb-4">¿Listo para empezar?</h4>
+              <p className="text-sm text-app-muted mb-4">
+                Crea tu cuenta gratis y empieza a vendir más por WhatsApp hoy mismo.
               </p>
               <a
                 href="/register"
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-400 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-blue-500/20"
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-app-charcoal hover:bg-app-charcoal/90 text-white text-sm font-semibold rounded-2xl transition-colors shadow-md shadow-black/10"
               >
                 Crear cuenta gratis
               </a>
@@ -133,16 +115,13 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="py-6 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-slate-500">
-            © {new Date().getFullYear()} wazapp.ai — Todos los derechos reservados
-          </p>
+        <div className="py-6 border-t border-app-line flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-sm text-app-muted">© {new Date().getFullYear()} wazapp.ai — Todos los derechos reservados</p>
           <div className="flex items-center gap-6">
-            <a href="/login" className="text-sm text-slate-500 hover:text-white transition-colors">
+            <a href="/login" className="text-sm text-app-muted hover:text-app-ink transition-colors">
               Iniciar sesión
             </a>
-            <a href="/register" className="text-sm text-slate-500 hover:text-white transition-colors">
+            <a href="/register" className="text-sm text-app-muted hover:text-app-ink transition-colors">
               Registrarse
             </a>
           </div>

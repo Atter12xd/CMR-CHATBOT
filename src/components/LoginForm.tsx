@@ -61,23 +61,19 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center pt-24 pb-16 px-4 sm:px-6 lg:px-8">
-      {/* Background subtle gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0d1220] via-[#0a0f1a] to-[#0d1220] pointer-events-none" />
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
-      
+    <div className="min-h-screen flex items-center justify-center pt-24 pb-16 px-4 sm:px-6 lg:px-8 font-professional relative bg-app-canvas">
+      <div className="absolute inset-0 bg-app-canvas pointer-events-none" />
+
       <div className="relative max-w-md w-full">
-        {/* Card */}
-        <div className="rounded-2xl border border-white/[0.06] bg-[#111827]/80 backdrop-blur-xl shadow-2xl shadow-black/30 p-8 sm:p-10">
-          {/* Header */}
+        <div className="rounded-[22px] border border-app-line bg-white shadow-app-card p-8 sm:p-10">
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
               <LogoBrand size="lg" href="/" />
             </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-2xl font-bold text-app-ink tracking-tight font-display">
               Bienvenido de vuelta
             </h1>
-            <p className="mt-2 text-sm text-slate-400">
+            <p className="mt-2 text-sm text-app-muted">
               Ingresa tus credenciales para acceder
             </p>
           </div>
@@ -86,7 +82,7 @@ export default function LoginForm() {
           <form className="space-y-5" onSubmit={handleSubmit}>
             {/* Error Alert */}
             {error && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl flex items-start gap-3 animate-fade-in">
+              <div className="bg-red-500/10 border border-red-500/20 text-red-700 px-4 py-3 rounded-2xl flex items-start gap-3 animate-fade-in">
                 <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
                 <p className="text-sm">{error}</p>
               </div>
@@ -94,12 +90,12 @@ export default function LoginForm() {
 
             {/* Email Field */}
             <div className="space-y-2">
-              <label htmlFor="email" className="block text-sm font-medium text-slate-300">
+              <label htmlFor="email" className="block text-sm font-medium text-app-ink">
                 Correo electrónico
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
+                  <Mail className="h-5 w-5 text-app-muted group-focus-within:text-brand-600 transition-colors" />
                 </div>
                 <input
                   id="email"
@@ -112,7 +108,7 @@ export default function LoginForm() {
                     setEmail(e.target.value);
                     setError(null);
                   }}
-                  className="block w-full pl-12 pr-4 py-3.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500/40 transition-all duration-200"
+                  className="block w-full pl-12 pr-4 py-3.5 bg-app-field border border-app-line rounded-2xl text-app-ink placeholder-app-muted focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 transition-all duration-200"
                   placeholder="tu@email.com"
                 />
               </div>
@@ -121,19 +117,19 @@ export default function LoginForm() {
             {/* Password Field */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm font-medium text-slate-300">
+                <label htmlFor="password" className="block text-sm font-medium text-app-ink">
                   Contraseña
                 </label>
                 <a
                   href="/forgot-password"
-                  className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                  className="text-sm text-brand-600 hover:text-brand-500 transition-colors"
                 >
                   ¿Olvidaste tu contraseña?
                 </a>
               </div>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
+                  <Lock className="h-5 w-5 text-app-muted group-focus-within:text-brand-600 transition-colors" />
                 </div>
                 <input
                   id="password"
@@ -146,13 +142,13 @@ export default function LoginForm() {
                     setPassword(e.target.value);
                     setError(null);
                   }}
-                  className="block w-full pl-12 pr-12 py-3.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500/40 transition-all duration-200"
+                  className="block w-full pl-12 pr-12 py-3.5 bg-app-field border border-app-line rounded-2xl text-app-ink placeholder-app-muted focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 transition-all duration-200"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-app-muted hover:text-app-ink transition-colors"
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -163,7 +159,7 @@ export default function LoginForm() {
             <button
               type="submit"
               disabled={loading || authLoading || !email.trim() || !password}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-blue-500 hover:bg-blue-400 text-white rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:ring-offset-2 focus:ring-offset-[#0a0f1a] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/25 mt-6"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-app-charcoal hover:bg-app-charcoal/90 text-white rounded-2xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:ring-offset-2 focus:ring-offset-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md shadow-black/15 mt-6"
             >
               {loading || authLoading ? (
                 <>
@@ -182,17 +178,17 @@ export default function LoginForm() {
           {/* Divider */}
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/[0.06]"></div>
+              <div className="w-full border-t border-app-line"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-[#111827]/80 text-slate-500">¿Nuevo en Wazapp?</span>
+              <span className="px-4 bg-white text-app-muted">¿Nuevo en Wazapp?</span>
             </div>
           </div>
 
           {/* Register Link */}
           <a
             href="/register"
-            className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-white/[0.04] hover:bg-white/[0.06] text-white rounded-xl text-sm font-semibold border border-white/[0.06] hover:border-white/[0.1] transition-all duration-200"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-app-field/50 hover:bg-app-field text-app-ink rounded-2xl text-sm font-semibold border border-app-line transition-all duration-200"
           >
             Crear cuenta gratis
             <ArrowRight className="h-4 w-4" />
@@ -200,11 +196,11 @@ export default function LoginForm() {
         </div>
 
         {/* Footer Text */}
-        <p className="mt-8 text-center text-xs text-slate-500">
+        <p className="mt-8 text-center text-xs text-app-muted">
           Al continuar, aceptas nuestros{' '}
-          <a href="/terminos" className="text-slate-400 hover:text-white transition-colors">Términos</a>
+          <a href="/terminos" className="text-app-ink hover:text-brand-600 transition-colors">Términos</a>
           {' '}y{' '}
-          <a href="/privacidad" className="text-slate-400 hover:text-white transition-colors">Privacidad</a>
+          <a href="/privacidad" className="text-app-ink hover:text-brand-600 transition-colors">Privacidad</a>
         </p>
       </div>
     </div>

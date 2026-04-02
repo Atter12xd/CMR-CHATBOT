@@ -23,14 +23,14 @@ const posts = [
 
 export default function BlogContent() {
   return (
-    <div className="min-h-screen bg-[#0a0f1a] text-white">
-      <section className="py-20 md:py-28 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-app-shell font-professional text-app-ink">
+      <section className="py-20 md:py-28 px-4 sm:px-6 lg:px-8 bg-app-canvas">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold text-app-ink mb-4 font-display">
               Blog
             </h1>
-            <p className="text-xl text-slate-400">
+            <p className="text-xl text-app-muted">
               Consejos, guías y novedades para vender más por WhatsApp.
             </p>
           </div>
@@ -40,12 +40,12 @@ export default function BlogContent() {
               <a
                 key={post.title}
                 href={post.slug}
-                className="block p-8 rounded-2xl bg-[#111827]/80 border border-white/[0.06] hover:border-white/[0.1] transition-all duration-300 hover:bg-[#111827]"
+                className="block p-8 rounded-[22px] border border-app-line bg-white shadow-app-card transition-all duration-200 hover:border-app-line-strong"
               >
-                <span className="text-sm text-slate-500">{post.date}</span>
-                <h2 className="text-2xl font-bold text-white mt-2 mb-3">{post.title}</h2>
-                <p className="text-slate-400 mb-4">{post.excerpt}</p>
-                <span className="inline-flex items-center gap-2 text-blue-400 font-medium">
+                <span className="text-sm text-app-muted">{post.date}</span>
+                <h2 className="text-2xl font-bold text-app-ink mt-2 mb-3 font-display">{post.title}</h2>
+                <p className="text-app-muted mb-4">{post.excerpt}</p>
+                <span className="inline-flex items-center gap-2 text-brand-600 font-medium">
                   Leer más
                   <ArrowRight className="w-4 h-4" />
                 </span>

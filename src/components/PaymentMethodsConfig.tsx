@@ -148,7 +148,7 @@ export default function PaymentMethodsConfig({
       case 'plin':
         return <Smartphone className="size-[18px] text-brand-500" />;
       case 'bcp':
-        return <Building2 className="size-[18px] text-sky-500" />;
+        return <Building2 className="size-[18px] text-brand-600" />;
       default:
         return <CreditCard className="size-[18px] text-violet-500" />;
     }

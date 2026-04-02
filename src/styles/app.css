@@ -43,8 +43,8 @@
 
 .app-input:focus {
   outline: none;
-  border-color: rgba(42, 139, 255, 0.45);
-  box-shadow: 0 0 0 3px rgba(42, 139, 255, 0.12);
+  border-color: rgba(43, 44, 47, 0.35);
+  box-shadow: 0 0 0 3px rgba(43, 44, 47, 0.08);
 }
 
 .app-btn-primary {
@@ -56,9 +56,9 @@
   border-radius: 9999px;
   font-size: 0.875rem;
   font-weight: 600;
-  background-color: #2d2e32;
+  background-color: #2b2c2f;
   color: #fff;
-  box-shadow: 0 4px 14px -4px rgba(45, 46, 50, 0.35);
+  box-shadow: 0 4px 14px -4px rgba(43, 44, 47, 0.35);
   transition: transform 0.15s, background-color 0.15s, opacity 0.15s;
 }
 
@@ -79,8 +79,8 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 1rem;
-  background-color: rgba(42, 139, 255, 0.08);
-  border: 1px solid rgba(42, 139, 255, 0.15);
+  background-color: rgba(43, 44, 47, 0.06);
+  border: 1px solid rgba(43, 44, 47, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;

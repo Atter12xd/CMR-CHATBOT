@@ -272,7 +272,7 @@ export default function ProductsPage() {
               title="Categorías usadas"
               value={productStats.categoryCount}
               icon={Layers}
-              accentClassName="text-sky-500"
+              accentClassName="text-brand-600"
             />
           </motion.div>
           <motion.div variants={statsItem} className="min-w-0">

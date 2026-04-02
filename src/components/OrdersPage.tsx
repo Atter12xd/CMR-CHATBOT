@@ -35,7 +35,7 @@ const statusLabels: Record<string, string> = {
 const statusDots: Record<string, string> = {
   all: 'bg-brand-500',
   pending: 'bg-amber-400',
-  processing: 'bg-sky-400',
+  processing: 'bg-brand-500',
   completed: 'bg-emerald-400',
   shipped: 'bg-indigo-400',
   delivered: 'bg-emerald-400',
@@ -255,7 +255,7 @@ export default function OrdersPage() {
               title="En proceso"
               value={orderStats.inPipeline}
               icon={Truck}
-              accentClassName="text-sky-400"
+              accentClassName="text-brand-500"
             />
           </motion.div>
           <motion.div variants={statsItem} className="min-w-0">

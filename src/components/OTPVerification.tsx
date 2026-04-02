@@ -141,7 +141,7 @@ export default function OTPVerification({
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-brand-50 to-brand-100/80 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       <div className="max-w-md w-full relative z-10">
         <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-8 sm:p-10 space-y-8">
           {/* Header */}
@@ -162,8 +162,8 @@ export default function OTPVerification({
             <p className="text-sm font-semibold text-primary-600 break-all">
               {emailOrPhone}
             </p>
-            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-xs text-blue-800">
+            <div className="mt-4 p-3 bg-brand-50 border border-brand-200 rounded-lg">
+              <p className="text-xs text-brand-800">
                 💡 <strong>Tip:</strong> Si recibiste un enlace, haz clic en él. Si recibiste un código de 6 dígitos, ingrésalo arriba.
               </p>
             </div>

@@ -15,7 +15,7 @@ export default function MessageStatusIndicator({
   tone = 'light',
 }: MessageStatusIndicatorProps) {
   const base = tone === 'dark' ? 'text-white/70' : 'text-app-muted';
-  const readColor = tone === 'dark' ? 'text-sky-300' : 'text-brand-600';
+  const readColor = tone === 'dark' ? 'text-brand-300' : 'text-brand-600';
 
   switch (status) {
     case 'sending':

@@ -55,7 +55,7 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
     switch (platform) {
       case 'facebook':
         return (
-          <div className="w-5 h-5 bg-[#1877F2] rounded-md flex items-center justify-center flex-shrink-0 shadow-sm shadow-blue-900/20">
+          <div className="w-5 h-5 bg-[#1877F2] rounded-md flex items-center justify-center flex-shrink-0 shadow-sm shadow-black/15">
             <span className="text-white text-[9px] font-bold leading-none">f</span>
           </div>
         );

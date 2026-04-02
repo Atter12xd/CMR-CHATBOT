@@ -307,7 +307,7 @@ export default function PricingContent() {
                 >
                   {/* Accent bar */}
                   {plan.highlighted && (
-                    <div className="h-1 rounded-t-[22px] bg-gradient-to-r from-brand-500 via-brand-400 to-emerald-400" />
+                    <div className="h-1 rounded-t-[22px] bg-gradient-to-r from-brand-950 via-brand-600 to-emerald-500" />
                   )}
 
                   {/* Badge */}

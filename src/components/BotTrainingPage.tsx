@@ -441,7 +441,7 @@ export default function BotTrainingPage() {
             />
           </motion.div>
           <motion.div variants={statsItem} className="min-w-0">
-            <StatsCard title="Desde web" value={trainingStats.web} icon={Globe} accentClassName="text-sky-500" />
+            <StatsCard title="Desde web" value={trainingStats.web} icon={Globe} accentClassName="text-brand-600" />
           </motion.div>
           <motion.div variants={statsItem} className="min-w-0">
             <StatsCard title="Documentos PDF" value={trainingStats.pdf} icon={FileText} accentClassName="text-brand-500" />
@@ -571,7 +571,7 @@ export default function BotTrainingPage() {
           transition={{ type: 'spring', stiffness: 400, damping: 28 }}
           className="rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card flex flex-col"
         >
-          <div className="h-1 bg-gradient-to-r from-brand-500/60 via-sky-500/40 to-brand-400/50 shrink-0" />
+          <div className="h-1 bg-gradient-to-r from-brand-800/50 via-brand-500/40 to-brand-400/45 shrink-0" />
           <div className="p-5 flex-1 flex flex-col">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2.5 rounded-2xl bg-white border border-app-line text-brand-600 shrink-0 shadow-sm">
@@ -765,17 +765,11 @@ export default function BotTrainingPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                      <div
-                        className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border ${
-                          item.type === 'web'
-                            ? 'bg-sky-500/12 border-sky-500/25'
-                            : 'bg-brand-500/12 border-brand-500/25'
-                        }`}
-                      >
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border bg-brand-500/12 border-brand-500/25">
                         {item.type === 'web' ? (
-                          <Globe size={16} className="text-sky-500" />
+                          <Globe size={16} className="text-brand-600" />
                         ) : (
-                          <FileText size={16} className="text-brand-500" />
+                          <FileText size={16} className="text-brand-600" />
                         )}
                       </div>
                       <span className="text-[14px] font-semibold text-app-ink">

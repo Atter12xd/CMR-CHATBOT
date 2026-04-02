@@ -238,9 +238,9 @@ export default function FileUploadModal({ isOpen, onClose, onSend, chatId }: Fil
               <div className="bg-app-field/80 border border-app-line rounded-xl p-4 flex items-start gap-3">
                 <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-white border border-app-line">
                   {fileType === 'image' ? (
-                    <Image size={18} className="text-blue-400" />
+                    <Image size={18} className="text-brand-600" />
                   ) : (
-                    <FileText size={18} className="text-sky-400" />
+                    <FileText size={18} className="text-brand-600" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -298,7 +298,7 @@ export default function FileUploadModal({ isOpen, onClose, onSend, chatId }: Fil
                   </div>
                   <div className="w-full bg-app-field rounded-full h-1.5 overflow-hidden">
                     <div
-                      className="bg-blue-500 h-1.5 rounded-full transition-all duration-300"
+                      className="bg-brand-600 h-1.5 rounded-full transition-all duration-300"
                       style={{ width: `${uploadProgress}%` }}
                     />
                   </div>

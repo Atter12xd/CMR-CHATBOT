@@ -10,7 +10,7 @@ interface OrderCardProps {
 
 const statusConfig: Record<string, { bg: string; text: string; dot: string; label: string; border: string }> = {
   pending: { bg: 'bg-amber-500/12', text: 'text-amber-800', dot: 'bg-amber-500', border: 'border-amber-500/25', label: 'Pendiente' },
-  processing: { bg: 'bg-sky-500/12', text: 'text-sky-800', dot: 'bg-sky-600', border: 'border-sky-500/25', label: 'Procesando' },
+  processing: { bg: 'bg-brand-500/12', text: 'text-brand-800', dot: 'bg-brand-600', border: 'border-brand-500/25', label: 'Procesando' },
   completed: { bg: 'bg-emerald-500/12', text: 'text-emerald-800', dot: 'bg-emerald-600', border: 'border-emerald-500/25', label: 'Pago completado' },
   shipped: { bg: 'bg-indigo-500/12', text: 'text-indigo-800', dot: 'bg-indigo-600', border: 'border-indigo-500/25', label: 'Enviado' },
   delivered: { bg: 'bg-emerald-500/12', text: 'text-emerald-800', dot: 'bg-emerald-600', border: 'border-emerald-500/25', label: 'Entregado' },
@@ -26,7 +26,7 @@ export default function OrderCard({ order, onOpenChat }: OrderCardProps) {
       transition={{ type: 'spring', stiffness: 400, damping: 28 }}
       className="rounded-[22px] border border-app-line bg-white overflow-hidden shadow-app-card font-professional h-full flex flex-col"
     >
-      <div className="h-1 bg-gradient-to-r from-brand-400/60 via-violet-400/50 to-emerald-400/50 shrink-0" />
+      <div className="h-1 bg-gradient-to-r from-brand-700/45 via-brand-500/35 to-emerald-500/45 shrink-0" />
 
       <div className="p-5 flex-1 flex flex-col min-h-0">
         <div className="flex items-start justify-between gap-3 mb-4">

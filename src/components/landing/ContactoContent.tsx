@@ -37,14 +37,14 @@ export default function ContactoContent() {
             <div className="lg:col-span-2 space-y-8">
               {/* Email */}
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
-                  <Mail className="w-5 h-5 text-blue-400" />
+                <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center shrink-0">
+                  <Mail className="w-5 h-5 text-brand-600" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-app-ink mb-1">Email</h3>
                   <a 
                     href="mailto:hola@wazapp.ai" 
-                    className="text-blue-400 hover:text-blue-300 transition-colors"
+                    className="text-brand-600 hover:text-brand-500 transition-colors"
                   >
                     hola@wazapp.ai
                   </a>
@@ -126,7 +126,7 @@ export default function ContactoContent() {
                         setEmail('');
                         setMessage('');
                       }}
-                      className="mt-6 text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
+                      className="mt-6 text-brand-600 hover:text-brand-500 text-sm font-medium transition-colors"
                     >
                       Enviar otro mensaje
                     </button>

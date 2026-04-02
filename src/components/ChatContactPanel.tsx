@@ -51,7 +51,7 @@ export default function ChatContactPanel({ chat, displayName, variant, onClose }
                 chat.platform === 'whatsapp'
                   ? 'bg-emerald-500'
                   : chat.platform === 'facebook'
-                    ? 'bg-blue-500'
+                    ? 'bg-brand-600'
                     : 'bg-app-muted'
               }`}
             />

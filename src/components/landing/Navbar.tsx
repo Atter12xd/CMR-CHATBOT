@@ -48,14 +48,16 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
       <nav
         className={`fixed left-0 right-0 z-50 transition-all duration-300 font-professional ${
           showAnnouncement ? 'lg:top-[44px] top-0' : 'top-0'
-        } ${
-          scrolled
-            ? 'bg-white/90 backdrop-blur-xl border-b border-app-line shadow-app-header'
-            : 'bg-transparent border-b border-transparent'
-        }`}
+        } ${scrolled ? 'max-lg:bg-white/92 max-lg:backdrop-blur-xl max-lg:border-b max-lg:border-app-line max-lg:shadow-app-header' : ''}`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
+        <div
+          className={`max-w-7xl mx-auto transition-all duration-300 ease-out ${
+            scrolled
+              ? 'max-lg:px-4 sm:max-lg:px-6 lg:mt-3 lg:mb-1 lg:mx-6 xl:mx-10 lg:rounded-2xl lg:border lg:border-app-line/70 lg:bg-white/78 lg:backdrop-blur-2xl lg:shadow-nav-float lg:px-5 xl:px-7'
+              : 'px-4 sm:px-6 lg:px-8'
+          }`}
+        >
+          <div className={`flex items-center justify-between ${scrolled ? 'h-[3.75rem] lg:h-[3.65rem]' : 'h-16 lg:h-20'}`}>
             <LogoBrand size="lg" href="/" />
 
             <div className="hidden lg:flex items-center gap-1">
@@ -77,10 +79,12 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
               </a>
               <a
                 href="/register"
-                className="group inline-flex items-center gap-2 px-5 py-2.5 bg-app-charcoal hover:bg-app-charcoal/90 text-white text-sm font-semibold rounded-2xl transition-all duration-200 shadow-md shadow-black/10"
+                className="group relative inline-flex items-center gap-2 overflow-hidden px-5 py-2.5 text-white text-sm font-semibold rounded-2xl transition-all duration-200 shadow-app-card-premium hover:scale-[1.02] active:scale-[0.98]"
               >
-                Empezar gratis
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                <span className="absolute inset-0 bg-gradient-to-b from-white/[0.14] to-transparent" />
+                <span className="absolute inset-0 bg-app-charcoal" />
+                <span className="relative">Empezar gratis</span>
+                <ArrowRight className="relative w-4 h-4 transition-transform group-hover:translate-x-0.5" />
               </a>
             </div>
 

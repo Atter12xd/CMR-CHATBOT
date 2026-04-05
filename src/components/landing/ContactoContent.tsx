@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Mail, MessageSquare, Send, CheckCircle2, MapPin, Clock, Loader2 } from 'lucide-react';
+import { Mail, MessageSquare, Send, CheckCircle2, Clock, Loader2 } from 'lucide-react';
+import MarketingHero from './MarketingHero';
+import SectionLabel from './SectionLabel';
 
 export default function ContactoContent() {
   const [name, setName] = useState('');
@@ -19,97 +21,77 @@ export default function ContactoContent() {
   };
 
   return (
-    <div className="min-h-screen bg-app-shell font-professional text-app-ink">
-      <section className="py-12 lg:py-20 px-4 sm:px-6 lg:px-8 bg-app-canvas">
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-16">
-            <h1 className="text-4xl sm:text-5xl font-bold text-app-ink tracking-tight mb-4 font-display">
-              ¿Cómo podemos ayudarte?
-            </h1>
-            <p className="text-lg text-app-muted max-w-2xl mx-auto">
-              Estamos aquí para responder tus dudas sobre planes, integraciones o cualquier otra consulta.
-            </p>
-          </div>
+    <div className="min-h-screen bg-app-shell font-professional text-app-ink antialiased">
+      <MarketingHero maxWidth="wide" className="pb-12 lg:pb-14">
+        <SectionLabel>Contacto</SectionLabel>
+        <h1 className="text-4xl sm:text-5xl lg:text-[3.1rem] font-bold text-app-ink tracking-[-0.035em] mb-4 font-display leading-[1.08]">
+          ¿Cómo podemos ayudarte?
+        </h1>
+        <p className="text-base sm:text-lg text-app-muted max-w-2xl mx-auto leading-relaxed">
+          Estamos aquí para responder tus dudas sobre planes, integraciones o cualquier otra consulta.
+        </p>
+      </MarketingHero>
 
+      <section className="relative pb-16 lg:pb-24 px-4 sm:px-6 lg:px-8 bg-app-shell overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 bg-hero-glow opacity-35" aria-hidden />
+        <div className="relative max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-5 gap-12 lg:gap-16">
-            {/* Contact Info */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* Email */}
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center shrink-0">
+            <div className="lg:col-span-2 space-y-6">
+              <div className="rounded-[22px] border border-app-line/90 bg-gradient-to-b from-white to-app-field/20 p-5 shadow-app-card-premium ring-1 ring-white/80 flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-50 to-white border border-brand-500/20 flex items-center justify-center shrink-0 shadow-inner shadow-black/[0.02]">
                   <Mail className="w-5 h-5 text-brand-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-app-ink mb-1">Email</h3>
-                  <a 
-                    href="mailto:hola@wazapp.ai" 
-                    className="text-brand-600 hover:text-brand-500 transition-colors"
-                  >
+                  <h3 className="font-semibold text-app-ink mb-1 font-display">Email</h3>
+                  <a href="mailto:hola@wazapp.ai" className="text-brand-600 hover:text-brand-700 font-medium transition-colors">
                     hola@wazapp.ai
                   </a>
-                  <p className="text-slate-500 text-sm mt-1">Respondemos en menos de 24h</p>
+                  <p className="text-app-muted text-sm mt-1">Respondemos en menos de 24h</p>
                 </div>
               </div>
 
-              {/* Support */}
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                  <MessageSquare className="w-5 h-5 text-emerald-400" />
+              <div className="rounded-[22px] border border-app-line/90 bg-gradient-to-b from-white to-app-field/20 p-5 shadow-app-card-premium ring-1 ring-white/80 flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-50 to-white border border-emerald-500/20 flex items-center justify-center shrink-0 shadow-inner shadow-black/[0.02]">
+                  <MessageSquare className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-app-ink mb-1">Soporte en app</h3>
-                  <p className="text-app-muted text-sm">
+                  <h3 className="font-semibold text-app-ink mb-1 font-display">Soporte en app</h3>
+                  <p className="text-app-muted text-sm leading-relaxed">
                     Si ya tienes cuenta, usa el chat de ayuda dentro de la plataforma para soporte más rápido.
                   </p>
                 </div>
               </div>
 
-              {/* Hours */}
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
-                  <Clock className="w-5 h-5 text-amber-400" />
+              <div className="rounded-[22px] border border-app-line/90 bg-gradient-to-b from-white to-app-field/20 p-5 shadow-app-card-premium ring-1 ring-white/80 flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-50 to-white border border-amber-500/20 flex items-center justify-center shrink-0 shadow-inner shadow-black/[0.02]">
+                  <Clock className="w-5 h-5 text-amber-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-app-ink mb-1">Horario de atención</h3>
-                  <p className="text-app-muted text-sm">
-                    Lunes a Viernes: 9:00 - 18:00 (GMT-5)
-                  </p>
-                  <p className="text-slate-500 text-sm">
-                    Soporte prioritario 24/7 para plan Pro y Business
-                  </p>
+                  <h3 className="font-semibold text-app-ink mb-1 font-display">Horario de atención</h3>
+                  <p className="text-app-muted text-sm">Lunes a Viernes: 9:00 - 18:00 (GMT-5)</p>
+                  <p className="text-app-muted text-sm mt-1">Soporte prioritario 24/7 para plan Pro y Business</p>
                 </div>
               </div>
 
-              {/* Divider */}
               <div className="border-t border-app-line pt-8">
-                <h3 className="font-semibold text-app-ink mb-4">¿Buscas algo específico?</h3>
-                <div className="space-y-3">
-                  <a 
-                    href="/precios" 
-                    className="block text-app-muted hover:text-app-ink text-sm transition-colors"
-                  >
+                <h3 className="font-semibold text-app-ink mb-4 font-display">¿Buscas algo específico?</h3>
+                <div className="space-y-2.5">
+                  <a href="/precios" className="block text-app-muted hover:text-brand-700 text-sm font-medium transition-colors">
                     → Ver planes y precios
                   </a>
-                  <a 
-                    href="/recursos" 
-                    className="block text-app-muted hover:text-app-ink text-sm transition-colors"
-                  >
+                  <a href="/recursos" className="block text-app-muted hover:text-brand-700 text-sm font-medium transition-colors">
                     → Centro de ayuda y guías
                   </a>
-                  <a 
-                    href="/sobre-nosotros" 
-                    className="block text-app-muted hover:text-app-ink text-sm transition-colors"
-                  >
+                  <a href="/sobre-nosotros" className="block text-app-muted hover:text-brand-700 text-sm font-medium transition-colors">
                     → Sobre nosotros
                   </a>
                 </div>
               </div>
             </div>
 
-            {/* Contact Form */}
             <div className="lg:col-span-3">
-              <div className="rounded-[22px] bg-white border border-app-line shadow-app-card p-8">
+              <div className="rounded-[26px] p-[1px] bg-gradient-to-br from-brand-400/28 via-app-line to-brand-600/12 shadow-app-card-premium">
+                <div className="rounded-[25px] bg-white border border-app-line/80 p-7 sm:p-8 ring-1 ring-white/90">
                 {sent ? (
                   <div className="text-center py-12">
                     <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-6">
@@ -219,14 +201,15 @@ export default function ContactoContent() {
                       )}
                     </button>
 
-                    <p className="text-xs text-slate-500 text-center">
+                    <p className="text-xs text-app-muted text-center">
                       Al enviar, aceptas nuestra{' '}
-                      <a href="/privacidad" className="text-slate-400 hover:text-white transition-colors">
+                      <a href="/privacidad" className="text-brand-600 hover:text-brand-700 font-medium transition-colors">
                         política de privacidad
                       </a>
                     </p>
                   </form>
                 )}
+                </div>
               </div>
             </div>
           </div>

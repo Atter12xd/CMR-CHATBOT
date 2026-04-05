@@ -102,7 +102,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   };
 
   return (
-    <div className="w-[278px] min-w-[278px] max-w-[278px] text-app-ink flex flex-col h-full border-r border-app-line bg-white shadow-[4px_0_24px_-12px_rgba(15,23,42,0.08)] overflow-hidden font-professional rounded-r-[28px] md:rounded-none md:rounded-r-none">
+    <div className="w-[278px] min-w-[278px] max-w-[278px] text-app-ink flex flex-col h-full border-r border-app-line bg-gradient-to-b from-white via-white to-app-field/20 shadow-[4px_0_32px_-14px_rgba(15,23,42,0.1)] overflow-hidden font-professional rounded-r-[28px] md:rounded-none md:rounded-r-none">
       <div className="shrink-0 px-5 pt-6 pb-4">
         <div className="flex items-start justify-between gap-2">
           <a href="/chats" className="flex items-center gap-3 min-w-0 group flex-1">
@@ -149,13 +149,13 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               variants={navRow}
               onClick={() => handleNavClick(item.path)}
               whileTap={{ scale: 0.995 }}
-              className={`w-full min-w-0 flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-left transition-colors ${
+              className={`w-full min-w-0 flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-left transition-all duration-200 ${
                 active
-                  ? 'bg-app-charcoal text-white shadow-md shadow-black/10'
-                  : 'text-app-muted hover:text-app-ink hover:bg-app-field/80'
+                  ? 'bg-gradient-to-br from-brand-50/95 to-white text-app-ink shadow-[inset_0_1px_0_0_rgba(255,255,255,0.9),0_2px_8px_-2px_rgba(42,130,118,0.12)] ring-1 ring-brand-500/20'
+                  : 'text-app-muted hover:text-app-ink hover:bg-white/80 hover:shadow-sm'
               }`}
             >
-              <Icon size={20} className={`shrink-0 ${active ? 'text-white' : 'text-app-muted'}`} />
+              <Icon size={20} className={`shrink-0 ${active ? 'text-brand-700' : 'text-app-muted'}`} />
               <span className={`text-[15px] leading-snug truncate ${active ? 'font-semibold' : 'font-medium'}`}>
                 {item.label}
               </span>

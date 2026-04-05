@@ -64,7 +64,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const firstName = getUserName().split(/\s+/)[0] || getUserName();
 
   return (
-    <header className="bg-white/90 backdrop-blur-xl border-b border-app-line shadow-app-header px-4 py-3 md:px-7 sticky top-0 z-30 font-professional">
+    <header className="bg-white/88 backdrop-blur-xl border-b border-app-line/90 shadow-app-header px-4 py-3 md:px-7 sticky top-0 z-30 font-professional supports-[backdrop-filter]:bg-white/72">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <motion.button
@@ -80,12 +80,12 @@ export default function Header({ onMenuClick }: HeaderProps) {
             <p className="text-[13px] text-app-muted font-medium">
               Hola, <span className="text-app-ink font-semibold">{firstName}</span>
             </p>
-            <h1 className="text-xl md:text-[1.6rem] font-bold text-app-ink leading-tight tracking-tight truncate">
+            <h1 className="text-xl md:text-[1.6rem] font-bold text-app-ink leading-tight tracking-tight truncate font-display">
               {getBreadcrumb()}
             </h1>
           </div>
           <div className="min-w-0 sm:hidden">
-            <h1 className="text-lg font-bold text-app-ink leading-tight truncate">{getBreadcrumb()}</h1>
+            <h1 className="text-lg font-bold text-app-ink leading-tight truncate font-display">{getBreadcrumb()}</h1>
           </div>
         </div>
 

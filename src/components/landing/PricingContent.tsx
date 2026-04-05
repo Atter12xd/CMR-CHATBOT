@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Check, ArrowRight, MessageSquare, Brain, ShoppingBag, BarChart3, CreditCard, QrCode, Zap, Shield, Loader2, Clock } from 'lucide-react';
+import MarketingHero from './MarketingHero';
+import SectionLabel from './SectionLabel';
 
 
 
@@ -231,32 +234,30 @@ export default function PricingContent() {
     <div className="min-h-screen bg-app-shell text-app-ink font-professional antialiased">
 
 
-      {/* Hero */}
-      <section className="relative pt-20 pb-14 px-4 sm:px-6 lg:px-8 overflow-hidden bg-app-canvas">
-        <div className="relative max-w-3xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-app-line bg-white shadow-app-card mb-8">
-            <span className="flex h-2 w-2 relative">
-              <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
-            <span className="text-sm text-app-muted font-medium">14 días de prueba gratis en el plan de $50</span>
-          </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-app-ink tracking-tight leading-[1.1] mb-6 font-display">
-            Tu vendedor en WhatsApp,
-            <span className="block mt-2 text-gradient-brand">activo 24/7</span>
-          </h1>
-          <p className="text-lg text-app-muted max-w-xl mx-auto leading-relaxed">
-            Conecta tu WhatsApp con QR, entrena el bot con tu información y empieza a vender en automático.
-          </p>
+      <MarketingHero maxWidth="md">
+        <div className="inline-flex items-center gap-2.5 pl-3 pr-4 py-2 rounded-full border border-app-line/90 bg-white/90 backdrop-blur-md shadow-app-card mb-8 ring-1 ring-white/60">
+          <span className="flex h-2 w-2 relative">
+            <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.45)]" />
+          </span>
+          <span className="text-[13px] text-app-muted font-medium tracking-tight">14 días de prueba gratis en el plan de $50</span>
         </div>
-      </section>
+        <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-bold text-app-ink tracking-[-0.035em] leading-[1.08] mb-6 font-display">
+          Tu vendedor en WhatsApp,
+          <span className="block mt-2 text-gradient-brand">activo 24/7</span>
+        </h1>
+        <p className="text-base sm:text-lg text-app-muted max-w-xl mx-auto leading-relaxed">
+          Conecta tu WhatsApp con QR, entrena el bot con tu información y empieza a vender en automático.
+        </p>
+      </MarketingHero>
 
 
 
-      {/* Billing Toggle */}
-      <section className="pb-10 px-4 sm:px-6 lg:px-8 bg-app-shell">
+      <section className="pb-10 px-4 sm:px-6 lg:px-8 bg-app-shell relative">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-app-line-strong to-transparent opacity-60" aria-hidden />
         <div className="flex items-center justify-center">
-          <div className="inline-flex items-center bg-white border border-app-line rounded-2xl p-1 shadow-app-card">
+          <div className="inline-flex items-center p-[1px] rounded-2xl bg-gradient-to-br from-brand-400/30 via-app-line to-brand-600/20 shadow-app-card-premium">
+            <div className="inline-flex items-center bg-white rounded-[15px] p-1 shadow-inner shadow-black/[0.02]">
             <button
               onClick={() => setBilling('monthly')}
               className={`px-5 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 ${
@@ -285,6 +286,7 @@ export default function PricingContent() {
               </span>
             </button>
           </div>
+          </div>
         </div>
       </section>
 
@@ -299,21 +301,25 @@ export default function PricingContent() {
               return (
                 <div
                   key={plan.name}
-                  className={`relative rounded-[22px] transition-all duration-300 ${
+                  className={`relative rounded-[26px] transition-all duration-300 ${
                     plan.highlighted
-                      ? 'bg-white border-2 border-brand-500/40 shadow-app-card lg:scale-105'
-                      : 'bg-white border border-app-line hover:border-app-line-strong shadow-app-card'
+                      ? 'p-[1px] bg-gradient-to-br from-brand-400/45 via-app-line to-emerald-500/35 shadow-app-card-premium lg:scale-[1.04]'
+                      : 'bg-white border border-app-line hover:border-brand-500/20 shadow-app-card-premium hover:shadow-app-card-premium-hover'
                   }`}
                 >
-                  {/* Accent bar */}
+                  <div
+                    className={`relative h-full rounded-[25px] bg-white overflow-hidden ${
+                      plan.highlighted ? '' : ''
+                    }`}
+                  >
                   {plan.highlighted && (
-                    <div className="h-1 rounded-t-[22px] bg-gradient-to-r from-brand-950 via-brand-600 to-emerald-500" />
+                    <div className="h-1 bg-gradient-to-r from-brand-950 via-brand-600 to-emerald-500" />
                   )}
 
                   {/* Badge */}
                   {plan.highlighted && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                      <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold bg-app-charcoal text-white shadow-md">
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
+                      <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold bg-app-charcoal text-white shadow-app-card-premium ring-1 ring-white/20">
                         Recomendado
                       </span>
                     </div>
@@ -429,6 +435,7 @@ export default function PricingContent() {
                       ))}
                     </ul>
                   </div>
+                  </div>
                 </div>
               );
             })}
@@ -437,7 +444,8 @@ export default function PricingContent() {
           {/* Modal correo antes de checkout */}
           {showEmailModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => !checkoutLoading && setShowEmailModal(false)}>
-              <div className="bg-white border border-app-line rounded-[22px] shadow-app-card max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+              <div className="rounded-[26px] p-[1px] bg-gradient-to-br from-brand-400/25 via-app-line to-brand-600/15 shadow-app-card-premium max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+                <div className="rounded-[25px] bg-white border border-app-line/80 p-6 sm:p-7 ring-1 ring-white/90">
                 <h3 className="text-lg font-semibold text-app-ink mb-2">Introduce tu correo</h3>
                 <p className="text-sm text-app-muted mb-4">
                   Lo usamos para tu cuenta y facturación. Si ya cancelaste una suscripción antes, no tendrás de nuevo los 14 días gratis.
@@ -467,6 +475,7 @@ export default function PricingContent() {
                     {checkoutLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Redirigiendo...</> : 'Continuar a pago'}
                   </button>
                 </div>
+                </div>
               </div>
             </div>
           )}
@@ -475,73 +484,13 @@ export default function PricingContent() {
           <p className="mt-8 text-center text-sm text-app-muted max-w-lg mx-auto">
             14 días de prueba gratis. Después se cobrarán $50/mes de forma automática. Puedes cancelar en cualquier momento desde tu cuenta o contactando a soporte.
           </p>
-          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-app-muted">
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-emerald-500" />
-              <span>14 días gratis</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-emerald-500" />
-              <span>Cancela cuando quieras</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-emerald-500" />
-              <span>Soporte en español</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-
-
-      {/* How it works — Features */}
-      <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-app-shell">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16 lg:mb-20">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-app-muted mb-4">Incluido en todos los planes</p>
-            <h2 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-app-ink tracking-tight font-display">
-              De QR a ventas automáticas
-            </h2>
-            <p className="mt-4 text-lg text-app-muted max-w-2xl mx-auto">
-              Conecta, entrena y vende. Sin código, sin complicaciones.
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature) => {
-              const Icon = feature.icon;
-              return (
-                <div
-                  key={feature.title}
-                  className="group p-6 rounded-[22px] bg-white border border-app-line shadow-app-card transition-[border-color] duration-200 hover:border-app-line-strong"
-                >
-                  <div className={`w-12 h-12 rounded-2xl ${accentMap[feature.accent]} flex items-center justify-center mb-4 transition-colors`}>
-                    <Icon className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-app-ink mb-2">{feature.title}</h3>
-                  <p className="text-app-muted text-sm leading-relaxed">{feature.description}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-
-
-      {/* Social Proof */}
-      <section className="py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-white border-y border-app-line">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-            {[
-              { value: '500+', label: 'Negocios activos' },
-              { value: '2M+', label: 'Mensajes procesados' },
-              { value: '99.9%', label: 'Uptime garantizado' },
-              { value: '24/7', label: 'Soporte disponible' },
-            ].map((stat, i) => (
-              <div key={i}>
-                <p className="text-4xl lg:text-5xl font-bold text-app-ink tracking-tight font-display">{stat.value}</p>
-                <p className="mt-2 text-sm text-app-muted font-medium">{stat.label}</p>
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-[13px] text-app-muted">
+            {['14 días gratis', 'Cancela cuando quieras', 'Soporte en español'].map((t) => (
+              <div key={t} className="flex items-center gap-2">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/12 ring-1 ring-emerald-500/20">
+                  <Check className="w-3 h-3 text-emerald-600" strokeWidth={2.5} />
+                </span>
+                <span>{t}</span>
               </div>
             ))}
           </div>
@@ -550,12 +499,79 @@ export default function PricingContent() {
 
 
 
-      {/* FAQ */}
-      <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-app-shell">
+      <section className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-app-shell overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 bg-hero-glow opacity-50" aria-hidden />
+        <div className="relative max-w-6xl mx-auto">
+          <div className="text-center mb-16 lg:mb-20">
+            <SectionLabel>Plataforma</SectionLabel>
+            <h2 className="text-3xl lg:text-4xl xl:text-[2.75rem] font-bold text-app-ink tracking-[-0.03em] font-display leading-tight">
+              De QR a ventas automáticas
+            </h2>
+            <p className="mt-5 text-base sm:text-lg text-app-muted max-w-2xl mx-auto leading-relaxed">
+              Conecta, entrena y vende. Sin código, sin complicaciones.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+            {features.map((feature, i) => {
+              const Icon = feature.icon;
+              return (
+                <motion.div
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 12 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ duration: 0.4, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                  whileHover={{ y: -4 }}
+                  className="group relative h-full"
+                >
+                  <div className="absolute -inset-px rounded-[24px] bg-gradient-to-br from-brand-500/15 via-transparent to-brand-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="relative h-full p-6 rounded-[23px] border border-app-line bg-white shadow-app-card-premium transition-[box-shadow,border-color] duration-300 group-hover:border-brand-500/25 group-hover:shadow-app-card-premium-hover">
+                    <div className={`w-12 h-12 rounded-2xl ${accentMap[feature.accent]} flex items-center justify-center mb-4 transition-colors shadow-inner shadow-black/[0.02]`}>
+                      <Icon className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-app-ink mb-2 font-display tracking-tight">{feature.title}</h3>
+                    <p className="text-app-muted text-[13px] leading-relaxed">{feature.description}</p>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+
+
+      <section className="relative py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-white border-y border-app-line overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.2] [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]" aria-hidden />
+        <div className="relative max-w-5xl mx-auto">
+          <SectionLabel>Confianza</SectionLabel>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            {[
+              { value: '500+', label: 'Negocios activos' },
+              { value: '2M+', label: 'Mensajes procesados' },
+              { value: '99.9%', label: 'Uptime garantizado' },
+              { value: '24/7', label: 'Soporte disponible' },
+            ].map((stat, i) => (
+              <div
+                key={i}
+                className="rounded-2xl border border-app-line/90 bg-gradient-to-b from-white to-app-field/20 px-4 py-6 text-center shadow-inner shadow-black/[0.02] transition-[border-color,box-shadow] duration-300 hover:border-brand-500/20 hover:shadow-app-card"
+              >
+                <p className="text-3xl sm:text-4xl font-bold text-app-ink tracking-tight font-display tabular-nums">{stat.value}</p>
+                <p className="mt-2 text-[11px] sm:text-xs text-app-muted font-semibold uppercase tracking-wider">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+
+
+      <section className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-app-shell">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-16">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-app-muted mb-4">Preguntas frecuentes</p>
-            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-tight font-display">
+            <SectionLabel>Ayuda</SectionLabel>
+            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-[-0.03em] font-display leading-tight">
               Todo lo que necesitas saber
             </h2>
           </div>
@@ -564,7 +580,7 @@ export default function PricingContent() {
             {faqs.map((faq, i) => (
               <details
                 key={i}
-                className="group rounded-[22px] bg-white border border-app-line shadow-app-card transition-colors overflow-hidden"
+                className="group rounded-[22px] bg-white border border-app-line shadow-app-card-premium transition-[border-color,box-shadow] overflow-hidden hover:border-brand-500/15 open:border-app-line-strong open:shadow-app-card-premium-hover"
               >
                 <summary className="flex items-center justify-between cursor-pointer px-6 py-5 text-[15px] font-medium text-app-ink hover:text-app-muted transition-colors list-none [&::-webkit-details-marker]:hidden">
                   {faq.q}
@@ -586,27 +602,35 @@ export default function PricingContent() {
 
 
 
-      {/* Bottom CTA */}
-      <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-app-charcoal text-white border-t border-black/10">
-        <div className="max-w-3xl mx-auto text-center">
-          <div className="w-12 h-12 mx-auto mb-6 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center">
+      <section className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden text-white border-t border-black/10">
+        <div className="absolute inset-0 bg-app-charcoal" aria-hidden />
+        <div
+          className="absolute inset-0 opacity-[0.07] bg-site-grid bg-grid [mask-image:radial-gradient(ellipse_at_50%_0%,black,transparent_70%)]"
+          aria-hidden
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-brand-600/18 via-transparent to-transparent pointer-events-none" aria-hidden />
+        <div className="landing-noise opacity-[0.06]" aria-hidden />
+        <div className="relative max-w-3xl mx-auto text-center z-[1]">
+          <SectionLabel dark>Prueba</SectionLabel>
+          <div className="w-12 h-12 mx-auto mb-6 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center ring-1 ring-white/10">
             <Shield className="w-6 h-6 text-white" />
           </div>
-          <h2 className="text-3xl lg:text-4xl font-bold mb-4 tracking-tight font-display">14 días gratis</h2>
-          <p className="text-lg text-white/80 mb-10 leading-relaxed max-w-lg mx-auto">
+          <h2 className="text-3xl lg:text-4xl font-bold mb-4 tracking-[-0.03em] font-display text-white">14 días gratis</h2>
+          <p className="text-base sm:text-lg text-white/75 mb-10 leading-relaxed max-w-lg mx-auto">
             Prueba el plan completo. Cancela cuando quieras, sin compromisos.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
             <a
               href="/register"
-              className="group inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 bg-white text-app-charcoal hover:bg-white/95 text-base font-semibold rounded-2xl transition-all duration-200 shadow-lg"
+              className="group relative inline-flex items-center gap-2 w-full sm:w-auto justify-center overflow-hidden px-8 py-4 rounded-2xl text-base font-semibold text-app-charcoal bg-white shadow-app-card-premium transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
-              Empezar gratis
-              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
+              <span className="absolute inset-0 bg-gradient-to-b from-white to-white/90" />
+              <span className="relative">Empezar gratis</span>
+              <ArrowRight className="relative w-5 h-5 transition-transform group-hover:translate-x-0.5" />
             </a>
             <a
               href="/contacto"
-              className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 text-white/90 hover:text-white text-base font-semibold transition-colors"
+              className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 rounded-2xl text-base font-semibold text-white/90 border border-white/15 bg-white/5 backdrop-blur-sm hover:bg-white/10 hover:border-white/25 transition-all duration-200"
             >
               Contactar ventas
             </a>

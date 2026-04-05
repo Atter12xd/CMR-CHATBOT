@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import {
   BookOpen,
   HelpCircle,
@@ -8,6 +9,8 @@ import {
   ChevronDown,
   Play,
 } from 'lucide-react';
+import MarketingHero from './MarketingHero';
+import SectionLabel from './SectionLabel';
 
 
 const guides = [
@@ -99,64 +102,64 @@ export default function RecursosContent() {
   return (
     <div className="min-h-screen bg-app-shell text-app-ink font-professional antialiased">
 
-      {/* Hero */}
-      <section className="relative pt-20 pb-14 px-4 sm:px-6 lg:px-8 overflow-hidden bg-app-canvas">
-        <div className="relative max-w-3xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-app-line bg-white shadow-app-card mb-8">
-            <BookOpen className="w-4 h-4 text-brand-600" />
-            <span className="text-sm text-app-muted font-medium">Centro de recursos</span>
-          </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-app-ink tracking-tight leading-[1.1] mb-6 font-display">
-            Aprende a vender más
-            <span className="block mt-2 text-gradient-brand">por WhatsApp</span>
-          </h1>
-          <p className="text-lg text-app-muted max-w-xl mx-auto leading-relaxed">
-            Guías, vídeos y preguntas frecuentes para sacar el máximo partido a wazapp.
-          </p>
+      <MarketingHero maxWidth="md">
+        <div className="inline-flex items-center gap-2.5 pl-3 pr-4 py-2 rounded-full border border-app-line/90 bg-white/90 backdrop-blur-md shadow-app-card mb-8 ring-1 ring-white/60 mx-auto">
+          <BookOpen className="w-4 h-4 text-brand-600" />
+          <span className="text-[13px] text-app-muted font-medium tracking-tight">Centro de recursos</span>
         </div>
-      </section>
+        <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-bold text-app-ink tracking-[-0.035em] leading-[1.08] mb-6 font-display">
+          Aprende a vender más
+          <span className="block mt-2 text-gradient-brand">por WhatsApp</span>
+        </h1>
+        <p className="text-base sm:text-lg text-app-muted max-w-xl mx-auto leading-relaxed">
+          Guías, vídeos y preguntas frecuentes para sacar el máximo partido a wazapp.
+        </p>
+      </MarketingHero>
 
 
-      {/* Guías */}
-      <section className="py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-app-shell">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-12">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-app-muted mb-4">Guías</p>
-            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-tight font-display">
+      <section className="relative py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-app-shell overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 bg-hero-glow opacity-45" aria-hidden />
+        <div className="relative max-w-6xl mx-auto">
+          <div className="mb-12 text-center">
+            <SectionLabel>Aprendizaje</SectionLabel>
+            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-[-0.03em] font-display leading-tight">
               Empieza por aquí
             </h2>
-            <p className="mt-3 text-app-muted max-w-xl">
+            <p className="mt-3 text-app-muted max-w-xl text-sm sm:text-base">
               Todo lo que necesitas para configurar tu negocio en wazapp desde cero.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {guides.map((guide) => {
+          <div className="grid md:grid-cols-3 gap-5 sm:gap-6">
+            {guides.map((guide, i) => {
               const Icon = guide.icon;
               const accent = guideAccentMap[guide.accent];
               return (
-                <a
+                <motion.a
                   key={guide.title}
                   href="#"
-                  className="group relative block rounded-[22px] bg-white border border-app-line shadow-app-card transition-[border-color,box-shadow] duration-200 hover:border-app-line-strong overflow-hidden"
+                  initial={{ opacity: 0, y: 12 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-30px' }}
+                  transition={{ duration: 0.4, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                  whileHover={{ y: -4 }}
+                  className="group relative block overflow-hidden rounded-[26px] p-[1px] bg-gradient-to-br from-brand-400/20 via-app-line to-transparent shadow-app-card-premium transition-shadow duration-300 hover:shadow-app-card-premium-hover"
                 >
                   <div className={`h-1 ${accent.bar} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-                  <div className="p-6">
-                    <div className={`w-12 h-12 rounded-2xl ${accent.iconBg} flex items-center justify-center mb-5 transition-colors`}>
+                  <div className="rounded-[25px] bg-white p-6 ring-1 ring-white/80 h-full">
+                    <div className={`w-12 h-12 rounded-2xl ${accent.iconBg} flex items-center justify-center mb-5 transition-colors shadow-inner shadow-black/[0.02]`}>
                       <Icon className={`w-6 h-6 ${accent.iconText}`} />
                     </div>
-                    <h3 className="text-lg font-semibold text-app-ink mb-2 transition-colors">
-                      {guide.title}
-                    </h3>
-                    <p className="text-app-muted text-sm leading-relaxed">{guide.description}</p>
-                    <span className="inline-flex items-center gap-1.5 mt-5 text-sm font-medium text-brand-600 group-hover:text-brand-500 transition-colors">
+                    <h3 className="text-lg font-semibold text-app-ink mb-2 font-display tracking-tight">{guide.title}</h3>
+                    <p className="text-app-muted text-[13px] leading-relaxed">{guide.description}</p>
+                    <span className="inline-flex items-center gap-1.5 mt-5 text-sm font-semibold text-brand-600 group-hover:text-brand-700 transition-colors">
                       Leer guía
                       <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                       </svg>
                     </span>
                   </div>
-                </a>
+                </motion.a>
               );
             })}
           </div>
@@ -164,24 +167,24 @@ export default function RecursosContent() {
       </section>
 
 
-      {/* Vídeos */}
-      <section className="py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-white border-y border-app-line">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-12">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-app-muted mb-4">Vídeos</p>
-            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-tight font-display">
+      <section className="relative py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-white border-y border-app-line overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.25] [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)]" aria-hidden />
+        <div className="relative max-w-6xl mx-auto">
+          <div className="mb-12 text-center">
+            <SectionLabel>Multimedia</SectionLabel>
+            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-[-0.03em] font-display leading-tight">
               Aprende en minutos
             </h2>
-            <p className="mt-3 text-app-muted max-w-xl">
+            <p className="mt-3 text-app-muted max-w-xl mx-auto text-sm sm:text-base">
               Tutoriales cortos para que configures todo sin complicaciones.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-5 sm:gap-6">
             {videos.map((video) => (
               <div
                 key={video.title}
-                className="group rounded-[22px] overflow-hidden bg-white border border-app-line shadow-app-card transition-[border-color] duration-200 hover:border-app-line-strong cursor-pointer"
+                className="group rounded-[24px] overflow-hidden bg-white border border-app-line shadow-app-card-premium transition-[border-color,box-shadow] duration-300 hover:border-brand-500/25 hover:shadow-app-card-premium-hover cursor-pointer ring-1 ring-white/60"
               >
                 <div className="relative aspect-video bg-app-field">
                   <img
@@ -209,12 +212,11 @@ export default function RecursosContent() {
       </section>
 
 
-      {/* FAQ */}
       <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-app-shell">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-16">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-app-muted mb-4">Preguntas frecuentes</p>
-            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-tight font-display">
+            <SectionLabel>FAQ</SectionLabel>
+            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-[-0.03em] font-display leading-tight">
               Todo lo que necesitas saber
             </h2>
           </div>
@@ -223,8 +225,8 @@ export default function RecursosContent() {
             {faqs.map((faq, i) => (
               <div
                 key={i}
-                className={`rounded-[22px] bg-white border border-app-line shadow-app-card transition-colors overflow-hidden ${
-                  openFaq === i ? 'border-app-line-strong' : 'hover:border-app-line-strong'
+                className={`rounded-[22px] bg-white border border-app-line shadow-app-card-premium transition-[border-color,box-shadow] overflow-hidden ${
+                  openFaq === i ? 'border-app-line-strong shadow-app-card-premium-hover' : 'hover:border-brand-500/20'
                 }`}
               >
                 <button
@@ -256,24 +258,29 @@ export default function RecursosContent() {
       </section>
 
 
-      {/* Bottom CTA */}
-      <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-app-charcoal text-white border-t border-black/10">
-        <div className="max-w-3xl mx-auto text-center">
-          <div className="w-12 h-12 mx-auto mb-6 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center">
+      <section className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden text-white border-t border-black/10">
+        <div className="absolute inset-0 bg-app-charcoal" aria-hidden />
+        <div className="absolute inset-0 opacity-[0.07] bg-site-grid bg-grid [mask-image:radial-gradient(ellipse_at_50%_0%,black,transparent_70%)]" aria-hidden />
+        <div className="absolute inset-0 bg-gradient-to-br from-brand-600/18 via-transparent to-transparent pointer-events-none" aria-hidden />
+        <div className="landing-noise opacity-[0.06]" aria-hidden />
+        <div className="relative max-w-3xl mx-auto text-center z-[1]">
+          <SectionLabel dark>Soporte</SectionLabel>
+          <div className="w-12 h-12 mx-auto mb-6 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center ring-1 ring-white/10">
             <HelpCircle className="w-6 h-6 text-white" />
           </div>
-          <h2 className="text-3xl lg:text-4xl font-bold mb-4 tracking-tight font-display">
+          <h2 className="text-3xl lg:text-4xl font-bold mb-4 tracking-[-0.03em] font-display text-white">
             ¿No encuentras lo que buscas?
           </h2>
-          <p className="text-lg text-white/80 mb-10 leading-relaxed max-w-lg mx-auto">
+          <p className="text-base sm:text-lg text-white/75 mb-10 leading-relaxed max-w-lg mx-auto">
             Nuestro equipo de soporte está listo para ayudarte con cualquier duda.
           </p>
           <a
             href="/contacto"
-            className="group inline-flex items-center gap-2 px-8 py-4 bg-white text-app-charcoal hover:bg-white/95 text-base font-semibold rounded-2xl transition-all duration-200 shadow-lg hover:scale-[1.02]"
+            className="group relative inline-flex items-center gap-2 overflow-hidden px-8 py-4 rounded-2xl text-base font-semibold text-app-charcoal bg-white shadow-app-card-premium transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
           >
-            Contactar soporte
-            <svg className="w-5 h-5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <span className="absolute inset-0 bg-gradient-to-b from-white to-white/90" />
+            <span className="relative">Contactar soporte</span>
+            <svg className="relative w-5 h-5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
           </a>

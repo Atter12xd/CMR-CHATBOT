@@ -33,24 +33,27 @@ export default {
           /** Búsquedas / campos suaves */
           field: '#ECEEF2',
         },
-        /** Acento grafito / acero (sin azul saturado), armonizado con charcoal #2b2c2f */
+        /**
+         * Acento petróleo (teal profundo): contraste con charcoal, lectura en UI clara,
+         * cercano al tono “confianza / acción” sin azul genérico.
+         */
         brand: {
-          50: '#f4f4f5',
-          100: '#e9eaec',
-          200: '#d5d6da',
-          300: '#b6b8bf',
-          400: '#91939d',
-          500: '#6e717c',
-          600: '#545661',
-          700: '#45474f',
-          800: '#3a3c43',
-          900: '#32333a',
-          950: '#2b2c2f',
+          50: '#f0f9f8',
+          100: '#d9f0ec',
+          200: '#b3e0d9',
+          300: '#7cc9bf',
+          400: '#4aaa9c',
+          500: '#358a7d',
+          600: '#2a7166',
+          700: '#245c54',
+          800: '#214a45',
+          900: '#1e3f3b',
+          950: '#0d2421',
         },
         accent: {
-          emerald: '#10b981',
-          amber: '#f59e0b',
-          rose: '#f43f5e',
+          emerald: '#059669',
+          amber: '#d97706',
+          rose: '#e11d48',
         },
       },
       letterSpacing: {
@@ -67,14 +70,14 @@ export default {
         '5xl': '2.5rem',
       },
       boxShadow: {
-        glow: '0 0 40px -10px rgba(43, 44, 47, 0.12)',
-        'glow-lg': '0 0 60px -15px rgba(43, 44, 47, 0.16)',
+        glow: '0 0 44px -10px rgba(42, 130, 118, 0.2)',
+        'glow-lg': '0 0 64px -14px rgba(42, 130, 118, 0.22)',
         'app-card': '0 4px 24px -6px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04)',
         'app-header': '0 1px 0 0 rgba(15, 23, 42, 0.06)',
       },
       backgroundImage: {
         'app-canvas':
-          'radial-gradient(ellipse 90% 60% at 50% -15%, rgba(43, 44, 47, 0.04), transparent 52%), radial-gradient(ellipse 70% 45% at 100% 0%, rgba(43, 44, 47, 0.03), transparent 45%), linear-gradient(180deg, #F8F9FB 0%, #F3F5F8 100%)',
+          'radial-gradient(ellipse 90% 60% at 50% -12%, rgba(42, 130, 118, 0.07), transparent 55%), radial-gradient(ellipse 65% 40% at 100% 0%, rgba(43, 44, 47, 0.035), transparent 48%), linear-gradient(180deg, #F8F9FB 0%, #F3F5F8 100%)',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out',

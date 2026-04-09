@@ -2,6 +2,7 @@
  *   <script src="https://wazapp.ai/widget.js?siteKey=TU_CLAVE_64_HEX" defer></script>
  * Muchos editores truncan data-site-key a ~16 caracteres; por eso la clave va en ?siteKey=.
  * Opcional: data-debug="true" en el <script>.
+ * No pongas dos veces widget.js en la misma página (ej. uno con TU_CLAVE_PUBLICA de prueba y otro real).
  */
 (function () {
   var Z = 2147483000;
@@ -27,15 +28,10 @@
     }
   }
 
-  /** Con defer, document.currentScript suele ser null; si hay varios widget.js, el último en el DOM puede ser un embed viejo (ej. TU_CLAVE_PUBLICA). Preferimos el último <script> cuya URL tenga siteKey hex de 64. */
-  function resolveScriptEl() {
-    var cur = document.currentScript;
-    if (cur && cur.src && cur.src.indexOf('widget.js') !== -1) {
-      return cur;
-    }
+  /** Último <script widget.js> cuya URL tenga siteKey hex de 64; si no hay ninguno, el último tag (compat.). */
+  function pickWinnerScriptEl() {
     var nodes = document.querySelectorAll('script[src*="widget.js"]');
     if (!nodes.length) return null;
-
     var lastWithValidKey = null;
     for (var i = 0; i < nodes.length; i++) {
       if (isHex64(siteKeyFromScriptSrc(nodes[i]))) {
@@ -46,9 +42,21 @@
     return nodes[nodes.length - 1];
   }
 
-  var SCRIPT = resolveScriptEl();
+  var SCRIPT = pickWinnerScriptEl();
   if (!SCRIPT || SCRIPT.nodeType !== 1) {
     console.warn('[Wazapp] No se encontró el <script src="...widget.js">.');
+    return;
+  }
+
+  /**
+   * Cada <script src="widget.js?..."> descarga el mismo archivo y ejecuta este IIFE otra vez.
+   * Si hay un embed con TU_CLAVE_PUBLICA y otro con la clave real, document.currentScript apuntaba al segundo
+   * y se usaba la clave placeholder → 401. Solo el tag "ganador" (clave 64 hex) debe continuar; el resto sale.
+   */
+  var invoker = document.currentScript;
+  var invokerIsWidget =
+    invoker && invoker.src && invoker.src.indexOf('widget.js') !== -1;
+  if (invokerIsWidget && invoker !== SCRIPT) {
     return;
   }
 
@@ -97,6 +105,13 @@
   if (!siteKey) {
     console.warn('[Wazapp] Falta la clave: ?siteKey= en la URL del script, data-site-key, o window.__WAZAPP_SITE_KEY__');
     return;
+  }
+
+  if (typeof window !== 'undefined' && window.__WAZAPP_WIDGET_V1__) {
+    return;
+  }
+  if (typeof window !== 'undefined') {
+    window.__WAZAPP_WIDGET_V1__ = true;
   }
 
   if (fromAttr.length > 0 && fromAttr.length < 64 && !isHex64(fromUrl)) {

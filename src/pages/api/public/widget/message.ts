@@ -23,7 +23,6 @@ export const POST: APIRoute = async ({ request }) => {
     chatId?: string;
     visitorId?: string;
     text?: string;
-    pageUrl?: string;
   };
   try {
     body = await request.json();
@@ -35,7 +34,6 @@ export const POST: APIRoute = async ({ request }) => {
   const chatId = typeof body.chatId === 'string' ? body.chatId.trim() : '';
   const visitorId = body.visitorId;
   const text = typeof body.text === 'string' ? body.text.trim() : '';
-  const pageUrl = typeof body.pageUrl === 'string' ? body.pageUrl.slice(0, 2000) : null;
 
   if (!siteKey || !chatId || !isValidVisitorId(visitorId) || !text) {
     return jsonResponse(request, { error: 'Parámetros incompletos' }, 400);
@@ -89,13 +87,10 @@ export const POST: APIRoute = async ({ request }) => {
     return jsonResponse(request, { error: 'No autorizado' }, 403);
   }
 
-  const metaPrefix = pageUrl ? `[Página: ${pageUrl}]\n` : '';
-  const storedText = metaPrefix + text;
-
   const { error: userMsgErr } = await db.from('messages').insert({
     chat_id: chatId,
     sender: 'user',
-    text: storedText,
+    text,
     status: 'delivered',
   });
 

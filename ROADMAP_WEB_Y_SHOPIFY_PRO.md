@@ -4,6 +4,19 @@
 
 **Última revisión:** abril 2026 (alineado con `ROADMAP_INTEGRACION_SHOPIFY.md`, `server/README.md`, `integracionwazapp.md`).
 
+### Estado abril 2026 — canal web (Hito A MVP)
+
+| Entrega | Estado |
+|---------|--------|
+| Clave pública por org + dominios permitidos + `chats` `platform: web` | **Hecho** (migración `add_web_widget_to_organizations.sql`, APIs `public/widget/*`, panel Configuración → Widget). |
+| `widget.js` + burbuja + sesión + mensajes + polling + respuesta IA | **Hecho** (probado en sitio real; fix `STORAGE_V` desplegado). |
+| Snippet `?siteKey=` en URL (CMS que trunca `data-site-key`) | **Hecho** |
+| Embed iframe + `frame-ancestors` + bypass origen desde página wazapp | **Hecho** |
+| Loader `wazapp-embed-loader.js` (hosts que borran `<iframe>` del HTML) | **Hecho** |
+| Bridge consola padre + `postMessage` para soporte | **Hecho** |
+| **Hito B Shopify** (Theme App Extension con mismo widget) | **Pendiente** (siguiente bloque grande). |
+| **A.2** rate limit, branding CSP guías, handoff explícito | **Pendiente / afinar** |
+
 ---
 
 ## Visión resumida (experiencia del cliente)
@@ -26,7 +39,7 @@
 | Datos core | **Supabase** | `products`, `messages`, `chats`, integraciones, etc. |
 | WhatsApp | **Baileys en servidor (Contabo)** | API propia (`PUBLIC_BAILEYS_API_URL`); flujo documentado en `server/README.md` e `integracionwazapp.md`. |
 | Shopify | **OAuth + sync + webhooks productos** | Hecho según `ROADMAP_INTEGRACION_SHOPIFY.md`; bot WhatsApp **usa catálogo en prompt** (parcial; sin RAG aún). |
-| Canal **web** (widget embebible) | **No iniciado** | No hay embed/widget en el código; todo el chat hoy es panel interno + WhatsApp. |
+| Canal **web** (widget embebible) | **MVP en producción** | `public/widget.js`, APIs `/api/public/widget/*`, iframe embed, loader; panel **Configuración → Widget**; conversaciones en `chats` con `platform: web`. |
 
 **Conclusión:** el “cerebro” del bot y el CRM están encaminados; el siguiente salto **pro** es **exponer el mismo backend de conversaciones** a visitantes de **sitios web** y **profundizar Shopify** sin duplicar lógica.
 
@@ -45,20 +58,20 @@
 
 **Nota:** cada “día” es una **jornada de trabajo** enfocada; podés estirar o fusionar según equipo y contexto. El orden es fijo: **cerrar web usable** antes de la **extensión Shopify** (reusa el mismo `widget.js`).
 
-### Bloque 1 — Canal web (Hito A, MVP)
+### Bloque 1 — Canal web (Hito A, MVP) — **cerrado (abril 2026)**
 
-| Día | Enfoque | Resultado al cerrar el día |
-|-----|---------|-----------------------------|
-| **1** | **Diseño A.0** | Definido: `visitor_id` (p. ej. localStorage), lista de **dominios permitidos** por org, transporte (**polling corto** vs **SSE** vs **Supabase Realtime**). Decisión escrita en 1 página o ticket. |
-| **2** | **Datos y clave pública** | Tabla o campos para **clave pública del sitio** (`site_key` / hash) por `organization_id`; migración SQL si hace falta; `chats`/`messages` listos para `channel = 'web'` (o equivalente). |
-| **3** | **API: sesión** | `POST` crear sesión/chat de visitante: valida `site-key` + origen; devuelve `session_id` / `chat_id` opaco. |
-| **4** | **API: mensaje + bot** | `POST` mensaje usuario → persiste → **misma pipeline de respuesta IA** que ya uséis (Baileys u otro servicio) para generar respuesta bot → persiste → devuelve al cliente. |
-| **5** | **`widget.js` mínimo** | Script servido en build estático; crea **burbuja** + panel; sin diseño final aún; llama a sesión + primer mensaje de prueba. |
-| **6** | **Widget: conversación** | Input, lista de mensajes, envío encadenado; manejo de errores básico. |
-| **7** | **Tiempo real o polling** | El visitante **ve respuestas sin recargar** (Realtime subscribe o poll cada N s hasta tener SSE). |
-| **8** | **Panel CMR** | Chats **canal web** visibles como el resto; botón **“Copiar código”** con snippet real (`data-site-key=…`). |
-| **9** | **CORS + prueba en sitio real** | Dominios permitidos aplicados; prueba en HTML aparte (no localhost del monorepo) o dominio de staging. |
-| **10** | **Cierre MVP web** | README interno o guía “pegar script”; bugs críticos; **DoD:** snippet en una web ajena y conversación en el panel. |
+| Día | Enfoque | Resultado |
+|-----|---------|-----------|
+| **1** | **Diseño A.0** | **Hecho:** `visitorId` UUID + localStorage; dominios opcionales `web_widget_allowed_origins`; **polling** ~6s. |
+| **2** | **Datos y clave pública** | **Hecho:** `web_widget_public_key`, `web_widget_allowed_origins`; chats `platform: 'web'`. |
+| **3** | **API: sesión** | **Hecho:** `POST /api/public/widget/session` → `chatId`. |
+| **4** | **API: mensaje + bot** | **Hecho:** `POST .../message` + pipeline IA (`generate-web-widget-sales-reply`). |
+| **5** | **`widget.js` mínimo** | **Hecho** |
+| **6** | **Widget: conversación** | **Hecho** |
+| **7** | **Tiempo real o polling** | **Hecho** (polling) |
+| **8** | **Panel CMR** | **Hecho:** WebWidgetIntegration + snippets (script / iframe / loader / bridge). |
+| **9** | **CORS + prueba en sitio real** | **Hecho** (CORS en APIs públicas; probado en web de cliente). |
+| **10** | **Cierre MVP web** | **Hecho** — DoD cumplido. **Siguiente:** afinar (A.2) + Hito B Shopify. |
 
 ### Bloque 2 — Shopify (Hito B, tras el MVP web)
 
@@ -103,13 +116,17 @@ Eso implica por debajo: `widget.js` alojado en dominio propio (p. ej. `wazapp.ai
 | **Persistencia** | Misma tabla `messages` con `channel = 'web'` y metadata (`page_url`, `user_agent`). |
 | **Guía rápida** | WordPress (widget HTML), sitios estáticos; en Shopify lo ideal es la extensión (Hito B), no Liquid manual. |
 
-Ejemplo de snippet (el comerciante lo pega antes de `</body>` o en el bloque HTML del CMS):
+Ejemplo mínimo (el comerciante lo pega antes de `</body>`). Ver bloque **DoD MVP** arriba para variantes iframe / loader.
+
+**DoD MVP:** un sitio de prueba **solo con pegar el snippet**; conversación aparece en el panel CMR como un chat más. **— Cumplido.**
+
+**Snippet recomendado hoy (clave larga en URL; muchos CMS cortan `data-site-key`):**
 
 ```html
-<script src="https://wazapp.ai/widget.js" data-site-key="TU_CLAVE_PUBLICA" async></script>
+<script src="https://wazapp.ai/widget.js?siteKey=TU_CLAVE_64_HEX" defer></script>
 ```
 
-**DoD MVP:** un sitio de prueba **solo con pegar el snippet**; conversación aparece en el panel CMR como un chat más.
+**Si el hosting elimina iframes del HTML:** `wazapp-embed-loader.js?siteKey=…` (una sola etiqueta script). **Si bloquea scripts externos:** iframe `widget-embed-iframe.html?siteKey=…` + opcional `wazapp-embed-console-bridge.js` para logs en la consola del sitio padre.
 
 ### A.2 Producción (2–4 semanas)
 

@@ -249,21 +249,46 @@
 
       var root = document.createElement('div');
       root.setAttribute('data-wazapp-widget', '1');
+      var panelGrad =
+        'linear-gradient(180deg,#e3f2fc 0%,#f8fbff 38%,#ffffff 72%,#f6f8fc 100%)';
+      var launcherRing =
+        '0 0 0 2px rgba(129,140,248,.45),0 0 0 1px rgba(255,255,255,.9) inset,0 6px 24px rgba(99,102,241,.28)';
       root.innerHTML =
-        '<button type="button" aria-label="Abrir chat" style="position:fixed;bottom:20px;right:20px;width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;background:#0ea5e9;color:#fff;font-size:22px;box-shadow:0 4px 14px rgba(14,165,233,.45);z-index:' +
+        '<button type="button" aria-label="Abrir chat" style="position:fixed;bottom:22px;right:22px;width:58px;height:58px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(180deg,#ffffff,#eff6ff);color:#3730a3;font-size:20px;line-height:1;box-shadow:' +
+        launcherRing +
+        ';z-index:' +
         Z +
-        ';">💬</button>' +
-        '<div style="display:none;flex-direction:column;position:fixed;bottom:88px;right:20px;width:min(100vw - 40px,360px);height:420px;max-height:70vh;background:#0f172a;color:#e2e8f0;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.35);z-index:' +
+        ';display:flex;align-items:center;justify-content:center;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif">💬</button>' +
+        '<div style="display:none;flex-direction:column;position:fixed;bottom:92px;right:22px;width:min(100vw - 44px,380px);height:460px;max-height:72vh;background:' +
+        panelGrad +
+        ';color:#0f172a;border-radius:24px;box-shadow:0 24px 56px rgba(15,23,42,.14),0 0 0 1px rgba(15,23,42,.06);z-index:' +
         (Z + 1) +
-        ';overflow:hidden;border:1px solid #334155;">' +
-        '<div style="padding:12px 14px;background:#1e293b;font-weight:600;font-size:15px;border-bottom:1px solid #334155;">Chat</div>' +
-        '<div data-messages style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.45;"></div>' +
-        '<div style="padding:10px;border-top:1px solid #334155;display:flex;gap:8px;">' +
-        '<input type="text" placeholder="Escribe un mensaje…" style="flex:1;border-radius:10px;border:1px solid #475569;background:#1e293b;color:#f8fafc;padding:10px 12px;font-size:14px;" />' +
-        '<button type="button" style="border:none;border-radius:10px;background:#0ea5e9;color:#fff;font-weight:600;padding:0 14px;cursor:pointer;">Enviar</button>' +
-        '</div></div>';
+        ';overflow:hidden;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif">' +
+        '<div style="display:flex;align-items:center;gap:12px;padding:16px 18px 10px;flex-shrink:0">' +
+        '<div aria-hidden="true" style="width:44px;height:44px;border-radius:50%;flex-shrink:0;background:radial-gradient(circle at 32% 28%,#ffffff,#dbeafe);box-shadow:0 0 0 2px #818cf8,0 0 18px rgba(99,102,241,.4);position:relative">' +
+        '<div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-42%);width:68%;height:30%;background:#0f172a;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:5px">' +
+        '<span style="width:5px;height:8px;background:#fff;border-radius:2px"></span>' +
+        '<span style="width:5px;height:8px;background:#fff;border-radius:2px"></span>' +
+        '</div></div>' +
+        '<div style="flex:1;min-width:0">' +
+        '<div style="font-weight:600;font-size:17px;color:#0d1b3e;letter-spacing:-.02em;line-height:1.2">Chat</div>' +
+        '<div style="font-size:12px;color:#64748b;margin-top:2px">Estamos para ayudarte</div>' +
+        '</div></div>' +
+        '<div data-messages style="flex:1;overflow-y:auto;padding:8px 16px 12px;display:flex;flex-direction:column;gap:12px;font-size:14px;line-height:1.5;-webkit-overflow-scrolling:touch"></div>' +
+        '<div style="padding:12px 16px 18px;flex-shrink:0">' +
+        '<div style="display:flex;align-items:center;gap:8px;background:#fff;border-radius:999px;box-shadow:0 4px 20px rgba(15,23,42,.08),0 0 0 1px rgba(15,23,42,.05);padding:5px 6px 5px 18px">' +
+        '<input data-wazapp-input type="text" placeholder="Escribe un mensaje…" style="flex:1;min-width:0;border:none;background:transparent;color:#0f172a;padding:10px 0;font-size:14px;outline:none;font-family:inherit" />' +
+        '<button type="button" data-wazapp-send aria-label="Enviar" style="width:42px;height:42px;border-radius:50%;border:none;background:#94a3b8;color:#fff;font-weight:600;font-size:18px;line-height:1;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(15,23,42,.12)">↑</button>' +
+        '</div></div></div>';
 
       document.body.appendChild(root);
+      var wzStyle = document.createElement('style');
+      wzStyle.textContent =
+        '[data-wazapp-widget] button[data-wazapp-send]:hover{background:#64748b!important}' +
+        '[data-wazapp-widget] button[data-wazapp-send]:active{transform:scale(.96)}' +
+        '[data-wazapp-widget] button[aria-label="Abrir chat"]:hover{filter:brightness(1.03);transform:scale(1.04)}' +
+        '[data-wazapp-widget] button[aria-label="Abrir chat"]:active{transform:scale(.98)}';
+      root.insertBefore(wzStyle, root.firstChild);
       log('UI montada en body');
       say('Interfaz lista: burbuja 💬 abajo a la derecha. Ábrela para crear sesión en', apiBase);
       try {
@@ -275,8 +300,8 @@
       var btn = root.querySelector('button[aria-label="Abrir chat"]');
       var panel = root.children[1];
       var msgBox = root.querySelector('[data-messages]');
-      var input = root.querySelector('input');
-      var sendBtn = panel.querySelector('div:last-child button');
+      var input = root.querySelector('[data-wazapp-input]');
+      var sendBtn = root.querySelector('[data-wazapp-send]');
 
       var open = false;
       var lastCreatedAt = '';
@@ -284,19 +309,22 @@
 
       function appendBubble(text, who) {
         var d = document.createElement('div');
-        d.style.maxWidth = '92%';
+        d.style.maxWidth = '88%';
         d.style.alignSelf = who === 'user' ? 'flex-end' : 'flex-start';
-        d.style.padding = '8px 12px';
-        d.style.borderRadius = '12px';
+        d.style.padding = '11px 16px';
+        d.style.borderRadius = '20px';
         d.style.fontSize = '14px';
         d.style.whiteSpace = 'pre-wrap';
         d.style.wordBreak = 'break-word';
         if (who === 'user') {
-          d.style.background = '#0ea5e9';
-          d.style.color = '#fff';
+          d.style.background = '#0d1b3e';
+          d.style.color = '#ffffff';
+          d.style.boxShadow = '0 2px 12px rgba(13,27,62,.2)';
         } else {
-          d.style.background = '#334155';
-          d.style.color = '#f1f5f9';
+          d.style.background = '#ffffff';
+          d.style.color = '#0f172a';
+          d.style.boxShadow = '0 2px 14px rgba(15,23,42,.07)';
+          d.style.border = '1px solid rgba(15,23,42,.06)';
         }
         d.textContent = text;
         msgBox.appendChild(d);

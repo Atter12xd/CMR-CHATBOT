@@ -1,11 +1,32 @@
-/* Wazapp widget — snippet: <script src="https://tu-dominio/widget.js" data-site-key="..." async></script> */
+/* Wazapp widget — usar defer (recomendado). Con async, document.currentScript suele ser null y el widget no arranca. */
 (function () {
-  var SCRIPT = document.currentScript;
-  if (!SCRIPT || !SCRIPT.getAttribute) return;
+  function resolveScriptEl() {
+    var cur = document.currentScript;
+    if (cur && cur.src && cur.src.indexOf('widget.js') !== -1) {
+      return cur;
+    }
+    var nodes = document.querySelectorAll('script[src*="widget.js"]');
+    if (nodes.length) {
+      return nodes[nodes.length - 1];
+    }
+    return null;
+  }
+
+  var SCRIPT = resolveScriptEl();
+  if (!SCRIPT || !SCRIPT.getAttribute) {
+    console.warn('[Wazapp] No se encontró el elemento <script> del widget.');
+    return;
+  }
 
   var siteKey = (SCRIPT.getAttribute('data-site-key') || '').trim();
   if (!siteKey) {
-    console.warn('[Wazapp] Falta data-site-key en el script del widget.');
+    try {
+      var srcUrl = new URL(SCRIPT.src, window.location.href);
+      siteKey = (srcUrl.searchParams.get('siteKey') || srcUrl.searchParams.get('key') || '').trim();
+    } catch (e) {}
+  }
+  if (!siteKey) {
+    console.warn('[Wazapp] Falta data-site-key (o ?siteKey= en la URL del script).');
     return;
   }
 
@@ -21,17 +42,24 @@
   apiBase = apiBase.replace(/\/+$/, '');
 
   var STORAGE_V = 'wazapp_v1_';
+  var memStore = {};
+  function storageKey(k) {
+    return STORAGE_V + k + '_' + siteKey.slice(0, 12);
+  }
   function lsGet(k) {
+    var key = storageKey(k);
     try {
-      return localStorage.getItem(STORAGE_V + k + '_' + siteKey.slice(0, 12));
-    } catch (e) {
-      return null;
-    }
+      var v = localStorage.getItem(key);
+      if (v != null) return v;
+    } catch (e) {}
+    return memStore[key] || null;
   }
   function lsSet(k, v) {
+    var key = storageKey(k);
     try {
-      localStorage.setItem(STORAGE_V + k + '_' + siteKey.slice(0, 12), v);
+      localStorage.setItem(key, v);
     } catch (e) {}
+    memStore[key] = v;
   }
 
   function randomUuid() {

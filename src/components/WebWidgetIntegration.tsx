@@ -211,6 +211,11 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
           <pre className="text-[11px] text-app-muted overflow-x-auto p-3 rounded-lg bg-app-field/80 border border-app-line whitespace-pre-wrap break-all">
             {snippet}
           </pre>
+          <p className="text-[11px] text-app-muted leading-relaxed">
+            Pega el script antes de <code className="text-[10px]">&lt;/body&gt;</code>. Usa <strong>defer</strong> como en el código
+            (con <code className="text-[10px]">async</code> a veces no carga el widget). Si no ves la burbuja, revisa la consola:
+            bloqueadores de anuncios, extensiones, o CSP del sitio que bloqueen scripts de tu dominio Wazapp.
+          </p>
         </div>
       )}
     </div>

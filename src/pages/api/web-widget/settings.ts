@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { randomBytes } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 import { resolvePublicSiteUrl } from '../../../lib/shopify-public-url';
+import { normalizeWidgetSiteKey } from '../../../lib/web-widget/site-key';
 
 export const prerender = false;
 
@@ -92,7 +93,8 @@ export const GET: APIRoute = async ({ request, url }) => {
     });
   }
 
-  const publicKey = row?.web_widget_public_key as string | null;
+  const rawKey = row?.web_widget_public_key as string | null;
+  const publicKey = rawKey ? normalizeWidgetSiteKey(rawKey) : null;
   const allowedOrigins = (row?.web_widget_allowed_origins as string[] | null) ?? null;
 
   const base = resolvePublicSiteUrl(request);
@@ -139,8 +141,9 @@ export const POST: APIRoute = async ({ request }) => {
     .single();
 
   let nextKey = (current?.web_widget_public_key as string | null) ?? null;
+  if (nextKey) nextKey = normalizeWidgetSiteKey(nextKey);
   if (body.rotateKey) {
-    nextKey = randomBytes(32).toString('hex');
+    nextKey = normalizeWidgetSiteKey(randomBytes(32).toString('hex'));
   }
 
   const originsUpdate =
@@ -148,7 +151,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (body.rotateKey && nextKey) {
-    patch.web_widget_public_key = nextKey;
+    patch.web_widget_public_key = normalizeWidgetSiteKey(nextKey);
   }
   if (originsUpdate !== undefined) {
     patch.web_widget_allowed_origins = originsUpdate.length ? originsUpdate : null;
@@ -161,18 +164,56 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  const { error: upErr } = await db.from('organizations').update(patch as never).eq('id', organizationId);
+  const { data: updatedRows, error: upErr } = await db
+    .from('organizations')
+    .update(patch as never)
+    .eq('id', organizationId)
+    .select('id, web_widget_public_key');
+
   if (upErr) {
     console.error('[web-widget/settings POST]', upErr);
-    return new Response(JSON.stringify({ error: 'No se pudo guardar' }), {
-      status: 500,
-      headers: jsonHeaders,
-    });
+    return new Response(
+      JSON.stringify({
+        error: 'No se pudo guardar',
+        hint: upErr.message?.includes('web_widget') ? '¿Ejecutaste add_web_widget_to_organizations.sql en este proyecto de Supabase?' : undefined,
+      }),
+      { status: 500, headers: jsonHeaders },
+    );
+  }
+
+  if (!updatedRows?.length) {
+    return new Response(
+      JSON.stringify({
+        error: 'No se pudo guardar',
+        hint:
+          'No se actualizó ninguna fila: el id de organización no coincide con Supabase o Vercel apunta a otro proyecto (revisa PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY).',
+      }),
+      { status: 500, headers: jsonHeaders },
+    );
+  }
+
+  const savedKeyRaw = (updatedRows[0] as { web_widget_public_key?: string | null }).web_widget_public_key;
+  const savedKey = savedKeyRaw ? normalizeWidgetSiteKey(savedKeyRaw) : null;
+
+  if (body.rotateKey && nextKey) {
+    if (savedKey !== normalizeWidgetSiteKey(nextKey)) {
+      return new Response(
+        JSON.stringify({
+          error: 'La clave no quedó guardada en la base de datos',
+          hint:
+            'Comprueba en Supabase → Table Editor → organizations que exista la columna web_widget_public_key y que Vercel use el service_role key del mismo proyecto.',
+        }),
+        { status: 500, headers: jsonHeaders },
+      );
+    }
   }
 
   const base = resolvePublicSiteUrl(request);
   const scriptUrl = `${base}/widget.js`;
-  const keyToShow = (body.rotateKey ? nextKey : (current?.web_widget_public_key as string | null)) || nextKey;
+  const keyToShow =
+    body.rotateKey && nextKey
+      ? normalizeWidgetSiteKey(nextKey)
+      : savedKey || normalizeWidgetSiteKey((current?.web_widget_public_key as string | null) || '') || nextKey;
   const snippet = keyToShow
     ? `<script src="${scriptUrl}" data-site-key="${keyToShow}" defer></script>`
     : '';

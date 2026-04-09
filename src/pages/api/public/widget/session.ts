@@ -7,6 +7,7 @@ import {
   widgetCorsHeaders,
   type WidgetOrgRow,
 } from '../../../../lib/web-widget/http';
+import { normalizeWidgetSiteKey } from '../../../../lib/web-widget/site-key';
 
 export const prerender = false;
 
@@ -21,7 +22,7 @@ export const POST: APIRoute = async ({ request }) => {
     return jsonResponse(request, { error: 'JSON inválido' }, 400);
   }
 
-  const siteKey = typeof body.siteKey === 'string' ? body.siteKey.trim() : '';
+  const siteKey = normalizeWidgetSiteKey(typeof body.siteKey === 'string' ? body.siteKey : '');
   const visitorId = body.visitorId;
 
   if (!siteKey || !isValidVisitorId(visitorId)) {
@@ -42,13 +43,27 @@ export const POST: APIRoute = async ({ request }) => {
     .eq('web_widget_public_key', siteKey)
     .maybeSingle();
 
-  if (orgErr || !org) {
+  if (orgErr) {
+    console.error('[widget/session] DB', orgErr);
+    const msg = orgErr.message || String(orgErr);
+    const schemaHint =
+      /web_widget_public_key|column|schema/i.test(msg)
+        ? ' Ejecuta en Supabase el SQL add_web_widget_to_organizations.sql y revisa Table Editor → organizations.'
+        : '';
+    return jsonResponse(
+      request,
+      { error: 'Error al validar la clave', hint: msg + schemaHint },
+      500,
+    );
+  }
+
+  if (!org) {
     return jsonResponse(
       request,
       {
         error: 'Clave de sitio no válida',
         hint:
-          'Usa la clave completa de Configuración → Widget (suele tener 64 caracteres), en data-site-key del script. Si usaste widget-embed-test.html, sustituye TU_CLAVE_PUBLICA.',
+          'No hay ninguna organización con esa clave en la base de datos. En Configuración → Widget pulsa «Rotar clave» y guarda, revisa en Supabase que la columna web_widget_public_key tenga valor, y vuelve a copiar el snippet.',
       },
       401,
     );

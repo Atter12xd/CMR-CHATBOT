@@ -8,6 +8,7 @@ import {
   widgetCorsHeaders,
   type WidgetOrgRow,
 } from '../../../../lib/web-widget/http';
+import { normalizeWidgetSiteKey } from '../../../../lib/web-widget/site-key';
 
 export const prerender = false;
 
@@ -30,7 +31,7 @@ export const POST: APIRoute = async ({ request }) => {
     return jsonResponse(request, { error: 'JSON inválido' }, 400);
   }
 
-  const siteKey = typeof body.siteKey === 'string' ? body.siteKey.trim() : '';
+  const siteKey = normalizeWidgetSiteKey(typeof body.siteKey === 'string' ? body.siteKey : '');
   const chatId = typeof body.chatId === 'string' ? body.chatId.trim() : '';
   const visitorId = body.visitorId;
   const text = typeof body.text === 'string' ? body.text.trim() : '';
@@ -57,7 +58,11 @@ export const POST: APIRoute = async ({ request }) => {
     .eq('web_widget_public_key', siteKey)
     .maybeSingle();
 
-  if (orgErr || !org) {
+  if (orgErr) {
+    console.error('[widget/message] DB', orgErr);
+    return jsonResponse(request, { error: 'Error al validar la clave', hint: orgErr.message }, 500);
+  }
+  if (!org) {
     return jsonResponse(request, { error: 'Clave de sitio no válida' }, 401);
   }
 

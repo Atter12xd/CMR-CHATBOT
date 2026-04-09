@@ -35,14 +35,21 @@
 
   log('Script detectado', SCRIPT.src);
 
-  var siteKey = (SCRIPT.getAttribute('data-site-key') || '').trim();
+  function normKey(s) {
+    return String(s || '')
+      .trim()
+      .replace(/[\u200B-\u200D\uFEFF]/g, '')
+      .toLowerCase();
+  }
+
+  var siteKey = normKey(SCRIPT.getAttribute('data-site-key') || '');
   if (!siteKey && typeof window !== 'undefined') {
-    siteKey = String(window.__WAZAPP_SITE_KEY__ || window.WAZAPP_SITE_KEY || '').trim();
+    siteKey = normKey(window.__WAZAPP_SITE_KEY__ || window.WAZAPP_SITE_KEY || '');
   }
   if (!siteKey) {
     try {
       var srcUrl = new URL(SCRIPT.src, window.location.href);
-      siteKey = (srcUrl.searchParams.get('siteKey') || srcUrl.searchParams.get('key') || '').trim();
+      siteKey = normKey(srcUrl.searchParams.get('siteKey') || srcUrl.searchParams.get('key') || '');
     } catch (e) {}
   }
   if (!siteKey) {

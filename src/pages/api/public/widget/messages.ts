@@ -7,6 +7,7 @@ import {
   widgetCorsHeaders,
   type WidgetOrgRow,
 } from '../../../../lib/web-widget/http';
+import { normalizeWidgetSiteKey } from '../../../../lib/web-widget/site-key';
 
 export const prerender = false;
 
@@ -14,7 +15,7 @@ export const OPTIONS: APIRoute = ({ request }) =>
   new Response(null, { status: 204, headers: widgetCorsHeaders(request) });
 
 export const GET: APIRoute = async ({ request, url }) => {
-  const siteKey = (url.searchParams.get('siteKey') || '').trim();
+  const siteKey = normalizeWidgetSiteKey(url.searchParams.get('siteKey') || '');
   const chatId = (url.searchParams.get('chatId') || '').trim();
   const visitorId = url.searchParams.get('visitorId') || '';
   const after = url.searchParams.get('after') || '';
@@ -37,7 +38,11 @@ export const GET: APIRoute = async ({ request, url }) => {
     .eq('web_widget_public_key', siteKey)
     .maybeSingle();
 
-  if (orgErr || !org) {
+  if (orgErr) {
+    console.error('[widget/messages] DB', orgErr);
+    return jsonResponse(request, { error: 'Error al validar la clave', hint: orgErr.message }, 500);
+  }
+  if (!org) {
     return jsonResponse(request, { error: 'Clave de sitio no válida' }, 401);
   }
 

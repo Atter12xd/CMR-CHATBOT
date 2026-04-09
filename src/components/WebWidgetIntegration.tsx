@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Copy, Globe, Loader2, RefreshCw, Shield } from 'lucide-react';
+import { ChevronDown, Copy, Globe, Loader2, RefreshCw, Shield } from 'lucide-react';
 import { createClient } from '../lib/supabase';
 
 interface WebWidgetIntegrationProps {
@@ -152,7 +152,7 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
       setCopiedIframe(true);
       setTimeout(() => setCopiedIframe(false), 2000);
     } catch {
-      setError('No se pudo copiar el iframe.');
+      setError('No se pudo copiar.');
     }
   };
 
@@ -163,7 +163,7 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
       setCopiedLoader(true);
       setTimeout(() => setCopiedLoader(false), 2000);
     } catch {
-      setError('No se pudo copiar el loader.');
+      setError('No se pudo copiar.');
     }
   };
 
@@ -174,7 +174,7 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
       setCopiedBridge(true);
       setTimeout(() => setCopiedBridge(false), 2000);
     } catch {
-      setError('No se pudo copiar el bridge.');
+      setError('No se pudo copiar.');
     }
   };
 
@@ -200,11 +200,14 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
     }
   };
 
+  const hasAdvanced =
+    Boolean(snippetIframe || snippetLoader || snippetConsoleBridge || parentConsoleOneLiner || publicKey);
+
   if (loading) {
     return (
       <div className="flex items-center gap-2 text-app-muted text-[14px]">
         <Loader2 className="size-4 animate-spin" />
-        Cargando widget web…
+        Cargando…
       </div>
     );
   }
@@ -215,80 +218,60 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
         <p className="text-[13px] text-rose-600 bg-rose-500/10 border border-rose-500/20 rounded-xl px-3 py-2">{error}</p>
       )}
 
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         {!publicKey ? (
-          <button
-            type="button"
-            onClick={generateKey}
-            disabled={generating}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-60"
-          >
-            {generating ? <Loader2 className="size-4 animate-spin" /> : <Globe className="size-4" />}
-            Generar clave del widget
-          </button>
-        ) : (
-          <p className="text-[13px] text-app-muted">
-            Ya tienes clave activa. Cópiala abajo y pégala en <code className="text-[11px]">data-site-key</code> de tu sitio.
-            Rotar solo si se filtró.
-          </p>
-        )}
-        {publicKey && (
-          <button
-            type="button"
-            onClick={generateKey}
-            disabled={generating}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-full text-xs font-semibold border border-app-line text-app-ink hover:bg-app-field/80 disabled:opacity-60"
-          >
-            <RefreshCw className={`size-3.5 ${generating ? 'animate-spin' : ''}`} />
-            Rotar clave
-          </button>
-        )}
-      </div>
-
-      {publicKey && (
-        <div className="rounded-xl border-2 border-brand-500/30 bg-brand-500/5 p-4 space-y-3">
-          <p className="text-[13px] font-semibold text-app-ink">Dónde va la clave en tu web</p>
-          <p className="text-[12px] text-app-muted leading-relaxed">
-            El snippet copiado abajo pone la clave en la <strong>URL</strong>{' '}
-            <code className="text-[11px] bg-app-field px-1 rounded">widget.js?siteKey=…</code> ({publicKey.length}{' '}
-            caracteres). Muchos CMS <strong>recortan</strong> <code className="text-[11px]">data-site-key</code> a unos
-            16 caracteres y el chat falla con 401; por eso usamos el parámetro <code className="text-[11px]">siteKey</code>.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
-            <input
-              type="text"
-              readOnly
-              value={publicKey}
-              className="flex-1 rounded-xl border border-app-line bg-ref-card text-app-ink text-[12px] px-3 py-2 font-mono"
-              aria-label="Clave pública del widget"
-            />
+          <div className="space-y-2">
+            <p className="text-[13px] text-app-muted leading-relaxed">
+              Genera tu código en un clic. Luego solo tendrás que pegarlo en tu web.
+            </p>
             <button
               type="button"
-              onClick={copyKeyOnly}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-brand-500 text-white hover:bg-brand-600 shrink-0"
+              onClick={generateKey}
+              disabled={generating}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-60"
             >
-              <Copy className="size-4" />
-              {copiedKey ? 'Clave copiada' : 'Copiar clave'}
+              {generating ? <Loader2 className="size-4 animate-spin" /> : <Globe className="size-4" />}
+              Obtener código para mi web
             </button>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="space-y-1 min-w-0 flex-1">
+            <p className="text-[13px] text-app-muted leading-relaxed">
+              Copia el <strong>recuadro de abajo</strong> y pégalo en tu página (pie de página, “HTML personalizado” o
+              donde tu plataforma lo permita). El código ya incluye todo lo necesario.
+            </p>
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <button
+                type="button"
+                onClick={generateKey}
+                disabled={generating}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-semibold border border-app-line text-app-muted hover:bg-app-field/80 hover:text-app-ink disabled:opacity-60"
+              >
+                <RefreshCw className={`size-3 ${generating ? 'animate-spin' : ''}`} />
+                Generar código nuevo
+              </button>
+              <span className="text-[11px] text-app-muted">Solo si crees que alguien copió tu instalación sin permiso.</span>
+            </div>
+          </div>
+        )}
+      </div>
 
       <div className="rounded-xl border border-app-line bg-app-field/40 p-4 space-y-2">
         <div className="flex items-center gap-2 text-app-ink font-semibold text-[14px]">
           <Shield className="size-4 text-brand-600" />
-          Dominios permitidos (opcional)
+          ¿En qué sitios puede usarse? (opcional)
         </div>
         <p className="text-[12px] text-app-muted leading-relaxed">
-          Un dominio por línea (ej. <code className="text-[11px] bg-app-field px-1 rounded">mitienda.com</code>). Si
-          dejas vacío, se acepta cualquier origen (solo recomendable en pruebas).
+          Si conoces el dominio de tu web (ej. <span className="font-medium text-app-ink">mitienda.com</span>), puedes
+          escribirlo aquí para mayor seguridad. Si no estás seguro, déjalo vacío y quien te arme la página lo puede
+          completar después.
         </p>
         <textarea
           value={allowedText}
           onChange={(e) => setAllowedText(e.target.value)}
-          rows={4}
+          rows={3}
           className="w-full rounded-xl border border-app-line bg-ref-card text-app-ink text-[13px] px-3 py-2 font-mono"
-          placeholder="www.mitienda.com&#10;mitienda.com"
+          placeholder={'mitienda.com\nwww.mitienda.com'}
         />
         <button
           type="button"
@@ -297,155 +280,164 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-app-ink text-white hover:opacity-90 disabled:opacity-60"
         >
           {saving ? <Loader2 className="size-4 animate-spin" /> : null}
-          Guardar dominios
+          Guardar
         </button>
       </div>
 
       {snippet && (
-        <div className="rounded-xl border border-app-line bg-ref-card p-4 space-y-2">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-[14px] font-semibold text-app-ink">Código para tu web</span>
+        <div className="rounded-xl border-2 border-brand-500/25 bg-brand-500/[0.06] p-4 space-y-3">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <span className="text-[15px] font-semibold text-app-ink">Paso 1: copiar y pegar</span>
             <button
               type="button"
               onClick={copySnippet}
-              className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-brand-600 hover:text-brand-500"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-brand-500 text-white hover:bg-brand-600"
             >
-              <Copy className="size-3.5" />
-              {copied ? 'Copiado' : 'Copiar'}
+              <Copy className="size-4" />
+              {copied ? '¡Copiado!' : 'Copiar código'}
             </button>
           </div>
-          <pre className="text-[11px] text-app-muted overflow-x-auto p-3 rounded-lg bg-app-field/80 border border-app-line whitespace-pre-wrap break-all">
+          <pre className="text-[11px] text-app-muted overflow-x-auto p-3 rounded-lg bg-ref-card border border-app-line whitespace-pre-wrap break-all">
             {snippet}
           </pre>
-          <p className="text-[11px] text-app-muted leading-relaxed space-y-2">
-            <span className="block">
-              Debes pegar la <strong>etiqueta completa</strong> <code className="text-[10px]">&lt;script …&gt;&lt;/script&gt;</code>.
-              Si solo pegas la URL del <code className="text-[10px]">.js</code> en el editor, verás texto/código: el navegador no ejecuta el
-              widget así.
-            </span>
-            <span className="block">
-              Prueba en producción:{' '}
-              <a
-                href="/widget-embed-test.html"
-                className="text-brand-600 hover:text-brand-500 font-medium"
-                target="_blank"
-                rel="noreferrer"
-              >
-                /widget-embed-test.html
-              </a>{' '}
-              (pon tu clave o <code className="text-[10px]">?key=…</code>). Añade{' '}
-              <code className="text-[10px]">data-debug=&quot;true&quot;</code> al script para ver logs{' '}
-              <code className="text-[10px]">[Wazapp]</code> en la consola.
-            </span>
-            <span className="block">
-              Pega el snippet <strong>tal cual</strong> (con <code className="text-[10px]">?siteKey=</code> largo). Si no ves la burbuja:
-              bloqueadores o CSP que bloqueen <code className="text-[10px]">wazapp.ai</code>.
-            </span>
+          <p className="text-[12px] text-app-muted leading-relaxed">
+            Debe pegarse el <strong>bloque entero</strong> (desde <code className="text-[10px]">&lt;script</code> hasta{' '}
+            <code className="text-[10px]">&lt;/script&gt;</code>). Si solo pegas un enlace suelto, no funcionará.
           </p>
         </div>
       )}
 
-      {snippetIframe && (
-        <div className="rounded-xl border-2 border-brand-500/25 bg-brand-500/5 p-4 space-y-2">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-[14px] font-semibold text-app-ink">Si tu web bloquea scripts (CSP / CMS)</span>
-            <button
-              type="button"
-              onClick={copySnippetIframe}
-              className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-brand-600 hover:text-brand-500"
-            >
-              <Copy className="size-3.5" />
-              {copiedIframe ? 'Copiado' : 'Copiar iframe'}
-            </button>
-          </div>
-          <p className="text-[12px] text-app-muted leading-relaxed">
-            Muchas plantillas <strong>no ejecutan</strong> <code className="text-[10px]">&lt;script src=&quot;…&quot;&gt;</code> externos.
-            Este <code className="text-[10px]">&lt;iframe&gt;</code> suele pasar: pégalo antes de <code className="text-[10px]">&lt;/body&gt;</code> igual
-            que el script. El chat corre dentro de wazapp.ai; la clave sigue siendo la misma. Si aún falla, la política CSP del sitio puede
-            exigir <code className="text-[10px]">frame-src https://wazapp.ai</code>. Soporte: en consola elige el{' '}
-            <strong>marco del iframe</strong> para ver líneas <code className="text-[10px]">[Wazapp]</code> y{' '}
-            <code className="text-[10px]">[Wazapp iframe]</code>.
-          </p>
-          <pre className="text-[11px] text-app-muted overflow-x-auto p-3 rounded-lg bg-app-field/80 border border-app-line whitespace-pre-wrap break-all">
-            {snippetIframe}
-          </pre>
-          <p className="text-[12px] font-semibold text-app-ink pt-2">Orden recomendado en el HTML del cliente</p>
-          <ol className="text-[11px] text-app-muted list-decimal pl-5 space-y-1">
-            <li>
-              <strong>Bridge de consola</strong> (abajo): así los eventos del iframe aparecen en la consola de la web del
-              cliente (no solo dentro del marco).
-            </li>
-            <li>
-              El <strong>iframe</strong> del chat justo después.
-            </li>
-          </ol>
-        </div>
-      )}
+      {publicKey && hasAdvanced && (
+        <details className="group rounded-xl border border-app-line bg-app-field/30 overflow-hidden">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-[13px] font-semibold text-app-ink hover:bg-app-field/50 [&::-webkit-details-marker]:hidden">
+            <span>No funciona, o te ayuda alguien con la técnica</span>
+            <ChevronDown className="size-4 shrink-0 text-app-muted transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="px-4 pb-4 pt-0 space-y-5 border-t border-app-line/80">
+            <p className="text-[12px] text-app-muted leading-relaxed pt-3">
+              La mayoría de webs solo necesitan el código de arriba. Si tu plantilla bloquea scripts, prueba la ventana
+              incrustada. Si aún falla, un técnico puede usar el cargador automático.
+            </p>
 
-      {snippetLoader && (
-        <div className="rounded-xl border-2 border-amber-500/30 bg-amber-500/5 p-4 space-y-2">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-[14px] font-semibold text-app-ink">Si en la web publicada no existe el iframe</span>
-            <button
-              type="button"
-              onClick={copySnippetLoader}
-              className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-brand-600 hover:text-brand-500"
-            >
-              <Copy className="size-3.5" />
-              {copiedLoader ? 'Copiado' : 'Copiar loader (1 script)'}
-            </button>
-          </div>
-          <p className="text-[12px] text-app-muted leading-relaxed">
-            Si en tu archivo HTML <strong>sí</strong> está el <code className="text-[10px]">&lt;iframe wazapp…&gt;</code> pero en
-            la página en vivo <code className="text-[10px]">document.querySelector(&apos;iframe[src*=&quot;wazapp&quot;]&apos;)</code> da{' '}
-            <code className="text-[10px]">null</code>, el servidor o el editor <strong>está quitando el iframe</strong> al publicar.
-            Prueba: <strong>Ver código fuente</strong> (<code className="text-[10px]">Ctrl+U</code>) en la URL real y busca{' '}
-            <code className="text-[10px]">wazapp</code>. Si no aparece, usa <strong>solo</strong> esta línea (quita bridge + iframe del HTML):
-            crea el iframe por JavaScript al cargar.
-          </p>
-          <pre className="text-[11px] text-app-muted overflow-x-auto p-3 rounded-lg bg-app-field/80 border border-app-line whitespace-pre-wrap break-all">
-            {snippetLoader}
-          </pre>
-        </div>
-      )}
+            {snippetIframe && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="text-[13px] font-semibold text-app-ink">Opción: ventana de chat (iframe)</span>
+                  <button
+                    type="button"
+                    onClick={copySnippetIframe}
+                    className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-brand-600 hover:text-brand-500"
+                  >
+                    <Copy className="size-3.5" />
+                    {copiedIframe ? 'Copiado' : 'Copiar'}
+                  </button>
+                </div>
+                <pre className="text-[11px] text-app-muted overflow-x-auto p-3 rounded-lg bg-ref-card border border-app-line whitespace-pre-wrap break-all">
+                  {snippetIframe}
+                </pre>
+              </div>
+            )}
 
-      {snippetConsoleBridge && (
-        <div className="rounded-xl border border-app-line bg-ref-card p-4 space-y-2">
-          <div className="flex items-center justify-between gap-2 flex-wrap">
-            <span className="text-[14px] font-semibold text-app-ink">Consola de la web del cliente (soporte)</span>
-            <button
-              type="button"
-              onClick={copyBridge}
-              className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-brand-600 hover:text-brand-500"
-            >
-              <Copy className="size-3.5" />
-              {copiedBridge ? 'Copiado' : 'Copiar script bridge'}
-            </button>
+            {snippetLoader && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="text-[13px] font-semibold text-app-ink">Si la web “borra” el marco al publicar</span>
+                  <button
+                    type="button"
+                    onClick={copySnippetLoader}
+                    className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-brand-600 hover:text-brand-500"
+                  >
+                    <Copy className="size-3.5" />
+                    {copiedLoader ? 'Copiado' : 'Copiar'}
+                  </button>
+                </div>
+                <pre className="text-[11px] text-app-muted overflow-x-auto p-3 rounded-lg bg-ref-card border border-app-line whitespace-pre-wrap break-all">
+                  {snippetLoader}
+                </pre>
+              </div>
+            )}
+
+            {publicKey && (
+              <div className="space-y-2">
+                <span className="text-[13px] font-semibold text-app-ink">Si solo te piden la clave (texto largo)</span>
+                <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+                  <input
+                    type="text"
+                    readOnly
+                    value={publicKey}
+                    className="flex-1 rounded-xl border border-app-line bg-ref-card text-app-ink text-[12px] px-3 py-2 font-mono"
+                    aria-label="Clave del widget"
+                  />
+                  <button
+                    type="button"
+                    onClick={copyKeyOnly}
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border border-app-line text-app-ink hover:bg-app-field/80 shrink-0"
+                  >
+                    <Copy className="size-4" />
+                    {copiedKey ? 'Copiada' : 'Copiar clave'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {(snippetConsoleBridge || parentConsoleOneLiner) && (
+              <div className="space-y-2 rounded-lg bg-app-field/50 p-3 border border-app-line/80">
+                <span className="text-[12px] font-semibold text-app-ink">Para soporte (mensajes de diagnóstico)</span>
+                <p className="text-[11px] text-app-muted leading-relaxed">
+                  Solo si alguien de soporte te lo pide: va <strong>antes</strong> del iframe, si usas esa opción.
+                </p>
+                {snippetConsoleBridge && (
+                  <>
+                    <div className="flex justify-end pt-1">
+                      <button
+                        type="button"
+                        onClick={copyBridge}
+                        className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-brand-600 hover:text-brand-500"
+                      >
+                        <Copy className="size-3.5" />
+                        {copiedBridge ? 'Copiado' : 'Copiar script'}
+                      </button>
+                    </div>
+                    <pre className="text-[10px] text-app-muted overflow-x-auto p-2 rounded-md bg-ref-card border border-app-line whitespace-pre-wrap break-all">
+                      {snippetConsoleBridge}
+                    </pre>
+                  </>
+                )}
+                {parentConsoleOneLiner && (
+                  <div className="space-y-1 pt-1">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-[11px] text-app-muted">Una línea para pegar en la consola (F12)</span>
+                      <button
+                        type="button"
+                        onClick={copyOneLiner}
+                        className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-brand-600 hover:text-brand-500"
+                      >
+                        <Copy className="size-3.5" />
+                        {copiedOneLiner ? 'Copiado' : 'Copiar'}
+                      </button>
+                    </div>
+                    <pre className="text-[9px] text-app-muted overflow-x-auto p-2 rounded-md bg-ref-card border border-app-line whitespace-pre-wrap break-all">
+                      {parentConsoleOneLiner}
+                    </pre>
+                  </div>
+                )}
+                <p className="text-[11px] text-app-muted pt-1">
+                  Página de prueba:{' '}
+                  <a
+                    href="/widget-embed-test.html"
+                    className="text-brand-600 hover:text-brand-500 font-medium"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    widget-embed-test.html
+                  </a>
+                  . En el script puedes añadir <code className="text-[10px]">data-debug=&quot;true&quot;</code> para más
+                  detalle en consola.
+                </p>
+              </div>
+            )}
           </div>
-          <p className="text-[12px] text-app-muted leading-relaxed">
-            Los mensajes <code className="text-[10px]">[Wazapp]</code> del chat viven en la consola del{' '}
-            <strong>iframe</strong>. En la pestaña normal del sitio (Loom, etc.) no los verás. Este script escucha{' '}
-            <code className="text-[10px]">postMessage</code> y escribe <code className="text-[10px]">[Wazapp en tu web]</code>{' '}
-            en la consola <strong>de esa misma página</strong>. Ponlo <strong>antes</strong> del iframe.
-          </p>
-          <pre className="text-[11px] text-app-muted overflow-x-auto p-3 rounded-lg bg-app-field/80 border border-app-line whitespace-pre-wrap break-all">
-            {snippetConsoleBridge}
-          </pre>
-          <div className="flex items-center justify-between gap-2 flex-wrap pt-1">
-            <span className="text-[12px] text-app-muted">O pega <strong>una vez</strong> en la consola (F12) y recarga:</span>
-            <button
-              type="button"
-              onClick={copyOneLiner}
-              className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-brand-600 hover:text-brand-500"
-            >
-              <Copy className="size-3.5" />
-              {copiedOneLiner ? 'Copiado' : 'Copiar una línea'}
-            </button>
-          </div>
-          <pre className="text-[10px] text-app-muted overflow-x-auto p-3 rounded-lg bg-app-field/80 border border-app-line whitespace-pre-wrap break-all">
-            {parentConsoleOneLiner}
-          </pre>
-        </div>
+        </details>
       )}
     </div>
   );

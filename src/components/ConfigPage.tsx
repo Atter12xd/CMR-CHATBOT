@@ -169,9 +169,9 @@ export default function ConfigPage() {
               </svg>
             </div>
             <div className="min-w-0">
-              <h2 className="text-[16px] font-semibold text-app-ink tracking-tight font-professional">Widget en tu web</h2>
+              <h2 className="text-[16px] font-semibold text-app-ink tracking-tight font-professional">Chat en tu página web</h2>
               <p className="text-[13px] text-app-muted mt-0.5 leading-snug">
-                Chat embebible: pega un script en tu sitio y las conversaciones llegan al panel
+                Tus visitantes escriben desde tu web y tú respondes desde el panel, igual que con WhatsApp.
               </p>
             </div>
           </div>

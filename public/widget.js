@@ -1,5 +1,11 @@
-/* Wazapp widget — usar defer (recomendado). Con async, document.currentScript suele ser null y el widget no arranca. */
+/* Wazapp widget — pegar antes de </body>: <script src="https://wazapp.ai/widget.js" data-site-key="CLAVE" defer></script>
+ * Opcional: data-debug="true" para ver logs en consola.
+ * Si tu CMS quita data-*, define antes: window.__WAZAPP_SITE_KEY__ = 'tu_clave';
+ * Abrir https://wazapp.ai/widget.js en el navegador solo muestra el código fuente (es normal); el widget corre al incluirlo con <script src="...">.
+ */
 (function () {
+  var Z = 2147483000;
+
   function resolveScriptEl() {
     var cur = document.currentScript;
     if (cur && cur.src && cur.src.indexOf('widget.js') !== -1) {
@@ -13,12 +19,26 @@
   }
 
   var SCRIPT = resolveScriptEl();
-  if (!SCRIPT || !SCRIPT.getAttribute) {
-    console.warn('[Wazapp] No se encontró el elemento <script> del widget.');
+  if (!SCRIPT || SCRIPT.nodeType !== 1) {
+    console.warn('[Wazapp] No se encontró el <script src="...widget.js">.');
     return;
   }
 
+  var debug =
+    SCRIPT.getAttribute('data-debug') === 'true' ||
+    (typeof window !== 'undefined' && window.__WAZAPP_DEBUG__ === true);
+
+  function log() {
+    if (!debug || !console || !console.info) return;
+    console.info.apply(console, ['[Wazapp]'].concat([].slice.call(arguments)));
+  }
+
+  log('Script detectado', SCRIPT.src);
+
   var siteKey = (SCRIPT.getAttribute('data-site-key') || '').trim();
+  if (!siteKey && typeof window !== 'undefined') {
+    siteKey = String(window.__WAZAPP_SITE_KEY__ || window.WAZAPP_SITE_KEY || '').trim();
+  }
   if (!siteKey) {
     try {
       var srcUrl = new URL(SCRIPT.src, window.location.href);
@@ -26,9 +46,11 @@
     } catch (e) {}
   }
   if (!siteKey) {
-    console.warn('[Wazapp] Falta data-site-key (o ?siteKey= en la URL del script).');
+    console.warn('[Wazapp] Falta la clave: data-site-key="..." o window.__WAZAPP_SITE_KEY__');
     return;
   }
+
+  log('Clave OK (longitud ' + siteKey.length + ')');
 
   var apiBase = (SCRIPT.getAttribute('data-api-base') || '').trim();
   if (!apiBase) {
@@ -40,6 +62,7 @@
     }
   }
   apiBase = apiBase.replace(/\/+$/, '');
+  log('API base:', apiBase);
 
   var STORAGE_V = 'wazapp_v1_';
   var memStore = {};
@@ -75,170 +98,199 @@
 
   var visitorId = lsGet('vid') || randomUuid();
   lsSet('vid', visitorId);
-
   var chatId = lsGet('cid') || null;
 
-  var root = document.createElement('div');
-  root.setAttribute('data-wazapp-widget', '1');
-  root.innerHTML =
-    '<button type="button" aria-label="Abrir chat" style="position:fixed;bottom:20px;right:20px;width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;background:#0ea5e9;color:#fff;font-size:22px;box-shadow:0 4px 14px rgba(14,165,233,.45);z-index:99998;">💬</button>' +
-    '<div style="display:none;flex-direction:column;position:fixed;bottom:88px;right:20px;width:min(100vw - 40px,360px);height:420px;max-height:70vh;background:#0f172a;color:#e2e8f0;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.35);z-index:99999;overflow:hidden;border:1px solid #334155;">' +
-    '<div style="padding:12px 14px;background:#1e293b;font-weight:600;font-size:15px;border-bottom:1px solid #334155;">Chat</div>' +
-    '<div data-messages style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.45;"></div>' +
-    '<div style="padding:10px;border-top:1px solid #334155;display:flex;gap:8px;">' +
-    '<input type="text" placeholder="Escribe un mensaje…" style="flex:1;border-radius:10px;border:1px solid #475569;background:#1e293b;color:#f8fafc;padding:10px 12px;font-size:14px;" />' +
-    '<button type="button" style="border:none;border-radius:10px;background:#0ea5e9;color:#fff;font-weight:600;padding:0 14px;cursor:pointer;">Enviar</button>' +
-    '</div></div>';
-
-  document.body.appendChild(root);
-
-  var btn = root.querySelector('button[aria-label="Abrir chat"]');
-  var panel = root.children[1];
-  var msgBox = root.querySelector('[data-messages]');
-  var input = root.querySelector('input');
-  var sendBtn = panel.querySelector('div:last-child button');
-
-  var open = false;
-  btn.addEventListener('click', function () {
-    open = !open;
-    panel.style.display = open ? 'flex' : 'none';
-    if (open) initSessionAndLoad();
-    else if (pollTimer) {
-      clearInterval(pollTimer);
-      pollTimer = null;
+  function mountWidget() {
+    if (!document.body) {
+      log('Esperando document.body…');
+      return;
     }
-  });
 
-  var lastCreatedAt = '';
-  var pollTimer = null;
+    try {
+      if (document.querySelector('[data-wazapp-widget]')) {
+        log('Widget ya montado, se omite duplicado.');
+        return;
+      }
 
-  function appendBubble(text, who) {
-    var d = document.createElement('div');
-    d.style.maxWidth = '92%';
-    d.style.alignSelf = who === 'user' ? 'flex-end' : 'flex-start';
-    d.style.padding = '8px 12px';
-    d.style.borderRadius = '12px';
-    d.style.fontSize = '14px';
-    d.style.whiteSpace = 'pre-wrap';
-    d.style.wordBreak = 'break-word';
-    if (who === 'user') {
-      d.style.background = '#0ea5e9';
-      d.style.color = '#fff';
-    } else {
-      d.style.background = '#334155';
-      d.style.color = '#f1f5f9';
-    }
-    d.textContent = text;
-    msgBox.appendChild(d);
-    msgBox.scrollTop = msgBox.scrollHeight;
-  }
+      var root = document.createElement('div');
+      root.setAttribute('data-wazapp-widget', '1');
+      root.innerHTML =
+        '<button type="button" aria-label="Abrir chat" style="position:fixed;bottom:20px;right:20px;width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;background:#0ea5e9;color:#fff;font-size:22px;box-shadow:0 4px 14px rgba(14,165,233,.45);z-index:' +
+        Z +
+        ';">💬</button>' +
+        '<div style="display:none;flex-direction:column;position:fixed;bottom:88px;right:20px;width:min(100vw - 40px,360px);height:420px;max-height:70vh;background:#0f172a;color:#e2e8f0;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.35);z-index:' +
+        (Z + 1) +
+        ';overflow:hidden;border:1px solid #334155;">' +
+        '<div style="padding:12px 14px;background:#1e293b;font-weight:600;font-size:15px;border-bottom:1px solid #334155;">Chat</div>' +
+        '<div data-messages style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.45;"></div>' +
+        '<div style="padding:10px;border-top:1px solid #334155;display:flex;gap:8px;">' +
+        '<input type="text" placeholder="Escribe un mensaje…" style="flex:1;border-radius:10px;border:1px solid #475569;background:#1e293b;color:#f8fafc;padding:10px 12px;font-size:14px;" />' +
+        '<button type="button" style="border:none;border-radius:10px;background:#0ea5e9;color:#fff;font-weight:600;padding:0 14px;cursor:pointer;">Enviar</button>' +
+        '</div></div>';
 
-  function trackLast(rows) {
-    if (!rows || !rows.length) return;
-    var last = rows[rows.length - 1];
-    if (last.created_at) lastCreatedAt = last.created_at;
-  }
+      document.body.appendChild(root);
+      log('UI montada en body');
 
-  function api(path, opts) {
-    var url = apiBase + path;
-    return fetch(url, opts).then(function (r) {
-      return r.json().then(function (j) {
-        if (!r.ok) throw new Error(j.error || r.statusText);
-        return j;
-      });
-    });
-  }
+      var btn = root.querySelector('button[aria-label="Abrir chat"]');
+      var panel = root.children[1];
+      var msgBox = root.querySelector('[data-messages]');
+      var input = root.querySelector('input');
+      var sendBtn = panel.querySelector('div:last-child button');
 
-  function initSessionAndLoad() {
-    api('/api/public/widget/session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ siteKey: siteKey, visitorId: visitorId }),
-    })
-      .then(function (data) {
-        chatId = data.chatId;
-        lsSet('cid', chatId);
-        return api(
-          '/api/public/widget/messages?siteKey=' +
+      var open = false;
+      var lastCreatedAt = '';
+      var pollTimer = null;
+
+      function appendBubble(text, who) {
+        var d = document.createElement('div');
+        d.style.maxWidth = '92%';
+        d.style.alignSelf = who === 'user' ? 'flex-end' : 'flex-start';
+        d.style.padding = '8px 12px';
+        d.style.borderRadius = '12px';
+        d.style.fontSize = '14px';
+        d.style.whiteSpace = 'pre-wrap';
+        d.style.wordBreak = 'break-word';
+        if (who === 'user') {
+          d.style.background = '#0ea5e9';
+          d.style.color = '#fff';
+        } else {
+          d.style.background = '#334155';
+          d.style.color = '#f1f5f9';
+        }
+        d.textContent = text;
+        msgBox.appendChild(d);
+        msgBox.scrollTop = msgBox.scrollHeight;
+      }
+
+      function trackLast(rows) {
+        if (!rows || !rows.length) return;
+        var last = rows[rows.length - 1];
+        if (last.created_at) lastCreatedAt = last.created_at;
+      }
+
+      function api(path, opts) {
+        var url = apiBase + path;
+        log('fetch', url);
+        return fetch(url, opts).then(function (r) {
+          return r.json().then(function (j) {
+            if (!r.ok) throw new Error(j.error || r.statusText);
+            return j;
+          });
+        });
+      }
+
+      function initSessionAndLoad() {
+        api('/api/public/widget/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ siteKey: siteKey, visitorId: visitorId }),
+        })
+          .then(function (data) {
+            chatId = data.chatId;
+            lsSet('cid', chatId);
+            log('Sesión chatId=', chatId);
+            return api(
+              '/api/public/widget/messages?siteKey=' +
+                encodeURIComponent(siteKey) +
+                '&chatId=' +
+                encodeURIComponent(chatId) +
+                '&visitorId=' +
+                encodeURIComponent(visitorId),
+            );
+          })
+          .then(function (data) {
+            msgBox.innerHTML = '';
+            (data.messages || []).forEach(function (m) {
+              appendBubble(m.text || '', m.sender === 'user' ? 'user' : 'bot');
+            });
+            trackLast(data.messages || []);
+            startPoll();
+          })
+          .catch(function (e) {
+            log('Error sesión/mensajes', e);
+            appendBubble('No se pudo conectar: ' + (e.message || 'error'), 'bot');
+          });
+      }
+
+      function startPoll() {
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = setInterval(function () {
+          if (!open || !chatId) return;
+          var q =
+            '/api/public/widget/messages?siteKey=' +
             encodeURIComponent(siteKey) +
             '&chatId=' +
             encodeURIComponent(chatId) +
             '&visitorId=' +
-            encodeURIComponent(visitorId),
-        );
-      })
-      .then(function (data) {
-        msgBox.innerHTML = '';
-        (data.messages || []).forEach(function (m) {
-          appendBubble(m.text || '', m.sender === 'user' ? 'user' : 'bot');
-        });
-        trackLast(data.messages || []);
-        startPoll();
-      })
-      .catch(function (e) {
-        appendBubble('No se pudo conectar: ' + (e.message || 'error'), 'bot');
-      });
-  }
+            encodeURIComponent(visitorId);
+          if (lastCreatedAt) q += '&after=' + encodeURIComponent(lastCreatedAt);
+          api(q)
+            .then(function (data) {
+              var rows = data.messages || [];
+              rows.forEach(function (m) {
+                appendBubble(m.text || '', m.sender === 'user' ? 'user' : 'bot');
+              });
+              trackLast(rows);
+            })
+            .catch(function () {});
+        }, 6000);
+      }
 
-  function startPoll() {
-    if (pollTimer) clearInterval(pollTimer);
-    pollTimer = setInterval(function () {
-      if (!open || !chatId) return;
-      var q =
-        '/api/public/widget/messages?siteKey=' +
-        encodeURIComponent(siteKey) +
-        '&chatId=' +
-        encodeURIComponent(chatId) +
-        '&visitorId=' +
-        encodeURIComponent(visitorId);
-      if (lastCreatedAt) q += '&after=' + encodeURIComponent(lastCreatedAt);
-      api(q)
-        .then(function (data) {
-          var rows = data.messages || [];
-          rows.forEach(function (m) {
-            appendBubble(m.text || '', m.sender === 'user' ? 'user' : 'bot');
-          });
-          trackLast(rows);
+      function send() {
+        var text = (input.value || '').trim();
+        if (!text || !chatId) return;
+        input.value = '';
+        appendBubble(text, 'user');
+        var pageUrl = '';
+        try {
+          pageUrl = window.location.href.slice(0, 2000);
+        } catch (e) {}
+        api('/api/public/widget/message', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            siteKey: siteKey,
+            chatId: chatId,
+            visitorId: visitorId,
+            text: text,
+            pageUrl: pageUrl,
+          }),
         })
-        .catch(function () {});
-    }, 6000);
-  }
+          .then(function (data) {
+            if (data.cursor) lastCreatedAt = data.cursor;
+            if (data.reply) appendBubble(data.reply, 'bot');
+            else if (data.botPaused) appendBubble('Un agente te responderá pronto.', 'bot');
+          })
+          .catch(function (e) {
+            appendBubble('Error al enviar: ' + (e.message || ''), 'bot');
+          });
+      }
 
-  function send() {
-    var text = (input.value || '').trim();
-    if (!text || !chatId) return;
-    input.value = '';
-    appendBubble(text, 'user');
-    var pageUrl = '';
-    try {
-      pageUrl = window.location.href.slice(0, 2000);
-    } catch (e) {}
-    api('/api/public/widget/message', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        siteKey: siteKey,
-        chatId: chatId,
-        visitorId: visitorId,
-        text: text,
-        pageUrl: pageUrl,
-      }),
-    })
-      .then(function (data) {
-        if (data.cursor) lastCreatedAt = data.cursor;
-        if (data.reply) appendBubble(data.reply, 'bot');
-        else if (data.botPaused) appendBubble('Un agente te responderá pronto.', 'bot');
-      })
-      .catch(function (e) {
-        appendBubble('Error al enviar: ' + (e.message || ''), 'bot');
+      btn.addEventListener('click', function () {
+        open = !open;
+        panel.style.display = open ? 'flex' : 'none';
+        if (open) initSessionAndLoad();
+        else if (pollTimer) {
+          clearInterval(pollTimer);
+          pollTimer = null;
+        }
       });
+
+      sendBtn.addEventListener('click', send);
+      input.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter' && !ev.shiftKey) {
+          ev.preventDefault();
+          send();
+        }
+      });
+    } catch (err) {
+      console.error('[Wazapp] Error montando el widget:', err);
+    }
   }
 
-  sendBtn.addEventListener('click', send);
-  input.addEventListener('keydown', function (ev) {
-    if (ev.key === 'Enter' && !ev.shiftKey) {
-      ev.preventDefault();
-      send();
-    }
-  });
+  if (document.body) {
+    mountWidget();
+  } else {
+    document.addEventListener('DOMContentLoaded', mountWidget);
+  }
 })();

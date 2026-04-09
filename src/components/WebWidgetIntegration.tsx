@@ -211,10 +211,30 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
           <pre className="text-[11px] text-app-muted overflow-x-auto p-3 rounded-lg bg-app-field/80 border border-app-line whitespace-pre-wrap break-all">
             {snippet}
           </pre>
-          <p className="text-[11px] text-app-muted leading-relaxed">
-            Pega el script antes de <code className="text-[10px]">&lt;/body&gt;</code>. Usa <strong>defer</strong> como en el código
-            (con <code className="text-[10px]">async</code> a veces no carga el widget). Si no ves la burbuja, revisa la consola:
-            bloqueadores de anuncios, extensiones, o CSP del sitio que bloqueen scripts de tu dominio Wazapp.
+          <p className="text-[11px] text-app-muted leading-relaxed space-y-2">
+            <span className="block">
+              Debes pegar la <strong>etiqueta completa</strong> <code className="text-[10px]">&lt;script …&gt;&lt;/script&gt;</code>.
+              Si solo pegas la URL del <code className="text-[10px]">.js</code> en el editor, verás texto/código: el navegador no ejecuta el
+              widget así.
+            </span>
+            <span className="block">
+              Prueba en producción:{' '}
+              <a
+                href="/widget-embed-test.html"
+                className="text-brand-600 hover:text-brand-500 font-medium"
+                target="_blank"
+                rel="noreferrer"
+              >
+                /widget-embed-test.html
+              </a>{' '}
+              (pon tu clave o <code className="text-[10px]">?key=…</code>). Añade{' '}
+              <code className="text-[10px]">data-debug=&quot;true&quot;</code> al script para ver logs{' '}
+              <code className="text-[10px]">[Wazapp]</code> en la consola.
+            </span>
+            <span className="block">
+              Usa <strong>defer</strong> como en el snippet. Si no ves la burbuja: bloqueadores, extensiones o CSP que bloqueen{' '}
+              <code className="text-[10px]">wazapp.ai</code>.
+            </span>
           </p>
         </div>
       )}

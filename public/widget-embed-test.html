@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Prueba widget Wazapp</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 40rem;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        line-height: 1.5;
+      }
+      code {
+        background: #f1f5f9;
+        padding: 0.1rem 0.35rem;
+        border-radius: 4px;
+        font-size: 0.9em;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Prueba del widget</h1>
+    <p>
+      Sustituye <code>TU_CLAVE_PUBLICA</code> abajo por la clave de
+      <strong>Configuración → Widget en tu web</strong>, o abre esta misma página con
+      <code>?key=TU_CLAVE</code> en la URL.
+    </p>
+    <p>
+      Si solo pegas la URL <code>https://wazapp.ai/widget.js</code> en el editor, el navegador mostrará
+      código fuente: hace falta la etiqueta <code>&lt;script src="..."&gt;</code> como abajo.
+    </p>
+
+    <script>
+      (function () {
+        var q = new URLSearchParams(location.search).get('key');
+        if (q) window.__WAZAPP_SITE_KEY__ = q;
+      })();
+    </script>
+    <!-- src absoluto: funciona aunque abras este HTML desde tu PC (file://). En wazapp.ai puedes usar src="/widget.js". -->
+    <script
+      src="https://wazapp.ai/widget.js"
+      data-site-key="TU_CLAVE_PUBLICA"
+      data-debug="true"
+      defer
+    ></script>
+  </body>
+</html>

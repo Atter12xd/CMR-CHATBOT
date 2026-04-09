@@ -16,10 +16,12 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
   const [allowedText, setAllowedText] = useState('');
   const [snippet, setSnippet] = useState('');
   const [snippetIframe, setSnippetIframe] = useState('');
+  const [snippetLoader, setSnippetLoader] = useState('');
   const [snippetConsoleBridge, setSnippetConsoleBridge] = useState('');
   const [parentConsoleOneLiner, setParentConsoleOneLiner] = useState('');
   const [copied, setCopied] = useState(false);
   const [copiedIframe, setCopiedIframe] = useState(false);
+  const [copiedLoader, setCopiedLoader] = useState(false);
   const [copiedBridge, setCopiedBridge] = useState(false);
   const [copiedOneLiner, setCopiedOneLiner] = useState(false);
   const [copiedKey, setCopiedKey] = useState(false);
@@ -51,6 +53,7 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
       setAllowedText(list.join('\n'));
       setSnippet(data.snippet || '');
       setSnippetIframe(data.snippetIframe || '');
+      setSnippetLoader(data.snippetLoader || '');
       setSnippetConsoleBridge(data.snippetConsoleBridge || '');
       setParentConsoleOneLiner(data.parentConsoleOneLiner || '');
     } catch (e) {
@@ -89,6 +92,7 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
       if (!res.ok) throw new Error(data.error || 'No se pudo guardar');
       setSnippet(data.snippet || snippet);
       setSnippetIframe(data.snippetIframe || '');
+      setSnippetLoader(data.snippetLoader || '');
       setSnippetConsoleBridge(data.snippetConsoleBridge || '');
       setParentConsoleOneLiner(data.parentConsoleOneLiner || '');
     } catch (e) {
@@ -120,6 +124,7 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
       setPublicKey(data.publicKey || null);
       setSnippet(data.snippet || '');
       setSnippetIframe(data.snippetIframe || '');
+      setSnippetLoader(data.snippetLoader || '');
       setSnippetConsoleBridge(data.snippetConsoleBridge || '');
       setParentConsoleOneLiner(data.parentConsoleOneLiner || '');
     } catch (e) {
@@ -148,6 +153,17 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
       setTimeout(() => setCopiedIframe(false), 2000);
     } catch {
       setError('No se pudo copiar el iframe.');
+    }
+  };
+
+  const copySnippetLoader = async () => {
+    if (!snippetLoader) return;
+    try {
+      await navigator.clipboard.writeText(snippetLoader);
+      setCopiedLoader(true);
+      setTimeout(() => setCopiedLoader(false), 2000);
+    } catch {
+      setError('No se pudo copiar el loader.');
     }
   };
 
@@ -363,6 +379,33 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
               El <strong>iframe</strong> del chat justo después.
             </li>
           </ol>
+        </div>
+      )}
+
+      {snippetLoader && (
+        <div className="rounded-xl border-2 border-amber-500/30 bg-amber-500/5 p-4 space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[14px] font-semibold text-app-ink">Si en la web publicada no existe el iframe</span>
+            <button
+              type="button"
+              onClick={copySnippetLoader}
+              className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-brand-600 hover:text-brand-500"
+            >
+              <Copy className="size-3.5" />
+              {copiedLoader ? 'Copiado' : 'Copiar loader (1 script)'}
+            </button>
+          </div>
+          <p className="text-[12px] text-app-muted leading-relaxed">
+            Si en tu archivo HTML <strong>sí</strong> está el <code className="text-[10px]">&lt;iframe wazapp…&gt;</code> pero en
+            la página en vivo <code className="text-[10px]">document.querySelector(&apos;iframe[src*=&quot;wazapp&quot;]&apos;)</code> da{' '}
+            <code className="text-[10px]">null</code>, el servidor o el editor <strong>está quitando el iframe</strong> al publicar.
+            Prueba: <strong>Ver código fuente</strong> (<code className="text-[10px]">Ctrl+U</code>) en la URL real y busca{' '}
+            <code className="text-[10px]">wazapp</code>. Si no aparece, usa <strong>solo</strong> esta línea (quita bridge + iframe del HTML):
+            crea el iframe por JavaScript al cargar.
+          </p>
+          <pre className="text-[11px] text-app-muted overflow-x-auto p-3 rounded-lg bg-app-field/80 border border-app-line whitespace-pre-wrap break-all">
+            {snippetLoader}
+          </pre>
         </div>
       )}
 

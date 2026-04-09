@@ -29,6 +29,7 @@ function buildWidgetSnippets(origin: string, publicKey: string | null) {
     return {
       snippet: '',
       snippetIframe: '',
+      snippetLoader: '',
       iframeEmbedUrl: '',
       snippetConsoleBridge,
       parentConsoleOneLiner: PARENT_CONSOLE_ONE_LINER,
@@ -38,9 +39,11 @@ function buildWidgetSnippets(origin: string, publicKey: string | null) {
   const iframeEmbedUrl = `${origin}/widget-embed-iframe.html?siteKey=${enc}`;
   const snippet = `<script src="${origin}/widget.js?siteKey=${enc}" defer></script>`;
   const snippetIframe = `<iframe src="${iframeEmbedUrl}" title="Chat Wazapp" style="position:fixed;right:0;bottom:0;width:min(100vw,400px);height:min(100dvh,720px);max-height:720px;border:0;z-index:2147483647;background:transparent;visibility:visible;pointer-events:auto" allow="clipboard-write"></iframe>`;
+  const snippetLoader = `<script src="${origin}/wazapp-embed-loader.js?siteKey=${enc}" defer></script>`;
   return {
     snippet,
     snippetIframe,
+    snippetLoader,
     iframeEmbedUrl,
     snippetConsoleBridge,
     parentConsoleOneLiner: PARENT_CONSOLE_ONE_LINER,
@@ -140,10 +143,8 @@ export const GET: APIRoute = async ({ request, url }) => {
 
   const origin = widgetScriptOrigin(request);
   const scriptUrl = `${origin}/widget.js`;
-  const { snippet, snippetIframe, iframeEmbedUrl, snippetConsoleBridge, parentConsoleOneLiner } = buildWidgetSnippets(
-    origin,
-    publicKey,
-  );
+  const { snippet, snippetIframe, snippetLoader, iframeEmbedUrl, snippetConsoleBridge, parentConsoleOneLiner } =
+    buildWidgetSnippets(origin, publicKey);
 
   return new Response(
     JSON.stringify({
@@ -152,6 +153,7 @@ export const GET: APIRoute = async ({ request, url }) => {
       scriptUrl,
       snippet,
       snippetIframe,
+      snippetLoader,
       iframeEmbedUrl,
       snippetConsoleBridge,
       parentConsoleOneLiner,
@@ -260,10 +262,8 @@ export const POST: APIRoute = async ({ request }) => {
     body.rotateKey && nextKey
       ? normalizeWidgetSiteKey(nextKey)
       : savedKey || normalizeWidgetSiteKey((current?.web_widget_public_key as string | null) || '') || nextKey;
-  const { snippet, snippetIframe, iframeEmbedUrl, snippetConsoleBridge, parentConsoleOneLiner } = buildWidgetSnippets(
-    origin,
-    keyToShow ? normalizeWidgetSiteKey(keyToShow) : null,
-  );
+  const { snippet, snippetIframe, snippetLoader, iframeEmbedUrl, snippetConsoleBridge, parentConsoleOneLiner } =
+    buildWidgetSnippets(origin, keyToShow ? normalizeWidgetSiteKey(keyToShow) : null);
 
   return new Response(
     JSON.stringify({
@@ -272,6 +272,7 @@ export const POST: APIRoute = async ({ request }) => {
       scriptUrl,
       snippet,
       snippetIframe,
+      snippetLoader,
       iframeEmbedUrl,
       snippetConsoleBridge,
       parentConsoleOneLiner,

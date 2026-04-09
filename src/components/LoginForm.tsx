@@ -193,6 +193,13 @@ export default function LoginForm() {
             Crear cuenta gratis
             <ArrowRight className="h-4 w-4" />
           </a>
+
+          <p className="mt-4 text-center text-xs text-app-muted">
+            ¿Eres del equipo con acceso autorizado?{' '}
+            <a href="/registro-admin" className="text-app-ink hover:text-brand-600 font-medium transition-colors">
+              Registro de administradores
+            </a>
+          </p>
         </div>
 
         {/* Footer Text */}

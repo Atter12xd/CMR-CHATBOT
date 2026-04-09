@@ -5,7 +5,8 @@ export const prerender = false;
 
 export const GET: APIRoute = async ({ request }) => {
   const url = new URL(request.url);
-  const email = url.searchParams.get('email')?.trim();
+  const raw = url.searchParams.get('email')?.trim();
+  const email = raw?.toLowerCase();
   if (!email) {
     return new Response(
       JSON.stringify({ authorized: false }),

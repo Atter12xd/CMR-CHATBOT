@@ -45,7 +45,7 @@ export const GET: APIRoute = async ({ request }) => {
   const supabaseAdmin = createClient(supabaseUrl, serviceKey);
 
   // Acceso sin suscripción: correos autorizados (gerente, admin)
-  const userEmail = user.email?.trim();
+  const userEmail = user.email?.trim().toLowerCase();
   if (userEmail) {
     const { data: authorized } = await supabaseAdmin
       .from('authorized_emails')

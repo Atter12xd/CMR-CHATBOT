@@ -25,7 +25,12 @@ function getSessionIdFromUrl(): string | null {
   return params.get('session_id');
 }
 
-export default function RegisterForm() {
+type RegisterFormProps = {
+  /** Registro solo para correos en authorized_emails (sin pasar por Stripe). */
+  adminRegistration?: boolean;
+};
+
+export default function RegisterForm({ adminRegistration = false }: RegisterFormProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -34,9 +39,11 @@ export default function RegisterForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [sessionValid, setSessionValid] = useState<boolean | null>(null);
+  const [sessionValid, setSessionValid] = useState<boolean | null>(() =>
+    adminRegistration ? true : null
+  );
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [authorizedMode, setAuthorizedMode] = useState(false);
+  const [authorizedMode, setAuthorizedMode] = useState(() => adminRegistration);
   const { signUp, loading: authLoading, isAuthenticated } = useAuth();
 
   const passwordStrength = useMemo(() => getPasswordStrength(password), [password]);
@@ -44,6 +51,12 @@ export default function RegisterForm() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    if (adminRegistration) {
+      setAuthorizedMode(true);
+      setSessionValid(true);
+      setSessionId(null);
+      return;
+    }
     const params = new URLSearchParams(window.location.search);
     const autorizado = params.get('autorizado') === '1' || params.get('invite') === '1';
     setAuthorizedMode(autorizado);
@@ -65,7 +78,7 @@ export default function RegisterForm() {
         if (data.email) setEmail(data.email);
       })
       .catch(() => setSessionValid(false));
-  }, []);
+  }, [adminRegistration]);
 
   if (isAuthenticated && !success && typeof window !== 'undefined') {
     window.location.href = '/chats';
@@ -107,7 +120,7 @@ export default function RegisterForm() {
 
     const isAuthorizedSignup = authorizedMode && !sessionId;
     if (isAuthorizedSignup) {
-      const checkRes = await fetch(`/api/check-authorized-email?email=${encodeURIComponent(email.trim())}`);
+      const checkRes = await fetch(`/api/check-authorized-email?email=${encodeURIComponent(email.trim().toLowerCase())}`);
       const checkData = await checkRes.json().catch(() => ({ authorized: false }));
       if (!checkData.authorized) {
         setError('Este correo no está en la lista de autorizados. Usa el enlace de precios para registrarte con un plan.');
@@ -243,10 +256,12 @@ export default function RegisterForm() {
               <LogoBrand size="lg" href="/" />
             </div>
             <h1 className="text-2xl font-bold text-app-ink tracking-tight font-professional">
-              Crea tu cuenta
+              {adminRegistration ? 'Registro de equipo' : 'Crea tu cuenta'}
             </h1>
             <p className="mt-2 text-sm text-app-muted">
-              {authorizedMode ? 'Acceso autorizado (gerente/admin). Usa tu correo autorizado.' : 'Empieza a vender por WhatsApp en minutos'}
+              {adminRegistration || authorizedMode
+                ? 'Usa el correo que te dieron de acceso (equipo/admin). No requiere plan de pago.'
+                : 'Empieza a vender por WhatsApp en minutos'}
             </p>
           </div>
 

@@ -1,0 +1,13 @@
+---
+import LandingLayout from '../layouts/LandingLayout.astro';
+import RegisterForm from '../components/RegisterForm';
+import Navbar from '../components/landing/Navbar';
+---
+
+<LandingLayout
+  title="Registro de equipo - wazapp.ai"
+  description="Alta de cuentas para el equipo con correo autorizado. Sin paso de pago."
+>
+  <Navbar client:only="react" />
+  <RegisterForm client:only="react" adminRegistration={true} />
+</LandingLayout>

@@ -8,6 +8,20 @@
 (function () {
   var Z = 2147483000;
 
+  /** Si el widget corre dentro de un iframe, avisa a la página padre (consola del cliente suele estar ahí). */
+  function postToParent(extra) {
+    try {
+      if (typeof window === 'undefined' || !window.parent || window.parent === window) return;
+      var msg = { type: 'wazapp-embed', v: 1, source: 'wazapp-widget' };
+      if (extra && typeof extra === 'object') {
+        for (var k in extra) {
+          if (Object.prototype.hasOwnProperty.call(extra, k)) msg[k] = extra[k];
+        }
+      }
+      window.parent.postMessage(msg, '*');
+    } catch (e) {}
+  }
+
   function normKey(s) {
     return String(s || '')
       .trim()
@@ -174,8 +188,16 @@
     pageHost || '(desconocido)',
     debug ? '| modo debug=ON' : '| más detalle: data-debug="true"',
   );
-
-  var STORAGE_V = 'wazapp_v1_';
+  try {
+    if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+      postToParent({
+        phase: 'widget-active',
+        apiBase: apiBase,
+        siteKeyLength: siteKey.length,
+        pageHost: pageHost || undefined,
+      });
+    }
+  } catch (e) {}
   var memStore = {};
   function storageKey(k) {
     return STORAGE_V + k + '_' + siteKey.slice(0, 12);
@@ -242,6 +264,11 @@
       document.body.appendChild(root);
       log('UI montada en body');
       say('Interfaz lista: burbuja 💬 abajo a la derecha. Ábrela para crear sesión en', apiBase);
+      try {
+        if (window.parent && window.parent !== window) {
+          postToParent({ phase: 'ui-mounted' });
+        }
+      } catch (e) {}
 
       var btn = root.querySelector('button[aria-label="Abrir chat"]');
       var panel = root.children[1];
@@ -291,6 +318,12 @@
               if (typeof console !== 'undefined' && console.error) {
                 console.error('[Wazapp] API', r.status, path, '—', j.error || r.statusText, j.hint || '');
               }
+              postToParent({
+                phase: 'api-error',
+                httpStatus: r.status,
+                path: path,
+                error: j.error || r.statusText,
+              });
               throw new Error(msg);
             }
             return j;
@@ -303,12 +336,14 @@
                 r.status,
               );
             }
+            postToParent({ phase: 'api-not-json', path: path, httpStatus: r.status });
             throw jsonErr;
           });
         }, function (netErr) {
           if (typeof console !== 'undefined' && console.error) {
             console.error('[Wazapp] Red bloqueada o sin conexión al llamar', path, netErr);
           }
+          postToParent({ phase: 'fetch-failed', path: path });
           throw netErr;
         });
       }
@@ -340,12 +375,14 @@
             trackLast(data.messages || []);
             startPoll();
             say('Chat conectado (sesión OK).');
+            postToParent({ phase: 'session-ok' });
           })
           .catch(function (e) {
             log('Error sesión/mensajes', e);
             if (typeof console !== 'undefined' && console.error) {
               console.error('[Wazapp] Fallo al abrir sesión o cargar mensajes:', e.message || e);
             }
+            postToParent({ phase: 'session-failed', message: String(e.message || e) });
             appendBubble('No se pudo conectar: ' + (e.message || 'error'), 'bot');
           });
       }
@@ -403,6 +440,7 @@
             if (typeof console !== 'undefined' && console.error) {
               console.error('[Wazapp] Error al enviar mensaje:', e.message || e);
             }
+            postToParent({ phase: 'send-failed', message: String(e.message || '') });
             appendBubble('Error al enviar: ' + (e.message || ''), 'bot');
           });
       }

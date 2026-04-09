@@ -16,8 +16,12 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
   const [allowedText, setAllowedText] = useState('');
   const [snippet, setSnippet] = useState('');
   const [snippetIframe, setSnippetIframe] = useState('');
+  const [snippetConsoleBridge, setSnippetConsoleBridge] = useState('');
+  const [parentConsoleOneLiner, setParentConsoleOneLiner] = useState('');
   const [copied, setCopied] = useState(false);
   const [copiedIframe, setCopiedIframe] = useState(false);
+  const [copiedBridge, setCopiedBridge] = useState(false);
+  const [copiedOneLiner, setCopiedOneLiner] = useState(false);
   const [copiedKey, setCopiedKey] = useState(false);
 
   const getToken = async () => {
@@ -47,6 +51,8 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
       setAllowedText(list.join('\n'));
       setSnippet(data.snippet || '');
       setSnippetIframe(data.snippetIframe || '');
+      setSnippetConsoleBridge(data.snippetConsoleBridge || '');
+      setParentConsoleOneLiner(data.parentConsoleOneLiner || '');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al cargar');
     } finally {
@@ -83,6 +89,8 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
       if (!res.ok) throw new Error(data.error || 'No se pudo guardar');
       setSnippet(data.snippet || snippet);
       setSnippetIframe(data.snippetIframe || '');
+      setSnippetConsoleBridge(data.snippetConsoleBridge || '');
+      setParentConsoleOneLiner(data.parentConsoleOneLiner || '');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al guardar');
     } finally {
@@ -112,6 +120,8 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
       setPublicKey(data.publicKey || null);
       setSnippet(data.snippet || '');
       setSnippetIframe(data.snippetIframe || '');
+      setSnippetConsoleBridge(data.snippetConsoleBridge || '');
+      setParentConsoleOneLiner(data.parentConsoleOneLiner || '');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error');
     } finally {
@@ -138,6 +148,28 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
       setTimeout(() => setCopiedIframe(false), 2000);
     } catch {
       setError('No se pudo copiar el iframe.');
+    }
+  };
+
+  const copyBridge = async () => {
+    if (!snippetConsoleBridge) return;
+    try {
+      await navigator.clipboard.writeText(snippetConsoleBridge);
+      setCopiedBridge(true);
+      setTimeout(() => setCopiedBridge(false), 2000);
+    } catch {
+      setError('No se pudo copiar el bridge.');
+    }
+  };
+
+  const copyOneLiner = async () => {
+    if (!parentConsoleOneLiner) return;
+    try {
+      await navigator.clipboard.writeText(parentConsoleOneLiner);
+      setCopiedOneLiner(true);
+      setTimeout(() => setCopiedOneLiner(false), 2000);
+    } catch {
+      setError('No se pudo copiar.');
     }
   };
 
@@ -320,6 +352,55 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
           </p>
           <pre className="text-[11px] text-app-muted overflow-x-auto p-3 rounded-lg bg-app-field/80 border border-app-line whitespace-pre-wrap break-all">
             {snippetIframe}
+          </pre>
+          <p className="text-[12px] font-semibold text-app-ink pt-2">Orden recomendado en el HTML del cliente</p>
+          <ol className="text-[11px] text-app-muted list-decimal pl-5 space-y-1">
+            <li>
+              <strong>Bridge de consola</strong> (abajo): así los eventos del iframe aparecen en la consola de la web del
+              cliente (no solo dentro del marco).
+            </li>
+            <li>
+              El <strong>iframe</strong> del chat justo después.
+            </li>
+          </ol>
+        </div>
+      )}
+
+      {snippetConsoleBridge && (
+        <div className="rounded-xl border border-app-line bg-ref-card p-4 space-y-2">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <span className="text-[14px] font-semibold text-app-ink">Consola de la web del cliente (soporte)</span>
+            <button
+              type="button"
+              onClick={copyBridge}
+              className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-brand-600 hover:text-brand-500"
+            >
+              <Copy className="size-3.5" />
+              {copiedBridge ? 'Copiado' : 'Copiar script bridge'}
+            </button>
+          </div>
+          <p className="text-[12px] text-app-muted leading-relaxed">
+            Los mensajes <code className="text-[10px]">[Wazapp]</code> del chat viven en la consola del{' '}
+            <strong>iframe</strong>. En la pestaña normal del sitio (Loom, etc.) no los verás. Este script escucha{' '}
+            <code className="text-[10px]">postMessage</code> y escribe <code className="text-[10px]">[Wazapp en tu web]</code>{' '}
+            en la consola <strong>de esa misma página</strong>. Ponlo <strong>antes</strong> del iframe.
+          </p>
+          <pre className="text-[11px] text-app-muted overflow-x-auto p-3 rounded-lg bg-app-field/80 border border-app-line whitespace-pre-wrap break-all">
+            {snippetConsoleBridge}
+          </pre>
+          <div className="flex items-center justify-between gap-2 flex-wrap pt-1">
+            <span className="text-[12px] text-app-muted">O pega <strong>una vez</strong> en la consola (F12) y recarga:</span>
+            <button
+              type="button"
+              onClick={copyOneLiner}
+              className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-brand-600 hover:text-brand-500"
+            >
+              <Copy className="size-3.5" />
+              {copiedOneLiner ? 'Copiado' : 'Copiar una línea'}
+            </button>
+          </div>
+          <pre className="text-[10px] text-app-muted overflow-x-auto p-3 rounded-lg bg-app-field/80 border border-app-line whitespace-pre-wrap break-all">
+            {parentConsoleOneLiner}
           </pre>
         </div>
       )}

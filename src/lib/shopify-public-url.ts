@@ -5,8 +5,9 @@
  * Prioridad:
  * 1. SHOPIFY_OAUTH_REDIRECT_BASE (ej. https://wazapp.ai)
  * 2. PUBLIC_SITE_URL
- * 3. Header Origin del request
- * 4. Origin de la URL del request (host del deployment)
+ * 3. PUBLIC_APP_URL (mismo uso en muchos proyectos Vercel)
+ * 4. Header Origin del request
+ * 5. Origin de la URL del request (host del deployment)
  */
 export function resolvePublicSiteUrl(request: Request): string {
   const fromEnv = (
@@ -14,6 +15,8 @@ export function resolvePublicSiteUrl(request: Request): string {
     process.env.SHOPIFY_OAUTH_REDIRECT_BASE ||
     import.meta.env.PUBLIC_SITE_URL ||
     process.env.PUBLIC_SITE_URL ||
+    import.meta.env.PUBLIC_APP_URL ||
+    process.env.PUBLIC_APP_URL ||
     ''
   )
     .trim()

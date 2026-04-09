@@ -20,6 +20,8 @@ export interface Database {
           openai_api_key: string | null
           facebook_page_id: string | null
           whatsapp_phone_number: string | null
+          web_widget_public_key: string | null
+          web_widget_allowed_origins: string[] | null
           created_at: string | null
           updated_at: string | null
         }
@@ -30,6 +32,8 @@ export interface Database {
           openai_api_key?: string | null
           facebook_page_id?: string | null
           whatsapp_phone_number?: string | null
+          web_widget_public_key?: string | null
+          web_widget_allowed_origins?: string[] | null
           created_at?: string | null
           updated_at?: string | null
         }
@@ -40,6 +44,8 @@ export interface Database {
           openai_api_key?: string | null
           facebook_page_id?: string | null
           whatsapp_phone_number?: string | null
+          web_widget_public_key?: string | null
+          web_widget_allowed_origins?: string[] | null
           created_at?: string | null
           updated_at?: string | null
         }

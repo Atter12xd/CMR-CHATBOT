@@ -5,6 +5,7 @@ import { useOrganization } from '../hooks/useOrganization';
 import { createClient } from '../lib/supabase';
 import WhatsAppIntegration from './WhatsAppIntegration';
 import ShopifyIntegration from './ShopifyIntegration';
+import WebWidgetIntegration from './WebWidgetIntegration';
 import CreateOrganizationButton from './CreateOrganizationButton';
 import PageHeader from './PageHeader';
 
@@ -149,6 +150,34 @@ export default function ConfigPage() {
           )}
 
           <WhatsAppIntegration organizationId={organizationId} />
+        </div>
+      </motion.div>
+
+      <motion.div
+        variants={sectionMotion}
+        initial="hidden"
+        animate="show"
+        transition={{ delay: 0.05 }}
+        className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm"
+      >
+        <div className="px-5 py-4 sm:px-6 bg-app-field/70 border-b border-app-line">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-ref-card border border-app-line text-sky-600 shrink-0 shadow-sm">
+              <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                <circle cx="12" cy="12" r="10" />
+                <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-[16px] font-semibold text-app-ink tracking-tight font-professional">Widget en tu web</h2>
+              <p className="text-[13px] text-app-muted mt-0.5 leading-snug">
+                Chat embebible: pega un script en tu sitio y las conversaciones llegan al panel
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="p-5 sm:p-6">
+          <WebWidgetIntegration organizationId={organizationId} />
         </div>
       </motion.div>
 

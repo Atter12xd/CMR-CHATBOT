@@ -43,7 +43,15 @@ export const POST: APIRoute = async ({ request }) => {
     .maybeSingle();
 
   if (orgErr || !org) {
-    return jsonResponse(request, { error: 'Clave de sitio no válida' }, 401);
+    return jsonResponse(
+      request,
+      {
+        error: 'Clave de sitio no válida',
+        hint:
+          'Usa la clave completa de Configuración → Widget (suele tener 64 caracteres), en data-site-key del script. Si usaste widget-embed-test.html, sustituye TU_CLAVE_PUBLICA.',
+      },
+      401,
+    );
   }
 
   const orgRow = org as WidgetOrgRow;

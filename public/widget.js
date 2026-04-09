@@ -173,7 +173,11 @@
         log('fetch', url);
         return fetch(url, opts).then(function (r) {
           return r.json().then(function (j) {
-            if (!r.ok) throw new Error(j.error || r.statusText);
+            if (!r.ok) {
+              var msg = j.error || r.statusText;
+              if (j.hint) msg += ' — ' + j.hint;
+              throw new Error(msg);
+            }
             return j;
           });
         });

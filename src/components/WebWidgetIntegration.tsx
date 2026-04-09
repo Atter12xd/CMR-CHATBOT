@@ -16,6 +16,7 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
   const [allowedText, setAllowedText] = useState('');
   const [snippet, setSnippet] = useState('');
   const [copied, setCopied] = useState(false);
+  const [copiedKey, setCopiedKey] = useState(false);
 
   const getToken = async () => {
     const {
@@ -124,6 +125,17 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
     }
   };
 
+  const copyKeyOnly = async () => {
+    if (!publicKey) return;
+    try {
+      await navigator.clipboard.writeText(publicKey);
+      setCopiedKey(true);
+      setTimeout(() => setCopiedKey(false), 2000);
+    } catch {
+      setError('No se pudo copiar la clave.');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center gap-2 text-app-muted text-[14px]">
@@ -152,7 +164,8 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
           </button>
         ) : (
           <p className="text-[13px] text-app-muted">
-            Clave pública activa ({publicKey.slice(0, 10)}…). Puedes rotarla si se filtró.
+            Ya tienes clave activa. Cópiala abajo y pégala en <code className="text-[11px]">data-site-key</code> de tu sitio.
+            Rotar solo si se filtró.
           </p>
         )}
         {publicKey && (
@@ -167,6 +180,35 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
           </button>
         )}
       </div>
+
+      {publicKey && (
+        <div className="rounded-xl border-2 border-brand-500/30 bg-brand-500/5 p-4 space-y-3">
+          <p className="text-[13px] font-semibold text-app-ink">Dónde va la clave en tu web</p>
+          <p className="text-[12px] text-app-muted leading-relaxed">
+            En el <code className="text-[11px] bg-app-field px-1 rounded">&lt;script&gt;</code> debe ir{' '}
+            <code className="text-[11px] bg-app-field px-1 rounded">data-site-key=&quot;…&quot;</code> con esta clave
+            completa ({publicKey.length} caracteres). Si pones otra cosa (ID de org, texto de prueba, etc.), verás error{' '}
+            <strong>401</strong> en consola.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+            <input
+              type="text"
+              readOnly
+              value={publicKey}
+              className="flex-1 rounded-xl border border-app-line bg-ref-card text-app-ink text-[12px] px-3 py-2 font-mono"
+              aria-label="Clave pública del widget"
+            />
+            <button
+              type="button"
+              onClick={copyKeyOnly}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-brand-500 text-white hover:bg-brand-600 shrink-0"
+            >
+              <Copy className="size-4" />
+              {copiedKey ? 'Clave copiada' : 'Copiar clave'}
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="rounded-xl border border-app-line bg-app-field/40 p-4 space-y-2">
         <div className="flex items-center gap-2 text-app-ink font-semibold text-[14px]">

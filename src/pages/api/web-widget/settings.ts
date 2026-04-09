@@ -6,6 +6,19 @@ import { normalizeWidgetSiteKey } from '../../../lib/web-widget/site-key';
 
 export const prerender = false;
 
+/**
+ * URL base del snippet `widget.js`: prioriza `site` de astro.config (p. ej. https://wazapp.ai).
+ * Si solo usáramos el Origin del request, en `astro dev` saldría http://localhost:4321 y el widget
+ * llamaría a la API local (otro .env / otra Supabase) → 401 aunque la clave exista en producción.
+ */
+function widgetScriptOrigin(request: Request): string {
+  const site = String(import.meta.env.SITE || '')
+    .trim()
+    .replace(/\/+$/, '');
+  if (site) return site;
+  return resolvePublicSiteUrl(request);
+}
+
 const jsonHeaders = { 'Content-Type': 'application/json' };
 
 function normalizeHostname(line: string): string | null {
@@ -97,8 +110,8 @@ export const GET: APIRoute = async ({ request, url }) => {
   const publicKey = rawKey ? normalizeWidgetSiteKey(rawKey) : null;
   const allowedOrigins = (row?.web_widget_allowed_origins as string[] | null) ?? null;
 
-  const base = resolvePublicSiteUrl(request);
-  const scriptUrl = `${base}/widget.js`;
+  const origin = widgetScriptOrigin(request);
+  const scriptUrl = `${origin}/widget.js`;
   const snippet = publicKey
     ? `<script src="${scriptUrl}?siteKey=${encodeURIComponent(publicKey)}" defer></script>`
     : '';
@@ -208,8 +221,8 @@ export const POST: APIRoute = async ({ request }) => {
     }
   }
 
-  const base = resolvePublicSiteUrl(request);
-  const scriptUrl = `${base}/widget.js`;
+  const origin = widgetScriptOrigin(request);
+  const scriptUrl = `${origin}/widget.js`;
   const keyToShow =
     body.rotateKey && nextKey
       ? normalizeWidgetSiteKey(nextKey)

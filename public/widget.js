@@ -135,6 +135,16 @@
   }
   apiBase = apiBase.replace(/\/+$/, '');
   log('API base:', apiBase);
+  try {
+    var __apiHost = new URL(apiBase).hostname;
+    if (__apiHost === 'localhost' || __apiHost === '127.0.0.1') {
+      console.warn(
+        '[Wazapp] El chat usa la API en ' +
+          apiBase +
+          ' (mismo host que el .js). Si la clave la generaste en producción pero el script carga desde localhost, verás 401. Solución: src="https://wazapp.ai/widget.js?siteKey=…" o data-api-base="https://wazapp.ai" en el <script>.',
+      );
+    }
+  } catch (e) {}
 
   var STORAGE_V = 'wazapp_v1_';
   var memStore = {};

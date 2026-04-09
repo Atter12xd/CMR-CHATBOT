@@ -198,6 +198,8 @@
       });
     }
   } catch (e) {}
+
+  var STORAGE_V = 'wazapp_v1_';
   var memStore = {};
   function storageKey(k) {
     return STORAGE_V + k + '_' + siteKey.slice(0, 12);

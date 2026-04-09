@@ -35,10 +35,24 @@
 
     <script>
       (function () {
+        var WIDGET_SITE_KEY = '';
         var q = (new URLSearchParams(location.search).get('key') || '').trim().toLowerCase();
-        var def = 'TU_CLAVE_PUBLICA';
+        var fromQ = q && q.length === 64 && /^[0-9a-f]+$/.test(q) ? q : '';
+        var fromConst = (WIDGET_SITE_KEY || '').trim().toLowerCase();
         var key =
-          q && q.length === 64 && /^[0-9a-f]+$/.test(q) ? q : def;
+          fromQ ||
+          (fromConst.length === 64 && /^[0-9a-f]+$/.test(fromConst) ? fromConst : '');
+        if (!key) {
+          var err = document.createElement('p');
+          err.style.cssText =
+            'background:#fee2e2;border:1px solid #ef4444;padding:12px;border-radius:8px;font-size:14px';
+          err.innerHTML =
+            'No hay clave válida. Opciones: (1) Abre <code>?key=TU_CLAVE_64_HEX</code> en la URL. (2) Edita este ' +
+            'archivo y asigna <code>WIDGET_SITE_KEY = \'…\'</code> en el script (64 hex). No inyectamos ' +
+            '<code>TU_CLAVE_PUBLICA</code> por defecto: provoca 401 y en consola parece que «tu snippet bueno» falla.';
+          document.body.appendChild(err);
+          return;
+        }
         var s = document.createElement('script');
         s.src = 'https://wazapp.ai/widget.js?siteKey=' + encodeURIComponent(key);
         s.defer = true;

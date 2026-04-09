@@ -106,6 +106,12 @@
     console.warn('[Wazapp] Falta la clave: ?siteKey= en la URL del script, data-site-key, o window.__WAZAPP_SITE_KEY__');
     return;
   }
+  if (siteKey === 'tu_clave_publica') {
+    console.warn(
+      '[Wazapp] Estás usando el texto de documentación «TU_CLAVE_PUBLICA» (no es una clave real). Sustitúyelo por la clave de 64 hex en Configuración → Widget, o abre widget-embed-test.html?key=TU_CLAVE.',
+    );
+    return;
+  }
 
   if (typeof window !== 'undefined' && window.__WAZAPP_WIDGET_V1__) {
     return;

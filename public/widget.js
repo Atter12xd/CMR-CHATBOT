@@ -1,7 +1,7 @@
-/* Wazapp widget — pegar antes de </body>: <script src="https://wazapp.ai/widget.js" data-site-key="CLAVE" defer></script>
- * Opcional: data-debug="true" para ver logs en consola.
- * Si tu CMS quita data-*, define antes: window.__WAZAPP_SITE_KEY__ = 'tu_clave';
- * Abrir https://wazapp.ai/widget.js en el navegador solo muestra el código fuente (es normal); el widget corre al incluirlo con <script src="...">.
+/* Wazapp widget — recomendado (CMS no trunca la URL):
+ *   <script src="https://wazapp.ai/widget.js?siteKey=TU_CLAVE_64_HEX" defer></script>
+ * Muchos editores truncan data-site-key a ~16 caracteres; por eso la clave va en ?siteKey=.
+ * Opcional: data-debug="true" en el <script>.
  */
 (function () {
   var Z = 2147483000;
@@ -42,19 +42,41 @@
       .toLowerCase();
   }
 
-  var siteKey = normKey(SCRIPT.getAttribute('data-site-key') || '');
+  var fromAttr = normKey(SCRIPT.getAttribute('data-site-key') || '');
+  var fromUrl = '';
+  try {
+    var uParse = new URL(SCRIPT.src, window.location.href);
+    fromUrl = normKey(uParse.searchParams.get('siteKey') || uParse.searchParams.get('key') || '');
+  } catch (e) {}
+
+  var siteKey = '';
+  var isHex64 = function (k) {
+    return k.length === 64 && /^[0-9a-f]+$/.test(k);
+  };
+  if (isHex64(fromUrl)) {
+    siteKey = fromUrl;
+  } else if (isHex64(fromAttr)) {
+    siteKey = fromAttr;
+  } else if (fromUrl.length > fromAttr.length) {
+    siteKey = fromUrl;
+  } else {
+    siteKey = fromAttr;
+  }
+
   if (!siteKey && typeof window !== 'undefined') {
     siteKey = normKey(window.__WAZAPP_SITE_KEY__ || window.WAZAPP_SITE_KEY || '');
   }
   if (!siteKey) {
-    try {
-      var srcUrl = new URL(SCRIPT.src, window.location.href);
-      siteKey = normKey(srcUrl.searchParams.get('siteKey') || srcUrl.searchParams.get('key') || '');
-    } catch (e) {}
-  }
-  if (!siteKey) {
-    console.warn('[Wazapp] Falta la clave: data-site-key="..." o window.__WAZAPP_SITE_KEY__');
+    console.warn('[Wazapp] Falta la clave: ?siteKey= en la URL del script, data-site-key, o window.__WAZAPP_SITE_KEY__');
     return;
+  }
+
+  if (fromAttr.length > 0 && fromAttr.length < 64 && !isHex64(fromUrl)) {
+    console.warn(
+      '[Wazapp] Tu sitio parece haber cortado data-site-key (solo ' +
+        fromAttr.length +
+        ' caracteres). Usa el snippet con la clave en la URL: src=".../widget.js?siteKey=TU_CLAVE_COMPLETA"',
+    );
   }
 
   log('Clave OK (longitud ' + siteKey.length + ')');

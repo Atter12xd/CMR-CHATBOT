@@ -100,7 +100,7 @@ export const GET: APIRoute = async ({ request, url }) => {
   const base = resolvePublicSiteUrl(request);
   const scriptUrl = `${base}/widget.js`;
   const snippet = publicKey
-    ? `<script src="${scriptUrl}" data-site-key="${publicKey}" defer></script>`
+    ? `<script src="${scriptUrl}?siteKey=${encodeURIComponent(publicKey)}" defer></script>`
     : '';
 
   return new Response(
@@ -215,7 +215,7 @@ export const POST: APIRoute = async ({ request }) => {
       ? normalizeWidgetSiteKey(nextKey)
       : savedKey || normalizeWidgetSiteKey((current?.web_widget_public_key as string | null) || '') || nextKey;
   const snippet = keyToShow
-    ? `<script src="${scriptUrl}" data-site-key="${keyToShow}" defer></script>`
+    ? `<script src="${scriptUrl}?siteKey=${encodeURIComponent(keyToShow)}" defer></script>`
     : '';
 
   return new Response(

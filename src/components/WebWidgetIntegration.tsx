@@ -185,10 +185,10 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
         <div className="rounded-xl border-2 border-brand-500/30 bg-brand-500/5 p-4 space-y-3">
           <p className="text-[13px] font-semibold text-app-ink">Dónde va la clave en tu web</p>
           <p className="text-[12px] text-app-muted leading-relaxed">
-            En el <code className="text-[11px] bg-app-field px-1 rounded">&lt;script&gt;</code> debe ir{' '}
-            <code className="text-[11px] bg-app-field px-1 rounded">data-site-key=&quot;…&quot;</code> con esta clave
-            completa ({publicKey.length} caracteres). Si pones otra cosa (ID de org, texto de prueba, etc.), verás error{' '}
-            <strong>401</strong> en consola.
+            El snippet copiado abajo pone la clave en la <strong>URL</strong>{' '}
+            <code className="text-[11px] bg-app-field px-1 rounded">widget.js?siteKey=…</code> ({publicKey.length}{' '}
+            caracteres). Muchos CMS <strong>recortan</strong> <code className="text-[11px]">data-site-key</code> a unos
+            16 caracteres y el chat falla con 401; por eso usamos el parámetro <code className="text-[11px]">siteKey</code>.
           </p>
           <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
             <input
@@ -274,8 +274,8 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
               <code className="text-[10px]">[Wazapp]</code> en la consola.
             </span>
             <span className="block">
-              Usa <strong>defer</strong> como en el snippet. Si no ves la burbuja: bloqueadores, extensiones o CSP que bloqueen{' '}
-              <code className="text-[10px]">wazapp.ai</code>.
+              Pega el snippet <strong>tal cual</strong> (con <code className="text-[10px]">?siteKey=</code> largo). Si no ves la burbuja:
+              bloqueadores o CSP que bloqueen <code className="text-[10px]">wazapp.ai</code>.
             </span>
           </p>
         </div>

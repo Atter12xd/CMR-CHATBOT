@@ -23,31 +23,25 @@
   <body>
     <h1>Prueba del widget</h1>
     <p style="background: #fef3c7; border: 1px solid #f59e0b; padding: 12px; border-radius: 8px">
-      <strong>Obligatorio:</strong> la clave son unos <strong>64 caracteres</strong> (hex). Cópiala del panel
-      <strong>Configuración → Widget en tu web → Copiar clave</strong>. Si dejas
-      <code>TU_CLAVE_PUBLICA</code>, el chat dará error 401.
+      <strong>Importante:</strong> la clave va en la URL del script{' '}
+      <code>?siteKey=TU_CLAVE_64_HEX</code> (el panel ya genera ese formato). WordPress y otros suelen cortar{' '}
+      <code>data-site-key</code>.
     </p>
     <p>
-      Opción A: edita esta página y pega tu clave en <code>data-site-key="…"</code>. Opción B: abre
-      <code>?key=PEGA_AQUI_TU_CLAVE_COMPLETA</code> en la URL (sin espacios).
-    </p>
-    <p>
-      Si solo pegas la URL <code>https://wazapp.ai/widget.js</code> en el editor, el navegador mostrará
-      código fuente: hace falta la etiqueta <code>&lt;script src="..."&gt;</code> como abajo.
+      Abre esta página con <code>?key=TU_CLAVE</code> en la URL, o edita el script abajo y sustituye{' '}
+      <code>TU_CLAVE_PUBLICA</code> por tu clave completa dentro de <code>?siteKey=</code>.
     </p>
 
     <script>
       (function () {
         var q = new URLSearchParams(location.search).get('key');
-        if (q) window.__WAZAPP_SITE_KEY__ = q;
+        var key = q && q.length >= 32 ? q : 'TU_CLAVE_PUBLICA';
+        var s = document.createElement('script');
+        s.src = 'https://wazapp.ai/widget.js?siteKey=' + encodeURIComponent(key);
+        s.defer = true;
+        s.setAttribute('data-debug', 'true');
+        document.body.appendChild(s);
       })();
     </script>
-    <!-- src absoluto: funciona aunque abras este HTML desde tu PC (file://). En wazapp.ai puedes usar src="/widget.js". -->
-    <script
-      src="https://wazapp.ai/widget.js"
-      data-site-key="TU_CLAVE_PUBLICA"
-      data-debug="true"
-      defer
-    ></script>
   </body>
 </html>

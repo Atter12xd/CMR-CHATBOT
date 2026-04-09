@@ -177,17 +177,17 @@ export default function RegisterForm() {
     return (
       <div className="min-h-screen flex items-center justify-center pt-24 pb-16 px-4 font-professional bg-app-canvas relative">
         <div className="relative max-w-md w-full">
-          <div className="rounded-[22px] border border-app-line bg-white shadow-app-card p-8 sm:p-10 text-center">
+          <div className="rounded-ref border border-app-line bg-ref-card shadow-sm p-8 sm:p-10 text-center">
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-amber-500/10 border border-amber-500/20 mb-6">
               <ShoppingCart className="h-10 w-10 text-amber-600" />
             </div>
-            <h2 className="text-2xl font-bold text-app-ink mb-2 font-display">Elige un plan para registrarte</h2>
+            <h2 className="text-2xl font-bold text-app-ink mb-2 font-professional">Elige un plan para registrarte</h2>
             <p className="text-app-muted mb-6">
               Para crear tu cuenta primero debes elegir el plan Starter y completar el pago. Incluye 14 días de prueba gratis y puedes cancelar cuando quieras.
             </p>
             <a
               href="/precios"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-app-charcoal hover:bg-app-charcoal/90 text-white rounded-2xl text-sm font-semibold transition-all shadow-md"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-brand-500 hover:bg-brand-600 text-white rounded-full text-sm font-semibold transition-all shadow-md shadow-brand-500/20"
             >
               Ver planes y precios
               <ArrowRight className="w-4 h-4" />
@@ -217,11 +217,11 @@ export default function RegisterForm() {
     return (
       <div className="min-h-screen flex items-center justify-center pt-24 pb-16 px-4 font-professional bg-app-canvas relative">
         <div className="relative max-w-md w-full">
-          <div className="rounded-[22px] border border-app-line bg-white shadow-app-card p-8 sm:p-10 text-center">
+          <div className="rounded-ref border border-app-line bg-ref-card shadow-sm p-8 sm:p-10 text-center">
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-6">
               <CheckCircle2 className="h-10 w-10 text-emerald-600" />
             </div>
-            <h2 className="text-2xl font-bold text-app-ink mb-2 font-display">¡Cuenta creada!</h2>
+            <h2 className="text-2xl font-bold text-app-ink mb-2 font-professional">¡Cuenta creada!</h2>
             <p className="text-app-muted">Redirigiendo al panel...</p>
             <div className="mt-6 flex justify-center">
               <div className="app-spinner">
@@ -237,12 +237,12 @@ export default function RegisterForm() {
   return (
     <div className="min-h-screen flex items-center justify-center pt-24 pb-16 px-4 sm:px-6 lg:px-8 font-professional relative bg-app-canvas">
       <div className="relative max-w-md w-full">
-        <div className="rounded-[22px] border border-app-line bg-white shadow-app-card p-8 sm:p-10">
+        <div className="rounded-ref border border-app-line bg-ref-card shadow-sm p-8 sm:p-10">
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
               <LogoBrand size="lg" href="/" />
             </div>
-            <h1 className="text-2xl font-bold text-app-ink tracking-tight font-display">
+            <h1 className="text-2xl font-bold text-app-ink tracking-tight font-professional">
               Crea tu cuenta
             </h1>
             <p className="mt-2 text-sm text-app-muted">
@@ -395,7 +395,7 @@ export default function RegisterForm() {
             <button
               type="submit"
               disabled={loading || authLoading}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-app-charcoal hover:bg-app-charcoal/90 text-white rounded-2xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:ring-offset-2 focus:ring-offset-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md shadow-black/15 mt-6"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-brand-500 hover:bg-brand-600 text-white rounded-full text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500/35 focus:ring-offset-2 focus:ring-offset-ref-bg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md shadow-brand-500/25 mt-6"
             >
               {loading || authLoading ? (
                 <>
@@ -417,7 +417,7 @@ export default function RegisterForm() {
               <div className="w-full border-t border-app-line"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-app-muted">¿Ya tienes cuenta?</span>
+              <span className="px-4 bg-ref-card text-app-muted">¿Ya tienes cuenta?</span>
             </div>
           </div>
 

@@ -25,7 +25,7 @@ interface PaymentMethodsConfigProps {
 }
 
 const fieldClass =
-  'w-full px-3.5 py-2.5 text-[14px] bg-app-field border border-app-line rounded-xl text-app-ink placeholder:text-app-muted focus:outline-none focus:ring-2 focus:ring-app-charcoal/15 focus:border-app-charcoal/25 transition-all';
+  'w-full px-3.5 py-2.5 text-sm bg-ref-muted border border-app-line rounded-ref text-app-ink placeholder:text-app-muted focus:outline-none focus:ring-2 focus:ring-brand-500/25 focus:border-brand-500/35 transition-all';
 
 const statsContainer = {
   hidden: { opacity: 0 },
@@ -55,7 +55,7 @@ const methodCard = {
 
 function PaymentMethodCardSkeleton() {
   return (
-    <div className="rounded-2xl border border-app-line bg-white p-5 animate-pulse shadow-app-card">
+    <div className="rounded-ref border border-app-line bg-ref-card p-5 animate-pulse shadow-sm">
       <div className="flex gap-3">
         <div className="w-11 h-11 rounded-xl bg-app-field shrink-0" />
         <div className="flex-1 space-y-3 min-w-0">
@@ -205,7 +205,7 @@ export default function PaymentMethodsConfig({
             onClick={handleSave}
             disabled={saving || !showData}
             whileTap={{ scale: saving || !showData ? 1 : 0.98 }}
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-[14px] font-semibold bg-app-charcoal text-white hover:bg-black shadow-md disabled:opacity-50 transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-brand-500 text-white hover:bg-brand-600 shadow-md shadow-brand-500/20 disabled:opacity-50 transition-colors"
           >
             {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
             <span>{saving ? 'Guardando…' : 'Guardar'}</span>
@@ -260,7 +260,7 @@ export default function PaymentMethodsConfig({
             {paymentMethods.map((method, index) => (
               <motion.div key={method.id} variants={methodCard} custom={index}>
                 <div
-                  className={`rounded-2xl border bg-white overflow-hidden shadow-app-card transition-all duration-200 ${
+                  className={`rounded-ref border bg-ref-card overflow-hidden shadow-sm transition-all duration-200 ${
                     method.active
                       ? 'border-brand-500/35 shadow-lg shadow-brand-500/10'
                       : 'border-app-line hover:border-app-line-strong'
@@ -288,7 +288,7 @@ export default function PaymentMethodsConfig({
                               type="checkbox"
                               checked={method.active}
                               onChange={(e) => handleChange(method.id, 'active', e.target.checked)}
-                              className="w-4 h-4 text-brand-500 rounded-md border-app-line bg-white focus:ring-brand-500/25 focus:ring-2"
+                              className="w-4 h-4 text-brand-500 rounded-md border-app-line bg-ref-card focus:ring-brand-500/25 focus:ring-2"
                             />
                             <span className="text-[13px] text-app-muted">Activar este método</span>
                           </label>
@@ -379,7 +379,7 @@ export default function PaymentMethodsConfig({
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl border border-app-line bg-white overflow-hidden shadow-app-card"
+        className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm"
       >
         <div className="p-5 sm:p-6 flex items-start gap-3">
           <div className="p-2.5 rounded-xl bg-app-field border border-app-line text-brand-600 shrink-0">

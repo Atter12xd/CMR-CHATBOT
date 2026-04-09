@@ -24,7 +24,7 @@ import StatsCard from './StatsCard';
 import StatsCardSkeleton from './StatsCardSkeleton';
 
 const fieldClass =
-  'w-full px-3.5 py-2.5 text-[14px] bg-app-field border border-app-line rounded-xl text-app-ink placeholder:text-app-muted focus:outline-none focus:ring-2 focus:ring-app-charcoal/15 focus:border-app-charcoal/25 transition-all';
+  'w-full px-3.5 py-2.5 text-sm bg-ref-muted border border-app-line rounded-ref text-app-ink placeholder:text-app-muted focus:outline-none focus:ring-2 focus:ring-brand-500/25 focus:border-brand-500/35 transition-all';
 
 const statsContainer = {
   hidden: { opacity: 0 },
@@ -458,9 +458,9 @@ export default function BotTrainingPage() {
       )}
 
       {/* Datos de empresa */}
-      <div className="rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card">
+      <div className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm">
         <div className="px-5 py-4 sm:px-6 bg-app-field/70 border-b border-app-line flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-white border border-app-line text-amber-600 shrink-0 shadow-sm">
+          <div className="p-2.5 rounded-2xl bg-ref-card border border-app-line text-amber-600 shrink-0 shadow-sm">
             <Building2 className="size-[18px]" strokeWidth={2} />
           </div>
           <div className="min-w-0">
@@ -555,7 +555,7 @@ export default function BotTrainingPage() {
               onClick={handleSaveBotConfig}
               disabled={configSaving}
               whileTap={{ scale: configSaving ? 1 : 0.98 }}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-[14px] font-semibold bg-app-charcoal text-white hover:bg-black shadow-md disabled:opacity-50 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-brand-500 text-white hover:bg-brand-600 shadow-md shadow-brand-500/20 disabled:opacity-50 transition-colors"
             >
               {configSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
               {configSaving ? 'Guardando…' : 'Guardar datos'}
@@ -569,12 +569,12 @@ export default function BotTrainingPage() {
         <motion.div
           whileHover={{ y: -2 }}
           transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-          className="rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card flex flex-col"
+          className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm flex flex-col"
         >
           <div className="h-1 bg-gradient-to-r from-brand-800/50 via-brand-500/40 to-brand-400/45 shrink-0" />
           <div className="p-5 flex-1 flex flex-col">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 rounded-2xl bg-white border border-app-line text-brand-600 shrink-0 shadow-sm">
+              <div className="p-2.5 rounded-2xl bg-ref-card border border-app-line text-brand-600 shrink-0 shadow-sm">
                 <Globe className="size-[18px]" />
               </div>
               <div className="min-w-0">
@@ -587,7 +587,7 @@ export default function BotTrainingPage() {
                 type="button"
                 onClick={() => setShowWebForm(true)}
                 whileTap={{ scale: 0.98 }}
-                className="mt-auto w-full py-2.5 rounded-full text-[14px] font-semibold bg-app-charcoal text-white hover:bg-black shadow-md transition-colors"
+                className="mt-auto w-full py-2.5 rounded-full text-sm font-semibold bg-brand-500 text-white hover:bg-brand-600 shadow-md shadow-brand-500/20 transition-colors"
               >
                 Agregar URL
               </motion.button>
@@ -607,7 +607,7 @@ export default function BotTrainingPage() {
                     onClick={handleWebExtract}
                     disabled={isProcessing}
                     whileTap={{ scale: 0.98 }}
-                    className="flex-1 py-2.5 rounded-full text-[14px] font-semibold bg-app-charcoal text-white hover:bg-black disabled:opacity-50 shadow-md transition-colors"
+                    className="flex-1 py-2.5 rounded-full text-sm font-semibold bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-50 shadow-md shadow-brand-500/20 transition-colors"
                   >
                     {isProcessing ? 'Procesando…' : 'Extraer'}
                   </motion.button>
@@ -617,7 +617,7 @@ export default function BotTrainingPage() {
                       setShowWebForm(false);
                       setWebUrl('');
                     }}
-                    className="px-4 py-2.5 text-[14px] font-semibold text-app-muted bg-white border border-app-line rounded-full hover:bg-app-field transition-colors"
+                    className="px-4 py-2.5 text-[14px] font-semibold text-app-muted bg-ref-card border border-app-line rounded-full hover:bg-app-field transition-colors"
                   >
                     Cancelar
                   </button>
@@ -630,12 +630,12 @@ export default function BotTrainingPage() {
         <motion.div
           whileHover={{ y: -2 }}
           transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-          className="rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card flex flex-col"
+          className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm flex flex-col"
         >
           <div className="h-1 bg-gradient-to-r from-emerald-500/60 via-teal-500/40 to-emerald-400/50 shrink-0" />
           <div className="p-5 flex-1 flex flex-col">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 rounded-2xl bg-white border border-app-line text-emerald-600 shrink-0 shadow-sm">
+              <div className="p-2.5 rounded-2xl bg-ref-card border border-app-line text-emerald-600 shrink-0 shadow-sm">
                 <Layers className="size-[18px]" />
               </div>
               <div className="min-w-0">
@@ -676,12 +676,12 @@ export default function BotTrainingPage() {
         <motion.div
           whileHover={{ y: -2 }}
           transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-          className="rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card flex flex-col"
+          className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm flex flex-col"
         >
           <div className="h-1 bg-gradient-to-r from-purple-500/50 via-brand-500/40 to-purple-400/50 shrink-0" />
           <div className="p-5 flex-1 flex flex-col">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 rounded-2xl bg-white border border-app-line text-violet-600 shrink-0 shadow-sm">
+              <div className="p-2.5 rounded-2xl bg-ref-card border border-app-line text-violet-600 shrink-0 shadow-sm">
                 <FileText className="size-[18px]" />
               </div>
               <div className="min-w-0">
@@ -711,10 +711,10 @@ export default function BotTrainingPage() {
       </div>
 
       {/* Lista entrenada */}
-      <div className="rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card">
+      <div className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm">
         <div className="px-5 py-4 sm:px-6 bg-app-field/70 border-b border-app-line flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="p-2.5 rounded-2xl bg-white border border-app-line text-brand-600 shrink-0 shadow-sm">
+            <div className="p-2.5 rounded-2xl bg-ref-card border border-app-line text-brand-600 shrink-0 shadow-sm">
               <Brain className="size-[18px]" strokeWidth={2} />
             </div>
             <div className="min-w-0">
@@ -722,7 +722,7 @@ export default function BotTrainingPage() {
               <p className="text-[12px] text-app-muted font-medium">Fuentes que el bot usa como contexto</p>
             </div>
           </div>
-          <span className="text-[11px] font-semibold text-app-muted bg-white border border-app-line px-3 py-1.5 rounded-full tabular-nums shrink-0">
+          <span className="text-[11px] font-semibold text-app-muted bg-ref-card border border-app-line px-3 py-1.5 rounded-full tabular-nums shrink-0">
             {loading ? '—' : trainingData.length}
           </span>
         </div>
@@ -807,10 +807,10 @@ export default function BotTrainingPage() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
-        className="rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card"
+        className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm"
       >
         <div className="p-5 sm:p-6 flex items-start gap-3">
-          <div className="p-2.5 rounded-2xl bg-white border border-app-line text-brand-600 shrink-0 shadow-sm">
+          <div className="p-2.5 rounded-2xl bg-ref-card border border-app-line text-brand-600 shrink-0 shadow-sm">
             <Info className="size-[18px]" />
           </div>
           <div className="min-w-0">

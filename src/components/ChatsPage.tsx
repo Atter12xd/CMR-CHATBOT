@@ -190,21 +190,21 @@ export default function ChatsPage() {
         ].map((s) => (
           <div
             key={s.label}
-            className="rounded-[20px] border border-app-line bg-white px-4 py-3 flex items-center gap-3 shadow-app-card"
+            className="rounded-ref border border-app-line bg-ref-card px-4 py-3 flex items-center gap-3 shadow-sm"
           >
             <div className={`p-2 rounded-xl bg-app-field ${s.accent}`}>
               <s.icon className="size-4" />
             </div>
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-wider text-app-muted">{s.label}</p>
-              <p className="text-lg font-bold text-app-ink tabular-nums font-display">{s.value}</p>
+              <p className="text-lg font-bold text-app-ink tabular-nums font-professional">{s.value}</p>
             </div>
           </div>
         ))}
       </motion.div>
 
       {/* Contenedor principal */}
-      <div className="flex flex-1 min-h-0 min-w-0 rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card md:min-h-[560px]">
+      <div className="flex flex-1 min-h-0 min-w-0 rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm md:min-h-[560px]">
         {/* Lista de chats — sidebar */}
         <div
           className={`${
@@ -241,10 +241,10 @@ export default function ChatsPage() {
                 className="h-full w-full min-w-0 flex items-center justify-center"
               >
                 <div className="text-center max-w-sm px-8">
-                  <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-app-field border border-app-line flex items-center justify-center shadow-app-card">
+                  <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-app-field border border-app-line flex items-center justify-center shadow-sm">
                     <MessageSquare size={36} className="text-brand-500" />
                   </div>
-                  <h3 className="text-lg font-semibold text-app-ink font-display mb-2">Selecciona una conversación</h3>
+                  <h3 className="text-lg font-semibold text-app-ink font-professional mb-2">Selecciona una conversación</h3>
                   <p className="text-sm text-app-muted leading-relaxed">
                     Elige un chat en la lista para ver mensajes y responder a tus clientes.
                   </p>
@@ -258,7 +258,7 @@ export default function ChatsPage() {
               initial={{ opacity: 0, x: 16 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-              className="hidden lg:flex w-[300px] xl:w-[320px] flex-shrink-0 flex-col border-t lg:border-t-0 lg:border-l border-app-line bg-white min-h-0 overflow-hidden"
+              className="hidden lg:flex w-[300px] xl:w-[320px] flex-shrink-0 flex-col border-t lg:border-t-0 lg:border-l border-app-line bg-ref-card min-h-0 overflow-hidden"
             >
               <ChatContactPanel
                 chat={selectedChat}

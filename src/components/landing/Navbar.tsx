@@ -28,7 +28,7 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
   return (
     <>
       {showAnnouncement && (
-        <div className="hidden lg:block fixed top-0 left-0 right-0 z-[60] bg-app-charcoal text-white border-b border-black/10">
+        <div className="hidden lg:block fixed top-0 left-0 right-0 z-[60] bg-[hsl(240_3%_13%)] text-white border-b border-white/10">
           <div className="max-w-7xl mx-auto px-6 py-2.5 flex items-center justify-center gap-3">
             <Sparkles className="w-4 h-4 text-white/80" />
             <span className="text-sm text-white/90 font-medium">
@@ -48,12 +48,12 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
       <nav
         className={`fixed left-0 right-0 z-50 transition-all duration-300 font-professional ${
           showAnnouncement ? 'lg:top-[44px] top-0' : 'top-0'
-        } ${scrolled ? 'max-lg:bg-white/92 max-lg:backdrop-blur-xl max-lg:border-b max-lg:border-app-line max-lg:shadow-app-header' : ''}`}
+        } ${scrolled ? 'max-lg:bg-white/92 dark:max-lg:bg-ref-card/95 max-lg:backdrop-blur-xl max-lg:border-b max-lg:border-app-line dark:max-lg:border-ref-border max-lg:shadow-app-header' : ''}`}
       >
         <div
           className={`max-w-7xl mx-auto transition-all duration-300 ease-out ${
             scrolled
-              ? 'max-lg:px-4 sm:max-lg:px-6 lg:mt-3 lg:mb-1 lg:mx-6 xl:mx-10 lg:rounded-2xl lg:border lg:border-app-line/70 lg:bg-white/78 lg:backdrop-blur-2xl lg:shadow-nav-float lg:px-5 xl:px-7'
+              ? 'max-lg:px-4 sm:max-lg:px-6 lg:mt-3 lg:mb-1 lg:mx-6 xl:mx-10 lg:rounded-2xl lg:border lg:border-app-line/70 dark:lg:border-ref-border/70 lg:bg-white/78 dark:lg:bg-ref-card/88 lg:backdrop-blur-2xl lg:shadow-nav-float lg:px-5 xl:px-7'
               : 'px-4 sm:px-6 lg:px-8'
           }`}
         >
@@ -82,7 +82,7 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
                 className="group relative inline-flex items-center gap-2 overflow-hidden px-5 py-2.5 text-white text-sm font-semibold rounded-2xl transition-all duration-200 shadow-app-card-premium hover:scale-[1.02] active:scale-[0.98]"
               >
                 <span className="absolute inset-0 bg-gradient-to-b from-white/[0.14] to-transparent" />
-                <span className="absolute inset-0 bg-app-charcoal" />
+                <span className="absolute inset-0 bg-brand-500" />
                 <span className="relative">Empezar gratis</span>
                 <ArrowRight className="relative w-4 h-4 transition-transform group-hover:translate-x-0.5" />
               </a>
@@ -100,7 +100,7 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
         </div>
 
         <div
-          className={`lg:hidden absolute top-full left-0 right-0 bg-white border-b border-app-line shadow-lg transition-all duration-300 ${
+          className={`lg:hidden absolute top-full left-0 right-0 bg-white dark:bg-ref-card border-b border-app-line dark:border-ref-border shadow-lg transition-all duration-300 ${
             mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
           }`}
         >
@@ -130,7 +130,7 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
               <a
                 href="/register"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-center gap-2 w-full py-3.5 bg-app-charcoal hover:bg-app-charcoal/90 text-white font-semibold rounded-2xl transition-colors shadow-md"
+                className="flex items-center justify-center gap-2 w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-semibold rounded-full transition-colors shadow-md shadow-brand-500/20"
               >
                 Empezar gratis
                 <ArrowRight className="w-4 h-4" />

@@ -141,9 +141,9 @@ export default function OTPVerification({
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-brand-50 to-brand-100/80 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-brand-50 to-brand-100/80 dark:from-ref-bg dark:via-ref-muted/35 dark:to-ref-bg py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       <div className="max-w-md w-full relative z-10">
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-8 sm:p-10 space-y-8">
+        <div className="bg-ref-card/85 dark:bg-ref-card/95 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-ref-border p-8 sm:p-10 space-y-8">
           {/* Header */}
           <div className="text-center space-y-2">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 shadow-lg shadow-primary-500/25 mb-4">
@@ -153,10 +153,10 @@ export default function OTPVerification({
                 <Phone className="h-8 w-8 text-white" />
               )}
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 tracking-tight">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-ref-fg tracking-tight">
               Verificar código
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-ref-muted-fg">
               Ingresa el código de 6 dígitos que enviamos a
             </p>
             <p className="text-sm font-semibold text-primary-600 break-all">
@@ -197,7 +197,7 @@ export default function OTPVerification({
                   onChange={(e) => handleOtpChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
                   onPaste={handlePaste}
-                  className="w-12 h-12 sm:w-14 sm:h-14 text-center text-xl font-bold border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white/50 backdrop-blur-sm"
+                  className="w-12 h-12 sm:w-14 sm:h-14 text-center text-xl font-bold border-2 border-gray-300 dark:border-ref-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-ref-muted/45 dark:bg-ref-muted/55 backdrop-blur-sm text-ref-fg"
                   disabled={loading}
                 />
               ))}
@@ -207,7 +207,7 @@ export default function OTPVerification({
             <button
               type="submit"
               disabled={loading || otp.some((digit) => !digit)}
-              className="w-full flex items-center justify-center px-4 py-3.5 border border-transparent rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-primary-500/25 hover:shadow-xl hover:shadow-primary-500/30 transform hover:-translate-y-0.5"
+              className="w-full flex items-center justify-center px-4 py-3.5 border border-transparent rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-ref-bg focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-primary-500/25 hover:shadow-xl hover:shadow-primary-500/30 transform hover:-translate-y-0.5"
             >
               {loading ? (
                 <>
@@ -221,8 +221,8 @@ export default function OTPVerification({
           </form>
 
           {/* Resend */}
-          <div className="text-center pt-4 border-t border-gray-200 space-y-3">
-            <p className="text-sm text-gray-600">
+          <div className="text-center pt-4 border-t border-gray-200 dark:border-ref-border space-y-3">
+            <p className="text-sm text-gray-600 dark:text-ref-muted-fg">
               ¿No recibiste el código?
             </p>
             <button
@@ -245,7 +245,7 @@ export default function OTPVerification({
             <button
               onClick={onBack}
               disabled={loading}
-              className="inline-flex items-center text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors group disabled:opacity-50"
+              className="inline-flex items-center text-sm font-semibold text-gray-600 hover:text-gray-900 dark:text-ref-muted-fg dark:hover:text-ref-fg transition-colors group disabled:opacity-50"
             >
               <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
               Volver

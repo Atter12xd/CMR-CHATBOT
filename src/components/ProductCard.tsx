@@ -15,7 +15,7 @@ export default function ProductCard({ product, onEdit, onDelete, viewMode = 'gri
       <motion.div
         whileHover={{ y: -1 }}
         transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-        className="rounded-[22px] border border-app-line bg-white overflow-hidden shadow-app-card font-professional"
+        className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm font-professional"
       >
         <div className="h-0.5 bg-gradient-to-r from-brand-400/60 via-violet-400/50 to-emerald-400/50" />
         <div className="p-4">
@@ -24,7 +24,7 @@ export default function ProductCard({ product, onEdit, onDelete, viewMode = 'gri
               <img
                 src={product.image}
                 alt={product.name}
-                className="max-w-full max-h-full w-full h-full object-contain rounded-[10px] bg-white"
+                className="max-w-full max-h-full w-full h-full object-contain rounded-[10px] bg-ref-card"
               />
             </div>
             <div className="flex-1 min-w-0">
@@ -37,7 +37,7 @@ export default function ProductCard({ product, onEdit, onDelete, viewMode = 'gri
               )}
             </div>
             <div className="text-right shrink-0">
-              <p className="text-[17px] font-bold text-app-ink tabular-nums font-display">
+              <p className="text-[17px] font-bold text-app-ink tabular-nums font-professional">
                 S/ {product.price.toFixed(2)}
               </p>
               {product.stock !== undefined && (
@@ -76,7 +76,7 @@ export default function ProductCard({ product, onEdit, onDelete, viewMode = 'gri
     <motion.div
       whileHover={{ y: -3 }}
       transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-      className="rounded-[22px] border border-app-line bg-white overflow-hidden shadow-app-card group font-professional h-full flex flex-col"
+      className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm group font-professional h-full flex flex-col"
     >
       <div className="h-1 bg-gradient-to-r from-brand-400/60 via-violet-400/50 to-emerald-400/50 shrink-0" />
       <div className="relative aspect-[4/3] bg-app-field flex items-center justify-center overflow-hidden">
@@ -86,7 +86,7 @@ export default function ProductCard({ product, onEdit, onDelete, viewMode = 'gri
           className="w-full h-full object-contain p-2 group-hover:scale-[1.03] transition-transform duration-300"
         />
         <div className="absolute top-3 left-3">
-          <span className="inline-flex items-center px-2.5 py-1 rounded-xl bg-white/90 backdrop-blur-md border border-app-line text-[11px] font-semibold text-app-ink shadow-sm">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-xl bg-ref-card/90 backdrop-blur-md border border-app-line text-[11px] font-semibold text-app-ink shadow-sm">
             {product.category}
           </span>
         </div>
@@ -98,7 +98,7 @@ export default function ProductCard({ product, onEdit, onDelete, viewMode = 'gri
         )}
         <div className="flex items-end justify-between mt-3 pt-3 border-t border-app-line gap-2">
           <div>
-            <p className="text-[18px] font-bold text-app-ink tabular-nums font-display leading-none">
+            <p className="text-[18px] font-bold text-app-ink tabular-nums font-professional leading-none">
               S/ {product.price.toFixed(2)}
             </p>
             {product.stock !== undefined && (

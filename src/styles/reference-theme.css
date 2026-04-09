@@ -1,0 +1,596 @@
+/**
+ * Tema y piezas UI extraídas de diseñonuevo (index-uQcoTFQJ.css).
+ * Variables HSL sin envoltorio hsl() — uso: hsl(var(--primary) / <alpha>).
+ */
+
+:root {
+  --button-outline: rgba(0, 0, 0, 0.1);
+  --badge-outline: rgba(0, 0, 0, 0.05);
+  --background: 0 0% 99%;
+  --foreground: 240 2% 25%;
+  --border: 220 9% 91%;
+  --card: 0 0% 100%;
+  --card-foreground: 240 2% 25%;
+  --card-border: 220 9% 91%;
+  --sidebar: 240 3% 13%;
+  --sidebar-foreground: 240 2% 81%;
+  --sidebar-border: 240 3% 18%;
+  --sidebar-primary: 218 100% 55%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 240 3% 17%;
+  --sidebar-accent-foreground: 240 2% 81%;
+  --sidebar-ring: 218 100% 55%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 2% 25%;
+  --primary: 218 100% 55%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 220 9% 95%;
+  --secondary-foreground: 240 2% 25%;
+  --muted: 220 9% 95%;
+  --muted-foreground: 220 9% 46%;
+  --accent: 220 9% 95%;
+  --accent-foreground: 240 2% 25%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --input: 220 9% 88%;
+  --ring: 218 100% 55%;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --radius-ref: 0.5625rem;
+  --thread-bg: 220 9% 96%;
+  --list-bg: 220 9% 97%;
+}
+
+.dark {
+  --button-outline: rgba(255, 255, 255, 0.1);
+  --badge-outline: rgba(255, 255, 255, 0.05);
+  --background: 240 3% 9%;
+  --foreground: 240 2% 90%;
+  --border: 240 3% 18%;
+  --card: 240 3% 12%;
+  --card-foreground: 240 2% 90%;
+  --card-border: 240 3% 18%;
+  --sidebar: 240 3% 8%;
+  --sidebar-foreground: 240 2% 81%;
+  --sidebar-border: 240 3% 15%;
+  --popover: 240 3% 12%;
+  --popover-foreground: 240 2% 90%;
+  --secondary: 240 3% 18%;
+  --secondary-foreground: 240 2% 90%;
+  --muted: 240 3% 16%;
+  --muted-foreground: 240 2% 55%;
+  --accent: 240 3% 18%;
+  --accent-foreground: 240 2% 90%;
+  --input: 240 3% 25%;
+  --thread-bg: 240 3% 11%;
+  --list-bg: 240 3% 10%;
+}
+
+/* Kanban (pedidos) */
+.kanban-column {
+  display: flex;
+  min-width: 220px;
+  max-width: 240px;
+  flex-direction: column;
+  border-radius: var(--radius-ref);
+}
+
+.kanban-card {
+  margin-bottom: 0.5rem;
+  cursor: grab;
+  border-radius: var(--radius-ref);
+  border-width: 1px;
+  border-color: hsl(var(--card-border) / 1);
+  background-color: hsl(var(--card) / 1);
+  padding: 0.75rem;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  transition-property: box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 0.15s;
+}
+
+.kanban-card:hover {
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.kanban-card:active {
+  cursor: grabbing;
+}
+
+.kanban-card.dragging {
+  opacity: 0.5;
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/** Misma estética kanban sin padding fijo (tarjetas de pedido con layout propio) */
+.kanban-card-surface {
+  border-radius: var(--radius-ref);
+  border: 1px solid hsl(var(--card-border) / 1);
+  background-color: hsl(var(--card) / 1);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  transition: box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kanban-card-surface:hover {
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+/* Estados de pedido (referencia) */
+.status-pending {
+  background-color: rgb(254 243 199);
+  color: rgb(146 64 14);
+}
+.dark .status-pending {
+  background-color: rgba(120, 53, 15, 0.3);
+  color: rgb(251 191 36);
+}
+
+.status-confirming {
+  background-color: rgb(219 234 254);
+  color: rgb(30 64 175);
+}
+.dark .status-confirming {
+  background-color: rgba(30, 58, 138, 0.3);
+  color: rgb(96 165 250);
+}
+
+.status-confirmed {
+  background-color: rgb(209 250 229);
+  color: rgb(6 95 70);
+}
+.dark .status-confirmed {
+  background-color: rgba(6, 78, 59, 0.3);
+  color: rgb(52 211 153);
+}
+
+.status-shipping {
+  background-color: rgb(243 232 255);
+  color: rgb(107 33 168);
+}
+.dark .status-shipping {
+  background-color: rgba(88, 28, 135, 0.3);
+  color: rgb(192 132 252);
+}
+
+.status-delivered {
+  background-color: rgb(204 251 241);
+  color: rgb(17 94 89);
+}
+.dark .status-delivered {
+  background-color: rgba(19, 78, 74, 0.3);
+  color: rgb(45 212 191);
+}
+
+.status-rejected {
+  background-color: rgb(254 226 226);
+  color: rgb(153 27 27);
+}
+.dark .status-rejected {
+  background-color: rgba(127, 29, 29, 0.3);
+  color: rgb(248 113 113);
+}
+
+.status-cancelled {
+  background-color: rgb(243 244 246);
+  color: rgb(31 41 55);
+}
+.dark .status-cancelled {
+  background-color: rgba(17, 24, 39, 0.3);
+  color: rgb(156 163 175);
+}
+
+/* Chat */
+.chat-bubble-customer {
+  border-radius: var(--radius-ref);
+  border-top-left-radius: 0;
+  background-color: rgb(255 255 255);
+  border: 1px solid hsl(var(--border) / 1);
+}
+.dark .chat-bubble-customer {
+  background-color: rgb(30 41 59);
+  border-color: hsl(var(--border) / 1);
+}
+
+.chat-bubble-agent {
+  border-radius: var(--radius-ref);
+  border-top-right-radius: 0;
+  background-color: rgb(220 248 198);
+  border: 1px solid rgb(134 239 172 / 0.35);
+}
+.dark .chat-bubble-agent {
+  background-color: rgba(6, 78, 59, 0.3);
+  border-color: rgba(52, 211, 153, 0.25);
+}
+
+.chat-bubble-system {
+  border-radius: var(--radius-ref);
+  background-color: rgb(239 246 255);
+  text-align: center;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  border: 1px solid hsl(var(--border) / 0.8);
+}
+.dark .chat-bubble-system {
+  background-color: rgba(30, 58, 138, 0.2);
+}
+
+/* Lista de conversaciones — variante con avatar (CMR) */
+.conversation-item-cmr {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+  border-left: 2px solid transparent;
+  padding: 0.75rem 0.75rem 0.75rem 0.625rem;
+  border-radius: 0.75rem;
+  text-align: left;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.conversation-item-cmr:hover {
+  background-color: hsl(var(--muted) / 0.45);
+}
+
+.conversation-item-cmr.active {
+  border-left-color: hsl(var(--primary) / 1);
+  background-color: hsl(var(--primary) / 0.06);
+}
+
+/* Detalle lateral */
+.detail-section {
+  border-bottom-width: 1px;
+  border-color: hsl(var(--border) / 1);
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.detail-section:last-child {
+  border-bottom-width: 0;
+}
+
+.detail-label {
+  margin-bottom: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  color: hsl(var(--muted-foreground) / 1);
+}
+
+.detail-value {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: hsl(var(--foreground) / 1);
+}
+
+/* Superficie tipo card del diseño (listados, paneles) */
+.ref-card {
+  border-radius: var(--radius-ref);
+  border: 1px solid hsl(var(--card-border) / 1);
+  background-color: hsl(var(--card) / 1);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+.ref-card-hover {
+  transition:
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.ref-card-hover:hover {
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+/* Botón primario (misma lógica que shadcn primary) */
+.ref-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  background-color: hsl(var(--primary) / 1);
+  color: hsl(var(--primary-foreground) / 1);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  transition:
+    background-color 0.15s ease,
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.ref-btn-primary:hover {
+  background-color: hsl(218 100% 48%);
+}
+
+.ref-btn-primary:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Input / campo con borde del tema */
+.ref-input {
+  width: 100%;
+  border-radius: var(--radius-ref);
+  border: 1px solid hsl(var(--input) / 1);
+  background-color: hsl(var(--muted) / 1);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: hsl(var(--foreground) / 1);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.ref-input::placeholder {
+  color: hsl(var(--muted-foreground) / 1);
+}
+
+.ref-input:focus {
+  outline: none;
+  border-color: hsl(var(--ring) / 1);
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.22);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Modo oscuro: utilidades Tailwind del panel (app.* / bg-white) → variables   */
+/* -------------------------------------------------------------------------- */
+
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark .text-app-ink {
+  color: hsl(var(--foreground) / 1) !important;
+}
+
+html.dark .text-app-muted {
+  color: hsl(var(--muted-foreground) / 1) !important;
+}
+
+html.dark .border-app-line {
+  border-color: hsl(var(--border) / 1) !important;
+}
+
+html.dark .border-app-line-strong {
+  border-color: hsl(var(--border) / 1) !important;
+}
+
+html.dark .divide-y.divide-app-line > :not([hidden]) ~ :not([hidden]) {
+  border-color: hsl(var(--border) / 1) !important;
+}
+
+html.dark .bg-white {
+  background-color: hsl(var(--card) / 1) !important;
+}
+
+html.dark .bg-app-field {
+  background-color: hsl(var(--muted) / 1) !important;
+}
+
+html.dark .bg-app-field\/15 {
+  background-color: hsl(var(--muted) / 0.15) !important;
+}
+
+html.dark .bg-app-field\/30 {
+  background-color: hsl(var(--muted) / 0.3) !important;
+}
+
+html.dark .bg-app-field\/40 {
+  background-color: hsl(var(--muted) / 0.4) !important;
+}
+
+html.dark .bg-app-field\/50 {
+  background-color: hsl(var(--muted) / 0.5) !important;
+}
+
+html.dark .bg-app-field\/60 {
+  background-color: hsl(var(--muted) / 0.6) !important;
+}
+
+html.dark .bg-app-field\/70 {
+  background-color: hsl(var(--muted) / 0.7) !important;
+}
+
+html.dark .bg-app-field\/80 {
+  background-color: hsl(var(--muted) / 0.8) !important;
+}
+
+html.dark .hover\:bg-app-field:hover {
+  background-color: hsl(var(--muted) / 1) !important;
+}
+
+html.dark .hover\:bg-app-field\/40:hover {
+  background-color: hsl(var(--muted) / 0.4) !important;
+}
+
+html.dark .hover\:bg-app-field\/80:hover {
+  background-color: hsl(var(--muted) / 0.8) !important;
+}
+
+html.dark .hover\:bg-white\/80:hover {
+  background-color: hsl(var(--card) / 0.8) !important;
+}
+
+html.dark .bg-app-canvas {
+  background-color: hsl(var(--background) / 1) !important;
+  background-image: none !important;
+}
+
+html.dark .bg-app-shell {
+  background-color: hsl(var(--background) / 1) !important;
+  background-image: none !important;
+}
+
+html.dark .ring-white {
+  --tw-ring-color: hsl(var(--card) / 1) !important;
+}
+
+html.dark .ring-offset-white {
+  --tw-ring-offset-color: hsl(var(--background) / 1) !important;
+}
+
+html.dark .ring-white\/10 {
+  --tw-ring-color: rgb(255 255 255 / 0.1) !important;
+}
+
+html.dark .ring-white\/15 {
+  --tw-ring-color: rgb(255 255 255 / 0.15) !important;
+}
+
+html.dark .ring-white\/20 {
+  --tw-ring-color: hsl(var(--border) / 0.85) !important;
+}
+
+html.dark .ring-white\/50 {
+  --tw-ring-color: hsl(var(--border) / 0.65) !important;
+}
+
+html.dark .ring-white\/60 {
+  --tw-ring-color: hsl(var(--border) / 0.55) !important;
+}
+
+html.dark .ring-white\/80 {
+  --tw-ring-color: hsl(var(--border) / 0.45) !important;
+}
+
+html.dark .ring-white\/90 {
+  --tw-ring-color: hsl(var(--border) / 0.35) !important;
+}
+
+/* Bordes con opacidad (Tailwind escapa / como \/) */
+html.dark .border-app-line\/60 {
+  border-color: hsl(var(--border) / 0.65) !important;
+}
+
+html.dark .border-app-line\/70 {
+  border-color: hsl(var(--border) / 0.75) !important;
+}
+
+html.dark .border-app-line\/80 {
+  border-color: hsl(var(--border) / 0.85) !important;
+}
+
+html.dark .border-app-line\/90 {
+  border-color: hsl(var(--border) / 0.92) !important;
+}
+
+html.dark .border-white\/10 {
+  border-color: rgb(255 255 255 / 0.1) !important;
+}
+
+html.dark .border-white\/15 {
+  border-color: rgb(255 255 255 / 0.15) !important;
+}
+
+html.dark .border-white\/20 {
+  border-color: rgb(255 255 255 / 0.12) !important;
+}
+
+html.dark .border-white\/25 {
+  border-color: rgb(255 255 255 / 0.18) !important;
+}
+
+/* Fondos blancos semitransparentes → card */
+html.dark .bg-white\/5 {
+  background-color: hsl(var(--card) / 0.06) !important;
+}
+
+html.dark .bg-white\/10 {
+  background-color: hsl(var(--card) / 0.12) !important;
+}
+
+html.dark .bg-white\/50 {
+  background-color: hsl(var(--card) / 0.5) !important;
+}
+
+html.dark .bg-white\/78 {
+  background-color: hsl(var(--card) / 0.78) !important;
+}
+
+html.dark .bg-white\/80 {
+  background-color: hsl(var(--card) / 0.8) !important;
+}
+
+html.dark .bg-white\/85 {
+  background-color: hsl(var(--card) / 0.85) !important;
+}
+
+html.dark .bg-white\/90 {
+  background-color: hsl(var(--card) / 0.9) !important;
+}
+
+html.dark .bg-white\/92 {
+  background-color: hsl(var(--card) / 0.92) !important;
+}
+
+html.dark .bg-white\/95 {
+  background-color: hsl(var(--card) / 0.95) !important;
+}
+
+html.dark .hover\:bg-white:hover {
+  background-color: hsl(var(--card) / 1) !important;
+}
+
+html.dark .hover\:bg-white\/10:hover {
+  background-color: hsl(var(--card) / 0.12) !important;
+}
+
+html.dark .hover\:border-white\/25:hover {
+  border-color: hsl(var(--border) / 0.9) !important;
+}
+
+html.dark .text-white\/90 {
+  color: hsl(var(--foreground) / 0.95) !important;
+}
+
+/* Placeholders */
+html.dark .placeholder\:text-app-muted::placeholder {
+  color: hsl(var(--muted-foreground) / 1) !important;
+}
+
+/* Tarjetas y formularios legacy (app.css) */
+html.dark .app-card,
+html.dark .app-card-interactive {
+  background-color: hsl(var(--card) / 1) !important;
+  border-color: hsl(var(--border) / 1) !important;
+  box-shadow:
+    0 4px 24px -6px rgb(0 0 0 / 0.35),
+    0 1px 2px rgb(0 0 0 / 0.2) !important;
+}
+
+html.dark .app-card-interactive:hover {
+  border-color: hsl(var(--border) / 1) !important;
+  box-shadow:
+    0 8px 32px -8px rgb(0 0 0 / 0.4),
+    0 1px 2px rgb(0 0 0 / 0.25) !important;
+}
+
+html.dark .app-input {
+  background-color: hsl(var(--muted) / 1) !important;
+  border-color: hsl(var(--border) / 1) !important;
+  color: hsl(var(--foreground) / 1) !important;
+}
+
+html.dark .app-input::placeholder {
+  color: hsl(var(--muted-foreground) / 1) !important;
+}
+
+html.dark .app-spinner {
+  background-color: rgba(27, 112, 255, 0.15) !important;
+  border-color: rgba(27, 112, 255, 0.35) !important;
+}

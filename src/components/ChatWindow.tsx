@@ -378,7 +378,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
         initial={{ opacity: 0, y: -6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
-        className="px-4 md:px-6 min-h-[4rem] py-2 border-b border-app-line bg-white flex items-center justify-between shrink-0"
+        className="px-4 md:px-6 min-h-[4rem] py-2 border-b border-app-line bg-ref-card flex items-center justify-between shrink-0"
       >
         <div className="flex items-center gap-3 min-w-0">
           <motion.button
@@ -394,11 +394,11 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
               <img
                 src={chat.customerAvatar}
                 alt={displayName}
-                className="w-11 h-11 rounded-full object-cover bg-white"
+                className="w-11 h-11 rounded-full object-cover bg-ref-card"
               />
             </div>
             <div
-              className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${
+              className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-ref-card ${
                 chat.status === 'active'
                   ? 'bg-emerald-500 shadow-[0_0_0_2px_rgba(16,185,129,0.35)]'
                   : chat.status === 'waiting'
@@ -408,7 +408,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
             />
           </div>
           <div className="min-w-0">
-            <h2 className="font-semibold text-app-ink text-[15px] leading-tight truncate font-display">{displayName}</h2>
+            <h2 className="font-semibold text-app-ink text-[15px] leading-tight truncate font-professional">{displayName}</h2>
             <p className="text-[12px] text-app-muted leading-tight mt-0.5 truncate">
               {chat.platform === 'whatsapp' && (whatsAppNumber ? `WhatsApp · ${whatsAppNumber}` : 'WhatsApp')}
               {chat.platform === 'facebook' && 'Facebook Messenger'}
@@ -458,7 +458,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -4, scale: 0.98 }}
                 transition={{ duration: 0.15 }}
-                className="absolute right-0 top-full mt-1.5 w-52 bg-white rounded-2xl shadow-app-card border border-app-line py-1.5 z-50 overflow-hidden"
+                className="absolute right-0 top-full mt-1.5 w-52 bg-ref-card rounded-ref shadow-md border border-app-line py-1.5 z-50 overflow-hidden"
               >
                 {!isLg && (
                   <button
@@ -511,10 +511,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
       {/* Messages area */}
       <div
         ref={messagesScrollRef}
-        className="flex-1 overflow-y-auto px-3 md:px-8 py-5 space-y-1 min-h-0 bg-[#E8EAEF]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239ca3af' fill-opacity='0.12'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-        }}
+        className="flex-1 overflow-y-auto px-3 md:px-8 py-5 space-y-1 min-h-0 bg-ref-thread"
       >
         {loading ? (
           <motion.div
@@ -536,10 +533,10 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
             transition={{ duration: 0.3 }}
             className="flex flex-col items-center justify-center h-full min-h-[240px] text-center px-6"
           >
-            <div className="w-20 h-20 rounded-full bg-white border border-app-line flex items-center justify-center mb-5 shadow-app-card">
+            <div className="w-20 h-20 rounded-full bg-ref-card border border-app-line flex items-center justify-center mb-5 shadow-sm">
               <MessageSquare className="w-9 h-9 text-brand-500" />
             </div>
-            <h3 className="text-lg font-semibold text-app-ink font-display mb-2">
+            <h3 className="text-lg font-semibold text-app-ink font-professional mb-2">
               Inicia la conversación
             </h3>
             <p className="text-sm text-app-muted max-w-sm leading-relaxed">
@@ -565,7 +562,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                 >
                   {showDateSep && (
                     <div className="flex justify-center my-4">
-                      <span className="text-[11px] font-semibold text-app-muted bg-white border border-app-line px-3.5 py-1 rounded-full shadow-sm">
+                      <span className="text-[11px] font-semibold text-app-muted bg-ref-card border border-app-line px-3.5 py-1 rounded-full shadow-sm">
                         {getDateLabel(message.timestamp)}
                       </span>
                     </div>
@@ -573,7 +570,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
 
                   {isBot && showAvatar && (
                     <div className="flex items-center gap-1.5 mb-1.5 ml-1">
-                      <div className="w-1.5 h-1.5 rounded-full bg-brand-500 shadow-[0_0_8px_rgba(42,139,255,0.6)]" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-brand-500 shadow-[0_0_8px_rgba(27,112,255,0.5)]" />
                       <span className="text-[10px] font-bold text-brand-600 uppercase tracking-[0.15em]">
                         Bot
                       </span>
@@ -585,12 +582,10 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                   >
                     <div className={`max-w-[85%] md:max-w-[58%]`}>
                       <div
-                        className={`relative px-3.5 py-2.5 shadow-md ${
+                        className={`relative px-3.5 py-2.5 shadow-sm ${
                           isOwnMessage
-                            ? `bg-app-charcoal text-white border border-black/10 ${showAvatar ? 'rounded-[1.15rem] rounded-tr-md' : 'rounded-[1.15rem]'}`
-                            : isBot
-                              ? `bg-white text-app-ink border border-app-line ${showAvatar ? 'rounded-[1.15rem] rounded-tl-md' : 'rounded-[1.15rem]'}`
-                              : `bg-white text-app-ink border border-app-line ${showAvatar ? 'rounded-[1.15rem] rounded-tl-md' : 'rounded-[1.15rem]'}`
+                            ? 'chat-bubble-agent text-app-ink'
+                            : 'chat-bubble-customer text-app-ink'
                         }`}
                       >
                         <p className="text-[14px] leading-[1.5] whitespace-pre-wrap break-words">{message.text}</p>
@@ -604,16 +599,14 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                         <div
                           className={`flex items-center gap-1 mt-1 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
                         >
-                          <span
-                            className={`text-[10px] leading-none select-none ${isOwnMessage ? 'text-white/70' : 'text-app-muted'}`}
-                          >
+                          <span className="text-[10px] leading-none select-none text-app-muted">
                             {formatMessageTime(message.timestamp)}
                           </span>
                           {isOwnMessage && (
                             <MessageStatusIndicator
                               status={message.status || (message.read ? 'read' : 'sent')}
                               className="flex-shrink-0"
-                              tone="dark"
+                              tone="light"
                             />
                           )}
                         </div>
@@ -633,10 +626,10 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                   exit={{ opacity: 0, y: 4 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <div className="w-8 h-8 rounded-full bg-app-charcoal flex items-center justify-center shrink-0 shadow-md">
+                  <div className="w-8 h-8 rounded-full bg-brand-500 flex items-center justify-center shrink-0 shadow-md">
                     <Bot className="w-4 h-4 text-white" />
                   </div>
-                  <div className="bg-white border border-app-line rounded-2xl rounded-tl-sm px-4 py-3 shadow-md">
+                  <div className="chat-bubble-customer px-4 py-3 shadow-sm">
                     <div className="flex gap-1.5 items-center h-4">
                       <motion.span
                         className="w-2 h-2 rounded-full bg-app-muted"
@@ -669,7 +662,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, delay: 0.05 }}
-        className="px-3 md:px-6 py-3 border-t border-app-line bg-white shrink-0"
+        className="px-3 md:px-6 py-3 border-t border-app-line bg-ref-card shrink-0"
       >
         <div className="max-w-3xl mx-auto w-full flex items-end gap-2">
           <motion.button
@@ -682,7 +675,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
           >
             <Paperclip size={20} />
           </motion.button>
-          <div className="flex-1 min-w-0 rounded-full border border-app-line bg-app-field focus-within:border-app-charcoal/20 focus-within:ring-2 focus-within:ring-app-charcoal/10 transition-all duration-200 shadow-inner shadow-black/[0.04]">
+          <div className="flex-1 min-w-0 rounded-full border border-app-line bg-ref-muted focus-within:border-brand-500/30 focus-within:ring-2 focus-within:ring-brand-500/15 transition-all duration-200 shadow-inner shadow-black/[0.04]">
             <textarea
               ref={textareaRef}
               value={newMessage}
@@ -701,7 +694,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
             whileTap={{ scale: newMessage.trim() && !sending ? 0.94 : 1 }}
             className={`h-12 w-12 rounded-full flex-shrink-0 flex items-center justify-center transition-all duration-200 ${
               newMessage.trim() && !sending
-                ? 'bg-app-charcoal text-white shadow-md shadow-black/15 hover:bg-black'
+                ? 'bg-brand-500 text-white shadow-md shadow-brand-500/25 hover:bg-brand-600'
                 : 'bg-app-field text-app-muted cursor-not-allowed border border-app-line'
             }`}
           >
@@ -739,10 +732,10 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 8 }}
               transition={{ type: 'spring', stiffness: 380, damping: 28 }}
-              className="relative bg-white rounded-[24px] shadow-app-card border border-app-line w-full max-w-sm p-6"
+              className="relative bg-ref-card rounded-ref shadow-md border border-app-line w-full max-w-sm p-6"
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-app-ink text-base font-display">Cambiar nombre</h3>
+                <h3 className="font-semibold text-app-ink text-base font-professional">Cambiar nombre</h3>
                 <button
                   type="button"
                   onClick={() => setShowRenameModal(false)}
@@ -756,7 +749,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                 value={renameValue}
                 onChange={(e) => setRenameValue(e.target.value)}
                 placeholder="Nombre del contacto"
-                className="w-full px-4 py-3 rounded-2xl bg-app-field border border-app-line focus:outline-none focus:ring-2 focus:ring-app-charcoal/15 focus:border-app-charcoal/30 text-[14px] text-app-ink placeholder:text-app-muted transition-all"
+                className="w-full px-4 py-3 rounded-ref bg-ref-muted border border-app-line focus:outline-none focus:ring-2 focus:ring-brand-500/25 focus:border-brand-500/35 text-sm text-app-ink placeholder:text-app-muted transition-all"
                 onKeyDown={(e) => e.key === 'Enter' && handleRename()}
                 autoFocus
               />
@@ -772,7 +765,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                   type="button"
                   onClick={handleRename}
                   disabled={renaming || !renameValue.trim()}
-                  className="flex-1 py-2.5 rounded-full bg-app-charcoal text-white shadow-md disabled:opacity-40 text-[13px] font-semibold transition-opacity"
+                  className="flex-1 py-2.5 rounded-full bg-brand-500 text-white shadow-md shadow-brand-500/20 disabled:opacity-40 text-sm font-semibold transition-opacity hover:bg-brand-600"
                 >
                   {renaming ? 'Guardando...' : 'Guardar'}
                 </button>
@@ -800,14 +793,14 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 8 }}
               transition={{ type: 'spring', stiffness: 380, damping: 28 }}
-              className="relative bg-white rounded-[24px] shadow-app-card border border-app-line w-full max-w-sm p-6"
+              className="relative bg-ref-card rounded-ref shadow-md border border-app-line w-full max-w-sm p-6"
             >
               <div className="flex items-start gap-3 mb-5">
                 <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center flex-shrink-0">
                   <Trash2 size={20} className="text-rose-500" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-app-ink text-base font-display">Vaciar conversación</h3>
+                  <h3 className="font-semibold text-app-ink text-base font-professional">Vaciar conversación</h3>
                   <p className="text-[13px] text-app-muted mt-1.5 leading-relaxed">
                     Se eliminarán todos los mensajes. Esta acción no se puede deshacer.
                   </p>
@@ -853,7 +846,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 24 }}
               transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-              className="relative bg-white w-full sm:max-w-md sm:rounded-[24px] rounded-t-[28px] shadow-app-card border border-app-line overflow-hidden flex flex-col"
+              className="relative bg-ref-card w-full sm:max-w-md sm:rounded-ref rounded-t-[1.25rem] shadow-md border border-app-line overflow-hidden flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               <ChatContactPanel

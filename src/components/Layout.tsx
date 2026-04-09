@@ -16,7 +16,7 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <ProtectedRoute>
-      <div className="flex h-screen overflow-hidden bg-app-canvas bg-app-shell font-professional">
+      <div className="flex h-screen overflow-hidden bg-ref-bg bg-app-canvas bg-app-shell font-professional">
         {/* Overlay para sidebar en móvil */}
         {isSidebarOpen && (
           <div

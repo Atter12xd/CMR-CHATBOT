@@ -134,7 +134,7 @@ export default function DashboardContent() {
           <motion.a
             href="/pedidos"
             whileTap={{ scale: 0.98 }}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] font-semibold bg-app-charcoal text-white hover:bg-black shadow-md shadow-black/10 transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-brand-500 text-white hover:bg-brand-600 shadow-md shadow-brand-500/20 transition-colors"
           >
             Ver pedidos
             <ArrowRight className="size-4" />
@@ -171,11 +171,11 @@ export default function DashboardContent() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.28, delay: 0.08 }}
-        className="rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card min-w-0"
+        className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm min-w-0"
       >
         <div className="px-5 py-4 sm:px-6 bg-app-field/60 border-b border-app-line flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="p-2.5 rounded-2xl bg-white border border-app-line text-app-charcoal shrink-0 shadow-sm">
+            <div className="p-2.5 rounded-ref bg-ref-card border border-app-line text-brand-600 shrink-0 shadow-sm">
               <TrendingUp className="size-[18px]" strokeWidth={2} />
             </div>
             <div className="min-w-0">
@@ -184,7 +184,7 @@ export default function DashboardContent() {
             </div>
           </div>
           {recentOrders.length > 0 && (
-            <span className="text-[11px] font-semibold text-app-muted bg-white border border-app-line px-3 py-1.5 rounded-full tabular-nums w-fit">
+            <span className="text-[11px] font-semibold text-app-muted bg-ref-card border border-app-line px-3 py-1.5 rounded-full tabular-nums w-fit">
               {recentOrders.length} pedidos
             </span>
           )}
@@ -213,7 +213,7 @@ export default function DashboardContent() {
               >
                 <div className="flex items-center gap-3.5 min-w-0">
                   <div className="rounded-full p-[2px] bg-app-field border border-app-line shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-app-line">
+                    <div className="w-10 h-10 rounded-full bg-ref-card flex items-center justify-center border border-app-line">
                       <div
                         className={`w-2 h-2 rounded-full ${
                           order.status === 'delivered' || order.status === 'completed'
@@ -235,7 +235,7 @@ export default function DashboardContent() {
                   </div>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="font-bold text-app-ink text-[15px] tabular-nums font-display">
+                  <p className="font-bold text-app-ink text-[15px] tabular-nums font-professional">
                     S/ {order.total.toFixed(2)}
                   </p>
                   <p

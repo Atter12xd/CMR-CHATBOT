@@ -25,11 +25,14 @@ export default function MarketingHero({
       className={`relative pt-20 lg:pt-24 pb-14 lg:pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden bg-app-canvas ${className}`}
     >
       <div
-        className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.55] [mask-image:linear-gradient(to_bottom,black_25%,transparent_88%)]"
+        className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.55] dark:opacity-[0.14] [mask-image:linear-gradient(to_bottom,black_25%,transparent_88%)] dark:[mask-image:linear-gradient(to_bottom,black_18%,transparent_92%)]"
         aria-hidden
       />
-      <div className="pointer-events-none absolute inset-0 bg-hero-glow" aria-hidden />
-      <div className="landing-noise" aria-hidden />
+      <div
+        className="pointer-events-none absolute inset-0 bg-hero-glow opacity-100 dark:opacity-[0.42]"
+        aria-hidden
+      />
+      <div className="landing-noise dark:opacity-[0.018]" aria-hidden />
       <div className={`relative ${maxMap[maxWidth]} ${alignCls}`}>{children}</div>
     </section>
   );

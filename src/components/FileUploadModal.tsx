@@ -236,7 +236,7 @@ export default function FileUploadModal({ isOpen, onClose, onSend, chatId }: Fil
             <div className="space-y-4">
               {/* File Info */}
               <div className="bg-app-field/80 border border-app-line rounded-xl p-4 flex items-start gap-3">
-                <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-white border border-app-line">
+                <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-ref-card border border-app-line">
                   {fileType === 'image' ? (
                     <Image size={18} className="text-brand-600" />
                   ) : (
@@ -331,7 +331,7 @@ export default function FileUploadModal({ isOpen, onClose, onSend, chatId }: Fil
             <button
               onClick={handleUploadAndSend}
               disabled={uploading || !selectedFile}
-              className="px-5 py-2.5 text-sm font-medium bg-app-charcoal text-white rounded-full hover:bg-black shadow-md transition-all duration-150 active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-5 py-2.5 text-sm font-semibold bg-brand-500 text-white rounded-full hover:bg-brand-600 shadow-md shadow-brand-500/20 transition-all duration-150 active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {uploading ? (
                 <>

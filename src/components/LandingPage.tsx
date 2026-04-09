@@ -29,9 +29,9 @@ function StatCard({ value, label, delay = 0 }: { value: string; label: string; d
       transition={{ duration: 0.45, delay: delay / 1000, ease: [0.22, 1, 0.36, 1] }}
       className="group relative text-center font-professional"
     >
-      <div className="absolute -inset-[1px] rounded-[24px] bg-gradient-to-br from-brand-400/25 via-white to-brand-600/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      <div className="relative rounded-[23px] border border-app-line bg-white/90 backdrop-blur-sm px-4 py-7 shadow-app-card-premium group-hover:shadow-app-card-premium-hover transition-shadow duration-300">
-        <p className="text-4xl lg:text-[2.75rem] font-bold text-app-ink tracking-tighter font-display tabular-nums leading-none">
+      <div className="absolute -inset-[1px] rounded-[24px] bg-gradient-to-br from-brand-400/25 via-white to-brand-600/15 dark:via-ref-card opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="relative rounded-[23px] border border-app-line dark:border-ref-border bg-white/90 dark:bg-ref-card/95 backdrop-blur-sm px-4 py-7 shadow-app-card-premium group-hover:shadow-app-card-premium-hover transition-shadow duration-300 ring-1 ring-white/50 dark:ring-ref-border/40">
+        <p className="text-4xl lg:text-[2.75rem] font-bold text-app-ink tracking-tighter font-professional tabular-nums leading-none">
           {value}
         </p>
         <p className="mt-3 text-[11px] sm:text-[12px] text-app-muted font-medium tracking-wide uppercase">{label}</p>
@@ -65,12 +65,12 @@ function FeatureCard({
       className="group relative font-professional h-full"
     >
       <div className="absolute -inset-px rounded-[24px] bg-gradient-to-br from-brand-500/20 via-transparent to-brand-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      <div className="relative h-full p-6 rounded-[23px] border border-app-line bg-white shadow-app-card-premium transition-[box-shadow,border-color] duration-300 group-hover:border-brand-500/25 group-hover:shadow-app-card-premium-hover">
+      <div className="relative h-full p-6 rounded-[23px] border border-app-line dark:border-ref-border bg-white dark:bg-ref-card shadow-app-card-premium transition-[box-shadow,border-color] duration-300 group-hover:border-brand-500/25 group-hover:shadow-app-card-premium-hover">
         <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-brand-400/35 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-        <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-app-field to-white ring-1 ring-app-line flex items-center justify-center mb-5 shadow-inner shadow-black/[0.03]">
+        <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-app-field to-white dark:from-ref-muted dark:to-ref-card ring-1 ring-app-line dark:ring-ref-border flex items-center justify-center mb-5 shadow-inner shadow-black/[0.03]">
           <Icon className={`w-6 h-6 ${iconClass}`} />
         </div>
-        <h3 className="text-lg font-semibold text-app-ink mb-2 font-display tracking-tight">{title}</h3>
+        <h3 className="text-lg font-semibold text-app-ink mb-2 font-professional tracking-tight">{title}</h3>
         <p className="text-app-muted text-[13px] leading-relaxed">{description}</p>
       </div>
     </motion.div>
@@ -89,7 +89,7 @@ export default function LandingPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-app-canvas font-professional relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-40 [mask-image:radial-gradient(ellipse_at_center,black_25%,transparent_75%)]" aria-hidden />
+        <div className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-40 dark:opacity-[0.12] [mask-image:radial-gradient(ellipse_at_center,black_25%,transparent_75%)] dark:[mask-image:radial-gradient(ellipse_at_center,black_12%,transparent_82%)]" aria-hidden />
         <div className="relative flex flex-col items-center gap-4">
           <div className="app-spinner">
             <Loader2 size={20} className="animate-spin text-brand-600" />
@@ -107,11 +107,14 @@ export default function LandingPage() {
       {/* Hero — rejilla, velado y composición asimétrica */}
       <section className="relative pt-32 lg:pt-40 pb-16 lg:pb-28 px-4 sm:px-6 lg:px-8 overflow-hidden bg-app-canvas">
         <div
-          className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.55] [mask-image:linear-gradient(to_bottom,black_25%,transparent_88%)]"
+          className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.55] dark:opacity-[0.14] [mask-image:linear-gradient(to_bottom,black_25%,transparent_88%)] dark:[mask-image:linear-gradient(to_bottom,black_18%,transparent_92%)]"
           aria-hidden
         />
-        <div className="pointer-events-none absolute inset-0 bg-hero-glow" aria-hidden />
-        <div className="landing-noise" aria-hidden />
+        <div
+          className="pointer-events-none absolute inset-0 bg-hero-glow opacity-100 dark:opacity-[0.42]"
+          aria-hidden
+        />
+        <div className="landing-noise dark:opacity-[0.018]" aria-hidden />
 
         <div className="relative max-w-6xl mx-auto lg:grid lg:grid-cols-12 lg:gap-x-10 lg:gap-y-12 lg:items-center">
           <div className="lg:col-span-7 text-center lg:text-left">
@@ -119,7 +122,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-              className="inline-flex items-center gap-2.5 pl-3 pr-4 py-2 rounded-full border border-app-line/90 bg-white/85 backdrop-blur-md shadow-app-card mb-8 ring-1 ring-white/60"
+              className="inline-flex items-center gap-2.5 pl-3 pr-4 py-2 rounded-full border border-app-line/90 dark:border-ref-border/90 bg-white/85 dark:bg-ref-card/90 backdrop-blur-md shadow-app-card mb-8 ring-1 ring-white/60 dark:ring-ref-border/50"
             >
               <span className="flex h-2 w-2 relative">
                 <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400/90 opacity-75" />
@@ -132,7 +135,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-              className="text-[2.35rem] sm:text-5xl lg:text-[3.25rem] xl:text-[3.65rem] font-bold text-app-ink tracking-[-0.035em] leading-[1.06] font-display"
+              className="text-[2.35rem] sm:text-5xl lg:text-[3.25rem] xl:text-[3.65rem] font-bold text-app-ink tracking-[-0.035em] leading-[1.06] font-professional"
             >
               Vende más por WhatsApp
               <span className="block mt-2 sm:mt-3 text-gradient-brand">sin perder ninguna conversación</span>
@@ -159,13 +162,13 @@ export default function LandingPage() {
                 className="group relative inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 overflow-hidden rounded-2xl text-base font-semibold text-white shadow-app-card-premium transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
               >
                 <span className="absolute inset-0 bg-gradient-to-b from-white/[0.12] to-transparent" />
-                <span className="absolute inset-0 bg-app-charcoal" />
+                <span className="absolute inset-0 bg-brand-500" />
                 <span className="relative">Empezar gratis</span>
                 <ArrowRight className="relative w-5 h-5 transition-transform group-hover:translate-x-0.5" />
               </a>
               <a
                 href="#demo"
-                className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 rounded-2xl text-base font-semibold text-app-ink border border-app-line bg-white/90 backdrop-blur-sm shadow-inner shadow-black/[0.02] hover:border-brand-500/30 hover:bg-white transition-all duration-200 ring-1 ring-white/50"
+                className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 rounded-2xl text-base font-semibold text-app-ink border border-app-line dark:border-ref-border bg-white/90 dark:bg-ref-card/90 backdrop-blur-sm shadow-inner shadow-black/[0.02] hover:border-brand-500/30 hover:bg-white dark:hover:bg-ref-muted transition-all duration-200 ring-1 ring-white/50 dark:ring-ref-border/45"
               >
                 Ver cómo funciona
               </a>
@@ -196,8 +199,8 @@ export default function LandingPage() {
           >
             <div className="absolute -inset-8 rounded-[40px] bg-gradient-to-br from-brand-400/15 via-transparent to-brand-700/10 blur-3xl" aria-hidden />
             <div className="relative rounded-[28px] p-[1px] bg-gradient-to-br from-brand-400/45 via-app-line to-brand-700/25 shadow-app-card-premium">
-              <div className="rounded-[27px] bg-white/95 backdrop-blur-sm overflow-hidden ring-1 ring-white/80">
-                <div className="flex items-center gap-2 px-4 py-3 border-b border-app-line bg-app-field/40">
+              <div className="rounded-[27px] bg-white/95 dark:bg-ref-card/98 backdrop-blur-sm overflow-hidden ring-1 ring-white/80 dark:ring-ref-border/50">
+                <div className="flex items-center gap-2 px-4 py-3 border-b border-app-line dark:border-ref-border bg-app-field/40 dark:bg-ref-muted/35">
                   <div className="flex gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-red-400/80" />
                     <span className="w-2.5 h-2.5 rounded-full bg-amber-400/80" />
@@ -207,7 +210,7 @@ export default function LandingPage() {
                 </div>
                 <div className="p-5 space-y-4">
                   <div className="flex gap-3">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-app-field to-white ring-1 ring-app-line flex items-center justify-center shrink-0">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-app-field to-white dark:from-ref-muted dark:to-ref-card ring-1 ring-app-line dark:ring-ref-border flex items-center justify-center shrink-0">
                       <MessageSquare className="w-4 h-4 text-emerald-600" />
                     </div>
                     <div className="flex-1 rounded-2xl rounded-tl-sm px-3.5 py-2.5 bg-app-field border border-app-line/70">
@@ -215,7 +218,7 @@ export default function LandingPage() {
                     </div>
                   </div>
                   <div className="flex justify-end">
-                    <div className="max-w-[88%] rounded-2xl rounded-tr-sm px-3.5 py-2.5 bg-gradient-to-b from-app-charcoal to-[#1f2023] text-white shadow-lg shadow-black/20">
+                    <div className="max-w-[88%] rounded-ref rounded-tr-sm px-3.5 py-2.5 bg-gradient-to-b from-brand-600 to-brand-800 text-white shadow-lg shadow-brand-900/20">
                       <p className="text-[13px] leading-snug">Sí, confirmado. Te envío el link de pago por aquí.</p>
                     </div>
                   </div>
@@ -227,9 +230,9 @@ export default function LandingPage() {
                     ].map(([v, l]) => (
                       <div
                         key={l}
-                        className="rounded-xl border border-app-line/80 bg-gradient-to-b from-white to-app-field/30 px-2 py-3 text-center"
+                        className="rounded-xl border border-app-line/80 dark:border-ref-border/80 bg-gradient-to-b from-white to-app-field/30 dark:from-ref-card dark:to-ref-muted/40 px-2 py-3 text-center"
                       >
-                        <p className="text-lg font-bold font-display text-app-ink tabular-nums">{v}</p>
+                        <p className="text-lg font-bold font-professional text-app-ink tabular-nums">{v}</p>
                         <p className="text-[10px] text-app-muted font-medium uppercase tracking-wider mt-0.5">{l}</p>
                       </div>
                     ))}
@@ -241,8 +244,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="relative py-14 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white border-y border-app-line overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.2] [mask-image:linear-gradient(90deg,transparent,black_15%,black_85%,transparent)]" aria-hidden />
+      <section className="relative py-14 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-ref-bg border-y border-app-line dark:border-ref-border overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.2] dark:opacity-[0.06] [mask-image:linear-gradient(90deg,transparent,black_15%,black_85%,transparent)] dark:[mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]" aria-hidden />
         <div className="relative max-w-6xl mx-auto">
           <SectionLabel>Confianza sectorial</SectionLabel>
           <p className="text-center text-sm text-app-muted mb-10 max-w-lg mx-auto">
@@ -252,9 +255,9 @@ export default function LandingPage() {
             {['Retail', 'Restaurantes', 'E-commerce', 'Servicios', 'Salud', 'Educación'].map((name) => (
               <div
                 key={name}
-                className="group flex items-center justify-center min-h-[4.5rem] rounded-2xl border border-app-line/90 bg-gradient-to-b from-white to-app-field/25 px-3 py-4 text-center shadow-inner shadow-black/[0.02] transition-[border-color,box-shadow] duration-300 hover:border-brand-500/25 hover:shadow-app-card"
+                className="group flex items-center justify-center min-h-[4.5rem] rounded-2xl border border-app-line/90 dark:border-ref-border/90 bg-gradient-to-b from-white to-app-field/25 dark:from-ref-card dark:to-ref-muted/35 px-3 py-4 text-center shadow-inner shadow-black/[0.02] transition-[border-color,box-shadow] duration-300 hover:border-brand-500/25 hover:shadow-app-card"
               >
-                <span className="text-[13px] sm:text-sm font-semibold text-app-muted group-hover:text-app-ink font-display tracking-tight transition-colors">
+                <span className="text-[13px] sm:text-sm font-semibold text-app-muted group-hover:text-app-ink font-professional tracking-tight transition-colors">
                   {name}
                 </span>
               </div>
@@ -264,11 +267,11 @@ export default function LandingPage() {
       </section>
 
       <section id="caracteristicas" className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-app-shell overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-hero-glow opacity-60" aria-hidden />
+        <div className="pointer-events-none absolute inset-0 bg-hero-glow opacity-60 dark:opacity-[0.32]" aria-hidden />
         <div className="relative max-w-6xl mx-auto">
           <div className="text-center mb-16 lg:mb-20">
             <SectionLabel>Producto</SectionLabel>
-            <h2 className="text-3xl lg:text-4xl xl:text-[2.75rem] font-bold text-app-ink tracking-[-0.03em] font-display leading-[1.12]">
+            <h2 className="text-3xl lg:text-4xl xl:text-[2.75rem] font-bold text-app-ink tracking-[-0.03em] font-professional leading-[1.12]">
               Todo lo que necesitas para vender más
             </h2>
             <p className="mt-5 text-base sm:text-lg text-app-muted max-w-2xl mx-auto leading-relaxed">
@@ -318,13 +321,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="demo" className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-white border-y border-app-line overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.35] [mask-image:linear-gradient(to_bottom,transparent,black_30%,black_70%,transparent)]" aria-hidden />
+      <section id="demo" className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-white dark:bg-ref-bg border-y border-app-line dark:border-ref-border overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.35] dark:opacity-[0.11] [mask-image:linear-gradient(to_bottom,transparent,black_30%,black_70%,transparent)] dark:[mask-image:linear-gradient(to_bottom,transparent,black_22%,black_78%,transparent)]" aria-hidden />
         <div className="relative max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div>
               <SectionLabel>Flujo</SectionLabel>
-              <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-[-0.03em] mb-6 font-display leading-tight">
+              <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-[-0.03em] mb-6 font-professional leading-tight">
                 De la conversación al pedido en segundos
               </h2>
               <p className="text-base sm:text-lg text-app-muted mb-10 leading-relaxed">
@@ -340,11 +343,11 @@ export default function LandingPage() {
                   { step: '03', title: 'Convierte en ventas', desc: 'Crea pedidos y envía links de pago desde el chat.' },
                 ].map((item, i) => (
                   <div key={i} className="relative flex gap-5 pb-10 last:pb-0">
-                    <div className="relative z-[1] w-11 h-11 rounded-2xl bg-gradient-to-br from-brand-50 to-white border border-brand-500/25 shadow-sm flex items-center justify-center shrink-0 ring-4 ring-white">
-                      <span className="text-xs font-bold text-brand-700 font-display tracking-tight">{item.step}</span>
+                    <div className="relative z-[1] w-11 h-11 rounded-2xl bg-gradient-to-br from-brand-50 to-white dark:from-brand-950/40 dark:to-ref-card border border-brand-500/25 shadow-sm flex items-center justify-center shrink-0 ring-4 ring-white dark:ring-ref-bg">
+                      <span className="text-xs font-bold text-brand-700 font-professional tracking-tight">{item.step}</span>
                     </div>
                     <div className="pt-0.5">
-                      <h3 className="font-semibold text-app-ink mb-1 font-display">{item.title}</h3>
+                      <h3 className="font-semibold text-app-ink mb-1 font-professional">{item.title}</h3>
                       <p className="text-sm text-app-muted leading-relaxed">{item.desc}</p>
                     </div>
                   </div>
@@ -355,7 +358,7 @@ export default function LandingPage() {
             <div className="relative">
               <div className="absolute -inset-4 rounded-[32px] bg-gradient-to-br from-brand-400/12 to-transparent blur-2xl" aria-hidden />
               <div className="relative rounded-[26px] p-[1px] bg-gradient-to-br from-brand-400/35 via-app-line to-brand-700/20 shadow-app-card-premium">
-                <div className="relative rounded-[25px] overflow-hidden bg-white ring-1 ring-white/90 p-6 sm:p-7">
+                <div className="relative rounded-[25px] overflow-hidden bg-white dark:bg-ref-card ring-1 ring-white/90 dark:ring-ref-border/50 p-6 sm:p-7">
                 <div className="space-y-4">
                   <div className="flex gap-3">
                     <div className="w-10 h-10 rounded-full bg-app-field flex items-center justify-center shrink-0">
@@ -368,7 +371,7 @@ export default function LandingPage() {
                   </div>
 
                   <div className="flex gap-3 justify-end">
-                    <div className="flex-1 bg-app-charcoal rounded-2xl rounded-tr-md px-4 py-3 max-w-[85%]">
+                    <div className="flex-1 bg-brand-600 rounded-ref rounded-tr-md px-4 py-3 max-w-[85%]">
                       <p className="text-sm text-white">¡Hola! Sí, tenemos horarios a las 10am y 3pm. ¿Cuál prefieres? 😊</p>
                       <p className="text-xs text-white/70 mt-1">10:24 AM · Leído</p>
                     </div>
@@ -387,16 +390,16 @@ export default function LandingPage() {
 
                 <div className="mt-6 pt-6 border-t border-app-line bg-gradient-to-b from-transparent to-app-field/20 -mx-6 sm:-mx-7 px-6 sm:px-7 pb-1">
                   <div className="grid grid-cols-3 gap-3 text-center">
-                    <div className="rounded-xl py-3 border border-app-line/60 bg-white/80">
-                      <p className="text-xl sm:text-2xl font-bold text-app-ink font-display tabular-nums">5,477</p>
+                    <div className="rounded-xl py-3 border border-app-line/60 dark:border-ref-border/60 bg-white/80 dark:bg-ref-muted/50">
+                      <p className="text-xl sm:text-2xl font-bold text-app-ink font-professional tabular-nums">5,477</p>
                       <p className="text-[10px] sm:text-xs text-app-muted mt-1 font-medium uppercase tracking-wider">Mensajes</p>
                     </div>
-                    <div className="rounded-xl py-3 border border-app-line/60 bg-white/80">
-                      <p className="text-xl sm:text-2xl font-bold text-app-ink font-display tabular-nums">94%</p>
+                    <div className="rounded-xl py-3 border border-app-line/60 dark:border-ref-border/60 bg-white/80 dark:bg-ref-muted/50">
+                      <p className="text-xl sm:text-2xl font-bold text-app-ink font-professional tabular-nums">94%</p>
                       <p className="text-[10px] sm:text-xs text-app-muted mt-1 font-medium uppercase tracking-wider">Respuesta</p>
                     </div>
                     <div className="rounded-xl py-3 border border-brand-500/20 bg-brand-50/40">
-                      <p className="text-xl sm:text-2xl font-bold text-brand-700 font-display tabular-nums">62%</p>
+                      <p className="text-xl sm:text-2xl font-bold text-brand-700 font-professional tabular-nums">62%</p>
                       <p className="text-[10px] sm:text-xs text-app-muted mt-1 font-medium uppercase tracking-wider">Conversión</p>
                     </div>
                   </div>
@@ -409,11 +412,11 @@ export default function LandingPage() {
       </section>
 
       <section id="por-que" className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-app-shell overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.25] [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_75%)]" aria-hidden />
+        <div className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.25] dark:opacity-[0.08] [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_75%)] dark:[mask-image:radial-gradient(ellipse_at_center,black_12%,transparent_82%)]" aria-hidden />
         <div className="relative max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <SectionLabel>Valor</SectionLabel>
-            <h2 className="text-3xl lg:text-4xl xl:text-[2.75rem] font-bold text-app-ink tracking-[-0.03em] font-display leading-tight">
+            <h2 className="text-3xl lg:text-4xl xl:text-[2.75rem] font-bold text-app-ink tracking-[-0.03em] font-professional leading-tight">
               Simple, rápido y efectivo
             </h2>
           </div>
@@ -434,12 +437,12 @@ export default function LandingPage() {
                   viewport={{ once: true, margin: '-30px' }}
                   transition={{ duration: 0.4, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
                   whileHover={{ y: -3 }}
-                  className="group p-6 rounded-[24px] border border-app-line bg-gradient-to-b from-white to-app-field/15 shadow-app-card-premium font-professional transition-[box-shadow,border-color] duration-300 hover:border-brand-500/20 hover:shadow-app-card-premium-hover"
+                  className="group p-6 rounded-[24px] border border-app-line dark:border-ref-border bg-gradient-to-b from-white to-app-field/15 dark:from-ref-card dark:to-ref-muted/30 shadow-app-card-premium font-professional transition-[box-shadow,border-color] duration-300 hover:border-brand-500/20 hover:shadow-app-card-premium-hover"
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-50/80 to-white ring-1 ring-brand-500/15 flex items-center justify-center mb-4 shadow-sm">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-50/80 to-white dark:from-brand-950/35 dark:to-ref-card ring-1 ring-brand-500/15 flex items-center justify-center mb-4 shadow-sm">
                     <ItemIcon className="w-6 h-6 text-brand-600" />
                   </div>
-                  <h3 className="text-lg font-semibold text-app-ink mb-2 font-display tracking-tight">{item.title}</h3>
+                  <h3 className="text-lg font-semibold text-app-ink mb-2 font-professional tracking-tight">{item.title}</h3>
                   <p className="text-[13px] text-app-muted leading-relaxed">{item.desc}</p>
                 </motion.div>
               );
@@ -448,12 +451,12 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-white border-y border-app-line overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-hero-glow opacity-40" aria-hidden />
+      <section className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-white dark:bg-ref-bg border-y border-app-line dark:border-ref-border overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 bg-hero-glow opacity-40 dark:opacity-[0.22]" aria-hidden />
         <div className="relative max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <SectionLabel>Impacto</SectionLabel>
-            <h2 className="text-3xl lg:text-4xl xl:text-[2.75rem] font-bold text-app-ink tracking-[-0.03em] font-display leading-tight">
+            <h2 className="text-3xl lg:text-4xl xl:text-[2.75rem] font-bold text-app-ink tracking-[-0.03em] font-professional leading-tight">
               Números que hablan
             </h2>
           </div>
@@ -468,11 +471,11 @@ export default function LandingPage() {
       </section>
 
       <section className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-app-shell overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-transparent" aria-hidden />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/40 dark:from-ref-fg/[0.06] via-transparent to-transparent" aria-hidden />
         <div className="relative max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <SectionLabel>Casos</SectionLabel>
-            <h2 className="text-3xl lg:text-4xl xl:text-[2.75rem] font-bold text-app-ink tracking-[-0.03em] font-display leading-tight">
+            <h2 className="text-3xl lg:text-4xl xl:text-[2.75rem] font-bold text-app-ink tracking-[-0.03em] font-professional leading-tight">
               Negocios que crecen con Wazapp
             </h2>
           </div>
@@ -514,16 +517,16 @@ export default function LandingPage() {
                 whileHover={{ y: -4 }}
                 className="group relative block overflow-hidden rounded-[26px] p-[1px] bg-gradient-to-br from-brand-400/25 via-app-line to-transparent font-professional shadow-app-card-premium transition-shadow duration-300 hover:shadow-app-card-premium-hover"
               >
-                <div className="h-full rounded-[25px] bg-white p-6 sm:p-7 ring-1 ring-white/80">
+                <div className="h-full rounded-[25px] bg-white dark:bg-ref-card p-6 sm:p-7 ring-1 ring-white/80 dark:ring-ref-border/50">
                   <div className="flex items-start justify-between gap-3 mb-5">
                     <span className="px-3 py-1.5 rounded-full bg-app-field/80 border border-app-line text-[11px] font-semibold text-app-muted uppercase tracking-wider">
                       {card.industry}
                     </span>
-                    <span className="text-base sm:text-lg font-bold text-emerald-600 font-display tabular-nums shrink-0">
+                    <span className="text-base sm:text-lg font-bold text-emerald-600 font-professional tabular-nums shrink-0">
                       {card.metric}
                     </span>
                   </div>
-                  <h3 className="text-lg font-semibold text-app-ink mb-2 font-display tracking-tight group-hover:text-brand-700 transition-colors pr-2">
+                  <h3 className="text-lg font-semibold text-app-ink mb-2 font-professional tracking-tight group-hover:text-brand-700 transition-colors pr-2">
                     {card.title}
                   </h3>
                   <p className="text-[13px] text-app-muted mb-5 leading-relaxed">{card.desc}</p>
@@ -539,16 +542,16 @@ export default function LandingPage() {
       </section>
 
       <section className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden text-white">
-        <div className="absolute inset-0 bg-app-charcoal" aria-hidden />
+        <div className="absolute inset-0 bg-[hsl(240_3%_13%)]" aria-hidden />
         <div
-          className="absolute inset-0 opacity-[0.07] bg-site-grid bg-grid [mask-image:radial-gradient(ellipse_at_50%_0%,black,transparent_70%)]"
+          className="absolute inset-0 opacity-[0.07] dark:opacity-[0.035] bg-site-grid bg-grid [mask-image:radial-gradient(ellipse_at_50%_0%,black,transparent_70%)]"
           aria-hidden
         />
         <div className="absolute inset-0 bg-gradient-to-br from-brand-600/20 via-transparent to-transparent pointer-events-none" aria-hidden />
         <div className="landing-noise opacity-[0.06]" aria-hidden />
         <div className="relative max-w-3xl mx-auto text-center z-[1]">
           <SectionLabel dark>Siguiente paso</SectionLabel>
-          <h2 className="text-3xl lg:text-4xl xl:text-[2.85rem] font-bold tracking-[-0.03em] mb-6 font-display text-white">
+          <h2 className="text-3xl lg:text-4xl xl:text-[2.85rem] font-bold tracking-[-0.03em] mb-6 font-professional text-white">
             ¿Listo para vender más?
           </h2>
           <p className="text-base sm:text-lg text-white/75 mb-10 max-w-xl mx-auto leading-relaxed">
@@ -558,7 +561,7 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
             <a
               href="/register"
-              className="group relative inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 overflow-hidden rounded-2xl text-base font-semibold text-app-charcoal bg-white shadow-app-card-premium transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              className="group relative inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 overflow-hidden rounded-ref text-base font-semibold text-app-ink bg-white shadow-app-card-premium transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               <span className="absolute inset-0 bg-gradient-to-b from-white to-white/90" />
               <span className="relative">Empezar gratis</span>

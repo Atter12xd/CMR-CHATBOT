@@ -38,7 +38,7 @@ export default function LogoBrand({ size = 'md', href = '/', showText = true }: 
       
       {/* Brand Text */}
       {showText && (
-        <span className={`${s.text} font-bold tracking-tight leading-none font-display`}>
+        <span className={`${s.text} font-bold tracking-tight leading-none font-professional`}>
           <span className="text-app-ink">wazapp</span>
           <span className="text-brand-600">.ai</span>
         </span>

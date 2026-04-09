@@ -38,7 +38,7 @@ export default function SobreNosotrosContent() {
     <div className="min-h-screen bg-app-shell font-professional text-app-ink antialiased">
       <MarketingHero maxWidth="lg" className="pb-16 lg:pb-20">
         <SectionLabel>Equipo</SectionLabel>
-        <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-bold text-app-ink tracking-[-0.035em] mb-6 font-display leading-[1.08]">
+        <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-bold text-app-ink tracking-[-0.035em] mb-6 font-professional leading-[1.08]">
           Hacemos que vender por
           <span className="block text-gradient-brand mt-1">WhatsApp sea fácil</span>
         </h1>
@@ -47,17 +47,17 @@ export default function SobreNosotrosContent() {
         </p>
       </MarketingHero>
 
-      <section className="relative py-14 lg:py-16 px-4 sm:px-6 lg:px-8 bg-white border-y border-app-line overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.18] [mask-image:linear-gradient(90deg,transparent,black_10%,black_90%,transparent)]" aria-hidden />
+      <section className="relative py-14 lg:py-16 px-4 sm:px-6 lg:px-8 bg-white dark:bg-ref-bg border-y border-app-line dark:border-ref-border overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.18] dark:opacity-[0.055] [mask-image:linear-gradient(90deg,transparent,black_10%,black_90%,transparent)] dark:[mask-image:linear-gradient(90deg,transparent,black_5%,black_95%,transparent)]" aria-hidden />
         <div className="relative max-w-5xl mx-auto">
           <SectionLabel>Datos</SectionLabel>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {stats.map((stat, i) => (
               <div
                 key={i}
-                className="rounded-2xl border border-app-line/90 bg-gradient-to-b from-white to-app-field/25 px-3 py-6 text-center shadow-inner shadow-black/[0.02] transition-[border-color] duration-300 hover:border-brand-500/20"
+                className="rounded-2xl border border-app-line/90 dark:border-ref-border/90 bg-gradient-to-b from-white to-app-field/25 dark:from-ref-card dark:to-ref-muted/35 px-3 py-6 text-center shadow-inner shadow-black/[0.02] transition-[border-color] duration-300 hover:border-brand-500/20"
               >
-                <p className="text-3xl sm:text-4xl font-bold text-app-ink mb-1 font-display tabular-nums tracking-tight">{stat.value}</p>
+                <p className="text-3xl sm:text-4xl font-bold text-app-ink mb-1 font-professional tabular-nums tracking-tight">{stat.value}</p>
                 <p className="text-app-muted text-[11px] sm:text-xs font-semibold uppercase tracking-wider">{stat.label}</p>
               </div>
             ))}
@@ -66,11 +66,11 @@ export default function SobreNosotrosContent() {
       </section>
 
       <section className="relative py-24 px-4 sm:px-6 lg:px-8 bg-app-shell overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-hero-glow opacity-45" aria-hidden />
+        <div className="pointer-events-none absolute inset-0 bg-hero-glow opacity-45 dark:opacity-[0.25]" aria-hidden />
         <div className="relative max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <SectionLabel>Cultura</SectionLabel>
-            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink font-display tracking-[-0.03em] leading-tight">
+            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink font-professional tracking-[-0.03em] leading-tight">
               Lo que nos define
             </h2>
           </div>
@@ -88,11 +88,11 @@ export default function SobreNosotrosContent() {
                   whileHover={{ y: -3 }}
                   className="group relative p-[1px] rounded-[26px] bg-gradient-to-br from-brand-400/18 via-app-line to-transparent shadow-app-card-premium transition-shadow duration-300 hover:shadow-app-card-premium-hover"
                 >
-                  <div className="rounded-[25px] bg-white p-7 sm:p-8 border border-app-line/80 ring-1 ring-white/90 h-full">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-50 to-white border border-brand-500/20 flex items-center justify-center mb-5 shadow-inner shadow-black/[0.02]">
+                  <div className="rounded-[25px] bg-white dark:bg-ref-card p-7 sm:p-8 border border-app-line/80 dark:border-ref-border/80 ring-1 ring-white/90 dark:ring-ref-border/50 h-full">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-50 to-white dark:from-brand-950/35 dark:to-ref-card border border-brand-500/20 flex items-center justify-center mb-5 shadow-inner shadow-black/[0.02]">
                       <Icon className="w-7 h-7 text-brand-600" />
                     </div>
-                    <h3 className="text-xl font-semibold text-app-ink mb-3 font-display tracking-tight">{v.title}</h3>
+                    <h3 className="text-xl font-semibold text-app-ink mb-3 font-professional tracking-tight">{v.title}</h3>
                     <p className="text-app-muted text-[15px] leading-relaxed">{v.desc}</p>
                   </div>
                 </motion.div>
@@ -102,17 +102,17 @@ export default function SobreNosotrosContent() {
         </div>
       </section>
 
-      <section className="relative py-24 px-4 sm:px-6 lg:px-8 bg-white border-y border-app-line overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.2] [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)]" aria-hidden />
+      <section className="relative py-24 px-4 sm:px-6 lg:px-8 bg-white dark:bg-ref-bg border-y border-app-line dark:border-ref-border overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.2] dark:opacity-[0.06] [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)] dark:[mask-image:linear-gradient(to_bottom,transparent,black_14%,black_86%,transparent)]" aria-hidden />
         <div className="relative max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <SectionLabel>Historia</SectionLabel>
-            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink mb-6 font-display tracking-[-0.03em] leading-tight">
+            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink mb-6 font-professional tracking-[-0.03em] leading-tight">
               ¿Por qué creamos Wazapp?
             </h2>
           </div>
 
-          <div className="rounded-[24px] border border-app-line/90 bg-gradient-to-b from-app-field/20 to-white p-6 sm:p-10 shadow-app-card-premium ring-1 ring-white/80">
+          <div className="rounded-[24px] border border-app-line/90 dark:border-ref-border/90 bg-gradient-to-b from-app-field/20 to-white dark:from-ref-muted/25 dark:to-ref-card p-6 sm:p-10 shadow-app-card-premium ring-1 ring-white/80 dark:ring-ref-border/45">
             <div className="space-y-6 text-app-muted leading-relaxed text-[15px] sm:text-base">
               <p>
                 Todo empezó cuando vimos cómo pequeños negocios perdían ventas porque no podían responder a tiempo los mensajes de WhatsApp. Tenían clientes interesados, pero no las herramientas para gestionarlos eficientemente.
@@ -132,7 +132,7 @@ export default function SobreNosotrosContent() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <SectionLabel>Confianza</SectionLabel>
-            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink mb-4 font-display tracking-[-0.03em] leading-tight">
+            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink mb-4 font-professional tracking-[-0.03em] leading-tight">
               ¿Por qué elegirnos?
             </h2>
           </div>
@@ -144,7 +144,7 @@ export default function SobreNosotrosContent() {
                 title: 'Seguro y confiable',
                 desc: 'Tus datos y los de tus clientes están protegidos con encriptación de nivel empresarial.',
                 ring: 'ring-emerald-500/20',
-                bg: 'from-emerald-50/80 to-white',
+                bg: 'from-emerald-50/80 to-white dark:from-emerald-950/25 dark:to-ref-card',
                 ic: 'text-emerald-600',
               },
               {
@@ -152,7 +152,7 @@ export default function SobreNosotrosContent() {
                 title: 'Soporte en español',
                 desc: 'Atención real en tu idioma. Sin chatbots ni traducciones automáticas.',
                 ring: 'ring-brand-500/20',
-                bg: 'from-brand-50/80 to-white',
+                bg: 'from-brand-50/80 to-white dark:from-brand-950/25 dark:to-ref-card',
                 ic: 'text-brand-600',
               },
               {
@@ -160,7 +160,7 @@ export default function SobreNosotrosContent() {
                 title: 'En constante mejora',
                 desc: 'Nuevas funcionalidades cada mes basadas en el feedback de nuestros usuarios.',
                 ring: 'ring-amber-500/20',
-                bg: 'from-amber-50/80 to-white',
+                bg: 'from-amber-50/80 to-white dark:from-amber-950/25 dark:to-ref-card',
                 ic: 'text-amber-600',
               },
             ].map((item) => {
@@ -168,12 +168,12 @@ export default function SobreNosotrosContent() {
               return (
                 <div
                   key={item.title}
-                  className={`p-6 rounded-[24px] bg-gradient-to-b ${item.bg} border border-app-line shadow-app-card-premium text-center ring-1 ${item.ring} transition-[border-color,box-shadow] duration-300 hover:border-brand-500/15 hover:shadow-app-card-premium-hover`}
+                  className={`p-6 rounded-[24px] bg-gradient-to-b ${item.bg} border border-app-line dark:border-ref-border shadow-app-card-premium text-center ring-1 ${item.ring} transition-[border-color,box-shadow] duration-300 hover:border-brand-500/15 hover:shadow-app-card-premium-hover`}
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-white/90 border border-app-line flex items-center justify-center mx-auto mb-4 shadow-inner shadow-black/[0.02]">
+                  <div className="w-12 h-12 rounded-2xl bg-white/90 dark:bg-ref-card/95 border border-app-line dark:border-ref-border flex items-center justify-center mx-auto mb-4 shadow-inner shadow-black/[0.02]">
                     <Ico className={`w-6 h-6 ${item.ic}`} />
                   </div>
-                  <h3 className="font-semibold text-app-ink mb-2 font-display">{item.title}</h3>
+                  <h3 className="font-semibold text-app-ink mb-2 font-professional">{item.title}</h3>
                   <p className="text-app-muted text-sm leading-relaxed">{item.desc}</p>
                 </div>
               );
@@ -183,13 +183,13 @@ export default function SobreNosotrosContent() {
       </section>
 
       <section className="relative py-24 px-4 sm:px-6 lg:px-8 overflow-hidden text-white border-t border-black/10">
-        <div className="absolute inset-0 bg-app-charcoal" aria-hidden />
-        <div className="absolute inset-0 opacity-[0.07] bg-site-grid bg-grid [mask-image:radial-gradient(ellipse_at_50%_0%,black,transparent_70%)]" aria-hidden />
+        <div className="absolute inset-0 bg-[hsl(240_3%_13%)]" aria-hidden />
+        <div className="absolute inset-0 opacity-[0.07] dark:opacity-[0.035] bg-site-grid bg-grid [mask-image:radial-gradient(ellipse_at_50%_0%,black,transparent_70%)]" aria-hidden />
         <div className="absolute inset-0 bg-gradient-to-br from-brand-600/18 via-transparent to-transparent pointer-events-none" aria-hidden />
         <div className="landing-noise opacity-[0.06]" aria-hidden />
         <div className="relative max-w-3xl mx-auto text-center z-[1]">
           <SectionLabel dark>Siguiente paso</SectionLabel>
-          <h2 className="text-3xl lg:text-4xl font-bold mb-6 font-display tracking-[-0.03em] text-white">
+          <h2 className="text-3xl lg:text-4xl font-bold mb-6 font-professional tracking-[-0.03em] text-white">
             ¿Listo para empezar?
           </h2>
           <p className="text-base sm:text-lg text-white/75 mb-8 max-w-xl mx-auto">
@@ -198,7 +198,7 @@ export default function SobreNosotrosContent() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
             <a
               href="/register"
-              className="group relative inline-flex items-center gap-2 overflow-hidden px-8 py-4 rounded-2xl text-base font-semibold text-app-charcoal bg-white shadow-app-card-premium transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              className="group relative inline-flex items-center gap-2 overflow-hidden px-8 py-4 rounded-ref text-base font-semibold text-app-ink bg-white shadow-app-card-premium transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               <span className="absolute inset-0 bg-gradient-to-b from-white to-white/90" />
               <span className="relative">Crear cuenta gratis</span>

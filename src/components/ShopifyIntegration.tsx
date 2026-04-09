@@ -357,7 +357,7 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
             onChange={(e) => setShopDomain(e.target.value)}
             placeholder="mi-tienda.myshopify.com"
             disabled={status === 'connecting' || status === 'connected'}
-            className="w-full px-3.5 py-2.5 text-sm rounded-xl bg-app-field border border-app-line text-app-ink placeholder:text-app-muted focus:outline-none focus:ring-2 focus:ring-app-charcoal/15 focus:border-app-charcoal/25 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full px-3.5 py-2.5 text-sm rounded-ref bg-ref-muted border border-app-line text-app-ink placeholder:text-app-muted focus:outline-none focus:ring-2 focus:ring-brand-500/25 focus:border-brand-500/35 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           />
         </div>
       )}
@@ -374,7 +374,7 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
           type="button"
           onClick={handleConnect}
           disabled={!hasOrganization || loadingStatus || status === 'connecting' || status === 'connected'}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-[14px] font-semibold bg-app-charcoal text-white hover:bg-black shadow-md disabled:opacity-60 transition-colors"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold bg-brand-500 text-white hover:bg-brand-600 shadow-md shadow-brand-500/20 disabled:opacity-60 transition-colors"
         >
           {status === 'connecting' ? (
             <>
@@ -395,7 +395,7 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
               type="button"
               onClick={handleSync}
               disabled={syncInProgress || webhooksRegistering}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-[14px] font-semibold bg-white text-app-ink hover:bg-app-field border border-app-line transition-colors disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-[14px] font-semibold bg-ref-card text-app-ink hover:bg-app-field border border-app-line transition-colors disabled:opacity-60"
             >
               <RefreshCw className={`size-4 ${syncInProgress ? 'animate-spin' : ''}`} />
               {syncInProgress ? 'Sincronizando…' : 'Sincronizar productos'}
@@ -405,7 +405,7 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
               type="button"
               onClick={handleRegisterWebhooks}
               disabled={syncInProgress || webhooksRegistering}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-[14px] font-semibold bg-white text-app-ink hover:bg-app-field border border-app-line transition-colors disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-[14px] font-semibold bg-ref-card text-app-ink hover:bg-app-field border border-app-line transition-colors disabled:opacity-60"
               title="Registra avisos en Shopify para que los cambios de productos lleguen solos"
             >
               <Radio className={`size-4 ${webhooksRegistering ? 'animate-pulse' : ''}`} />

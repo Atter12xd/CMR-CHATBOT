@@ -103,11 +103,11 @@ export default function RecursosContent() {
     <div className="min-h-screen bg-app-shell text-app-ink font-professional antialiased">
 
       <MarketingHero maxWidth="md">
-        <div className="inline-flex items-center gap-2.5 pl-3 pr-4 py-2 rounded-full border border-app-line/90 bg-white/90 backdrop-blur-md shadow-app-card mb-8 ring-1 ring-white/60 mx-auto">
+        <div className="inline-flex items-center gap-2.5 pl-3 pr-4 py-2 rounded-full border border-app-line/90 dark:border-ref-border/90 bg-white/90 dark:bg-ref-card/90 backdrop-blur-md shadow-app-card mb-8 ring-1 ring-white/60 dark:ring-ref-border/50 mx-auto">
           <BookOpen className="w-4 h-4 text-brand-600" />
           <span className="text-[13px] text-app-muted font-medium tracking-tight">Centro de recursos</span>
         </div>
-        <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-bold text-app-ink tracking-[-0.035em] leading-[1.08] mb-6 font-display">
+        <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-bold text-app-ink tracking-[-0.035em] leading-[1.08] mb-6 font-professional">
           Aprende a vender más
           <span className="block mt-2 text-gradient-brand">por WhatsApp</span>
         </h1>
@@ -118,11 +118,11 @@ export default function RecursosContent() {
 
 
       <section className="relative py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-app-shell overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-hero-glow opacity-45" aria-hidden />
+        <div className="pointer-events-none absolute inset-0 bg-hero-glow opacity-45 dark:opacity-[0.25]" aria-hidden />
         <div className="relative max-w-6xl mx-auto">
           <div className="mb-12 text-center">
             <SectionLabel>Aprendizaje</SectionLabel>
-            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-[-0.03em] font-display leading-tight">
+            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-[-0.03em] font-professional leading-tight">
               Empieza por aquí
             </h2>
             <p className="mt-3 text-app-muted max-w-xl text-sm sm:text-base">
@@ -146,11 +146,11 @@ export default function RecursosContent() {
                   className="group relative block overflow-hidden rounded-[26px] p-[1px] bg-gradient-to-br from-brand-400/20 via-app-line to-transparent shadow-app-card-premium transition-shadow duration-300 hover:shadow-app-card-premium-hover"
                 >
                   <div className={`h-1 ${accent.bar} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-                  <div className="rounded-[25px] bg-white p-6 ring-1 ring-white/80 h-full">
+                  <div className="rounded-[25px] bg-white dark:bg-ref-card p-6 ring-1 ring-white/80 dark:ring-ref-border/50 h-full">
                     <div className={`w-12 h-12 rounded-2xl ${accent.iconBg} flex items-center justify-center mb-5 transition-colors shadow-inner shadow-black/[0.02]`}>
                       <Icon className={`w-6 h-6 ${accent.iconText}`} />
                     </div>
-                    <h3 className="text-lg font-semibold text-app-ink mb-2 font-display tracking-tight">{guide.title}</h3>
+                    <h3 className="text-lg font-semibold text-app-ink mb-2 font-professional tracking-tight">{guide.title}</h3>
                     <p className="text-app-muted text-[13px] leading-relaxed">{guide.description}</p>
                     <span className="inline-flex items-center gap-1.5 mt-5 text-sm font-semibold text-brand-600 group-hover:text-brand-700 transition-colors">
                       Leer guía
@@ -167,12 +167,12 @@ export default function RecursosContent() {
       </section>
 
 
-      <section className="relative py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-white border-y border-app-line overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.25] [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)]" aria-hidden />
+      <section className="relative py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-white dark:bg-ref-bg border-y border-app-line dark:border-ref-border overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.25] dark:opacity-[0.08] [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)] dark:[mask-image:linear-gradient(to_bottom,transparent,black_18%,black_82%,transparent)]" aria-hidden />
         <div className="relative max-w-6xl mx-auto">
           <div className="mb-12 text-center">
             <SectionLabel>Multimedia</SectionLabel>
-            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-[-0.03em] font-display leading-tight">
+            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-[-0.03em] font-professional leading-tight">
               Aprende en minutos
             </h2>
             <p className="mt-3 text-app-muted max-w-xl mx-auto text-sm sm:text-base">
@@ -184,7 +184,7 @@ export default function RecursosContent() {
             {videos.map((video) => (
               <div
                 key={video.title}
-                className="group rounded-[24px] overflow-hidden bg-white border border-app-line shadow-app-card-premium transition-[border-color,box-shadow] duration-300 hover:border-brand-500/25 hover:shadow-app-card-premium-hover cursor-pointer ring-1 ring-white/60"
+                className="group rounded-[24px] overflow-hidden bg-white dark:bg-ref-card border border-app-line dark:border-ref-border shadow-app-card-premium transition-[border-color,box-shadow] duration-300 hover:border-brand-500/25 hover:shadow-app-card-premium-hover cursor-pointer ring-1 ring-white/60 dark:ring-ref-border/45"
               >
                 <div className="relative aspect-video bg-app-field">
                   <img
@@ -194,11 +194,11 @@ export default function RecursosContent() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-14 h-14 rounded-full bg-app-charcoal flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-lg">
+                    <div className="w-14 h-14 rounded-full bg-brand-500 flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-lg shadow-brand-500/25">
                       <Play className="w-5 h-5 text-white fill-white ml-0.5" />
                     </div>
                   </div>
-                  <span className="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-white/95 backdrop-blur-sm text-xs text-app-ink font-medium border border-app-line">
+                  <span className="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-white/95 dark:bg-ref-card/95 backdrop-blur-sm text-xs text-app-ink font-medium border border-app-line dark:border-ref-border">
                     {video.duration}
                   </span>
                 </div>
@@ -216,7 +216,7 @@ export default function RecursosContent() {
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-16">
             <SectionLabel>FAQ</SectionLabel>
-            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-[-0.03em] font-display leading-tight">
+            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-[-0.03em] font-professional leading-tight">
               Todo lo que necesitas saber
             </h2>
           </div>
@@ -225,7 +225,7 @@ export default function RecursosContent() {
             {faqs.map((faq, i) => (
               <div
                 key={i}
-                className={`rounded-[22px] bg-white border border-app-line shadow-app-card-premium transition-[border-color,box-shadow] overflow-hidden ${
+                className={`rounded-[22px] bg-white dark:bg-ref-card border border-app-line dark:border-ref-border shadow-app-card-premium transition-[border-color,box-shadow] overflow-hidden ${
                   openFaq === i ? 'border-app-line-strong shadow-app-card-premium-hover' : 'hover:border-brand-500/20'
                 }`}
               >
@@ -259,8 +259,8 @@ export default function RecursosContent() {
 
 
       <section className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden text-white border-t border-black/10">
-        <div className="absolute inset-0 bg-app-charcoal" aria-hidden />
-        <div className="absolute inset-0 opacity-[0.07] bg-site-grid bg-grid [mask-image:radial-gradient(ellipse_at_50%_0%,black,transparent_70%)]" aria-hidden />
+        <div className="absolute inset-0 bg-[hsl(240_3%_13%)]" aria-hidden />
+        <div className="absolute inset-0 opacity-[0.07] dark:opacity-[0.035] bg-site-grid bg-grid [mask-image:radial-gradient(ellipse_at_50%_0%,black,transparent_70%)]" aria-hidden />
         <div className="absolute inset-0 bg-gradient-to-br from-brand-600/18 via-transparent to-transparent pointer-events-none" aria-hidden />
         <div className="landing-noise opacity-[0.06]" aria-hidden />
         <div className="relative max-w-3xl mx-auto text-center z-[1]">
@@ -268,7 +268,7 @@ export default function RecursosContent() {
           <div className="w-12 h-12 mx-auto mb-6 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center ring-1 ring-white/10">
             <HelpCircle className="w-6 h-6 text-white" />
           </div>
-          <h2 className="text-3xl lg:text-4xl font-bold mb-4 tracking-[-0.03em] font-display text-white">
+          <h2 className="text-3xl lg:text-4xl font-bold mb-4 tracking-[-0.03em] font-professional text-white">
             ¿No encuentras lo que buscas?
           </h2>
           <p className="text-base sm:text-lg text-white/75 mb-10 leading-relaxed max-w-lg mx-auto">
@@ -276,7 +276,7 @@ export default function RecursosContent() {
           </p>
           <a
             href="/contacto"
-            className="group relative inline-flex items-center gap-2 overflow-hidden px-8 py-4 rounded-2xl text-base font-semibold text-app-charcoal bg-white shadow-app-card-premium transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
+            className="group relative inline-flex items-center gap-2 overflow-hidden px-8 py-4 rounded-ref text-base font-semibold text-app-ink bg-white shadow-app-card-premium transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
           >
             <span className="absolute inset-0 bg-gradient-to-b from-white to-white/90" />
             <span className="relative">Contactar soporte</span>

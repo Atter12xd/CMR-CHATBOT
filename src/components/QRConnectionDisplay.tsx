@@ -143,7 +143,7 @@ export default function QRConnectionDisplay({ organizationId, phoneNumber, onCon
     <div className="flex flex-col items-center justify-center py-8 space-y-6">
       {/* QR Code */}
       <div className="relative">
-        <div className="bg-white p-5 rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-100">
+        <div className="bg-ref-card p-5 rounded-2xl shadow-lg shadow-slate-200/50 dark:shadow-black/30 border border-slate-100 dark:border-ref-border">
           <img
             src={qrData.qrImage}
             alt="QR Code"
@@ -154,7 +154,7 @@ export default function QRConnectionDisplay({ organizationId, phoneNumber, onCon
         {/* Overlay si está escaneado */}
         {status === 'scanned' && (
           <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-            <div className="bg-white p-5 rounded-2xl text-center shadow-xl">
+            <div className="bg-ref-card p-5 rounded-2xl text-center shadow-xl border border-transparent dark:border-ref-border">
               <div className="w-12 h-12 bg-emerald-50 ring-1 ring-emerald-100 rounded-xl flex items-center justify-center mx-auto mb-3">
                 <CheckCircle2 className="w-6 h-6 text-emerald-600" />
               </div>

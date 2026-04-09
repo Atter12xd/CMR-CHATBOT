@@ -459,7 +459,7 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
           <button
             onClick={() => { setError(null); setStep('qr'); }}
             disabled={connecting}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-full font-semibold text-sm bg-emerald-600 text-white hover:bg-emerald-500 shadow-md transition-all active:scale-[0.98] disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-full font-semibold text-sm bg-brand-500 text-white hover:bg-brand-600 shadow-md shadow-brand-500/20 transition-all active:scale-[0.98] disabled:opacity-50"
           >
             <QrCode size={18} />
             <span>Generar QR y conectar</span>
@@ -507,7 +507,7 @@ export default function WhatsAppIntegration({ organizationId }: WhatsAppIntegrat
           )}
           {qrImage && (
             <div className="text-center">
-              <div className="inline-block p-4 bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-100 mb-4">
+              <div className="inline-block p-4 bg-ref-card rounded-2xl shadow-lg shadow-slate-200/50 dark:shadow-black/30 border border-slate-100 dark:border-ref-border mb-4">
                 <img src={qrImage} alt="QR WhatsApp" className="max-w-[260px]" />
               </div>
               <p className="text-sm text-app-ink font-medium">

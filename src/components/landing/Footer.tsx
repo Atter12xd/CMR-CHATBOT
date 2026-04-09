@@ -27,7 +27,7 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="relative bg-white border-t border-app-line font-professional">
+    <footer className="relative bg-white dark:bg-ref-bg border-t border-app-line dark:border-ref-border font-professional">
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-16 lg:py-20">
           <div className="grid grid-cols-2 md:grid-cols-12 gap-8 lg:gap-12">
@@ -107,7 +107,7 @@ export default function Footer() {
               </p>
               <a
                 href="/register"
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-app-charcoal hover:bg-app-charcoal/90 text-white text-sm font-semibold rounded-2xl transition-colors shadow-md shadow-black/10"
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold rounded-full transition-colors shadow-md shadow-brand-500/20"
               >
                 Crear cuenta gratis
               </a>

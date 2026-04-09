@@ -235,14 +235,14 @@ export default function PricingContent() {
 
 
       <MarketingHero maxWidth="md">
-        <div className="inline-flex items-center gap-2.5 pl-3 pr-4 py-2 rounded-full border border-app-line/90 bg-white/90 backdrop-blur-md shadow-app-card mb-8 ring-1 ring-white/60">
+        <div className="inline-flex items-center gap-2.5 pl-3 pr-4 py-2 rounded-full border border-app-line/90 dark:border-ref-border/90 bg-white/90 dark:bg-ref-card/90 backdrop-blur-md shadow-app-card mb-8 ring-1 ring-white/60 dark:ring-ref-border/50">
           <span className="flex h-2 w-2 relative">
             <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.45)]" />
           </span>
           <span className="text-[13px] text-app-muted font-medium tracking-tight">14 días de prueba gratis en el plan de $50</span>
         </div>
-        <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-bold text-app-ink tracking-[-0.035em] leading-[1.08] mb-6 font-display">
+        <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-bold text-app-ink tracking-[-0.035em] leading-[1.08] mb-6 font-professional">
           Tu vendedor en WhatsApp,
           <span className="block mt-2 text-gradient-brand">activo 24/7</span>
         </h1>
@@ -257,12 +257,12 @@ export default function PricingContent() {
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-app-line-strong to-transparent opacity-60" aria-hidden />
         <div className="flex items-center justify-center">
           <div className="inline-flex items-center p-[1px] rounded-2xl bg-gradient-to-br from-brand-400/30 via-app-line to-brand-600/20 shadow-app-card-premium">
-            <div className="inline-flex items-center bg-white rounded-[15px] p-1 shadow-inner shadow-black/[0.02]">
+            <div className="inline-flex items-center bg-white dark:bg-ref-card rounded-[15px] p-1 shadow-inner shadow-black/[0.02] border border-transparent dark:border-ref-border/60">
             <button
               onClick={() => setBilling('monthly')}
               className={`px-5 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 ${
                 billing === 'monthly'
-                  ? 'bg-app-charcoal text-white shadow-md'
+                  ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20'
                   : 'text-app-muted hover:text-app-ink'
               }`}
             >
@@ -272,7 +272,7 @@ export default function PricingContent() {
               onClick={() => setBilling('yearly')}
               className={`px-5 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 flex items-center gap-2 ${
                 billing === 'yearly'
-                  ? 'bg-app-charcoal text-white shadow-md'
+                  ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20'
                   : 'text-app-muted hover:text-app-ink'
               }`}
             >
@@ -303,23 +303,23 @@ export default function PricingContent() {
                   key={plan.name}
                   className={`relative rounded-[26px] transition-all duration-300 ${
                     plan.highlighted
-                      ? 'p-[1px] bg-gradient-to-br from-brand-400/45 via-app-line to-emerald-500/35 shadow-app-card-premium lg:scale-[1.04]'
-                      : 'bg-white border border-app-line hover:border-brand-500/20 shadow-app-card-premium hover:shadow-app-card-premium-hover'
+                      ? 'p-[1px] bg-gradient-to-br from-brand-400/45 via-app-line to-brand-600/35 shadow-app-card-premium lg:scale-[1.04]'
+                      : 'bg-white dark:bg-ref-card border border-app-line dark:border-ref-border hover:border-brand-500/20 shadow-app-card-premium hover:shadow-app-card-premium-hover'
                   }`}
                 >
                   <div
-                    className={`relative h-full rounded-[25px] bg-white overflow-hidden ${
+                    className={`relative h-full rounded-[25px] bg-white dark:bg-ref-card overflow-hidden ${
                       plan.highlighted ? '' : ''
                     }`}
                   >
                   {plan.highlighted && (
-                    <div className="h-1 bg-gradient-to-r from-brand-950 via-brand-600 to-emerald-500" />
+                    <div className="h-1 bg-gradient-to-r from-brand-800 via-brand-500 to-brand-400" />
                   )}
 
                   {/* Badge */}
                   {plan.highlighted && (
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-                      <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold bg-app-charcoal text-white shadow-app-card-premium ring-1 ring-white/20">
+                      <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold bg-brand-500 text-white shadow-md shadow-brand-500/20 ring-1 ring-white/20">
                         Recomendado
                       </span>
                     </div>
@@ -343,7 +343,7 @@ export default function PricingContent() {
                         </div>
                       )}
                       <div className="flex items-baseline gap-1">
-                        <span className="text-5xl font-bold tracking-tight text-app-ink font-display">
+                        <span className="text-5xl font-bold tracking-tight text-app-ink font-professional">
                           ${price}
                         </span>
                         <span className="text-base font-medium text-app-muted">
@@ -379,7 +379,7 @@ export default function PricingContent() {
                         type="button"
                         onClick={handleCheckout}
                         disabled={checkoutLoading}
-                        className="group flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-2xl font-semibold text-sm transition-all duration-300 mb-8 bg-app-charcoal hover:bg-app-charcoal/90 text-white shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
+                        className="group flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-full font-semibold text-sm transition-all duration-300 mb-8 bg-brand-500 hover:bg-brand-600 text-white shadow-md shadow-brand-500/20 disabled:opacity-70 disabled:cursor-not-allowed"
                       >
                         {checkoutLoading ? (
                           <>
@@ -400,7 +400,7 @@ export default function PricingContent() {
                         rel={plan.ctaLink.startsWith('http') ? 'noopener noreferrer' : undefined}
                         className={`group flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-2xl font-semibold text-sm transition-all duration-300 mb-8 ${
                           plan.highlighted
-                            ? 'bg-app-charcoal hover:bg-app-charcoal/90 text-white shadow-md'
+                            ? 'bg-brand-500 hover:bg-brand-600 text-white shadow-md shadow-brand-500/20'
                             : 'bg-app-field/80 hover:bg-app-field text-app-ink border border-app-line'
                         }`}
                       >
@@ -445,7 +445,7 @@ export default function PricingContent() {
           {showEmailModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => !checkoutLoading && setShowEmailModal(false)}>
               <div className="rounded-[26px] p-[1px] bg-gradient-to-br from-brand-400/25 via-app-line to-brand-600/15 shadow-app-card-premium max-w-md w-full" onClick={(e) => e.stopPropagation()}>
-                <div className="rounded-[25px] bg-white border border-app-line/80 p-6 sm:p-7 ring-1 ring-white/90">
+                <div className="rounded-[25px] bg-white dark:bg-ref-card border border-app-line/80 dark:border-ref-border/80 p-6 sm:p-7 ring-1 ring-white/90 dark:ring-ref-border/50">
                 <h3 className="text-lg font-semibold text-app-ink mb-2">Introduce tu correo</h3>
                 <p className="text-sm text-app-muted mb-4">
                   Lo usamos para tu cuenta y facturación. Si ya cancelaste una suscripción antes, no tendrás de nuevo los 14 días gratis.
@@ -470,7 +470,7 @@ export default function PricingContent() {
                     type="button"
                     onClick={handleCheckoutWithEmail}
                     disabled={checkoutLoading}
-                    className="flex-1 py-2.5 rounded-2xl text-sm font-semibold bg-app-charcoal hover:bg-app-charcoal/90 text-white disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md"
+                    className="flex-1 py-2.5 rounded-full text-sm font-semibold bg-brand-500 hover:bg-brand-600 text-white disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md shadow-brand-500/20"
                   >
                     {checkoutLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Redirigiendo...</> : 'Continuar a pago'}
                   </button>
@@ -500,11 +500,11 @@ export default function PricingContent() {
 
 
       <section className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-app-shell overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-hero-glow opacity-50" aria-hidden />
+        <div className="pointer-events-none absolute inset-0 bg-hero-glow opacity-50 dark:opacity-[0.28]" aria-hidden />
         <div className="relative max-w-6xl mx-auto">
           <div className="text-center mb-16 lg:mb-20">
             <SectionLabel>Plataforma</SectionLabel>
-            <h2 className="text-3xl lg:text-4xl xl:text-[2.75rem] font-bold text-app-ink tracking-[-0.03em] font-display leading-tight">
+            <h2 className="text-3xl lg:text-4xl xl:text-[2.75rem] font-bold text-app-ink tracking-[-0.03em] font-professional leading-tight">
               De QR a ventas automáticas
             </h2>
             <p className="mt-5 text-base sm:text-lg text-app-muted max-w-2xl mx-auto leading-relaxed">
@@ -526,11 +526,11 @@ export default function PricingContent() {
                   className="group relative h-full"
                 >
                   <div className="absolute -inset-px rounded-[24px] bg-gradient-to-br from-brand-500/15 via-transparent to-brand-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="relative h-full p-6 rounded-[23px] border border-app-line bg-white shadow-app-card-premium transition-[box-shadow,border-color] duration-300 group-hover:border-brand-500/25 group-hover:shadow-app-card-premium-hover">
+                  <div className="relative h-full p-6 rounded-[23px] border border-app-line dark:border-ref-border bg-white dark:bg-ref-card shadow-app-card-premium transition-[box-shadow,border-color] duration-300 group-hover:border-brand-500/25 group-hover:shadow-app-card-premium-hover">
                     <div className={`w-12 h-12 rounded-2xl ${accentMap[feature.accent]} flex items-center justify-center mb-4 transition-colors shadow-inner shadow-black/[0.02]`}>
                       <Icon className="w-6 h-6" />
                     </div>
-                    <h3 className="text-lg font-semibold text-app-ink mb-2 font-display tracking-tight">{feature.title}</h3>
+                    <h3 className="text-lg font-semibold text-app-ink mb-2 font-professional tracking-tight">{feature.title}</h3>
                     <p className="text-app-muted text-[13px] leading-relaxed">{feature.description}</p>
                   </div>
                 </motion.div>
@@ -542,8 +542,8 @@ export default function PricingContent() {
 
 
 
-      <section className="relative py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-white border-y border-app-line overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.2] [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]" aria-hidden />
+      <section className="relative py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-white dark:bg-ref-bg border-y border-app-line dark:border-ref-border overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.2] dark:opacity-[0.06] [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)] dark:[mask-image:linear-gradient(90deg,transparent,black_6%,black_94%,transparent)]" aria-hidden />
         <div className="relative max-w-5xl mx-auto">
           <SectionLabel>Confianza</SectionLabel>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -555,9 +555,9 @@ export default function PricingContent() {
             ].map((stat, i) => (
               <div
                 key={i}
-                className="rounded-2xl border border-app-line/90 bg-gradient-to-b from-white to-app-field/20 px-4 py-6 text-center shadow-inner shadow-black/[0.02] transition-[border-color,box-shadow] duration-300 hover:border-brand-500/20 hover:shadow-app-card"
+                className="rounded-2xl border border-app-line/90 dark:border-ref-border/90 bg-gradient-to-b from-white to-app-field/20 dark:from-ref-card dark:to-ref-muted/35 px-4 py-6 text-center shadow-inner shadow-black/[0.02] transition-[border-color,box-shadow] duration-300 hover:border-brand-500/20 hover:shadow-app-card"
               >
-                <p className="text-3xl sm:text-4xl font-bold text-app-ink tracking-tight font-display tabular-nums">{stat.value}</p>
+                <p className="text-3xl sm:text-4xl font-bold text-app-ink tracking-tight font-professional tabular-nums">{stat.value}</p>
                 <p className="mt-2 text-[11px] sm:text-xs text-app-muted font-semibold uppercase tracking-wider">{stat.label}</p>
               </div>
             ))}
@@ -571,7 +571,7 @@ export default function PricingContent() {
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-16">
             <SectionLabel>Ayuda</SectionLabel>
-            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-[-0.03em] font-display leading-tight">
+            <h2 className="text-3xl lg:text-4xl font-bold text-app-ink tracking-[-0.03em] font-professional leading-tight">
               Todo lo que necesitas saber
             </h2>
           </div>
@@ -580,7 +580,7 @@ export default function PricingContent() {
             {faqs.map((faq, i) => (
               <details
                 key={i}
-                className="group rounded-[22px] bg-white border border-app-line shadow-app-card-premium transition-[border-color,box-shadow] overflow-hidden hover:border-brand-500/15 open:border-app-line-strong open:shadow-app-card-premium-hover"
+                className="group rounded-[22px] bg-white dark:bg-ref-card border border-app-line dark:border-ref-border shadow-app-card-premium transition-[border-color,box-shadow] overflow-hidden hover:border-brand-500/15 open:border-app-line-strong open:shadow-app-card-premium-hover"
               >
                 <summary className="flex items-center justify-between cursor-pointer px-6 py-5 text-[15px] font-medium text-app-ink hover:text-app-muted transition-colors list-none [&::-webkit-details-marker]:hidden">
                   {faq.q}
@@ -603,9 +603,9 @@ export default function PricingContent() {
 
 
       <section className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden text-white border-t border-black/10">
-        <div className="absolute inset-0 bg-app-charcoal" aria-hidden />
+        <div className="absolute inset-0 bg-[hsl(240_3%_13%)]" aria-hidden />
         <div
-          className="absolute inset-0 opacity-[0.07] bg-site-grid bg-grid [mask-image:radial-gradient(ellipse_at_50%_0%,black,transparent_70%)]"
+          className="absolute inset-0 opacity-[0.07] dark:opacity-[0.035] bg-site-grid bg-grid [mask-image:radial-gradient(ellipse_at_50%_0%,black,transparent_70%)]"
           aria-hidden
         />
         <div className="absolute inset-0 bg-gradient-to-br from-brand-600/18 via-transparent to-transparent pointer-events-none" aria-hidden />
@@ -615,14 +615,14 @@ export default function PricingContent() {
           <div className="w-12 h-12 mx-auto mb-6 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center ring-1 ring-white/10">
             <Shield className="w-6 h-6 text-white" />
           </div>
-          <h2 className="text-3xl lg:text-4xl font-bold mb-4 tracking-[-0.03em] font-display text-white">14 días gratis</h2>
+          <h2 className="text-3xl lg:text-4xl font-bold mb-4 tracking-[-0.03em] font-professional text-white">14 días gratis</h2>
           <p className="text-base sm:text-lg text-white/75 mb-10 leading-relaxed max-w-lg mx-auto">
             Prueba el plan completo. Cancela cuando quieras, sin compromisos.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
             <a
               href="/register"
-              className="group relative inline-flex items-center gap-2 w-full sm:w-auto justify-center overflow-hidden px-8 py-4 rounded-2xl text-base font-semibold text-app-charcoal bg-white shadow-app-card-premium transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              className="group relative inline-flex items-center gap-2 w-full sm:w-auto justify-center overflow-hidden px-8 py-4 rounded-ref text-base font-semibold text-app-ink bg-white shadow-app-card-premium transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               <span className="absolute inset-0 bg-gradient-to-b from-white to-white/90" />
               <span className="relative">Empezar gratis</span>

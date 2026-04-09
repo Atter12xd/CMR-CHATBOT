@@ -20,14 +20,14 @@ export default function PageHeader({
       className={`flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between ${className}`}
     >
       <div className="min-w-0">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-app-muted mb-1">
+        <p className="text-xs font-medium uppercase tracking-wider text-app-muted mb-1">
           {eyebrow}
         </p>
-        <h2 className="font-display text-[28px] sm:text-[32px] font-bold text-app-ink tracking-tight leading-[1.08]">
+        <h2 className="text-2xl sm:text-3xl font-semibold text-app-ink tracking-tight leading-tight font-professional">
           {title}
         </h2>
         {description && (
-          <p className="text-app-muted text-[14px] mt-2 max-w-2xl leading-relaxed">
+          <p className="text-app-muted text-sm mt-2 max-w-2xl leading-relaxed">
             {description}
           </p>
         )}

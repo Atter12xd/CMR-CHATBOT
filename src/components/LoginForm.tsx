@@ -65,12 +65,12 @@ export default function LoginForm() {
       <div className="absolute inset-0 bg-app-canvas pointer-events-none" />
 
       <div className="relative max-w-md w-full">
-        <div className="rounded-[22px] border border-app-line bg-white shadow-app-card p-8 sm:p-10">
+        <div className="rounded-ref border border-app-line bg-ref-card shadow-sm p-8 sm:p-10">
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
               <LogoBrand size="lg" href="/" />
             </div>
-            <h1 className="text-2xl font-bold text-app-ink tracking-tight font-display">
+            <h1 className="text-2xl font-bold text-app-ink tracking-tight font-professional">
               Bienvenido de vuelta
             </h1>
             <p className="mt-2 text-sm text-app-muted">
@@ -159,7 +159,7 @@ export default function LoginForm() {
             <button
               type="submit"
               disabled={loading || authLoading || !email.trim() || !password}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-app-charcoal hover:bg-app-charcoal/90 text-white rounded-2xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:ring-offset-2 focus:ring-offset-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md shadow-black/15 mt-6"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-brand-500 hover:bg-brand-600 text-white rounded-full text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500/35 focus:ring-offset-2 focus:ring-offset-ref-bg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md shadow-brand-500/25 mt-6"
             >
               {loading || authLoading ? (
                 <>
@@ -181,7 +181,7 @@ export default function LoginForm() {
               <div className="w-full border-t border-app-line"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-app-muted">¿Nuevo en Wazapp?</span>
+              <span className="px-4 bg-ref-card text-app-muted">¿Nuevo en Wazapp?</span>
             </div>
           </div>
 

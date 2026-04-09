@@ -29,7 +29,7 @@ export default function BlogContent() {
     <div className="min-h-screen bg-app-shell font-professional text-app-ink antialiased">
       <MarketingHero maxWidth="lg" className="pb-16">
         <SectionLabel>Editorial</SectionLabel>
-        <h1 className="text-4xl md:text-5xl lg:text-[3.1rem] font-bold text-app-ink mb-4 font-display tracking-[-0.035em] leading-[1.08]">
+        <h1 className="text-4xl md:text-5xl lg:text-[3.1rem] font-bold text-app-ink mb-4 font-professional tracking-[-0.035em] leading-[1.08]">
           Blog
         </h1>
         <p className="text-base sm:text-lg text-app-muted max-w-2xl mx-auto leading-relaxed">
@@ -38,7 +38,7 @@ export default function BlogContent() {
       </MarketingHero>
 
       <section className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-app-shell overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-hero-glow opacity-40" aria-hidden />
+        <div className="pointer-events-none absolute inset-0 bg-hero-glow opacity-40 dark:opacity-[0.22]" aria-hidden />
         <div className="relative max-w-4xl mx-auto space-y-5 sm:space-y-6">
           {posts.map((post, i) => (
             <motion.a
@@ -51,9 +51,9 @@ export default function BlogContent() {
               whileHover={{ y: -3 }}
               className="group block overflow-hidden rounded-[26px] p-[1px] bg-gradient-to-br from-brand-400/22 via-app-line to-transparent shadow-app-card-premium transition-shadow duration-300 hover:shadow-app-card-premium-hover"
             >
-              <div className="rounded-[25px] bg-white border border-app-line/80 p-7 sm:p-8 ring-1 ring-white/90">
+              <div className="rounded-[25px] bg-white dark:bg-ref-card border border-app-line/80 dark:border-ref-border/80 p-7 sm:p-8 ring-1 ring-white/90 dark:ring-ref-border/50">
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-app-muted">{post.date}</span>
-                <h2 className="text-xl sm:text-2xl font-bold text-app-ink mt-2 mb-3 font-display tracking-tight group-hover:text-brand-700 transition-colors">
+                <h2 className="text-xl sm:text-2xl font-bold text-app-ink mt-2 mb-3 font-professional tracking-tight group-hover:text-brand-700 transition-colors">
                   {post.title}
                 </h2>
                 <p className="text-app-muted text-[15px] leading-relaxed mb-5">{post.excerpt}</p>

@@ -209,7 +209,7 @@ export default function OrdersPage() {
         description="Gestiona y verifica todos tus pedidos."
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-semibold text-app-muted bg-white border border-app-line px-3 py-1.5 rounded-full tabular-nums">
+            <span className="text-[11px] font-semibold text-app-muted bg-ref-card border border-app-line px-3 py-1.5 rounded-full tabular-nums">
               {orders.length} total
             </span>
             {pendingPayments.length > 0 && (
@@ -274,10 +274,10 @@ export default function OrdersPage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25 }}
-          className="rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card"
+          className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm"
         >
           <div className="px-5 py-4 sm:px-6 bg-app-field/70 border-b border-app-line flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-white border border-app-line text-amber-600 shrink-0 shadow-sm">
+            <div className="p-2.5 rounded-2xl bg-ref-card border border-app-line text-amber-600 shrink-0 shadow-sm">
               <CreditCard className="size-[18px]" strokeWidth={2} />
             </div>
             <div className="min-w-0">
@@ -307,14 +307,14 @@ export default function OrdersPage() {
                   placeholder="Monto"
                   value={verifyAmount[p.id] ?? ''}
                   onChange={(e) => setVerifyAmount((prev) => ({ ...prev, [p.id]: e.target.value }))}
-                  className="w-28 min-w-0 px-3 py-2.5 text-[14px] bg-app-field border border-app-line rounded-full text-app-ink placeholder:text-app-muted focus:outline-none focus:ring-2 focus:ring-app-charcoal/10 focus:border-app-charcoal/20 transition-all"
+                  className="w-28 min-w-0 px-3 py-2.5 text-sm bg-ref-muted border border-app-line rounded-full text-app-ink placeholder:text-app-muted focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/35 transition-all"
                 />
                 <input
                   type="text"
                   placeholder="Nombre en comprobante"
                   value={verifyName[p.id] ?? ''}
                   onChange={(e) => setVerifyName((prev) => ({ ...prev, [p.id]: e.target.value }))}
-                  className="flex-1 min-w-[180px] px-3 py-2.5 text-[14px] bg-app-field border border-app-line rounded-full text-app-ink placeholder:text-app-muted focus:outline-none focus:ring-2 focus:ring-app-charcoal/10 focus:border-app-charcoal/20 transition-all"
+                  className="flex-1 min-w-[180px] px-3 py-2.5 text-sm bg-ref-muted border border-app-line rounded-full text-app-ink placeholder:text-app-muted focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/35 transition-all"
                 />
                 <motion.button
                   type="button"
@@ -347,7 +347,7 @@ export default function OrdersPage() {
               whileTap={{ scale: 0.98 }}
               className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[13px] font-semibold whitespace-nowrap transition-all duration-200 border ${
                 active
-                  ? 'bg-app-charcoal text-white border-transparent shadow-md'
+                  ? 'bg-brand-500 text-white border-transparent shadow-md shadow-brand-500/20'
                   : 'bg-app-field text-app-muted border-app-line hover:text-app-ink'
               }`}
             >
@@ -388,7 +388,7 @@ export default function OrdersPage() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-[24px] border border-app-line bg-white shadow-app-card overflow-hidden"
+          className="rounded-ref border border-app-line bg-ref-card shadow-sm overflow-hidden"
         >
           <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
             <div className="w-16 h-16 rounded-2xl bg-app-field border border-app-line flex items-center justify-center mb-4">

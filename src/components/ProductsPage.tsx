@@ -238,7 +238,7 @@ export default function ProductsPage() {
               setShowForm(true);
             }}
             whileTap={{ scale: 0.98 }}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] font-semibold bg-app-charcoal text-white hover:bg-black shadow-md transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-brand-500 text-white hover:bg-brand-600 shadow-md shadow-brand-500/20 transition-colors"
           >
             <Plus size={18} strokeWidth={2.5} />
             <span>Agregar producto</span>
@@ -294,7 +294,7 @@ export default function ProductsPage() {
         </motion.div>
       )}
 
-      <div className="rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card">
+      <div className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm">
         <div className="px-5 py-3.5 sm:px-6 bg-app-field/70 border-b border-app-line">
           <p className="text-[11px] font-bold text-app-muted uppercase tracking-[0.14em]">Buscar y filtrar</p>
         </div>
@@ -310,7 +310,7 @@ export default function ProductsPage() {
                 placeholder="Buscar por nombre, categoría o descripción…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full min-w-0 pl-10 pr-10 py-2.5 text-[14px] bg-app-field border border-app-line rounded-full text-app-ink placeholder:text-app-muted focus:outline-none focus:ring-2 focus:ring-app-charcoal/10 focus:border-app-charcoal/20 transition-all"
+                className="w-full min-w-0 pl-10 pr-10 py-2.5 text-sm bg-ref-muted border border-app-line rounded-full text-app-ink placeholder:text-app-muted focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/35 transition-all"
               />
               {searchQuery && (
                 <button
@@ -325,7 +325,7 @@ export default function ProductsPage() {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-2.5 text-[14px] bg-app-field border border-app-line rounded-full text-app-ink focus:outline-none focus:ring-2 focus:ring-app-charcoal/10 focus:border-app-charcoal/20 transition-all min-w-[200px]"
+              className="px-3 py-2.5 text-sm bg-ref-muted border border-app-line rounded-full text-app-ink focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/35 transition-all min-w-[200px]"
             >
               <option value="all">Todas las categorías</option>
               {categories.map((cat) => (
@@ -341,7 +341,7 @@ export default function ProductsPage() {
                 whileTap={{ scale: 0.98 }}
                 className={`p-2.5 transition-all ${
                   viewMode === 'grid'
-                    ? 'bg-app-charcoal text-white shadow-md'
+                    ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20'
                     : 'bg-app-field text-app-muted hover:text-app-ink'
                 }`}
               >
@@ -353,7 +353,7 @@ export default function ProductsPage() {
                 whileTap={{ scale: 0.98 }}
                 className={`p-2.5 transition-all ${
                   viewMode === 'list'
-                    ? 'bg-app-charcoal text-white shadow-md'
+                    ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20'
                     : 'bg-app-field text-app-muted hover:text-app-ink'
                 }`}
               >
@@ -366,10 +366,10 @@ export default function ProductsPage() {
 
       {showForm && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="rounded-[24px] max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-app-card border border-app-line bg-white">
+          <div className="rounded-ref max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-md border border-app-line bg-ref-card">
             <div className="p-6 sm:p-7">
               <div className="mb-5 pb-4 border-b border-app-line">
-                <h3 className="text-lg font-bold text-app-ink font-display tracking-tight">
+                <h3 className="text-lg font-bold text-app-ink font-professional tracking-tight">
                   {editingProduct ? 'Editar producto' : 'Agregar producto'}
                 </h3>
                 <p className="text-[13px] text-app-muted mt-1">
@@ -391,10 +391,10 @@ export default function ProductsPage() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-[24px] border border-app-line bg-white overflow-hidden shadow-app-card"
+          className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm"
         >
           <div className="px-5 py-4 sm:px-6 bg-app-field/70 border-b border-app-line flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-white border border-app-line text-amber-600 shrink-0 shadow-sm">
+            <div className="p-2.5 rounded-2xl bg-ref-card border border-app-line text-amber-600 shrink-0 shadow-sm">
               <Sparkles className="size-[18px]" strokeWidth={2} />
             </div>
             <div className="min-w-0">
@@ -447,7 +447,7 @@ export default function ProductsPage() {
                     }}
                     disabled={saving}
                     whileTap={{ scale: saving ? 1 : 0.95 }}
-                    className="p-2.5 rounded-2xl bg-white border border-app-line text-app-muted hover:bg-app-field disabled:opacity-50"
+                    className="p-2.5 rounded-2xl bg-ref-card border border-app-line text-app-muted hover:bg-app-field disabled:opacity-50"
                     title="Rechazar"
                   >
                     <Trash2 size={16} />
@@ -502,7 +502,7 @@ export default function ProductsPage() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-[24px] border border-app-line bg-white shadow-app-card overflow-hidden"
+          className="rounded-ref border border-app-line bg-ref-card shadow-sm overflow-hidden"
         >
           <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
             <div className="w-16 h-16 rounded-2xl bg-app-field border border-app-line flex items-center justify-center mb-4">

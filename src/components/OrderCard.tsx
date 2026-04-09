@@ -24,14 +24,14 @@ export default function OrderCard({ order, onOpenChat }: OrderCardProps) {
     <motion.div
       whileHover={{ y: -2 }}
       transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-      className="rounded-[22px] border border-app-line bg-white overflow-hidden shadow-app-card font-professional h-full flex flex-col"
+      className="kanban-card-surface overflow-hidden font-professional h-full flex flex-col"
     >
-      <div className="h-1 bg-gradient-to-r from-brand-700/45 via-brand-500/35 to-emerald-500/45 shrink-0" />
+      <div className="h-1 bg-gradient-to-r from-brand-800/50 via-brand-500 to-brand-400/90 shrink-0" />
 
       <div className="p-5 flex-1 flex flex-col min-h-0">
         <div className="flex items-start justify-between gap-3 mb-4">
           <div className="min-w-0">
-            <h3 className="text-[16px] font-bold text-app-ink tracking-tight tabular-nums font-display leading-tight">
+            <h3 className="text-[16px] font-bold text-app-ink tracking-tight tabular-nums font-professional leading-tight">
               {order.code || order.id.slice(0, 8)}
             </h3>
             <p className="text-[14px] text-app-muted mt-1 font-medium truncate">{order.customerName}</p>
@@ -85,7 +85,7 @@ export default function OrderCard({ order, onOpenChat }: OrderCardProps) {
             </button>
           )}
         </div>
-        <span className="text-[17px] font-bold text-app-ink shrink-0 tabular-nums tracking-tight font-display">
+        <span className="text-[17px] font-bold text-app-ink shrink-0 tabular-nums tracking-tight font-professional">
           S/ {order.total.toFixed(2)}
         </span>
       </div>

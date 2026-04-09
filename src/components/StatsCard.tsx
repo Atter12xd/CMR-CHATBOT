@@ -18,7 +18,7 @@ export default function StatsCard({
   accentClassName = 'text-brand-500',
 }: StatsCardProps) {
   return (
-    <div className="rounded-[22px] border border-app-line bg-white px-4 py-4 shadow-app-card font-professional transition-[border-color,box-shadow] duration-200 hover:border-app-line-strong">
+    <div className="rounded-ref border border-app-line bg-ref-card px-4 py-4 shadow-sm font-professional transition-[border-color,box-shadow] duration-200 hover:border-brand-500/25 hover:shadow-md">
       <div className="flex items-center gap-3">
         <div
           className={`p-2.5 rounded-2xl bg-app-field shrink-0 ${accentClassName}`}
@@ -29,7 +29,7 @@ export default function StatsCard({
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-app-muted">
             {title}
           </p>
-          <p className="text-2xl sm:text-[26px] font-bold text-app-ink mt-1 leading-none tracking-tight tabular-nums font-display">
+          <p className="text-2xl sm:text-[26px] font-bold text-app-ink mt-1 leading-none tracking-tight tabular-nums font-professional">
             {value}
           </p>
           {change ? (

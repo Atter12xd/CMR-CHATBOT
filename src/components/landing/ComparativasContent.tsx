@@ -23,7 +23,7 @@ export default function ComparativasContent() {
     <div className="min-h-screen bg-app-shell font-professional text-app-ink antialiased">
       <MarketingHero maxWidth="xl">
         <SectionLabel>Transparencia</SectionLabel>
-        <h1 className="text-4xl md:text-5xl lg:text-[3.1rem] font-bold text-app-ink mb-4 font-display tracking-[-0.035em] leading-[1.08]">
+        <h1 className="text-4xl md:text-5xl lg:text-[3.1rem] font-bold text-app-ink mb-4 font-professional tracking-[-0.035em] leading-[1.08]">
           wazapp.ai vs otras soluciones
         </h1>
         <p className="text-base sm:text-lg text-app-muted max-w-2xl mx-auto leading-relaxed">
@@ -32,15 +32,15 @@ export default function ComparativasContent() {
       </MarketingHero>
 
       <section className="relative py-12 md:py-20 px-4 sm:px-6 lg:px-8 bg-app-shell overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.2] [mask-image:radial-gradient(ellipse_at_center,black_15%,transparent_72%)]" aria-hidden />
+        <div className="pointer-events-none absolute inset-0 bg-site-grid bg-grid opacity-[0.2] dark:opacity-[0.06] [mask-image:radial-gradient(ellipse_at_center,black_15%,transparent_72%)] dark:[mask-image:radial-gradient(ellipse_at_center,black_8%,transparent_80%)]" aria-hidden />
         <div className="relative max-w-5xl mx-auto">
           <div className="rounded-[26px] p-[1px] bg-gradient-to-br from-brand-400/30 via-app-line to-brand-600/15 shadow-app-card-premium overflow-hidden">
-            <div className="overflow-x-auto rounded-[25px] bg-white ring-1 ring-white/90">
+            <div className="overflow-x-auto rounded-[25px] bg-white dark:bg-ref-card ring-1 ring-white/90 dark:ring-ref-border/50">
               <table className="w-full min-w-[520px]">
                 <thead>
                   <tr className="border-b border-app-line bg-app-field/30">
                     <th className="text-left p-5 sm:p-6 font-semibold text-app-ink text-sm sm:text-base">Característica</th>
-                    <th className="p-5 sm:p-6 font-semibold text-brand-700 font-display">wazapp.ai</th>
+                    <th className="p-5 sm:p-6 font-semibold text-brand-700 font-professional">wazapp.ai</th>
                     <th className="p-5 sm:p-6 font-semibold text-app-muted">Otras soluciones</th>
                   </tr>
                 </thead>
@@ -77,7 +77,7 @@ export default function ComparativasContent() {
               className="group relative inline-flex items-center gap-2 overflow-hidden px-8 py-4 rounded-2xl text-base font-semibold text-white shadow-app-card-premium transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               <span className="absolute inset-0 bg-gradient-to-b from-white/[0.12] to-transparent" />
-              <span className="absolute inset-0 bg-app-charcoal" />
+              <span className="absolute inset-0 bg-brand-500" />
               <span className="relative">Probar wazapp.ai gratis</span>
               <ArrowRight className="relative w-5 h-5 transition-transform group-hover:translate-x-0.5" />
             </a>

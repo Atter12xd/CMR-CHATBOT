@@ -70,10 +70,10 @@ export default function ConfigPage() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-app-line bg-white overflow-hidden shadow-app-card"
+          className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm"
         >
           <div className="px-5 py-4 sm:px-6 bg-app-field/70 border-b border-app-line flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-white border border-app-line text-amber-600 shrink-0 shadow-sm">
+            <div className="p-2.5 rounded-2xl bg-ref-card border border-app-line text-amber-600 shrink-0 shadow-sm">
               <AlertCircle className="size-[18px]" strokeWidth={2} />
             </div>
             <div className="min-w-0">
@@ -102,17 +102,17 @@ export default function ConfigPage() {
         description="Gestiona integraciones y facturación de tu organización."
       />
 
-      <motion.div variants={sectionMotion} initial="hidden" animate="show" className="rounded-2xl border border-app-line bg-white overflow-hidden shadow-app-card">
+      <motion.div variants={sectionMotion} initial="hidden" animate="show" className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm">
         <div className="px-5 py-4 sm:px-6 bg-app-field/70 border-b border-app-line">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-white border border-app-line text-emerald-600 shrink-0 shadow-sm">
+            <div className="p-2.5 rounded-2xl bg-ref-card border border-app-line text-emerald-600 shrink-0 shadow-sm">
               <svg className="size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
                 <path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.61.61l4.458-1.495A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.387 0-4.607-.798-6.379-2.145l-.292-.222-3.025 1.01 1.01-3.025-.222-.292A9.935 9.935 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
               </svg>
             </div>
             <div className="min-w-0">
-              <h2 className="text-[16px] font-semibold text-app-ink tracking-tight font-display">WhatsApp Business</h2>
+              <h2 className="text-[16px] font-semibold text-app-ink tracking-tight font-professional">WhatsApp Business</h2>
               <p className="text-[13px] text-app-muted mt-0.5 leading-snug">
                 Conecta tu número para recibir y enviar mensajes desde el panel
               </p>
@@ -157,12 +157,12 @@ export default function ConfigPage() {
         initial="hidden"
         animate="show"
         transition={{ delay: 0.06 }}
-        className="rounded-2xl border border-app-line bg-white overflow-hidden shadow-app-card"
+        className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm"
       >
         <div className="px-5 py-4 sm:px-6 bg-app-field/70 border-b border-app-line">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-2xl bg-white border border-app-line text-brand-600 shrink-0 shadow-sm">
+              <div className="p-2.5 rounded-2xl bg-ref-card border border-app-line text-brand-600 shrink-0 shadow-sm">
                 <svg className="size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                   <path d="M15.337 2.01a1 1 0 011 1v2.035c0 .23.079.454.224.633l1.207 1.49a1 1 0 00.776.37h2.45a1 1 0 01.78 1.625l-1.82 2.307a1 1 0 00-.14.93l.972 2.595a1 1 0 01-1.25 1.282l-2.685-.845a1 1 0 00-.947.176l-2.15 1.612a1 1 0 01-1.594-.801v-2.62a1 1 0 00-.408-.806l-2.105-1.548a1 1 0 01.078-1.662l2.256-1.422a1 1 0 00.453-.846V3.01a1 1 0 011-1h2.753z" />
                   <path d="M4.5 6A2.5 2.5 0 002 8.5v8A2.5 2.5 0 004.5 19h5.085a6.5 6.5 0 01-.66-2H4.5a.5.5 0 01-.5-.5v-8a.5.5 0 01.5-.5h4.425A6.5 6.5 0 019.585 6H4.5z" />
@@ -170,7 +170,7 @@ export default function ConfigPage() {
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-[16px] font-semibold text-app-ink tracking-tight font-display">Integración Shopify</h2>
+                  <h2 className="text-[16px] font-semibold text-app-ink tracking-tight font-professional">Integración Shopify</h2>
                   <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-brand-500/10 text-brand-700 border border-brand-500/20">
                     Nuevo
                   </span>
@@ -193,15 +193,15 @@ export default function ConfigPage() {
         initial="hidden"
         animate="show"
         transition={{ delay: 0.1 }}
-        className="rounded-2xl border border-app-line bg-white overflow-hidden shadow-app-card"
+        className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm"
       >
         <div className="px-5 py-4 sm:px-6 bg-app-field/70 border-b border-app-line">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-white border border-app-line text-brand-600 shrink-0 shadow-sm">
+            <div className="p-2.5 rounded-2xl bg-ref-card border border-app-line text-brand-600 shrink-0 shadow-sm">
               <CreditCard className="size-5" strokeWidth={2} />
             </div>
             <div className="min-w-0">
-              <h2 className="text-[16px] font-semibold text-app-ink tracking-tight font-display">Facturación y suscripción</h2>
+              <h2 className="text-[16px] font-semibold text-app-ink tracking-tight font-professional">Facturación y suscripción</h2>
               <p className="text-[13px] text-app-muted mt-0.5 leading-snug">
                 Tarjeta, facturas y cancelación cuando lo necesites
               </p>
@@ -243,7 +243,7 @@ export default function ConfigPage() {
             }}
             disabled={portalLoading}
             whileTap={{ scale: portalLoading ? 1 : 0.98 }}
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-[14px] font-semibold bg-app-charcoal text-white hover:bg-black shadow-md disabled:opacity-60 transition-colors w-full sm:w-auto"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-brand-500 text-white hover:bg-brand-600 shadow-md shadow-brand-500/20 disabled:opacity-60 transition-colors w-full sm:w-auto"
           >
             {portalLoading ? (
               <>

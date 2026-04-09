@@ -19,17 +19,36 @@
   <body>
     <script>
       (function () {
+        console.info('[Wazapp iframe] Página de embed cargada. Origen:', location.origin);
+        console.info(
+          '[Wazapp iframe] Tip: en DevTools → consola, arriba elige el marco "widget-embed-iframe" para ver todos los [Wazapp] del chat.',
+        );
         var q = (new URLSearchParams(location.search).get('siteKey') || '').trim().toLowerCase();
         if (!q || q.length !== 64 || !/^[0-9a-f]+$/.test(q)) {
+          console.warn(
+            '[Wazapp iframe] ?siteKey= inválido o falta. Debe ser 64 caracteres hex. URL actual:',
+            location.href,
+          );
           document.body.innerHTML =
             '<p style="font:12px system-ui,sans-serif;padding:10px;color:#64748b">siteKey inválido (64 hex).</p>';
           return;
         }
+        console.info('[Wazapp iframe] Clave OK (64 hex, vista ' + q.slice(0, 8) + '…). Cargando widget.js…');
         var base = location.origin.replace(/\/+$/, '');
         var s = document.createElement('script');
         s.src = base + '/widget.js?siteKey=' + encodeURIComponent(q);
         s.defer = true;
         s.setAttribute('data-debug', 'true');
+        s.onload = function () {
+          console.info('[Wazapp iframe] widget.js descargado. Revisa mensajes [Wazapp] debajo (consola del iframe).');
+        };
+        s.onerror = function () {
+          console.error(
+            '[Wazapp iframe] No se pudo cargar',
+            s.src,
+            '— bloqueador, CSP, red o URL incorrecta. En la web padre: permite script/frame a este host.',
+          );
+        };
         document.body.appendChild(s);
       })();
     </script>

@@ -1,7 +1,8 @@
 /* Wazapp widget — recomendado (CMS no trunca la URL):
  *   <script src="https://wazapp.ai/widget.js?siteKey=TU_CLAVE_64_HEX" defer></script>
  * Muchos editores truncan data-site-key a ~16 caracteres; por eso la clave va en ?siteKey=.
- * Opcional: data-debug="true" en el <script>.
+ * Opcional: data-debug="true" en el <script> (más detalle en consola).
+ * Siempre verás líneas [Wazapp] en consola (info/error) para diagnosticar embeds en webs de clientes.
  * No pongas dos veces widget.js en la misma página (ej. uno con TU_CLAVE_PUBLICA de prueba y otro real).
  */
 (function () {
@@ -66,6 +67,12 @@
 
   function log() {
     if (!debug || !console || !console.info) return;
+    console.info.apply(console, ['[Wazapp]'].concat([].slice.call(arguments)));
+  }
+
+  /** Avisos siempre visibles en consola (no dependen de data-debug). */
+  function say() {
+    if (typeof console === 'undefined' || !console.info) return;
     console.info.apply(console, ['[Wazapp]'].concat([].slice.call(arguments)));
   }
 
@@ -152,6 +159,22 @@
     }
   } catch (e) {}
 
+  var pageHost = '';
+  try {
+    pageHost = location.hostname || '';
+  } catch (e) {}
+  say(
+    'Script activo → API:',
+    apiBase,
+    '| clave:',
+    siteKey.length,
+    'chars (',
+    siteKey.slice(0, 8) + '…)',
+    '| esta página:',
+    pageHost || '(desconocido)',
+    debug ? '| modo debug=ON' : '| más detalle: data-debug="true"',
+  );
+
   var STORAGE_V = 'wazapp_v1_';
   var memStore = {};
   function storageKey(k) {
@@ -218,6 +241,7 @@
 
       document.body.appendChild(root);
       log('UI montada en body');
+      say('Interfaz lista: burbuja 💬 abajo a la derecha. Ábrela para crear sesión en', apiBase);
 
       var btn = root.querySelector('button[aria-label="Abrir chat"]');
       var panel = root.children[1];
@@ -264,10 +288,28 @@
             if (!r.ok) {
               var msg = j.error || r.statusText;
               if (j.hint) msg += ' — ' + j.hint;
+              if (typeof console !== 'undefined' && console.error) {
+                console.error('[Wazapp] API', r.status, path, '—', j.error || r.statusText, j.hint || '');
+              }
               throw new Error(msg);
             }
             return j;
+          }, function (jsonErr) {
+            if (typeof console !== 'undefined' && console.error) {
+              console.error(
+                '[Wazapp] Respuesta no es JSON en',
+                path,
+                '(¿HTML de error, proxy o CSP?). Status:',
+                r.status,
+              );
+            }
+            throw jsonErr;
           });
+        }, function (netErr) {
+          if (typeof console !== 'undefined' && console.error) {
+            console.error('[Wazapp] Red bloqueada o sin conexión al llamar', path, netErr);
+          }
+          throw netErr;
         });
       }
 
@@ -297,9 +339,13 @@
             });
             trackLast(data.messages || []);
             startPoll();
+            say('Chat conectado (sesión OK).');
           })
           .catch(function (e) {
             log('Error sesión/mensajes', e);
+            if (typeof console !== 'undefined' && console.error) {
+              console.error('[Wazapp] Fallo al abrir sesión o cargar mensajes:', e.message || e);
+            }
             appendBubble('No se pudo conectar: ' + (e.message || 'error'), 'bot');
           });
       }
@@ -354,6 +400,9 @@
             else if (data.botPaused) appendBubble('Un agente te responderá pronto.', 'bot');
           })
           .catch(function (e) {
+            if (typeof console !== 'undefined' && console.error) {
+              console.error('[Wazapp] Error al enviar mensaje:', e.message || e);
+            }
             appendBubble('Error al enviar: ' + (e.message || ''), 'bot');
           });
       }

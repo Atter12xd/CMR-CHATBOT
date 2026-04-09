@@ -314,7 +314,9 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
             Muchas plantillas <strong>no ejecutan</strong> <code className="text-[10px]">&lt;script src=&quot;…&quot;&gt;</code> externos.
             Este <code className="text-[10px]">&lt;iframe&gt;</code> suele pasar: pégalo antes de <code className="text-[10px]">&lt;/body&gt;</code> igual
             que el script. El chat corre dentro de wazapp.ai; la clave sigue siendo la misma. Si aún falla, la política CSP del sitio puede
-            exigir <code className="text-[10px]">frame-src https://wazapp.ai</code>.
+            exigir <code className="text-[10px]">frame-src https://wazapp.ai</code>. Soporte: en consola elige el{' '}
+            <strong>marco del iframe</strong> para ver líneas <code className="text-[10px]">[Wazapp]</code> y{' '}
+            <code className="text-[10px]">[Wazapp iframe]</code>.
           </p>
           <pre className="text-[11px] text-app-muted overflow-x-auto p-3 rounded-lg bg-app-field/80 border border-app-line whitespace-pre-wrap break-all">
             {snippetIframe}

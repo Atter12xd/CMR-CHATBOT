@@ -23,19 +23,22 @@
   <body>
     <h1>Prueba del widget</h1>
     <p style="background: #fef3c7; border: 1px solid #f59e0b; padding: 12px; border-radius: 8px">
-      <strong>Importante:</strong> la clave va en la URL del script{' '}
-      <code>?siteKey=TU_CLAVE_64_HEX</code> (el panel ya genera ese formato). WordPress y otros suelen cortar{' '}
+      <strong>Importante:</strong> la clave va en la URL del script
+      <code>?siteKey=TU_CLAVE_64_HEX</code> (el panel ya genera ese formato). WordPress y otros suelen cortar
       <code>data-site-key</code>.
     </p>
     <p>
-      Abre esta página con <code>?key=TU_CLAVE</code> en la URL, o edita el script abajo y sustituye{' '}
-      <code>TU_CLAVE_PUBLICA</code> por tu clave completa dentro de <code>?siteKey=</code>.
+      Abre esta página con <code>?key=TU_CLAVE_64_HEX</code> en la URL, o edita el valor por defecto en el script
+      de abajo. <strong>No añadas otro</strong> <code>&lt;script src="...widget.js"&gt;</code>: con dos embeds el
+      navegador descarga el JS dos veces (innecesario y confuso al depurar).
     </p>
 
     <script>
       (function () {
-        var q = new URLSearchParams(location.search).get('key');
-        var key = q && q.length >= 32 ? q : 'TU_CLAVE_PUBLICA';
+        var q = (new URLSearchParams(location.search).get('key') || '').trim().toLowerCase();
+        var def = 'TU_CLAVE_PUBLICA';
+        var key =
+          q && q.length === 64 && /^[0-9a-f]+$/.test(q) ? q : def;
         var s = document.createElement('script');
         s.src = 'https://wazapp.ai/widget.js?siteKey=' + encodeURIComponent(key);
         s.defer = true;

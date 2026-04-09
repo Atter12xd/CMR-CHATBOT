@@ -6,16 +6,44 @@
 (function () {
   var Z = 2147483000;
 
+  function normKey(s) {
+    return String(s || '')
+      .trim()
+      .replace(/[\u200B-\u200D\uFEFF]/g, '')
+      .toLowerCase();
+  }
+
+  function isHex64(k) {
+    return k.length === 64 && /^[0-9a-f]+$/.test(k);
+  }
+
+  function siteKeyFromScriptSrc(el) {
+    if (!el || !el.src) return '';
+    try {
+      var u = new URL(el.src, window.location.href);
+      return normKey(u.searchParams.get('siteKey') || u.searchParams.get('key') || '');
+    } catch (e) {
+      return '';
+    }
+  }
+
+  /** Con defer, document.currentScript suele ser null; si hay varios widget.js, el último en el DOM puede ser un embed viejo (ej. TU_CLAVE_PUBLICA). Preferimos el último <script> cuya URL tenga siteKey hex de 64. */
   function resolveScriptEl() {
     var cur = document.currentScript;
     if (cur && cur.src && cur.src.indexOf('widget.js') !== -1) {
       return cur;
     }
     var nodes = document.querySelectorAll('script[src*="widget.js"]');
-    if (nodes.length) {
-      return nodes[nodes.length - 1];
+    if (!nodes.length) return null;
+
+    var lastWithValidKey = null;
+    for (var i = 0; i < nodes.length; i++) {
+      if (isHex64(siteKeyFromScriptSrc(nodes[i]))) {
+        lastWithValidKey = nodes[i];
+      }
     }
-    return null;
+    if (lastWithValidKey) return lastWithValidKey;
+    return nodes[nodes.length - 1];
   }
 
   var SCRIPT = resolveScriptEl();
@@ -34,12 +62,15 @@
   }
 
   log('Script detectado', SCRIPT.src);
-
-  function normKey(s) {
-    return String(s || '')
-      .trim()
-      .replace(/[\u200B-\u200D\uFEFF]/g, '')
-      .toLowerCase();
+  if (debug) {
+    var nScripts = document.querySelectorAll('script[src*="widget.js"]').length;
+    if (nScripts > 1) {
+      log(
+        'Hay ' +
+          nScripts +
+          ' scripts widget.js; se usa el último con ?siteKey= de 64 hex (evita embeds viejos con clave corta o placeholder).',
+      );
+    }
   }
 
   var fromAttr = normKey(SCRIPT.getAttribute('data-site-key') || '');
@@ -50,9 +81,6 @@
   } catch (e) {}
 
   var siteKey = '';
-  var isHex64 = function (k) {
-    return k.length === 64 && /^[0-9a-f]+$/.test(k);
-  };
   if (isHex64(fromUrl)) {
     siteKey = fromUrl;
   } else if (isHex64(fromAttr)) {

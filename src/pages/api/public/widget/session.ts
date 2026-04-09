@@ -74,6 +74,32 @@ export const POST: APIRoute = async ({ request }) => {
     return jsonResponse(request, { error: 'Origen no permitido para este widget' }, 403);
   }
 
+  const { data: botCfg } = await db
+    .from('organization_bot_config')
+    .select('bot_name, company_name, initial_greeting')
+    .eq('organization_id', orgRow.id)
+    .maybeSingle();
+
+  const trimStr = (s: unknown, max: number) => {
+    const t = typeof s === 'string' ? s.trim() : '';
+    if (!t) return null;
+    return t.length > max ? t.slice(0, max) : t;
+  };
+
+  const orgName = trimStr(orgRow.name, 120) || 'Chat';
+  const botName = trimStr(botCfg?.bot_name, 80);
+  const companyName = trimStr(botCfg?.company_name, 120);
+  const widgetTitle = botName || companyName || orgName;
+  const widgetSubtitle =
+    botName && companyName && companyName !== botName ? companyName : 'Estamos para ayudarte';
+  const greeting = trimStr(botCfg?.initial_greeting, 2000);
+
+  const widgetMeta = {
+    widgetTitle,
+    widgetSubtitle,
+    greeting,
+  };
+
   const { data: existing } = await db
     .from('chats')
     .select('id')
@@ -88,7 +114,7 @@ export const POST: APIRoute = async ({ request }) => {
       .update({ last_message_at: new Date().toISOString(), updated_at: new Date().toISOString() })
       .eq('id', existing.id);
 
-    return jsonResponse(request, { chatId: existing.id });
+    return jsonResponse(request, { chatId: existing.id, ...widgetMeta });
   }
 
   const short = visitorId.replace(/-/g, '').slice(0, 8);
@@ -113,5 +139,39 @@ export const POST: APIRoute = async ({ request }) => {
     return jsonResponse(request, { error: 'No se pudo crear la conversación' }, 500);
   }
 
-  return jsonResponse(request, { chatId: (created as { id: string }).id });
+  const newChatId = (created as { id: string }).id;
+
+  if (greeting) {
+    const splitGreetingParts = (g: string): string[] => {
+      const raw = g.trim();
+      if (!raw) return [];
+      const blocks = raw
+        .split(/\n{2,}|\r\n\r\n/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (blocks.length > 1) return blocks.slice(0, 8);
+      const lines = raw
+        .split(/\n+/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (lines.length > 1 && lines.length <= 8) return lines;
+      return [raw];
+    };
+
+    const parts = splitGreetingParts(greeting);
+    for (const text of parts) {
+      const { error: greetErr } = await db.from('messages').insert({
+        chat_id: newChatId,
+        sender: 'bot',
+        text,
+        status: 'sent',
+      });
+      if (greetErr) {
+        console.error('[widget/session] insert greeting message', greetErr);
+        break;
+      }
+    }
+  }
+
+  return jsonResponse(request, { chatId: newChatId, ...widgetMeta });
 };

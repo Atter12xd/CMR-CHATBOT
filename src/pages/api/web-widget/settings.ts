@@ -19,6 +19,17 @@ function widgetScriptOrigin(request: Request): string {
   return resolvePublicSiteUrl(request);
 }
 
+function buildWidgetSnippets(origin: string, publicKey: string | null) {
+  if (!publicKey) {
+    return { snippet: '', snippetIframe: '', iframeEmbedUrl: '' };
+  }
+  const enc = encodeURIComponent(publicKey);
+  const iframeEmbedUrl = `${origin}/widget-embed-iframe.html?siteKey=${enc}`;
+  const snippet = `<script src="${origin}/widget.js?siteKey=${enc}" defer></script>`;
+  const snippetIframe = `<iframe src="${iframeEmbedUrl}" title="Chat Wazapp" style="position:fixed;right:0;bottom:0;width:min(100vw,400px);height:min(100dvh,720px);max-height:720px;border:0;z-index:2147483646;background:transparent" allow="clipboard-write"></iframe>`;
+  return { snippet, snippetIframe, iframeEmbedUrl };
+}
+
 const jsonHeaders = { 'Content-Type': 'application/json' };
 
 function normalizeHostname(line: string): string | null {
@@ -112,9 +123,7 @@ export const GET: APIRoute = async ({ request, url }) => {
 
   const origin = widgetScriptOrigin(request);
   const scriptUrl = `${origin}/widget.js`;
-  const snippet = publicKey
-    ? `<script src="${scriptUrl}?siteKey=${encodeURIComponent(publicKey)}" defer></script>`
-    : '';
+  const { snippet, snippetIframe, iframeEmbedUrl } = buildWidgetSnippets(origin, publicKey);
 
   return new Response(
     JSON.stringify({
@@ -122,6 +131,8 @@ export const GET: APIRoute = async ({ request, url }) => {
       allowedOrigins: allowedOrigins ?? [],
       scriptUrl,
       snippet,
+      snippetIframe,
+      iframeEmbedUrl,
     }),
     { status: 200, headers: jsonHeaders },
   );
@@ -227,9 +238,10 @@ export const POST: APIRoute = async ({ request }) => {
     body.rotateKey && nextKey
       ? normalizeWidgetSiteKey(nextKey)
       : savedKey || normalizeWidgetSiteKey((current?.web_widget_public_key as string | null) || '') || nextKey;
-  const snippet = keyToShow
-    ? `<script src="${scriptUrl}?siteKey=${encodeURIComponent(keyToShow)}" defer></script>`
-    : '';
+  const { snippet, snippetIframe, iframeEmbedUrl } = buildWidgetSnippets(
+    origin,
+    keyToShow ? normalizeWidgetSiteKey(keyToShow) : null,
+  );
 
   return new Response(
     JSON.stringify({
@@ -237,6 +249,8 @@ export const POST: APIRoute = async ({ request }) => {
       allowedOrigins: originsUpdate ?? [],
       scriptUrl,
       snippet,
+      snippetIframe,
+      iframeEmbedUrl,
     }),
     { status: 200, headers: jsonHeaders },
   );

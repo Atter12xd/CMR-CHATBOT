@@ -15,7 +15,9 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
   const [publicKey, setPublicKey] = useState<string | null>(null);
   const [allowedText, setAllowedText] = useState('');
   const [snippet, setSnippet] = useState('');
+  const [snippetIframe, setSnippetIframe] = useState('');
   const [copied, setCopied] = useState(false);
+  const [copiedIframe, setCopiedIframe] = useState(false);
   const [copiedKey, setCopiedKey] = useState(false);
 
   const getToken = async () => {
@@ -44,6 +46,7 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
       const list = Array.isArray(data.allowedOrigins) ? data.allowedOrigins : [];
       setAllowedText(list.join('\n'));
       setSnippet(data.snippet || '');
+      setSnippetIframe(data.snippetIframe || '');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al cargar');
     } finally {
@@ -79,6 +82,7 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'No se pudo guardar');
       setSnippet(data.snippet || snippet);
+      setSnippetIframe(data.snippetIframe || '');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al guardar');
     } finally {
@@ -107,6 +111,7 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
       if (!res.ok) throw new Error(data.error || 'No se pudo generar la clave');
       setPublicKey(data.publicKey || null);
       setSnippet(data.snippet || '');
+      setSnippetIframe(data.snippetIframe || '');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error');
     } finally {
@@ -122,6 +127,17 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
       setTimeout(() => setCopied(false), 2000);
     } catch {
       setError('No se pudo copiar al portapapeles.');
+    }
+  };
+
+  const copySnippetIframe = async () => {
+    if (!snippetIframe) return;
+    try {
+      await navigator.clipboard.writeText(snippetIframe);
+      setCopiedIframe(true);
+      setTimeout(() => setCopiedIframe(false), 2000);
+    } catch {
+      setError('No se pudo copiar el iframe.');
     }
   };
 
@@ -278,6 +294,31 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
               bloqueadores o CSP que bloqueen <code className="text-[10px]">wazapp.ai</code>.
             </span>
           </p>
+        </div>
+      )}
+
+      {snippetIframe && (
+        <div className="rounded-xl border-2 border-brand-500/25 bg-brand-500/5 p-4 space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[14px] font-semibold text-app-ink">Si tu web bloquea scripts (CSP / CMS)</span>
+            <button
+              type="button"
+              onClick={copySnippetIframe}
+              className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-brand-600 hover:text-brand-500"
+            >
+              <Copy className="size-3.5" />
+              {copiedIframe ? 'Copiado' : 'Copiar iframe'}
+            </button>
+          </div>
+          <p className="text-[12px] text-app-muted leading-relaxed">
+            Muchas plantillas <strong>no ejecutan</strong> <code className="text-[10px]">&lt;script src=&quot;…&quot;&gt;</code> externos.
+            Este <code className="text-[10px]">&lt;iframe&gt;</code> suele pasar: pégalo antes de <code className="text-[10px]">&lt;/body&gt;</code> igual
+            que el script. El chat corre dentro de wazapp.ai; la clave sigue siendo la misma. Si aún falla, la política CSP del sitio puede
+            exigir <code className="text-[10px]">frame-src https://wazapp.ai</code>.
+          </p>
+          <pre className="text-[11px] text-app-muted overflow-x-auto p-3 rounded-lg bg-app-field/80 border border-app-line whitespace-pre-wrap break-all">
+            {snippetIframe}
+          </pre>
         </div>
       )}
     </div>

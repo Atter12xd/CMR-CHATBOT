@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Wazapp chat</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        overflow: hidden;
+        height: 100%;
+        min-height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      (function () {
+        var q = (new URLSearchParams(location.search).get('siteKey') || '').trim().toLowerCase();
+        if (!q || q.length !== 64 || !/^[0-9a-f]+$/.test(q)) {
+          document.body.innerHTML =
+            '<p style="font:12px system-ui,sans-serif;padding:10px;color:#64748b">siteKey inválido (64 hex).</p>';
+          return;
+        }
+        var base = location.origin.replace(/\/+$/, '');
+        var s = document.createElement('script');
+        s.src = base + '/widget.js?siteKey=' + encodeURIComponent(q);
+        s.defer = true;
+        s.setAttribute('data-debug', 'true');
+        document.body.appendChild(s);
+      })();
+    </script>
+  </body>
+</html>

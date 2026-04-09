@@ -1,4 +1,25 @@
-import { isOriginAllowed } from './origins';
+import { isOriginAllowed, parseOriginHostname } from './origins';
+
+function widgetSiteHostname(): string | null {
+  const site = String(import.meta.env.SITE || '').trim();
+  if (!site) return null;
+  try {
+    return new URL(site).hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * El JS del widget dentro de widget-embed-iframe.html hace fetch con Origin = SITE (p. ej. wazapp.ai),
+ * no con el dominio del sitio cliente. Sin este bypass, la lista «dominios permitidos» bloquearía el iframe.
+ */
+function isWidgetHostedEmbedOrigin(originHeader: string | null): boolean {
+  const host = parseOriginHostname(originHeader);
+  const siteHost = widgetSiteHostname();
+  if (!host || !siteHost) return false;
+  return host === siteHost || host.endsWith('.' + siteHost);
+}
 
 export function widgetCorsHeaders(request: Request): Record<string, string> {
   const origin = request.headers.get('Origin');
@@ -32,7 +53,9 @@ export type WidgetOrgRow = {
 };
 
 export function assertWidgetOriginAllowed(org: WidgetOrgRow, request: Request): boolean {
-  return isOriginAllowed(org.web_widget_allowed_origins, request.headers.get('Origin'));
+  const origin = request.headers.get('Origin');
+  if (isWidgetHostedEmbedOrigin(origin)) return true;
+  return isOriginAllowed(org.web_widget_allowed_origins, origin);
 }
 
 const VISITOR_ID_RE =

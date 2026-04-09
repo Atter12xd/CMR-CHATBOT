@@ -219,6 +219,13 @@
     } catch (e) {}
     memStore[key] = v;
   }
+  function lsRemove(k) {
+    var key = storageKey(k);
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {}
+    delete memStore[key];
+  }
 
   function randomUuid() {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
@@ -272,7 +279,7 @@
       var panelGrad =
         'linear-gradient(180deg,#dff0fb 0%,#eef6ff 32%,#ffffff 68%,#f4f7fb 100%)';
       var launcherRing =
-        '0 0 0 2px rgba(129,140,248,.5),0 0 0 1px rgba(255,255,255,.95) inset,0 8px 28px rgba(99,102,241,.32)';
+        '0 0 0 1px rgba(129,140,248,.42),0 0 0 1px rgba(255,255,255,.9) inset,0 2px 8px rgba(99,102,241,.12),0 8px 24px rgba(15,23,42,.1)';
       var orbSmall =
         '<div aria-hidden="true" style="width:44px;height:44px;border-radius:50%;flex-shrink:0;background:radial-gradient(circle at 32% 28%,#ffffff,#dbeafe);box-shadow:0 0 0 2px #818cf8,0 0 20px rgba(99,102,241,.45),0 0 40px rgba(56,189,248,.15);position:relative">' +
         '<div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-42%);width:68%;height:30%;background:#0f172a;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:5px">' +
@@ -286,21 +293,23 @@
         '<span style="width:6px;height:10px;background:#fff;border-radius:3px;box-shadow:0 0 8px rgba(255,255,255,.95)"></span>' +
         '</div></div>';
       var iconChat =
-        '<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 8.5-8.5 8.48 8.48 0 0 1 8.5 8.5z" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 8.5-8.5 8.48 8.48 0 0 1 8.5 8.5z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      var iconTrash =
+        '<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2m2 0v14a2 2 0 01-2 2H8a2 2 0 01-2-2V6h12zM10 11v5M14 11v5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       var iconSend =
         '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       var iconClose =
         '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 
       root.innerHTML =
-        '<button type="button" data-wazapp-launcher aria-label="Abrir chat" style="position:fixed;bottom:calc(22px + env(safe-area-inset-bottom,0px));right:calc(22px + env(safe-area-inset-right,0px));width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(165deg,#ffffff 0%,#eef2ff 100%);color:#4338ca;box-shadow:' +
+        '<button type="button" data-wazapp-launcher aria-label="Abrir chat" style="position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));right:calc(20px + env(safe-area-inset-right,0px));width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(160deg,#ffffff 0%,#f5f7ff 42%,#eef2ff 100%);color:#4f46e5;box-shadow:' +
         launcherRing +
         ';z-index:' +
         Z +
-        ';display:flex;align-items:center;justify-content:center;transition:transform .18s ease,box-shadow .18s ease;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;-webkit-tap-highlight-color:transparent">' +
+        ';display:flex;align-items:center;justify-content:center;transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s ease;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;-webkit-tap-highlight-color:transparent">' +
         iconChat +
         '</button>' +
-        '<div data-wazapp-panel style="display:none;flex-direction:column;position:fixed;bottom:calc(94px + env(safe-area-inset-bottom,0px));right:calc(22px + env(safe-area-inset-right,0px));width:min(100vw - 44px,392px);height:min(520px,78vh);max-height:78vh;background:' +
+        '<div data-wazapp-panel style="display:none;flex-direction:column;position:fixed;bottom:calc(84px + env(safe-area-inset-bottom,0px));right:calc(20px + env(safe-area-inset-right,0px));width:min(100vw - 40px,392px);height:min(520px,78vh);max-height:78vh;background:' +
         panelGrad +
         ';color:#0f172a;border-radius:28px;box-shadow:0 28px 64px rgba(15,23,42,.16),0 0 0 1px rgba(15,23,42,.07);z-index:' +
         (Z + 1) +
@@ -329,7 +338,10 @@
         '<button type="button" data-wazapp-send aria-label="Enviar" style="width:44px;height:44px;border-radius:50%;border:none;background:#94a3b8;color:#fff;font-weight:600;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(15,23,42,.12);transition:background .15s ease,transform .12s ease">' +
         iconSend +
         '</button></div>' +
-        '<button type="button" data-wazapp-minimize style="margin-top:11px;width:100%;padding:11px 16px;border-radius:999px;border:1px solid rgba(129,140,248,.55);background:rgba(255,255,255,.55);color:#5b21b6;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;backdrop-filter:blur(6px)">Cerrar ventana</button>' +
+        '<button type="button" data-wazapp-reset aria-label="Empezar de cero" style="margin-top:9px;width:100%;padding:10px 14px;border-radius:999px;border:1px solid rgba(15,23,42,.1);background:rgba(255,255,255,.72);color:#64748b;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;backdrop-filter:blur(8px)">' +
+        iconTrash +
+        '<span>Empezar de cero</span></button>' +
+        '<button type="button" data-wazapp-minimize style="margin-top:8px;width:100%;padding:11px 16px;border-radius:999px;border:1px solid rgba(129,140,248,.55);background:rgba(255,255,255,.55);color:#5b21b6;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;backdrop-filter:blur(6px)">Cerrar ventana</button>' +
         '</div></div></div>';
 
       document.body.appendChild(root);
@@ -343,8 +355,9 @@
         '[data-wazapp-widget] [data-wazapp-typing] i:nth-child(3){animation-delay:.4s}' +
         '[data-wazapp-widget] button[data-wazapp-send]:hover{background:#64748b!important}' +
         '[data-wazapp-widget] button[data-wazapp-send]:active{transform:scale(.94)}' +
-        '[data-wazapp-widget] button[data-wazapp-launcher]:hover{filter:brightness(1.04);transform:scale(1.05)}' +
-        '[data-wazapp-widget] button[data-wazapp-launcher]:active{transform:scale(.97)}' +
+        '[data-wazapp-widget] button[data-wazapp-launcher]:hover{box-shadow:0 0 0 1px rgba(129,140,248,.5),0 0 0 1px rgba(255,255,255,.92) inset,0 4px 14px rgba(99,102,241,.2),0 10px 28px rgba(15,23,42,.12)!important;transform:scale(1.04)}' +
+        '[data-wazapp-widget] button[data-wazapp-launcher]:active{transform:scale(.96)}' +
+        '[data-wazapp-widget] button[data-wazapp-reset]:hover{background:rgba(254,242,242,.95)!important;border-color:rgba(239,68,68,.25)!important;color:#b91c1c!important}' +
         '[data-wazapp-widget] button[data-wazapp-close]:hover{background:rgba(255,255,255,.95)!important}' +
         '[data-wazapp-widget] button[data-wazapp-splash-start]:hover{transform:translateY(-1px);box-shadow:0 10px 28px rgba(99,102,241,.18)!important}' +
         '[data-wazapp-widget] button[data-wazapp-minimize]:hover{background:rgba(255,255,255,.85)!important}';
@@ -364,6 +377,7 @@
       var splashStart = root.querySelector('[data-wazapp-splash-start]');
       var btnClose = root.querySelector('[data-wazapp-close]');
       var btnMin = root.querySelector('[data-wazapp-minimize]');
+      var btnReset = root.querySelector('[data-wazapp-reset]');
       var titleEl = root.querySelector('[data-wazapp-title]');
       var subtitleEl = root.querySelector('[data-wazapp-subtitle]');
       var msgBox = root.querySelector('[data-messages]');
@@ -658,6 +672,35 @@
         setTyping(false);
       }
 
+      function startFreshConversation() {
+        if (
+          !confirm(
+            '¿Empezar de cero? Se abre una conversación nueva en este dispositivo; la anterior seguirá en el panel de tu equipo.',
+          )
+        ) {
+          return;
+        }
+        if (pollTimer) {
+          clearInterval(pollTimer);
+          pollTimer = null;
+        }
+        setTyping(false);
+        visitorId = randomUuid();
+        lsSet('vid', visitorId);
+        lsRemove('cid');
+        chatId = null;
+        seenMessageIds = Object.create(null);
+        lastCreatedAt = '';
+        if (msgBox) msgBox.innerHTML = '';
+        typingRow = null;
+        if (input) input.value = '';
+        showChatLayout();
+        initSessionAndLoad();
+        try {
+          postToParent({ phase: 'conversation-reset' });
+        } catch (e) {}
+      }
+
       function openPanel() {
         open = true;
         if (panel) {
@@ -701,6 +744,11 @@
       if (btnMin) {
         btnMin.addEventListener('click', function () {
           closePanel();
+        });
+      }
+      if (btnReset) {
+        btnReset.addEventListener('click', function () {
+          startFreshConversation();
         });
       }
 

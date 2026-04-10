@@ -242,8 +242,11 @@ export function useAuth() {
   };
 
   const resetPassword = async (email: string) => {
+    const base =
+      (typeof import.meta !== 'undefined' && import.meta.env?.PUBLIC_SITE_URL?.trim()) || window.location.origin;
+    const origin = String(base).replace(/\/+$/, '');
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${origin}/reset-password`,
     });
     return { error };
   };

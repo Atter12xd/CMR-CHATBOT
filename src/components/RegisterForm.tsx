@@ -135,7 +135,9 @@ export default function RegisterForm({ adminRegistration = false }: RegisterForm
       if (signUpError) {
         const msg = signUpError.message || 'Error al crear la cuenta';
         if (msg.toLowerCase().includes('already registered') || msg.toLowerCase().includes('already exists')) {
-          setError('Ya existe una cuenta con este correo');
+          setError(
+            'Ya existe una cuenta con este correo. No hace falta registrarte otra vez: entra en Iniciar sesión. Si no recuerdas la contraseña, en la página de login usa «¿Olvidaste tu contraseña?».',
+          );
         } else {
           setError(msg);
         }

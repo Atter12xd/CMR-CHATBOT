@@ -42,11 +42,23 @@ export default function LoginForm() {
       const { data, error: signInError } = await signIn(email.trim(), password);
 
       if (signInError) {
-        const msg = signInError.message || 'Error al iniciar sesión';
-        if (msg.toLowerCase().includes('invalid login')) {
-          setError('Correo o contraseña incorrectos');
+        const msg = signInError.message || '';
+        const lower = msg.toLowerCase();
+        const code = (signInError as { code?: string }).code;
+        if (code === 'email_not_confirmed' || lower.includes('email not confirmed')) {
+          setError(
+            'Tu cuenta existe pero falta confirmar el correo. Revisa tu bandeja (y spam) por un enlace de confirmación. Si no llega, quien administra Wazapp puede confirmarte el usuario desde el panel de Supabase (Authentication → Users).',
+          );
+        } else if (
+          lower.includes('invalid login') ||
+          lower.includes('invalid credentials') ||
+          lower.includes('invalid email or password')
+        ) {
+          setError(
+            'Correo o contraseña incorrectos. Si ya te registraste antes, prueba «¿Olvidaste tu contraseña?» justo arriba.',
+          );
         } else {
-          setError(msg);
+          setError(msg || 'Error al iniciar sesión');
         }
         return;
       }

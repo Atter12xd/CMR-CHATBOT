@@ -1,0 +1,10 @@
+# Theme app extension: inyecta el widget Wazapp en la tienda (App embed).
+# Despliegue: desde la raíz del repo, con Shopify CLI v3+ vinculado a la MISMA app que SHOPIFY_API_KEY.
+# shopify app deploy
+#
+api_version = "2024-10"
+
+[[extensions]]
+name = "Wazapp chat"
+handle = "wazapp-chat"
+type = "theme_app_extension"

@@ -1,0 +1,49 @@
+{% comment %}
+  App embed (Theme settings → App embeds): carga widget.js con ?shop= para resolver la clave en el servidor Wazapp.
+  Requisitos en Wazapp: tienda conectada por OAuth y código del widget generado (clave pública).
+{% endcomment %}
+{% assign raw = block.settings.wazapp_origin | strip %}
+{% if raw == '' %}
+  {% assign raw = 'https://wazapp.ai' %}
+{% endif %}
+{% unless raw contains '://' %}
+  {% assign raw = 'https://' | append: raw %}
+{% endunless %}
+{% assign _parts = raw | split: '://' %}
+{% if _parts.size == 2 %}
+  {% assign _host = _parts[1] | split: '/' | first | split: '?' | first %}
+  {% assign wazapp_base = _parts[0] | append: '://' | append: _host %}
+{% else %}
+  {% assign wazapp_base = raw %}
+{% endif %}
+<script
+  src="{{ wazapp_base }}/widget.js?shop={{ shop.permanent_domain | url_encode }}"
+  defer
+  {% if block.settings.debug_console %}data-debug="true"{% endif %}
+></script>
+
+{% schema %}
+{
+  "name": "Wazapp chat",
+  "target": "body",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Misma experiencia que el widget web. En Wazapp: conecta esta tienda (Shopify) y genera el código del widget en Configuración. Sin eso, el chat no obtendrá clave."
+    },
+    {
+      "type": "text",
+      "id": "wazapp_origin",
+      "label": "URL base de Wazapp",
+      "default": "https://wazapp.ai",
+      "info": "Origen donde está widget.js (sin ruta ni barra final). Ejemplo: https://wazapp.ai"
+    },
+    {
+      "type": "checkbox",
+      "id": "debug_console",
+      "label": "Depuración en consola del navegador (F12)",
+      "default": false
+    }
+  ]
+}
+{% endschema %}

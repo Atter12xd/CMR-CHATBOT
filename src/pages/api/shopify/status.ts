@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
+import { resolvePublicSiteUrl } from '../../../lib/shopify-public-url';
 
 export const prerender = false;
 const jsonHeaders = { 'Content-Type': 'application/json' };
@@ -76,6 +77,21 @@ export const GET: APIRoute = async ({ request, url }) => {
     found: !!data,
     status: data?.status || 'none',
   });
-  return new Response(JSON.stringify({ integration: data || null, requestId }), { status: 200, headers: jsonHeaders });
+
+  const shopifyApiKey = import.meta.env.SHOPIFY_API_KEY || process.env.SHOPIFY_API_KEY || '';
+  const publicBaseUrl = resolvePublicSiteUrl(request);
+  const themeEmbed =
+    shopifyApiKey.length > 0
+      ? {
+          blockHandle: 'wazapp-chat-embed',
+          clientId: shopifyApiKey,
+          publicBaseUrl,
+        }
+      : null;
+
+  return new Response(
+    JSON.stringify({ integration: data || null, themeEmbed, requestId }),
+    { status: 200, headers: jsonHeaders },
+  );
 };
 

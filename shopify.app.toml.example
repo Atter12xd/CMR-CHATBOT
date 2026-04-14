@@ -1,0 +1,25 @@
+# Copia a shopify.app.toml y rellena con tu app de Partners (mismo Client ID que SHOPIFY_API_KEY).
+# Documentación: https://shopify.dev/docs/apps/tools/cli/configuration
+#
+# Desde la raíz del repo:
+#   shopify app config link
+#   shopify app deploy
+#
+# La extensión de tema está en: extensions/wazapp-chat/
+
+name = "Wazapp"
+client_id = "TU_CLIENT_ID_DE_SHOPIFY"
+application_url = "https://TU_DOMINIO_PUBLICO"
+embedded = true
+
+[build]
+include_config_on_deploy = true
+
+[access_scopes]
+# Debe incluir al menos los scopes que uses en SHOPIFY_SCOPES (OAuth existente).
+scopes = "read_products,write_products"
+
+[auth]
+redirect_urls = [
+  "https://TU_DOMINIO_PUBLICO/api/shopify/callback"
+]

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AlertCircle, CheckCircle2, Loader2, Radio, RefreshCw, Store } from 'lucide-react';
+import { AlertCircle, CheckCircle2, ExternalLink, Loader2, Radio, RefreshCw, Store } from 'lucide-react';
 import { createClient } from '../lib/supabase';
 
 interface ShopifyIntegrationProps {
@@ -7,6 +7,12 @@ interface ShopifyIntegrationProps {
 }
 
 type ShopifyStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
+
+type ThemeEmbedMeta = {
+  blockHandle: string;
+  clientId: string;
+  publicBaseUrl: string;
+};
 
 function ts() {
   return new Date().toISOString().slice(11, 23);
@@ -24,6 +30,7 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
   const [syncInProgress, setSyncInProgress] = useState(false);
   const [webhooksRegistering, setWebhooksRegistering] = useState(false);
   const [activityLog, setActivityLog] = useState<string[]>([]);
+  const [themeEmbed, setThemeEmbed] = useState<ThemeEmbedMeta | null>(null);
   const supabase = createClient();
 
   const pushLog = (line: string) => {
@@ -35,6 +42,14 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
   const normalizedDomain = useMemo(() => {
     return shopDomain.trim().replace(/^https?:\/\//, '').replace(/\/+$/, '');
   }, [shopDomain]);
+
+  /** Deep link al editor de tema para activar el app embed (mismo client_id que OAuth). */
+  const themeEditorActivateUrl = useMemo(() => {
+    if (status !== 'connected' || !themeEmbed || !connectedShop) return null;
+    const shop = connectedShop.trim();
+    if (!shop) return null;
+    return `https://${shop}/admin/themes/current/editor?context=apps&activateAppId=${themeEmbed.clientId}/${themeEmbed.blockHandle}`;
+  }, [status, themeEmbed, connectedShop]);
 
   const getAccessToken = async (): Promise<string | null> => {
     const {
@@ -66,6 +81,17 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
 
       if (!res.ok) {
         throw new Error(data.error || 'No se pudo cargar estado de Shopify');
+      }
+
+      const te = data.themeEmbed;
+      if (te && typeof te === 'object' && typeof te.clientId === 'string' && typeof te.blockHandle === 'string') {
+        setThemeEmbed({
+          clientId: te.clientId,
+          blockHandle: te.blockHandle,
+          publicBaseUrl: typeof te.publicBaseUrl === 'string' ? te.publicBaseUrl : '',
+        });
+      } else {
+        setThemeEmbed(null);
       }
 
       if (!data.integration) {
@@ -468,6 +494,45 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
             </p>
           )}
 
+        </div>
+      )}
+
+      {status === 'connected' && (
+        <div className="rounded-xl border border-app-line bg-ref-card/80 p-4 space-y-3">
+          <p className="text-[14px] font-semibold text-app-ink">Chat en la tienda (mismo widget que en web)</p>
+          <p className="text-[12px] text-app-muted leading-relaxed">
+            Opción recomendada: publica la <strong>extensión de tema</strong> del repo (
+            <code className="text-[11px]">extensions/wazapp-chat/</code>) con Shopify CLI (
+            <code className="text-[11px]">shopify app deploy</code>) vinculado a la misma app que{' '}
+            <code className="text-[11px]">SHOPIFY_API_KEY</code>. Luego el comerciante activa el embed «Wazapp chat» en el
+            editor del tema.
+          </p>
+          {themeEditorActivateUrl ? (
+            <a
+              href={themeEditorActivateUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold bg-brand-500 text-white hover:bg-brand-600 w-fit"
+            >
+              <ExternalLink className="size-4" />
+              Abrir tema para activar el chat (App embed)
+            </a>
+          ) : (
+            <p className="text-[12px] text-amber-800 bg-amber-500/15 border border-amber-500/25 rounded-lg px-3 py-2">
+              No hay <code className="text-[11px]">SHOPIFY_API_KEY</code> en el servidor: no podemos armar el enlace
+              automático. Configura la variable en el hosting o pega el snippet Liquid desde Configuración → Widget (modo
+              Shopify).
+            </p>
+          )}
+          {themeEmbed?.publicBaseUrl ? (
+            <p className="text-[11px] text-app-muted leading-relaxed font-mono break-all">
+              Snippet manual (tema → Liquid):{' '}
+              <span className="text-app-ink">
+                &lt;script src=&quot;{themeEmbed.publicBaseUrl}/widget.js?shop=&#123;&#123; shop.permanent_domain
+                &#125;&#125;&quot; defer&gt;&lt;/script&gt;
+              </span>
+            </p>
+          ) : null}
         </div>
       )}
 

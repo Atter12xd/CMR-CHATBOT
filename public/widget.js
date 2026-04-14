@@ -1,11 +1,12 @@
 /* Wazapp widget — recomendado (CMS no trunca la URL):
  *   <script src="https://wazapp.ai/widget.js?siteKey=TU_CLAVE_64_HEX" defer></script>
+ * Shopify (tienda conectada en Wazapp): ?shop=tu-tienda.myshopify.com en la URL del script (o data-shop); el .js pide la clave al servidor.
  * Muchos editores truncan data-site-key a ~16 caracteres; por eso la clave va en ?siteKey=.
  * Opcional: data-debug="true" en el <script> (más detalle en consola).
  * Siempre verás líneas [Wazapp] en consola (info/error) para diagnosticar embeds en webs de clientes.
  * No pongas dos veces widget.js en la misma página (ej. uno con TU_CLAVE_PUBLICA de prueba y otro real).
  */
-(function () {
+(async function () {
   var Z = 2147483000;
 
   /** Si el widget corre dentro de un iframe, avisa a la página padre (consola del cliente suele estar ahí). */
@@ -43,17 +44,36 @@
     }
   }
 
-  /** Último <script widget.js> cuya URL tenga siteKey hex de 64; si no hay ninguno, el último tag (compat.). */
+  function shopFromScriptSrc(el) {
+    if (!el || !el.src) return '';
+    try {
+      var us = new URL(el.src, window.location.href);
+      return normKey(us.searchParams.get('shop') || '');
+    } catch (e) {
+      return '';
+    }
+  }
+
+  function isValidShopDomain(s) {
+    return /^[a-z0-9][a-z0-9-]*\.myshopify\.com$/.test(String(s || ''));
+  }
+
+  /** Prioridad: último script con ?siteKey= 64 hex; si no, último con ?shop=*.myshopify.com; si no, el último tag. */
   function pickWinnerScriptEl() {
     var nodes = document.querySelectorAll('script[src*="widget.js"]');
     if (!nodes.length) return null;
     var lastWithValidKey = null;
+    var lastWithShop = null;
     for (var i = 0; i < nodes.length; i++) {
       if (isHex64(siteKeyFromScriptSrc(nodes[i]))) {
         lastWithValidKey = nodes[i];
       }
+      if (isValidShopDomain(shopFromScriptSrc(nodes[i]))) {
+        lastWithShop = nodes[i];
+      }
     }
     if (lastWithValidKey) return lastWithValidKey;
+    if (lastWithShop) return lastWithShop;
     return nodes[nodes.length - 1];
   }
 
@@ -90,6 +110,16 @@
     console.info.apply(console, ['[Wazapp]'].concat([].slice.call(arguments)));
   }
 
+  /** Errores del modo Shopify (siempre visibles). Opcional: segundo arg objeto para inspeccionar en consola. */
+  function shopifyErr(titulo, detalle) {
+    if (typeof console === 'undefined' || !console.error) return;
+    if (detalle !== undefined) {
+      console.error('[Wazapp · Shopify]', titulo, detalle);
+    } else {
+      console.error('[Wazapp · Shopify]', titulo);
+    }
+  }
+
   log('Script detectado', SCRIPT.src);
   if (debug) {
     var nScripts = document.querySelectorAll('script[src*="widget.js"]').length;
@@ -97,7 +127,7 @@
       log(
         'Hay ' +
           nScripts +
-          ' scripts widget.js; se usa el último con ?siteKey= de 64 hex (evita embeds viejos con clave corta o placeholder).',
+          ' scripts widget.js; se usa el último con ?siteKey= de 64 hex, o el último con ?shop=*.myshopify.com.',
       );
     }
   }
@@ -123,13 +153,117 @@
   if (!siteKey && typeof window !== 'undefined') {
     siteKey = normKey(window.__WAZAPP_SITE_KEY__ || window.WAZAPP_SITE_KEY || '');
   }
+
+  var apiBase = (SCRIPT.getAttribute('data-api-base') || '').trim();
+  if (!apiBase) {
+    try {
+      apiBase = new URL(SCRIPT.src).origin;
+    } catch (e) {
+      console.warn('[Wazapp] No se pudo resolver API base.');
+      return;
+    }
+  }
+  apiBase = apiBase.replace(/\/+$/, '');
+
+  var shopAttempted = false;
+  var shopDom = shopFromScriptSrc(SCRIPT) || normKey(SCRIPT.getAttribute('data-shop') || '');
+  if (!isHex64(siteKey) && isValidShopDomain(shopDom)) {
+    shopAttempted = true;
+    var shopifyKeyUrl = apiBase + '/api/public/widget/shopify-site-key?shop=' + encodeURIComponent(shopDom);
+    say('Modo Shopify: pidiendo clave al servidor para la tienda', shopDom);
+    log('GET (solo diagnóstico):', shopifyKeyUrl);
+    try {
+      var _sr = await fetch(shopifyKeyUrl, { credentials: 'omit', mode: 'cors' });
+      var _rawText = '';
+      try {
+        _rawText = await _sr.text();
+      } catch (eText) {
+        _rawText = '';
+      }
+      var _sj = {};
+      try {
+        _sj = _rawText ? JSON.parse(_rawText) : {};
+      } catch (eParse) {
+        _sj = {};
+        shopifyErr('La API no devolvió JSON válido.', {
+          tienda: shopDom,
+          http: _sr.status,
+          fragmento: (_rawText && _rawText.slice(0, 120)) || '(vacío)',
+        });
+        try {
+          postToParent({ phase: 'shopify-site-key-error', status: _sr.status, message: 'invalid_json' });
+        } catch (e) {}
+      }
+      if (_sr.ok && _sj && _sj.siteKey && isHex64(normKey(String(_sj.siteKey)))) {
+        siteKey = normKey(String(_sj.siteKey));
+        say('Modo Shopify: clave recibida correctamente (la conversación puede continuar).');
+        log('Bootstrap Shopify OK; longitud clave', siteKey.length);
+      } else if (_sj && Object.keys(_sj).length) {
+        var _err = (_sj && _sj.error) || 'Respuesta inesperada';
+        var _hint = (_sj && _sj.hint) || '';
+        shopifyErr('El servidor no entregó clave de widget.', {
+          tienda: shopDom,
+          http: _sr.status,
+          error: _err,
+          hint: _hint || '(sin hint)',
+          que_hacer: [
+            '404 «Tienda no conectada»: OAuth Shopify en Wazapp y mismo dominio myshopify.',
+            '404 «Widget no configurado»: en Configuración genera el código del widget (clave pública).',
+            '403 en el chat (después): añade el dominio del escaparate en «sitios permitidos» si usas dominio propio.',
+            'CORS: el script debe cargar desde el mismo origen que data-api-base o tu dominio de producción.',
+          ],
+        });
+        try {
+          postToParent({
+            phase: 'shopify-site-key-error',
+            status: _sr.status,
+            message: String(_err),
+            hint: _hint ? String(_hint) : undefined,
+          });
+        } catch (e) {}
+      } else if (!_sr.ok) {
+        shopifyErr('Error HTTP al obtener la clave (sin cuerpo JSON útil).', {
+          tienda: shopDom,
+          http: _sr.status,
+          texto: (_rawText && _rawText.slice(0, 200)) || '(vacío)',
+        });
+        try {
+          postToParent({ phase: 'shopify-site-key-error', status: _sr.status, message: 'http_' + _sr.status });
+        } catch (e) {}
+      } else {
+        shopifyErr('HTTP 200 pero sin siteKey válida (esperado: 64 caracteres hex).', {
+          tienda: shopDom,
+          claves_en_json: _sj ? Object.keys(_sj) : [],
+        });
+      }
+    } catch (e) {
+      shopifyErr('Error de red al llamar a shopify-site-key.', {
+        tienda: shopDom,
+        mensaje: e && e.message ? e.message : String(e),
+        url: shopifyKeyUrl,
+      });
+      try {
+        postToParent({ phase: 'shopify-site-key-network-error' });
+      } catch (e2) {}
+    }
+  }
+
   if (!siteKey) {
-    console.warn('[Wazapp] Falta la clave: ?siteKey= en la URL del script, data-site-key, o window.__WAZAPP_SITE_KEY__');
+    if (!shopAttempted) {
+      console.warn(
+        '[Wazapp] Falta la clave: ?siteKey= en la URL del script, data-site-key, window.__WAZAPP_SITE_KEY__, o ?shop=tu-tienda.myshopify.com (tienda conectada en Wazapp).',
+      );
+    } else {
+      shopifyErr('No se pudo iniciar el widget en modo Shopify.', {
+        tienda: shopDom,
+        revisa: 'Mensaje de error justo arriba y logs del servidor [widget/shopify-site-key] en tu hosting.',
+      });
+    }
     return;
   }
   if (siteKey === 'tu_clave_publica') {
     console.warn(
-      '[Wazapp] Estás usando el texto de documentación «TU_CLAVE_PUBLICA» (no es una clave real). Sustitúyelo por la clave de 64 hex en Configuración → Widget, o abre widget-embed-test.html?key=TU_CLAVE.',
+      '[Wazapp] Estás usando el texto de documentación «TU_CLAVE_PUBLICA» (no es una clave real). Sustitúyelo por la clave de 64 hex en Configuración → Widget, usa ?shop=tu-tienda.myshopify.com si Shopify está conectado, o abre widget-embed-test.html?key=TU_CLAVE.',
     );
     return;
   }
@@ -150,17 +284,6 @@
   }
 
   log('Clave OK (longitud ' + siteKey.length + ')');
-
-  var apiBase = (SCRIPT.getAttribute('data-api-base') || '').trim();
-  if (!apiBase) {
-    try {
-      apiBase = new URL(SCRIPT.src).origin;
-    } catch (e) {
-      console.warn('[Wazapp] No se pudo resolver API base.');
-      return;
-    }
-  }
-  apiBase = apiBase.replace(/\/+$/, '');
   log('API base:', apiBase);
   try {
     var __apiHost = new URL(apiBase).hostname;

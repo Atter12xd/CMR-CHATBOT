@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Prueba widget Wazapp — modo Shopify</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 44rem;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        line-height: 1.5;
+      }
+      code {
+        background: #f1f5f9;
+        padding: 0.1rem 0.35rem;
+        border-radius: 4px;
+        font-size: 0.9em;
+      }
+      label {
+        display: block;
+        font-weight: 600;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+      }
+      input[type='text'] {
+        width: 100%;
+        max-width: 28rem;
+        padding: 0.5rem 0.65rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        box-sizing: border-box;
+      }
+      button {
+        margin-top: 1rem;
+        padding: 0.55rem 1.1rem;
+        border-radius: 999px;
+        border: 0;
+        background: #0f766e;
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.95rem;
+      }
+      button:hover {
+        background: #0d9488;
+      }
+      .note {
+        background: #ecfdf5;
+        border: 1px solid #6ee7b7;
+        padding: 12px 14px;
+        border-radius: 8px;
+        margin: 1rem 0;
+        font-size: 0.92rem;
+      }
+      .warn {
+        background: #fef3c7;
+        border: 1px solid #f59e0b;
+        padding: 12px 14px;
+        border-radius: 8px;
+        margin: 1rem 0;
+        font-size: 0.92rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Prueba del widget (tienda Shopify)</h1>
+
+    <div class="warn">
+      <strong>No es automático solo con el deploy.</strong> Hacer deploy publica tu <code>widget.js</code> y la API; en
+      la tienda Shopify tienes que
+      <strong>pegar el snippet</strong> en el tema (Liquid) o usar una extensión de app. Aquí simulas eso: mismo
+      <code>?shop=…</code> que en el tema.
+    </div>
+
+    <p>
+      Con la tienda <strong>conectada en Wazapp</strong> y el <strong>código del widget generado</strong> en
+      Configuración, el script pide la clave al servidor y deberías ver el <strong>mismo botón flotante de chat</strong>
+      que en web (no es otro flujo ni un “click especial” de Shopify).
+    </p>
+
+    <div class="note">
+      <strong>Cómo probar después del deploy:</strong><br />
+      Abre esta página en <strong>tu dominio de producción</strong>, por ejemplo:<br />
+      <code>https://TU_DOMINIO/widget-shopify-test.html?shop=tu-tienda.myshopify.com</code><br /><br />
+      Opcional — API distinta a la de la página (p. ej. probar desde otro sitio):<br />
+      <code>&amp;api=https://TU_DOMINIO</code><br /><br />
+      En consola (F12) busca <code>[Wazapp]</code> y <code>[Wazapp · Shopify]</code>.
+    </div>
+
+    <label for="shop">Dominio myshopify (como en Shopify)</label>
+    <input
+      id="shop"
+      type="text"
+      placeholder="mi-marca.myshopify.com"
+      autocomplete="off"
+      spellcheck="false"
+    />
+
+    <label for="api">Origen de la API (opcional)</label>
+    <input id="api" type="text" placeholder="Vacío = misma página (recomendado en prod)" autocomplete="off" />
+
+    <div>
+      <button type="button" id="load">Cargar widget</button>
+    </div>
+
+    <p style="margin-top: 1.5rem; font-size: 0.88rem; color: #64748b">
+      En el tema real de Shopify el snippet suele ser:<br />
+      <code
+        >&lt;script src="https://TU_DOMINIO/widget.js?shop={{ shop.permanent_domain }}" defer&gt;&lt;/script&gt;</code
+      >
+    </p>
+
+    <script>
+      (function () {
+        var shopEl = document.getElementById('shop');
+        var apiEl = document.getElementById('api');
+        var SHOP_RE = /^[a-z0-9][a-z0-9-]*\.myshopify\.com$/;
+
+        function normShop(s) {
+          return String(s || '')
+            .trim()
+            .toLowerCase()
+            .replace(/^https?:\/\//, '')
+            .split('/')[0]
+            .split(':')[0];
+        }
+
+        function applyQueryToFields() {
+          var p = new URLSearchParams(location.search);
+          var qShop = normShop(p.get('shop') || '');
+          var qApi = (p.get('api') || '').trim().replace(/\/+$/, '');
+          if (qShop) shopEl.value = qShop;
+          if (qApi) apiEl.value = qApi;
+        }
+
+        function removeTestScripts() {
+          document.querySelectorAll('script[data-wazapp-shopify-test]').forEach(function (n) {
+            n.remove();
+          });
+        }
+
+        function loadWidget() {
+          var shop = normShop(shopEl.value);
+          var apiBase = (apiEl.value || '').trim().replace(/\/+$/, '');
+          if (!SHOP_RE.test(shop)) {
+            alert('Usa un dominio tipo: tu-tienda.myshopify.com (minúsculas, sin https://)');
+            return;
+          }
+          removeTestScripts();
+          var s = document.createElement('script');
+          s.setAttribute('data-wazapp-shopify-test', '1');
+          s.defer = true;
+          s.setAttribute('data-debug', 'true');
+          if (apiBase) {
+            s.src = apiBase + '/widget.js?shop=' + encodeURIComponent(shop);
+            s.setAttribute('data-api-base', apiBase);
+          } else {
+            s.src = '/widget.js?shop=' + encodeURIComponent(shop);
+          }
+          document.body.appendChild(s);
+          console.info('[Wazapp · prueba Shopify] Script inyectado:', s.src);
+        }
+
+        document.getElementById('load').addEventListener('click', loadWidget);
+        applyQueryToFields();
+
+        if (SHOP_RE.test(normShop(shopEl.value))) {
+          loadWidget();
+        }
+      })();
+    </script>
+  </body>
+</html>

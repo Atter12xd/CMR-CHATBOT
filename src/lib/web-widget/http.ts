@@ -52,9 +52,25 @@ export type WidgetOrgRow = {
   web_widget_allowed_origins: string[] | null;
 };
 
-export function assertWidgetOriginAllowed(org: WidgetOrgRow, request: Request): boolean {
+/**
+ * @param shopifyShopDomain — `tienda.myshopify.com` si la org tiene Shopify conectado; el storefront en ese host puede usar el widget aunque no esté en la lista manual de dominios.
+ */
+export function assertWidgetOriginAllowed(
+  org: WidgetOrgRow,
+  request: Request,
+  shopifyShopDomain?: string | null,
+): boolean {
   const origin = request.headers.get('Origin');
   if (isWidgetHostedEmbedOrigin(origin)) return true;
+
+  if (shopifyShopDomain) {
+    const host = parseOriginHostname(origin);
+    const shop = shopifyShopDomain.trim().toLowerCase();
+    if (host && shop && host === shop) {
+      return true;
+    }
+  }
+
   return isOriginAllowed(org.web_widget_allowed_origins, origin);
 }
 

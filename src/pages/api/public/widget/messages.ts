@@ -8,6 +8,7 @@ import {
   type WidgetOrgRow,
 } from '../../../../lib/web-widget/http';
 import { normalizeWidgetSiteKey } from '../../../../lib/web-widget/site-key';
+import { fetchConnectedShopifyDomain } from '../../../../lib/web-widget/shopify-storefront';
 
 export const prerender = false;
 
@@ -47,7 +48,8 @@ export const GET: APIRoute = async ({ request, url }) => {
   }
 
   const orgRow = org as WidgetOrgRow;
-  if (!assertWidgetOriginAllowed(orgRow, request)) {
+  const shopifyShop = await fetchConnectedShopifyDomain(db, orgRow.id);
+  if (!assertWidgetOriginAllowed(orgRow, request, shopifyShop)) {
     return jsonResponse(request, { error: 'Origen no permitido' }, 403);
   }
 

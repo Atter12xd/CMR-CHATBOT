@@ -28,7 +28,7 @@ export interface AuthContextValue extends AuthState {
   isAuthenticated: boolean;
 }
 
-const AuthContext = createContext<AuthContextValue | null>(null);
+export const AuthContext = createContext<AuthContextValue | null>(null);
 
 function initialAuthState(): AuthState {
   if (typeof window === 'undefined') {
@@ -281,10 +281,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-export function useAuth(): AuthContextValue {
-  const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error('useAuth debe usarse dentro de AuthProvider');
-  }
-  return ctx;
+export function useAuthFromContext(): AuthContextValue | null {
+  return useContext(AuthContext);
 }

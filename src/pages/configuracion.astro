@@ -1,11 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AppLayout from '../components/Layout';
-import ConfigPage from '../components/ConfigPage';
 ---
 
 <Layout title="Configuración - CMR Chatbot">
-  <AppLayout client:only="react">
-    <ConfigPage client:only="react" />
-  </AppLayout>
+  <AppLayout client:only="react" page="configuracion" />
 </Layout>

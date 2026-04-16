@@ -1,11 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AppLayout from '../components/Layout';
-import AiCallsPage from '../components/AiCallsPage';
 ---
 
 <Layout title="Llamadas IA - Wazapp.ai">
-  <AppLayout client:only="react">
-    <AiCallsPage client:only="react" />
-  </AppLayout>
+  <AppLayout client:only="react" page="llamadas-ia" />
 </Layout>

@@ -1,13 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AppLayout from '../components/Layout';
-import PaymentMethodsConfig from '../components/PaymentMethodsConfig';
 ---
 
 <Layout title="Métodos de Pago - CMR Chatbot">
-  <AppLayout client:load>
-    <PaymentMethodsConfig client:only="react" />
-  </AppLayout>
+  <AppLayout client:only="react" page="metodos-pago" />
 </Layout>
 
 

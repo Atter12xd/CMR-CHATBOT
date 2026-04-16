@@ -4,15 +4,56 @@ import { AuthProvider } from '../hooks/useAuth';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import ProtectedRoute from './ProtectedRoute';
+import DashboardContent from './DashboardContent';
+import OrdersPage from './OrdersPage';
+import ChatsPage from './ChatsPage';
+import ProductsPage from './ProductsPage';
+import BotTrainingPage from './BotTrainingPage';
+import PaymentMethodsConfig from './PaymentMethodsConfig';
+import ConfigPage from './ConfigPage';
+import AiCallsPage from './AiCallsPage';
 
 
 interface LayoutProps {
-  children: ReactNode;
+  children?: ReactNode;
+  page?:
+    | 'dashboard'
+    | 'pedidos'
+    | 'chats'
+    | 'productos'
+    | 'entrenar-bot'
+    | 'metodos-pago'
+    | 'configuracion'
+    | 'llamadas-ia';
 }
 
 
-export default function Layout({ children }: LayoutProps) {
+function renderPage(page: LayoutProps['page'], children?: ReactNode) {
+  switch (page) {
+    case 'dashboard':
+      return <DashboardContent />;
+    case 'pedidos':
+      return <OrdersPage />;
+    case 'chats':
+      return <ChatsPage />;
+    case 'productos':
+      return <ProductsPage />;
+    case 'entrenar-bot':
+      return <BotTrainingPage />;
+    case 'metodos-pago':
+      return <PaymentMethodsConfig />;
+    case 'configuracion':
+      return <ConfigPage />;
+    case 'llamadas-ia':
+      return <AiCallsPage />;
+    default:
+      return children ?? null;
+  }
+}
+
+export default function Layout({ children, page }: LayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const content = renderPage(page, children);
 
 
   return (
@@ -38,7 +79,7 @@ export default function Layout({ children }: LayoutProps) {
           <Header onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
 
           <div className="flex-1 overflow-y-auto px-5 py-5 md:px-7 md:pt-5 md:pb-7 bg-transparent">
-            {children}
+            {content}
           </div>
         </main>
       </div>

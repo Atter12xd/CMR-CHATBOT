@@ -4,13 +4,10 @@ export const prerender = false;
 
 import Layout from '../layouts/Layout.astro';
 import AppLayout from '../components/Layout';
-import BotTrainingPage from '../components/BotTrainingPage';
 ---
 
 <Layout title="Entrenar Bot - CMR Chatbot">
-  <AppLayout client:only="react">
-    <BotTrainingPage client:only="react" />
-  </AppLayout>
+  <AppLayout client:only="react" page="entrenar-bot" />
 </Layout>
 
 

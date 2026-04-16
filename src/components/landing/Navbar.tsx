@@ -28,15 +28,15 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
   return (
     <>
       {showAnnouncement && (
-        <div className="hidden lg:block fixed top-0 left-0 right-0 z-[60] bg-[hsl(240_3%_13%)] text-white border-b border-white/10">
+        <div className="hidden lg:block fixed top-0 left-0 right-0 z-[60] bg-white text-app-ink border-b border-app-line">
           <div className="max-w-7xl mx-auto px-6 py-2.5 flex items-center justify-center gap-3">
-            <Sparkles className="w-4 h-4 text-white/80" />
-            <span className="text-sm text-white/90 font-medium">
+            <Sparkles className="w-4 h-4 text-brand-500" />
+            <span className="text-sm text-app-muted font-medium">
               WhatsApp Business API integrado — Empieza a vender por chat hoy
             </span>
             <a
               href="/#caracteristicas"
-              className="text-sm font-semibold text-white hover:text-white/80 transition-colors flex items-center gap-1 ml-2"
+              className="text-sm font-semibold text-brand-600 hover:text-brand-500 transition-colors flex items-center gap-1 ml-2"
             >
               Descubrir
               <ArrowRight className="w-3.5 h-3.5" />

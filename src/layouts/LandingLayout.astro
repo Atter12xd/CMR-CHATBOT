@@ -26,11 +26,8 @@ const { title, description = "Wazapp - Centraliza conversaciones de WhatsApp, ge
     <script is:inline>
       (function () {
         try {
-          var k = 'cmr-theme';
-          var t = localStorage.getItem(k);
-          var dark =
-            t === 'dark' || (t !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-          document.documentElement.classList.toggle('dark', dark);
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('cmr-theme', 'light');
         } catch (e) {}
       })();
     </script>
@@ -91,6 +88,13 @@ const { title, description = "Wazapp - Centraliza conversaciones de WhatsApp, ge
         text-rendering: optimizeLegibility;
         font-feature-settings: "kern" 1, "liga" 1;
       }
+
+      /* Forzar fondo blanco en toda la landing */
+      .bg-app-shell,
+      .bg-app-canvas {
+        background-color: #ffffff !important;
+        background-image: none !important;
+      }
       
       /* Gradient text utility */
       .text-gradient {
@@ -117,7 +121,7 @@ const { title, description = "Wazapp - Centraliza conversaciones de WhatsApp, ge
       
       /* Glass effect utility */
       .glass {
-        background: rgba(15, 23, 42, 0.8);
+        background: rgba(255, 255, 255, 0.85);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.05);
@@ -155,7 +159,7 @@ const { title, description = "Wazapp - Centraliza conversaciones de WhatsApp, ge
       }
     </style>
   </head>
-  <body class="font-sans bg-app-shell text-app-ink antialiased overflow-x-hidden">
+  <body class="font-sans bg-white text-app-ink antialiased overflow-x-hidden">
     <slot />
     <!-- Recarga una vez si falla la hidratación por chunk 404 (deploy nuevo, caché antigua en otro navegador) -->
     <script is:inline>

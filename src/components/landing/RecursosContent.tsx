@@ -258,20 +258,20 @@ export default function RecursosContent() {
       </section>
 
 
-      <section className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden text-white border-t border-black/10">
-        <div className="absolute inset-0 bg-[hsl(240_3%_13%)]" aria-hidden />
+      <section className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden text-app-ink border-t border-black/10">
+        <div className="absolute inset-0 bg-white" aria-hidden />
         <div className="absolute inset-0 opacity-[0.07] dark:opacity-[0.035] bg-site-grid bg-grid [mask-image:radial-gradient(ellipse_at_50%_0%,black,transparent_70%)]" aria-hidden />
         <div className="absolute inset-0 bg-gradient-to-br from-brand-600/18 via-transparent to-transparent pointer-events-none" aria-hidden />
         <div className="landing-noise opacity-[0.06]" aria-hidden />
         <div className="relative max-w-3xl mx-auto text-center z-[1]">
-          <SectionLabel dark>Soporte</SectionLabel>
-          <div className="w-12 h-12 mx-auto mb-6 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center ring-1 ring-white/10">
-            <HelpCircle className="w-6 h-6 text-white" />
+          <SectionLabel>Soporte</SectionLabel>
+          <div className="w-12 h-12 mx-auto mb-6 rounded-2xl bg-white border border-app-line flex items-center justify-center ring-1 ring-app-line">
+            <HelpCircle className="w-6 h-6 text-app-ink" />
           </div>
-          <h2 className="text-3xl lg:text-4xl font-bold mb-4 tracking-[-0.03em] font-professional text-white">
+          <h2 className="text-3xl lg:text-4xl font-bold mb-4 tracking-[-0.03em] font-professional text-app-ink">
             ¿No encuentras lo que buscas?
           </h2>
-          <p className="text-base sm:text-lg text-white/75 mb-10 leading-relaxed max-w-lg mx-auto">
+          <p className="text-base sm:text-lg text-app-muted mb-10 leading-relaxed max-w-lg mx-auto">
             Nuestro equipo de soporte está listo para ayudarte con cualquier duda.
           </p>
           <a

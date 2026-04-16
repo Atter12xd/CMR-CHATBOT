@@ -541,8 +541,8 @@ function LandingPageInner() {
         </div>
       </section>
 
-      <section className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden text-white">
-        <div className="absolute inset-0 bg-[hsl(240_3%_13%)]" aria-hidden />
+      <section className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden text-app-ink">
+        <div className="absolute inset-0 bg-white" aria-hidden />
         <div
           className="absolute inset-0 opacity-[0.07] dark:opacity-[0.035] bg-site-grid bg-grid [mask-image:radial-gradient(ellipse_at_50%_0%,black,transparent_70%)]"
           aria-hidden
@@ -550,11 +550,11 @@ function LandingPageInner() {
         <div className="absolute inset-0 bg-gradient-to-br from-brand-600/20 via-transparent to-transparent pointer-events-none" aria-hidden />
         <div className="landing-noise opacity-[0.06]" aria-hidden />
         <div className="relative max-w-3xl mx-auto text-center z-[1]">
-          <SectionLabel dark>Siguiente paso</SectionLabel>
-          <h2 className="text-3xl lg:text-4xl xl:text-[2.85rem] font-bold tracking-[-0.03em] mb-6 font-professional text-white">
+          <SectionLabel>Siguiente paso</SectionLabel>
+          <h2 className="text-3xl lg:text-4xl xl:text-[2.85rem] font-bold tracking-[-0.03em] mb-6 font-professional text-app-ink">
             ¿Listo para vender más?
           </h2>
-          <p className="text-base sm:text-lg text-white/75 mb-10 max-w-xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg text-app-muted mb-10 max-w-xl mx-auto leading-relaxed">
             Únete a equipos que ya convirtieron el chat en su canal de ingresos más rentable. Onboarding guiado y soporte
             en español.
           </p>
@@ -569,7 +569,7 @@ function LandingPageInner() {
             </a>
             <a
               href="/contacto"
-              className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 rounded-2xl text-base font-semibold text-white/90 border border-white/15 bg-white/5 backdrop-blur-sm hover:bg-white/10 hover:border-white/25 transition-all duration-200"
+              className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 rounded-2xl text-base font-semibold text-app-ink border border-app-line bg-white hover:bg-app-field transition-all duration-200"
             >
               Hablar con ventas
             </a>

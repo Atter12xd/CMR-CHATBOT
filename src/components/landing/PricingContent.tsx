@@ -443,7 +443,7 @@ export default function PricingContent() {
 
           {/* Modal correo antes de checkout */}
           {showEmailModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => !checkoutLoading && setShowEmailModal(false)}>
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/80 backdrop-blur-sm" onClick={() => !checkoutLoading && setShowEmailModal(false)}>
               <div className="rounded-[26px] p-[1px] bg-gradient-to-br from-brand-400/25 via-app-line to-brand-600/15 shadow-app-card-premium max-w-md w-full" onClick={(e) => e.stopPropagation()}>
                 <div className="rounded-[25px] bg-white dark:bg-ref-card border border-app-line/80 dark:border-ref-border/80 p-6 sm:p-7 ring-1 ring-white/90 dark:ring-ref-border/50">
                 <h3 className="text-lg font-semibold text-app-ink mb-2">Introduce tu correo</h3>
@@ -602,8 +602,8 @@ export default function PricingContent() {
 
 
 
-      <section className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden text-white border-t border-black/10">
-        <div className="absolute inset-0 bg-[hsl(240_3%_13%)]" aria-hidden />
+      <section className="relative py-24 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden text-app-ink border-t border-black/10">
+        <div className="absolute inset-0 bg-white" aria-hidden />
         <div
           className="absolute inset-0 opacity-[0.07] dark:opacity-[0.035] bg-site-grid bg-grid [mask-image:radial-gradient(ellipse_at_50%_0%,black,transparent_70%)]"
           aria-hidden
@@ -611,12 +611,12 @@ export default function PricingContent() {
         <div className="absolute inset-0 bg-gradient-to-br from-brand-600/18 via-transparent to-transparent pointer-events-none" aria-hidden />
         <div className="landing-noise opacity-[0.06]" aria-hidden />
         <div className="relative max-w-3xl mx-auto text-center z-[1]">
-          <SectionLabel dark>Prueba</SectionLabel>
-          <div className="w-12 h-12 mx-auto mb-6 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center ring-1 ring-white/10">
-            <Shield className="w-6 h-6 text-white" />
+          <SectionLabel>Prueba</SectionLabel>
+          <div className="w-12 h-12 mx-auto mb-6 rounded-2xl bg-white border border-app-line flex items-center justify-center ring-1 ring-app-line">
+            <Shield className="w-6 h-6 text-app-ink" />
           </div>
-          <h2 className="text-3xl lg:text-4xl font-bold mb-4 tracking-[-0.03em] font-professional text-white">14 días gratis</h2>
-          <p className="text-base sm:text-lg text-white/75 mb-10 leading-relaxed max-w-lg mx-auto">
+          <h2 className="text-3xl lg:text-4xl font-bold mb-4 tracking-[-0.03em] font-professional text-app-ink">14 días gratis</h2>
+          <p className="text-base sm:text-lg text-app-muted mb-10 leading-relaxed max-w-lg mx-auto">
             Prueba el plan completo. Cancela cuando quieras, sin compromisos.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
@@ -630,7 +630,7 @@ export default function PricingContent() {
             </a>
             <a
               href="/contacto"
-              className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 rounded-2xl text-base font-semibold text-white/90 border border-white/15 bg-white/5 backdrop-blur-sm hover:bg-white/10 hover:border-white/25 transition-all duration-200"
+              className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 rounded-2xl text-base font-semibold text-app-ink border border-app-line bg-white hover:bg-app-field transition-all duration-200"
             >
               Contactar ventas
             </a>

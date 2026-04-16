@@ -182,17 +182,17 @@ export default function SobreNosotrosContent() {
         </div>
       </section>
 
-      <section className="relative py-24 px-4 sm:px-6 lg:px-8 overflow-hidden text-white border-t border-black/10">
-        <div className="absolute inset-0 bg-[hsl(240_3%_13%)]" aria-hidden />
+      <section className="relative py-24 px-4 sm:px-6 lg:px-8 overflow-hidden text-app-ink border-t border-black/10">
+        <div className="absolute inset-0 bg-white" aria-hidden />
         <div className="absolute inset-0 opacity-[0.07] dark:opacity-[0.035] bg-site-grid bg-grid [mask-image:radial-gradient(ellipse_at_50%_0%,black,transparent_70%)]" aria-hidden />
         <div className="absolute inset-0 bg-gradient-to-br from-brand-600/18 via-transparent to-transparent pointer-events-none" aria-hidden />
         <div className="landing-noise opacity-[0.06]" aria-hidden />
         <div className="relative max-w-3xl mx-auto text-center z-[1]">
-          <SectionLabel dark>Siguiente paso</SectionLabel>
-          <h2 className="text-3xl lg:text-4xl font-bold mb-6 font-professional tracking-[-0.03em] text-white">
+          <SectionLabel>Siguiente paso</SectionLabel>
+          <h2 className="text-3xl lg:text-4xl font-bold mb-6 font-professional tracking-[-0.03em] text-app-ink">
             ¿Listo para empezar?
           </h2>
-          <p className="text-base sm:text-lg text-white/75 mb-8 max-w-xl mx-auto">
+          <p className="text-base sm:text-lg text-app-muted mb-8 max-w-xl mx-auto">
             Únete a cientos de negocios que ya venden más con Wazapp.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
@@ -206,7 +206,7 @@ export default function SobreNosotrosContent() {
             </a>
             <a
               href="/contacto"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl text-base font-semibold text-white/90 border border-white/15 bg-white/5 backdrop-blur-sm hover:bg-white/10 hover:border-white/25 transition-all duration-200"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl text-base font-semibold text-app-ink border border-app-line bg-white hover:bg-app-field transition-all duration-200"
             >
               Contactar con ventas
             </a>

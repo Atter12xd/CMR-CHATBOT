@@ -579,7 +579,7 @@ function LandingPageInner() {
             {[...Array(5)].map((_, i) => (
               <Star key={i} className="w-5 h-5 text-amber-400/95 fill-amber-400/95 drop-shadow-sm" />
             ))}
-            <span className="ml-2 sm:ml-3 text-sm text-white/60">4.9/5 · +200 reseñas verificadas</span>
+            <span className="ml-2 sm:ml-3 text-sm text-app-muted">4.9/5 · +200 reseñas verificadas</span>
           </div>
         </div>
       </section>

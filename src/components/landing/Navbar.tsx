@@ -7,11 +7,9 @@ interface NavbarProps {
 }
 
 const navLinks = [
-  { href: '/#features', label: 'Características' },
+  { href: '/#how-it-works', label: 'Cómo funciona' },
   { href: '/#pricing', label: 'Precios' },
   { href: '/#benefits', label: 'Beneficios' },
-  { href: '/#services', label: 'Servicios' },
-  { href: '/#why-wazapp', label: 'Por qué Wazapp' },
   { href: '/#faqs', label: 'Preguntas' },
 ];
 

@@ -103,7 +103,7 @@ export default function Footer() {
             <div className="col-span-2 md:col-span-4 lg:col-span-3">
               <h4 className="text-sm font-semibold text-app-ink mb-4">¿Listo para empezar?</h4>
               <p className="text-sm text-app-muted mb-4">
-                Crea tu cuenta gratis y empieza a vendir más por WhatsApp hoy mismo.
+                Crea tu cuenta gratis y empieza a vender mas por WhatsApp hoy mismo.
               </p>
               <a
                 href="/register"

@@ -16,9 +16,9 @@ const sizes = {
     gap: 'gap-3'
   },
   lg: {
-    img: 'h-14 w-14 sm:h-16 sm:w-16',
-    text: 'text-2xl sm:text-3xl',
-    gap: 'gap-3'
+    img: 'h-9 w-9 sm:h-10 sm:w-10',
+    text: 'text-[1.15rem] sm:text-xl',
+    gap: 'gap-2.5'
   },
 };
 

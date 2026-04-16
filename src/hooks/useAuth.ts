@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import { createClient } from '../lib/supabase';
 import type { User } from '@supabase/supabase-js';
 
@@ -16,10 +16,10 @@ export function useAuth() {
   });
   const supabase = createClient();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     let mounted = true;
 
-    // Obtener sesión actual
+    // Sesión antes del primer pintado (menos flash "Cargando..." al cambiar de página).
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (!mounted) return;
       setAuthState({
@@ -29,7 +29,6 @@ export function useAuth() {
       });
     });
 
-    // Escuchar cambios en la autenticación
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
@@ -66,6 +65,7 @@ export function useAuth() {
       mounted = false;
       subscription.unsubscribe();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- cliente Supabase estable por URL; [] evita re-suscribir en cada render
   }, []);
 
   // Enviar OTP por email - Envía código de 6 dígitos en lugar de enlace

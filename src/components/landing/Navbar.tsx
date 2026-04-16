@@ -7,10 +7,11 @@ interface NavbarProps {
 }
 
 const navLinks = [
-  { href: '/#caracteristicas', label: 'Producto' },
-  { href: '/recursos', label: 'Recursos' },
-  { href: '/precios', label: 'Precios' },
-  { href: '/sobre-nosotros', label: 'Nosotros' },
+  { href: '/#features', label: 'Features' },
+  { href: '/#benefits', label: 'Benefits' },
+  { href: '/#services', label: 'Services' },
+  { href: '/#why-crypgo', label: 'Why Crypgo' },
+  { href: '/#faqs', label: 'FAQs' },
 ];
 
 export default function Navbar({ showAnnouncement = false }: NavbarProps) {
@@ -35,7 +36,7 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
               WhatsApp Business API integrado — Empieza a vender por chat hoy
             </span>
             <a
-              href="/#caracteristicas"
+              href="/#features"
               className="text-sm font-semibold text-brand-600 hover:text-brand-500 transition-colors flex items-center gap-1 ml-2"
             >
               Descubrir
@@ -48,12 +49,12 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
       <nav
         className={`fixed left-0 right-0 z-50 transition-all duration-300 font-professional ${
           showAnnouncement ? 'lg:top-[44px] top-0' : 'top-0'
-        } ${scrolled ? 'max-lg:bg-white/92 dark:max-lg:bg-ref-card/95 max-lg:backdrop-blur-xl max-lg:border-b max-lg:border-app-line dark:max-lg:border-ref-border max-lg:shadow-app-header' : ''}`}
+        } ${scrolled ? 'max-lg:bg-white/92 max-lg:backdrop-blur-xl max-lg:border-b max-lg:border-app-line max-lg:shadow-app-header' : ''}`}
       >
         <div
           className={`max-w-7xl mx-auto transition-all duration-300 ease-out ${
             scrolled
-              ? 'max-lg:px-4 sm:max-lg:px-6 lg:mt-3 lg:mb-1 lg:mx-6 xl:mx-10 lg:rounded-2xl lg:border lg:border-app-line/70 dark:lg:border-ref-border/70 lg:bg-white/78 dark:lg:bg-ref-card/88 lg:backdrop-blur-2xl lg:shadow-nav-float lg:px-5 xl:px-7'
+              ? 'max-lg:px-4 sm:max-lg:px-6 lg:mt-3 lg:mb-1 lg:mx-6 xl:mx-10 lg:rounded-2xl lg:border lg:border-app-line/70 lg:bg-white/85 lg:backdrop-blur-2xl lg:shadow-nav-float lg:px-5 xl:px-7'
               : 'px-4 sm:px-6 lg:px-8'
           }`}
         >
@@ -100,7 +101,7 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
         </div>
 
         <div
-          className={`lg:hidden absolute top-full left-0 right-0 bg-white dark:bg-ref-card border-b border-app-line dark:border-ref-border shadow-lg transition-all duration-300 ${
+          className={`lg:hidden absolute top-full left-0 right-0 bg-white border-b border-app-line shadow-lg transition-all duration-300 ${
             mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
           }`}
         >

@@ -17,10 +17,10 @@ const { title, description = "Wazapp - Centraliza conversaciones de WhatsApp, ge
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/logo.png" />
     
-    <!-- Inter Font - más profesional y moderna -->
+    <!-- DM Sans + Inter fallback (look más Crypgo) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     
     <title>{title}</title>
     <script is:inline>
@@ -87,6 +87,7 @@ const { title, description = "Wazapp - Centraliza conversaciones de WhatsApp, ge
       body {
         text-rendering: optimizeLegibility;
         font-feature-settings: "kern" 1, "liga" 1;
+        font-family: "DM Sans", "Inter", system-ui, sans-serif;
       }
 
       /* Forzar fondo blanco en toda la landing */

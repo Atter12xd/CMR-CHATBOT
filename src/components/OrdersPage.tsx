@@ -15,7 +15,7 @@ import { loadOrders, updateOrderStatus } from '../services/orders';
 import { loadPaymentsPending, verifyPayment, type PaymentWithOrder } from '../services/payments';
 import { sendTextMessage } from '../services/whatsapp-messages';
 import type { Order } from '../data/mockData';
-import OrderCard from './OrderCard';
+import KanbanOrderCard from './KanbanOrderCard';
 import PageHeader from './PageHeader';
 import StatsCard from './StatsCard';
 import StatsCardSkeleton from './StatsCardSkeleton';
@@ -24,12 +24,12 @@ type OrderStatus = Order['status'] | 'all';
 
 const statusLabels: Record<string, string> = {
   all: 'Todos',
-  pending: 'Pendiente',
-  processing: 'Procesando',
-  completed: 'Pago completado',
-  shipped: 'Enviado',
+  pending: 'Nuevo',
+  processing: 'Confirmando',
+  completed: 'Confirmado',
+  shipped: 'En Envío',
   delivered: 'Entregado',
-  cancelled: 'Cancelado',
+  cancelled: 'Rechazado',
 };
 
 const statusDots: Record<string, string> = {
@@ -70,6 +70,7 @@ export default function OrdersPage() {
   const [verifyName, setVerifyName] = useState<Record<string, string>>({});
   const [viewMode, setViewMode] = useState<'pipeline' | 'tabla'>('pipeline');
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragOverStatus, setDragOverStatus] = useState<Order['status'] | null>(null);
 
   const fetchOrders = useCallback(async () => {
     if (!organizationId) return;
@@ -159,6 +160,22 @@ export default function OrdersPage() {
   const filteredOrders =
     selectedStatus === 'all' ? orders : orders.filter((order) => order.status === selectedStatus);
 
+  const kanbanBoard = useMemo(() => {
+    const cols: { status: Order['status']; title: string; headerBg: string; headerColor: string }[] = [
+      { status: 'pending', title: 'Nuevo', headerBg: '#F59E0B', headerColor: '#fff' },
+      { status: 'processing', title: 'Confirmando', headerBg: '#1B70FF', headerColor: '#fff' },
+      { status: 'completed', title: 'Confirmado', headerBg: '#10B981', headerColor: '#fff' },
+      { status: 'shipped', title: 'En Envío', headerBg: '#8B5CF6', headerColor: '#fff' },
+      { status: 'delivered', title: 'Entregado', headerBg: '#14B8A6', headerColor: '#fff' },
+      { status: 'cancelled', title: 'Rechazado', headerBg: '#EF4444', headerColor: '#fff' },
+    ];
+    return cols.map((col) => {
+      const list = filteredOrders.filter((o) => o.status === col.status);
+      const sum = list.reduce((s, o) => s + o.total, 0);
+      return { ...col, list, sum };
+    });
+  }, [filteredOrders]);
+
   if (orgLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px] font-professional">
@@ -191,15 +208,6 @@ export default function OrdersPage() {
       </div>
     );
   }
-
-  const kanbanColumns: { status: Order['status']; title: string }[] = [
-    { status: 'pending', title: 'Pendiente' },
-    { status: 'processing', title: 'Procesando' },
-    { status: 'completed', title: 'Pago ok' },
-    { status: 'shipped', title: 'Enviado' },
-    { status: 'delivered', title: 'Entregado' },
-    { status: 'cancelled', title: 'Cancelado' },
-  ];
 
   return (
     <div className="space-y-5 font-professional">
@@ -399,7 +407,7 @@ export default function OrdersPage() {
           </div>
         </div>
       ) : viewMode === 'pipeline' ? (
-        filteredOrders.length === 0 ? (
+        orders.length === 0 ? (
           <div className="bg-white border border-[#E5E7EB] rounded-lg py-16 text-center shadow-[0_1px_3px_rgba(0,0,0,.08)]">
             <Package className="size-8 text-[#d1d5db] mx-auto mb-3" />
             <p className="text-[15px] font-medium text-[#3D3D40]">
@@ -410,42 +418,65 @@ export default function OrdersPage() {
             </p>
           </div>
         ) : (
-          <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
-            {kanbanColumns.map((col) => {
-              const colOrders = filteredOrders.filter((o) => o.status === col.status);
-              return (
+          <div className="flex gap-3 overflow-x-auto pb-3 -mx-1 px-1">
+            {kanbanBoard.map((col) => (
+              <div key={col.status} className="flex flex-col min-w-[190px] w-[190px] shrink-0">
                 <div
-                  key={col.status}
-                  className="flex flex-col min-w-[190px] w-[190px] shrink-0"
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => handleDropOnColumn(col.status, e)}
+                  className="px-3 py-2.5 rounded-t-[10px] flex items-center justify-between"
+                  style={{ background: col.headerBg, color: col.headerColor }}
                 >
-                  <div className="rounded-t-lg px-3 py-2.5 bg-[#f9fafb] border border-b-0 border-[#E5E7EB] flex items-center justify-between">
-                    <span className="text-[12px] font-bold text-[#3D3D40]">{col.title}</span>
-                    <span className="text-[11px] font-bold text-[#6D6D70] bg-white/80 px-1.5 py-0.5 rounded-full">
-                      {colOrders.length}
-                    </span>
-                  </div>
-                  <div className="flex-1 min-h-[200px] rounded-b-lg border border-[#E5E7EB] border-t-0 bg-[#f9fafb] p-2 space-y-2">
-                    {colOrders.map((order) => (
-                      <div
-                        key={order.id}
-                        draggable
-                        onDragStart={(e) => {
-                          e.dataTransfer.setData('orderId', order.id);
-                          e.dataTransfer.effectAllowed = 'move';
-                          setDraggingId(order.id);
-                        }}
-                        onDragEnd={() => setDraggingId(null)}
-                        className={`${draggingId === order.id ? 'opacity-50' : ''}`}
-                      >
-                        <OrderCard order={order} onOpenChat={handleOpenChat} />
-                      </div>
-                    ))}
-                  </div>
+                  <span className="text-[12px] font-bold leading-none">{col.title}</span>
+                  <span
+                    className="text-[11px] font-bold px-[7px] py-px rounded-full tabular-nums leading-none"
+                    style={{ background: 'rgba(255,255,255,0.25)' }}
+                  >
+                    {col.list.length}
+                  </span>
                 </div>
-              );
-            })}
+                <div
+                  className="text-[11px] font-semibold px-3 pt-1 pb-2 bg-white border-x border-[#E5E7EB]"
+                  style={{ color: col.headerBg }}
+                >
+                  S/ {col.sum.toFixed(2)}
+                </div>
+                <div
+                  className={`flex-1 min-h-[200px] border border-t-0 border-[#E5E7EB] rounded-b-[10px] bg-[#f9fafb] p-2 flex flex-col gap-2 transition-[background-color,box-shadow] ${
+                    dragOverStatus === col.status ? 'bg-[#f0f7ff] ring-2 ring-inset ring-[#1B70FF]/25' : ''
+                  }`}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    setDragOverStatus(col.status);
+                  }}
+                  onDragLeave={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverStatus(null);
+                  }}
+                  onDrop={(e) => {
+                    setDragOverStatus(null);
+                    void handleDropOnColumn(col.status, e);
+                  }}
+                >
+                  {col.list.map((order) => (
+                    <div
+                      key={order.id}
+                      draggable
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData('orderId', order.id);
+                        e.dataTransfer.effectAllowed = 'move';
+                        setDraggingId(order.id);
+                      }}
+                      onDragEnd={() => {
+                        setDraggingId(null);
+                        setDragOverStatus(null);
+                      }}
+                      className={draggingId === order.id ? 'opacity-40' : ''}
+                    >
+                      <KanbanOrderCard order={order} onOpenChat={handleOpenChat} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         )
       ) : filteredOrders.length === 0 ? (

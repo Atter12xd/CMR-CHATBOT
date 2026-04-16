@@ -1,8 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, Search, Bell, HelpCircle, Plus, LogOut, Moon, Sun } from 'lucide-react';
+import { Menu, Search, Bell, HelpCircle, Plus, LogOut } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { THEME_STORAGE_KEY } from '../lib/theme';
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -24,20 +23,8 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const [currentPath, setCurrentPath] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const { user, signOut } = useAuth();
   const userMenuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setDarkMode(document.documentElement.classList.contains('dark'));
-  }, []);
-
-  const toggleDarkMode = () => {
-    const next = !document.documentElement.classList.contains('dark');
-    document.documentElement.classList.toggle('dark', next);
-    localStorage.setItem(THEME_STORAGE_KEY, next ? 'dark' : 'light');
-    setDarkMode(next);
-  };
 
   useEffect(() => {
     setCurrentPath(window.location.pathname);
@@ -128,17 +115,6 @@ export default function Header({ onMenuClick }: HeaderProps) {
         <div className="flex items-center gap-1">
           <motion.button
             type="button"
-            onClick={toggleDarkMode}
-            whileTap={{ scale: 0.95 }}
-            className="p-2.5 hover:bg-[#f3f4f6] rounded-full transition-colors text-[#6D6D70] hover:text-[#3D3D40]"
-            title={darkMode ? 'Modo claro' : 'Modo oscuro'}
-            aria-label={darkMode ? 'Activar modo claro' : 'Activar modo oscuro'}
-          >
-            {darkMode ? <Sun size={19} /> : <Moon size={19} />}
-          </motion.button>
-
-          <motion.button
-            type="button"
             whileTap={{ scale: 0.97 }}
             className="hidden md:inline-flex items-center gap-2 px-3.5 py-2 bg-brand-500 text-white text-[13px] font-semibold rounded-md hover:opacity-[0.87] transition-opacity shadow-[0_1px_3px_rgba(0,0,0,.08)]"
             onClick={() => (window.location.href = '/pedidos')}
@@ -153,7 +129,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             className="p-2.5 hover:bg-[#f3f4f6] rounded-full relative transition-colors text-[#6D6D70] hover:text-[#3D3D40]"
           >
             <Bell size={19} />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white dark:ring-ref-card" />
+            <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white" />
           </motion.button>
 
           <motion.button
@@ -171,7 +147,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
               whileTap={{ scale: 0.95 }}
               className="flex items-center gap-2 p-1 hover:bg-[#f3f4f6] rounded-full transition-colors"
             >
-              <div className="w-9 h-9 rounded-full bg-brand-500 flex items-center justify-center ring-2 ring-white dark:ring-ref-card shadow-md">
+              <div className="w-9 h-9 rounded-full bg-brand-500 flex items-center justify-center ring-2 ring-white shadow-md">
                 <span className="text-[11px] font-bold text-white">
                   {getUserName().substring(0, 2).toUpperCase()}
                 </span>

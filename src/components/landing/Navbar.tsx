@@ -7,11 +7,12 @@ interface NavbarProps {
 }
 
 const navLinks = [
-  { href: '/#features', label: 'Features' },
-  { href: '/#benefits', label: 'Benefits' },
-  { href: '/#services', label: 'Services' },
-  { href: '/#why-crypgo', label: 'Why Crypgo' },
-  { href: '/#faqs', label: 'FAQs' },
+  { href: '/#features', label: 'Características' },
+  { href: '/#pricing', label: 'Precios' },
+  { href: '/#benefits', label: 'Beneficios' },
+  { href: '/#services', label: 'Servicios' },
+  { href: '/#why-wazapp', label: 'Por qué Wazapp' },
+  { href: '/#faqs', label: 'Preguntas' },
 ];
 
 export default function Navbar({ showAnnouncement = false }: NavbarProps) {
@@ -33,7 +34,7 @@ export default function Navbar({ showAnnouncement = false }: NavbarProps) {
           <div className="max-w-7xl mx-auto px-6 py-2.5 flex items-center justify-center gap-3">
             <Sparkles className="w-4 h-4 text-brand-500" />
             <span className="text-sm text-app-muted font-medium">
-              WhatsApp Business API integrado — Empieza a vender por chat hoy
+              Bot web + bot WhatsApp integrados - Empieza a vender por chat hoy
             </span>
             <a
               href="/#features"

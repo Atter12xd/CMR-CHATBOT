@@ -14,7 +14,7 @@
 | Embed iframe + `frame-ancestors` + bypass origen desde página wazapp | **Hecho** |
 | Loader `wazapp-embed-loader.js` (hosts que borran `<iframe>` del HTML) | **Hecho** |
 | Bridge consola padre + `postMessage` para soporte | **Hecho** |
-| **Hito B Shopify** (Theme App Extension con mismo widget) | **Pendiente** (siguiente bloque grande). |
+| **Hito B Shopify** (Theme App Extension con mismo widget) | **En progreso** (scaffold extension + app embed + deep link listos; falta deploy/activacion final en tienda real). |
 | **A.2** rate limit, branding CSP guías, handoff explícito | **Pendiente / afinar** |
 
 ---
@@ -73,15 +73,15 @@
 | **9** | **CORS + prueba en sitio real** | **Hecho** (CORS en APIs públicas; probado en web de cliente). |
 | **10** | **Cierre MVP web** | **Hecho** — DoD cumplido. **Siguiente:** afinar (A.2) + Hito B Shopify. |
 
-### Bloque 2 — Shopify (Hito B, tras el MVP web)
+### Bloque 2 — Shopify (Hito B, tras el MVP web) — **en progreso**
 
 | Día | Enfoque | Resultado al cerrar el día |
 |-----|---------|-----------------------------|
-| **11** | **Theme App Extension — esqueleto** | Proyecto CLI Shopify; extensión **app embed** o bloque que solo inyecta un `<script>` de prueba en storefront. |
-| **12** | **Enlazar shop → org** | Al cargar storefront, el script conoce **shop** (`Shopify.shop` / liquid) y pide a vuestra API un **token o `site_key` efímero** mapeado a `shopify_integrations` (sin secretos en el navegador). |
-| **13** | **Mismo `widget.js` en tema** | Sustituir script de prueba por **la misma URL** que el snippet web; `channel` puede ser `web` + metadata `source: shopify` o `shopify_storefront` según modelo único. |
-| **14** | **Editor de tema + QA** | Flujo documentado: **Personalizar → App embeds → activar**; probado en tema estándar (p. ej. Dawn). |
-| **15** | **Cierre extensión** | Empaquetado app coherente con OAuth existente; checklist de scopes; **DoD:** tienda de prueba con chat visible solo activando el embed. |
+| **11** | **Theme App Extension — esqueleto** | **Hecho:** `extensions/wazapp-chat` + bloque embed `wazapp-chat-embed.liquid` + `shopify.extension.toml`. |
+| **12** | **Enlazar shop → org** | **Hecho (MVP):** `widget.js?shop=...` + `GET /api/public/widget/shopify-site-key` con lookup seguro sobre `shopify_integrations` conectada y `web_widget_public_key`. |
+| **13** | **Mismo `widget.js` en tema** | **Hecho:** storefront Shopify usa el mismo widget que web; solo cambia el bootstrap (`shop` en vez de `siteKey` manual). |
+| **14** | **Editor de tema + QA** | **Parcial:** deep link desde `ShopifyIntegration` para activar app embed; pendiente QA completo post-deploy en tienda real. |
+| **15** | **Cierre extensión** | Pendiente: publicar extension con Shopify CLI en la app final, verificar activacion merchant end-to-end y checklist de release. |
 
 ### Después del día 15
 

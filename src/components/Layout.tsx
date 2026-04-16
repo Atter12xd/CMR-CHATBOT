@@ -16,7 +16,7 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <ProtectedRoute>
-      <div className="flex h-screen overflow-hidden bg-ref-bg bg-app-canvas bg-app-shell font-professional">
+      <div className="flex h-screen overflow-hidden bg-ref-bg font-professional text-sm text-[#3D3D40] antialiased">
         {/* Overlay para sidebar en móvil */}
         {isSidebarOpen && (
           <div
@@ -35,7 +35,7 @@ export default function Layout({ children }: LayoutProps) {
           {/* Header */}
           <Header onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
 
-          <div className="flex-1 overflow-y-auto p-4 sm:p-5 md:p-7 bg-transparent">
+          <div className="flex-1 overflow-y-auto px-5 py-5 md:px-7 md:pt-5 md:pb-7 bg-transparent">
             {children}
           </div>
         </main>

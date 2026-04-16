@@ -1,6 +1,6 @@
 # Roadmap: Integracion Shopify
 
-**Ultima actualizacion:** OAuth + sync manual + webhooks de productos (create/update/delete).
+**Ultima actualizacion:** OAuth + sync + webhooks + widget storefront + extension de tema (abril 2026).
 
 ---
 
@@ -12,7 +12,9 @@
 | 2 Sync catalogo (MVP) | **Hecho** | REST Admin, paginacion, upsert `products` + `shopify_product_id` |
 | 3 Webhooks / sync automatico | **Hecho** | `products/create`, `update`, `delete` → upsert o borrar en CRM; registro al conectar + boton manual |
 | 4 Bot usa catalogo (WhatsApp) | **Parcial** | El worker Baileys ya arma el prompt con `products` (hasta 100, stock, orden por `updated_at`). Falta embeddings/RAG si el catalogo crece mucho más. |
-| 5 Produccion (seguridad, metricas) | Parcial | Logs listos; token en claro; falta panel de salud |
+| 5 Widget en storefront Shopify | **Hecho (MVP)** | `widget.js?shop=...`, endpoint publico para resolver `siteKey`, validacion de origen `myshopify` conectado. |
+| 6 Theme App Extension (embed) | **Parcial** | Estructura creada en `extensions/wazapp-chat`; falta deploy definitivo por Shopify CLI y validacion final en tienda real. |
+| 7 Produccion (seguridad, metricas) | Parcial | Logs claros listos; token en claro; falta panel de salud y endurecimiento adicional. |
 
 ---
 
@@ -34,6 +36,7 @@
 - `POST /api/shopify/register-webhooks` — registra webhooks (sesion usuario; tiendas ya conectadas antes del deploy).
 - `POST /api/webhooks/shopify` — recibe eventos Shopify (HMAC `X-Shopify-Hmac-Sha256`), actualiza o borra `products`.
 - `GET /api/webhooks/shopify` — health check JSON.
+- `GET /api/public/widget/shopify-site-key` — entrega `siteKey` por `shop` si la tienda esta conectada y la org tiene widget configurado.
 
 ### Librerias
 
@@ -42,6 +45,7 @@
 - `src/lib/shopify-product-map.ts` — mapeo producto Shopify → fila `products` (compartido sync + webhook).
 - `src/lib/shopify-webhook-hmac.ts` — validacion HMAC webhook.
 - `src/lib/shopify-register-webhooks.ts` — alta idempotente de `products/create|update|delete`.
+- `src/lib/web-widget/shopify-storefront.ts` — normalizacion `shop` + resolucion de dominio conectado por organizacion.
 
 ### URL publica
 
@@ -63,6 +67,22 @@
 - Una sola **variante** por producto (primera) en mapeo.
 - Sync masivo no borra productos locales que ya no existan en Shopify (los webhooks si borran al eliminar en Shopify).
 - Token en claro en BD.
+- Extension de tema creada pero pendiente de publicar/activar en una tienda real con flujo final de merchant.
+
+---
+
+## Avances aplicados hoy (Shopify + widget)
+
+- `widget.js` soporta modo Shopify: `?shop=tienda.myshopify.com` o `data-shop`, bootstrap asincrono de clave y logs de error mas claros.
+- CORS/origen del widget permite storefront Shopify conectado (`myshopify`) sin romper la lista manual de dominios custom.
+- APIs publicas del widget (`session`, `message`, `messages`) ahora consultan el dominio Shopify conectado para validar origen de forma segura.
+- Panel de Widget agrega snippet especifico Shopify (`?shop={{ shop.permanent_domain }}`) y copy explicando dominio custom.
+- `ShopifyIntegration` ahora muestra CTA para activar app embed en el editor de tema (deep link) y snippet manual de respaldo.
+- Se agrego pagina de prueba: `public/widget-shopify-test.html` para QA rapido post-deploy.
+- Se agrego scaffold de Theme App Extension:
+  - `extensions/wazapp-chat/shopify.extension.toml`
+  - `extensions/wazapp-chat/blocks/wazapp-chat-embed.liquid`
+  - `shopify.app.toml.example`
 
 ---
 

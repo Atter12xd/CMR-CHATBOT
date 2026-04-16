@@ -32,6 +32,8 @@ export interface Order {
   code?: string;
   customerName: string;
   customerEmail: string;
+  /** Teléfono del chat asociado (si existe) */
+  customerPhone?: string;
   deliveryAddress?: string;
   customerDni?: string;
   items: OrderItem[];

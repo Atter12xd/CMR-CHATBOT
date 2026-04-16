@@ -1,79 +1,64 @@
-import { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
-import {
-  MessageSquare,
-  ShoppingCart,
-  DollarSign,
-  Loader2,
-  Activity,
-  TrendingUp,
-  ArrowRight,
-} from 'lucide-react';
-import StatsCard from './StatsCard';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import type { ReactNode } from 'react';
+import { Loader2 } from 'lucide-react';
 import PageHeader from './PageHeader';
 import { useOrganization } from '../hooks/useOrganization';
+import { useAuth } from '../hooks/useAuth';
 import { loadChats } from '../services/chats';
 import { loadOrders } from '../services/orders';
+import type { Order } from '../data/mockData';
+import type { Chat } from '../data/mockData';
 
-const statsContainer = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.06, delayChildren: 0.04 },
-  },
-};
+function isToday(d: Date): boolean {
+  const t = new Date();
+  return d.getDate() === t.getDate() && d.getMonth() === t.getMonth() && d.getFullYear() === t.getFullYear();
+}
 
-const statsItem = {
-  hidden: { opacity: 0, y: 10 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { type: 'spring', stiffness: 380, damping: 30 },
-  },
-};
+function formatRelativeEs(d: Date): string {
+  const diff = Date.now() - d.getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'ahora';
+  if (mins < 60) return `hace ${mins} min`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `hace ${hours} hora${hours > 1 ? 's' : ''}`;
+  const days = Math.floor(hours / 24);
+  return `hace ${days} día${days > 1 ? 's' : ''}`;
+}
 
-const rowVariants = {
-  hidden: { opacity: 0, x: -8 },
-  show: (i: number) => ({
-    opacity: 1,
-    x: 0,
-    transition: { delay: i * 0.04, type: 'spring', stiffness: 400, damping: 32 },
-  }),
+const STATUS_ORDER: Order['status'][] = [
+  'pending',
+  'processing',
+  'completed',
+  'shipped',
+  'delivered',
+  'cancelled',
+];
+
+const STATUS_LABEL: Record<string, string> = {
+  pending: 'Pendiente',
+  processing: 'Procesando',
+  completed: 'Pago ok',
+  shipped: 'Enviado',
+  delivered: 'Entregado',
+  cancelled: 'Cancelado',
 };
 
 export default function DashboardContent() {
   const { organizationId, loading: orgLoading } = useOrganization();
-  const [totalChats, setTotalChats] = useState(0);
-  const [activeChats, setActiveChats] = useState(0);
-  const [totalOrders, setTotalOrders] = useState(0);
-  const [totalRevenue, setTotalRevenue] = useState(0);
-  const [recentOrders, setRecentOrders] = useState<
-    { id: string; customerName: string; total: number; status: string }[]
-  >([]);
+  const { user } = useAuth();
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
     if (!organizationId) return;
     try {
       setLoading(true);
-      const [chats, orders] = await Promise.all([
-        loadChats(organizationId),
-        loadOrders(organizationId),
-      ]);
-      setTotalChats(chats.length);
-      setActiveChats(chats.filter((c) => c.status === 'active').length);
-      setTotalOrders(orders.length);
-      setTotalRevenue(orders.reduce((sum, o) => sum + o.total, 0));
-      setRecentOrders(
-        orders.slice(0, 5).map((o) => ({
-          id: o.id,
-          customerName: o.customerName,
-          total: o.total,
-          status: o.status,
-        }))
-      );
+      const [c, o] = await Promise.all([loadChats(organizationId), loadOrders(organizationId)]);
+      setChats(c);
+      setOrders(o);
     } catch (err) {
-      console.error('Error cargando dashboard:', err);
+      console.error('Dashboard:', err);
     } finally {
       setLoading(false);
     }
@@ -87,6 +72,105 @@ export default function DashboardContent() {
     fetchData();
   }, [organizationId, fetchData]);
 
+  const metrics = useMemo(() => {
+    const totalPedidos = orders.length;
+    const pendientes = orders.filter((x) => x.status === 'pending').length;
+    const confirmadosHoy = orders.filter(
+      (x) =>
+        (x.status === 'completed' || x.status === 'delivered') && isToday(x.createdAt)
+    ).length;
+    const totalChats = chats.length;
+    const conBot = chats.filter((c) => c.botActive).length;
+    const tasaIa = totalChats > 0 ? Math.round((conBot / totalChats) * 100) : 0;
+    const unread = chats.reduce((s, c) => s + (c.unreadCount || 0), 0);
+    const abiertas = chats.filter((c) => c.status === 'active').length;
+    const counts: Record<string, number> = {};
+    for (const s of STATUS_ORDER) counts[s] = 0;
+    for (const o of orders) {
+      if (counts[o.status] != null) counts[o.status]++;
+    }
+    const maxBar = Math.max(1, ...Object.values(counts));
+    return {
+      totalPedidos,
+      pendientes,
+      confirmadosHoy,
+      tasaIa,
+      tasaIaSub: `${conBot} de ${totalChats} chats`,
+      unread,
+      abiertas,
+      totalChats,
+      counts,
+      maxBar,
+    };
+  }, [chats, orders]);
+
+  const activity = useMemo(() => {
+    const items: { dot: string; html: ReactNode; time: string; t: number }[] = [];
+    for (const o of [...orders].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).slice(0, 6)) {
+      const code = o.code || `#${o.id.slice(0, 6)}`;
+      if (o.status === 'delivered' || o.status === 'completed') {
+        items.push({
+          dot: '#14B8A6',
+          html: (
+            <>
+              Pedido <strong>{code}</strong> {o.status === 'delivered' ? 'entregado' : 'confirmado'}
+            </>
+          ),
+          time: formatRelativeEs(o.createdAt),
+          t: o.createdAt.getTime(),
+        });
+      } else if (o.status === 'pending') {
+        items.push({
+          dot: '#F59E0B',
+          html: (
+            <>
+              Pedido <strong>{code}</strong> pendiente de confirmación
+            </>
+          ),
+          time: formatRelativeEs(o.createdAt),
+          t: o.createdAt.getTime(),
+        });
+      } else {
+        items.push({
+          dot: '#1B70FF',
+          html: (
+            <>
+              Pedido <strong>{code}</strong> actualizado
+            </>
+          ),
+          time: formatRelativeEs(o.createdAt),
+          t: o.createdAt.getTime(),
+        });
+      }
+    }
+    for (const ch of [...chats].sort((a, b) => b.lastMessageTime.getTime() - a.lastMessageTime.getTime()).slice(0, 4)) {
+      items.push({
+        dot: '#1B70FF',
+        html: (
+          <>
+            Nueva conversación con <strong>{ch.customerName}</strong>
+          </>
+        ),
+        time: formatRelativeEs(ch.lastMessageTime),
+        t: ch.lastMessageTime.getTime(),
+      });
+    }
+    return items
+      .sort((a, b) => b.t - a.t)
+      .slice(0, 8)
+      .map(({ dot, html, time }) => ({ dot, html, time }));
+  }, [orders, chats]);
+
+  const userInitials = () => {
+    const name = user?.user_metadata?.name || user?.email?.split('@')[0] || 'U';
+    return name
+      .split(/\s+/)
+      .map((p: string) => p[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
+  };
+
   if (orgLoading || loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px] font-professional">
@@ -94,7 +178,7 @@ export default function DashboardContent() {
           <div className="app-spinner">
             <Loader2 size={20} className="animate-spin text-brand-500" />
           </div>
-          <p className="text-[14px] text-app-muted">Cargando datos…</p>
+          <p className="text-[14px] text-[#6D6D70]">Cargando datos…</p>
         </div>
       </div>
     );
@@ -103,22 +187,15 @@ export default function DashboardContent() {
   if (!organizationId) {
     return (
       <div className="space-y-5 font-professional">
-        <PageHeader
-          eyebrow="Resumen"
-          title="Dashboard"
-          description="Resumen general de tu negocio en tiempo real."
-        />
-        <div className="app-card p-5">
-          <div className="flex items-start gap-2.5">
-            <div className="w-2 h-2 rounded-full bg-amber-400 mt-1.5 shrink-0" />
-            <p className="text-app-muted text-[14px] leading-relaxed">
-              Necesitas crear una organización para ver métricas y pedidos. Ve a{' '}
-              <a href="/configuracion" className="text-brand-600 font-semibold hover:text-brand-500">
-                Configuración
-              </a>
-              .
-            </p>
-          </div>
+        <PageHeader title="Dashboard" description="Resumen general de operaciones" />
+        <div className="bg-white border border-[#E5E7EB] rounded-lg p-5 shadow-[0_1px_3px_rgba(0,0,0,.08)]">
+          <p className="text-[13px] text-[#6D6D70]">
+            Crea una organización en{' '}
+            <a href="/configuracion" className="text-brand-600 font-semibold hover:underline">
+              Configuración
+            </a>
+            .
+          </p>
         </div>
       </div>
     );
@@ -126,141 +203,164 @@ export default function DashboardContent() {
 
   return (
     <div className="space-y-5 font-professional">
-      <PageHeader
-        eyebrow="Resumen"
-        title="Dashboard"
-        description="Resumen general de tu negocio en tiempo real."
-        actions={
-          <motion.a
-            href="/pedidos"
-            whileTap={{ scale: 0.98 }}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-brand-500 text-white hover:bg-brand-600 shadow-md shadow-brand-500/20 transition-colors"
-          >
-            Ver pedidos
-            <ArrowRight className="size-4" />
-          </motion.a>
-        }
-      />
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+        <PageHeader title="Dashboard" description="Resumen general de operaciones" />
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#ECFDF5] text-emerald-500 shrink-0 self-start mt-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          Sistema activo
+        </span>
+      </div>
 
-      <motion.div
-        variants={statsContainer}
-        initial="hidden"
-        animate="show"
-        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3"
-      >
-        <motion.div variants={statsItem} className="min-w-0">
-          <StatsCard title="Total chats" value={totalChats} icon={MessageSquare} accentClassName="text-brand-500" />
-        </motion.div>
-        <motion.div variants={statsItem} className="min-w-0">
-          <StatsCard title="Chats activos" value={activeChats} icon={Activity} accentClassName="text-emerald-500" />
-        </motion.div>
-        <motion.div variants={statsItem} className="min-w-0">
-          <StatsCard title="Total pedidos" value={totalOrders} icon={ShoppingCart} accentClassName="text-amber-500" />
-        </motion.div>
-        <motion.div variants={statsItem} className="min-w-0">
-          <StatsCard
-            title="Ingresos totales"
-            value={`S/ ${totalRevenue.toFixed(2)}`}
-            icon={DollarSign}
-            accentClassName="text-violet-500"
-          />
-        </motion.div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.28, delay: 0.08 }}
-        className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm min-w-0"
-      >
-        <div className="px-5 py-4 sm:px-6 bg-app-field/60 border-b border-app-line flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="p-2.5 rounded-ref bg-ref-card border border-app-line text-brand-600 shrink-0 shadow-sm">
-              <TrendingUp className="size-[18px]" strokeWidth={2} />
-            </div>
-            <div className="min-w-0">
-              <h3 className="text-[15px] font-semibold text-app-ink tracking-tight">Actividad reciente</h3>
-              <p className="text-[12px] text-app-muted mt-0.5 font-medium">Últimos 5 pedidos</p>
-            </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white border border-[#E5E7EB] rounded-lg px-4 py-4 shadow-[0_1px_3px_rgba(0,0,0,.08)] flex items-center gap-3.5 hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,.07)] transition-shadow">
+          <div className="w-[42px] h-[42px] rounded-[10px] bg-[#EBF2FF] text-brand-500 flex items-center justify-center shrink-0">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="currentColor" strokeWidth="2" />
+              <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" strokeWidth="2" />
+            </svg>
           </div>
-          {recentOrders.length > 0 && (
-            <span className="text-[11px] font-semibold text-app-muted bg-ref-card border border-app-line px-3 py-1.5 rounded-full tabular-nums w-fit">
-              {recentOrders.length} pedidos
-            </span>
-          )}
+          <div>
+            <div className="text-[26px] font-extrabold text-[#1a1a1c] leading-none tabular-nums">{metrics.totalPedidos}</div>
+            <div className="text-xs font-medium text-[#6D6D70] mt-0.5">Total Pedidos</div>
+          </div>
+        </div>
+        <div className="bg-white border border-[#E5E7EB] rounded-lg px-4 py-4 shadow-[0_1px_3px_rgba(0,0,0,.08)] flex items-center gap-3.5">
+          <div className="w-[42px] h-[42px] rounded-[10px] bg-[#FFFBEB] text-amber-500 flex items-center justify-center shrink-0">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+              <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </div>
+          <div>
+            <div className="text-[26px] font-extrabold text-[#1a1a1c] leading-none tabular-nums">{metrics.pendientes}</div>
+            <div className="text-xs font-medium text-[#6D6D70] mt-0.5">Pendientes</div>
+          </div>
+        </div>
+        <div className="bg-white border border-[#E5E7EB] rounded-lg px-4 py-4 shadow-[0_1px_3px_rgba(0,0,0,.08)] flex items-center gap-3.5">
+          <div className="w-[42px] h-[42px] rounded-[10px] bg-[#ECFDF5] text-emerald-500 flex items-center justify-center shrink-0">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <polyline points="22 4 12 14.01 9 11.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <div>
+            <div className="text-[26px] font-extrabold text-[#1a1a1c] leading-none tabular-nums">{metrics.confirmadosHoy}</div>
+            <div className="text-xs font-medium text-[#6D6D70] mt-0.5">Confirmados Hoy</div>
+          </div>
+        </div>
+        <div className="bg-white border border-[#E5E7EB] rounded-lg px-4 py-4 shadow-[0_1px_3px_rgba(0,0,0,.08)] flex items-center gap-3.5">
+          <div className="w-[42px] h-[42px] rounded-[10px] bg-[#F5F3FF] text-violet-500 flex items-center justify-center shrink-0">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+              <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <div>
+            <div className="text-[26px] font-extrabold text-[#1a1a1c] leading-none tabular-nums">{metrics.tasaIa}%</div>
+            <div className="text-xs font-medium text-[#6D6D70] mt-0.5">Tasa IA</div>
+            <div className="text-[11px] text-[#B8B8BB] mt-0.5">{metrics.tasaIaSub}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="bg-white border border-[#E5E7EB] rounded-lg shadow-[0_1px_3px_rgba(0,0,0,.08)] overflow-hidden">
+          <div className="px-[18px] py-3 border-b border-[#E5E7EB] flex items-center justify-between">
+            <h3 className="text-[13px] font-semibold text-[#3D3D40]">Pedidos por Estado</h3>
+          </div>
+          <div className="p-4 space-y-3">
+            {STATUS_ORDER.map((st) => {
+              const n = metrics.counts[st] || 0;
+              const pct = Math.round((n / metrics.maxBar) * 100);
+              return (
+                <div key={st}>
+                  <div className="flex justify-between text-[12px] mb-1">
+                    <span className="text-[#6D6D70]">{STATUS_LABEL[st]}</span>
+                    <span className="font-semibold text-[#3D3D40] tabular-nums">{n}</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-[#f3f4f6] overflow-hidden">
+                    <div className="h-full rounded-full bg-brand-500 transition-all" style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
-        <div className="divide-y divide-app-line">
-          {recentOrders.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 px-6">
-              <div className="w-16 h-16 rounded-2xl bg-app-field border border-app-line flex items-center justify-center mb-4">
-                <ShoppingCart className="size-7 text-app-muted" />
-              </div>
-              <p className="text-[15px] font-medium text-app-ink">No hay pedidos recientes</p>
-              <p className="text-[13px] text-app-muted mt-1 text-center max-w-sm">
-                Cuando recibas pedidos aparecerán aquí con el total y el estado.
-              </p>
-            </div>
-          ) : (
-            recentOrders.map((order, index) => (
-              <motion.div
-                key={order.id}
-                custom={index}
-                variants={rowVariants}
-                initial="hidden"
-                animate="show"
-                className="flex items-center justify-between gap-4 px-5 py-4 sm:px-6 hover:bg-app-field/40 transition-colors"
+        <div className="bg-white border border-[#E5E7EB] rounded-lg shadow-[0_1px_3px_rgba(0,0,0,.08)] overflow-hidden">
+          <div className="px-[18px] py-3 border-b border-[#E5E7EB]">
+            <h3 className="text-[13px] font-semibold text-[#3D3D40]">Equipo</h3>
+          </div>
+          <div className="p-4 space-y-0">
+            <div className="flex items-center gap-3 py-2.5 border-b border-[#f3f4f6]">
+              <div
+                className="w-9 h-9 rounded-full flex items-center justify-center text-[12px] font-bold text-white shrink-0"
+                style={{ background: '#1B70FF' }}
               >
-                <div className="flex items-center gap-3.5 min-w-0">
-                  <div className="rounded-full p-[2px] bg-app-field border border-app-line shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-ref-card flex items-center justify-center border border-app-line">
-                      <div
-                        className={`w-2 h-2 rounded-full ${
-                          order.status === 'delivered' || order.status === 'completed'
-                            ? 'bg-emerald-500'
-                            : order.status === 'pending'
-                              ? 'bg-amber-400'
-                              : 'bg-app-muted'
-                        }`}
-                      />
-                    </div>
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-app-ink text-[15px] truncate leading-snug">
-                      {order.customerName}
-                    </p>
-                    <p className="text-[12px] text-app-muted mt-0.5 font-mono tabular-nums">
-                      #{order.id.slice(0, 8)}
-                    </p>
-                  </div>
+                {userInitials()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[13px] font-semibold text-[#3D3D40] truncate">
+                  {user?.user_metadata?.name || user?.email?.split('@')[0] || 'Usuario'}
                 </div>
-                <div className="text-right shrink-0">
-                  <p className="font-bold text-app-ink text-[15px] tabular-nums font-professional">
-                    S/ {order.total.toFixed(2)}
-                  </p>
-                  <p
-                    className={`text-[12px] mt-0.5 font-semibold capitalize ${
-                      order.status === 'delivered' || order.status === 'completed'
-                        ? 'text-emerald-600'
-                        : order.status === 'pending'
-                          ? 'text-amber-600'
-                          : 'text-app-muted'
-                    }`}
-                  >
-                    {order.status === 'pending'
-                      ? 'Pendiente'
-                      : order.status === 'completed'
-                        ? 'Completado'
-                        : order.status === 'delivered'
-                          ? 'Entregado'
-                          : order.status}
-                  </p>
-                </div>
-              </motion.div>
-            ))
-          )}
+                <div className="text-[11px] text-[#6D6D70]">Administrador</div>
+              </div>
+              <span className="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#ECFDF5] text-emerald-500 shrink-0">
+                Activo
+              </span>
+            </div>
+            <p className="text-[11px] text-[#B8B8BB] pt-3">Tu organización (propietario). Invita a más colaboradores cuando esté disponible.</p>
+          </div>
         </div>
-      </motion.div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="bg-white border border-[#E5E7EB] rounded-lg shadow-[0_1px_3px_rgba(0,0,0,.08)] overflow-hidden">
+          <div className="px-[18px] py-3 border-b border-[#E5E7EB]">
+            <h3 className="text-[13px] font-semibold text-[#3D3D40]">Actividad Reciente</h3>
+          </div>
+          <div className="p-4 max-h-[320px] overflow-y-auto">
+            {activity.length === 0 ? (
+              <p className="text-[13px] text-[#6D6D70]">Sin actividad reciente.</p>
+            ) : (
+              activity.map((a, i) => (
+                <div key={i} className="flex items-start gap-2.5 py-2.5 border-b border-[#f3f4f6] last:border-0">
+                  <div className="w-2 h-2 rounded-full mt-1.5 shrink-0" style={{ background: a.dot }} />
+                  <div className="text-[13px] text-[#3D3D40] flex-1 min-w-0">{a.html}</div>
+                  <div className="text-[11px] text-[#B8B8BB] shrink-0">{a.time}</div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="bg-white border border-[#E5E7EB] rounded-lg shadow-[0_1px_3px_rgba(0,0,0,.08)] overflow-hidden">
+          <div className="px-[18px] py-3 border-b border-[#E5E7EB]">
+            <h3 className="text-[13px] font-semibold text-[#3D3D40]">Próximas Llamadas</h3>
+          </div>
+          <div className="p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-brand-600 mb-1">En desarrollo</p>
+            <p className="text-[13px] text-[#3D3D40] font-medium mb-1">Próximamente</p>
+            <p className="text-[12px] text-[#6D6D70] leading-relaxed">
+              El calendario de llamadas con IA estará disponible cuando activemos el módulo Llamadas IA.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-white border border-[#E5E7EB] rounded-lg p-4 shadow-[0_1px_3px_rgba(0,0,0,.08)]">
+          <div className="text-[11px] text-[#6D6D70] font-medium mb-1">Conversaciones</div>
+          <div className="text-[22px] font-extrabold text-[#1a1a1c] tabular-nums">{metrics.totalChats}</div>
+        </div>
+        <div className="bg-white border border-[#E5E7EB] rounded-lg p-4 shadow-[0_1px_3px_rgba(0,0,0,.08)]">
+          <div className="text-[11px] text-[#6D6D70] font-medium mb-1">Sin Leer</div>
+          <div className="text-[22px] font-extrabold tabular-nums text-amber-500">{metrics.unread}</div>
+        </div>
+        <div className="bg-white border border-[#E5E7EB] rounded-lg p-4 shadow-[0_1px_3px_rgba(0,0,0,.08)]">
+          <div className="text-[11px] text-[#6D6D70] font-medium mb-1">Abiertas</div>
+          <div className="text-[22px] font-extrabold tabular-nums text-brand-500">{metrics.abiertas}</div>
+        </div>
+      </div>
     </div>
   );
 }

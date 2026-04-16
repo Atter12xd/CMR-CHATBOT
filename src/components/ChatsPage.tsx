@@ -147,11 +147,7 @@ export default function ChatsPage() {
   if (!organizationId) {
     return (
       <div className="space-y-5">
-        <PageHeader
-          eyebrow="Conversaciones"
-          title="Chats"
-          description="Gestiona tus conversaciones con clientes."
-        />
+        <PageHeader title="WhatsApp CRM" description="Gestión de conversaciones con clientes" />
         <div className="app-card p-5">
           <div className="flex items-start gap-2.5">
             <div className="w-2 h-2 rounded-full bg-amber-400 mt-1.5 flex-shrink-0" />
@@ -169,47 +165,65 @@ export default function ChatsPage() {
   return (
     <div className="h-full min-h-0 flex flex-col gap-5">
       <div className={`${selectedChat ? 'hidden md:block' : 'block'}`}>
-        <PageHeader
-          eyebrow="Conversaciones"
-          title="Chats"
-          description="Gestiona tus conversaciones con clientes."
-        />
+        <PageHeader title="WhatsApp CRM" description="Gestión de conversaciones con clientes" />
       </div>
 
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
-        className={`grid grid-cols-2 sm:grid-cols-4 gap-3 ${selectedChat ? 'hidden md:grid' : 'grid'}`}
+        className={`grid grid-cols-2 sm:grid-cols-4 gap-4 ${selectedChat ? 'hidden md:grid' : 'grid'}`}
       >
         {[
-          { label: 'Conversaciones', value: chatStats.total, icon: Users, accent: 'text-brand-500' },
-          { label: 'Activas', value: chatStats.active, icon: MessageSquare, accent: 'text-emerald-500' },
-          { label: 'Sin leer', value: chatStats.unread, icon: Bell, accent: 'text-amber-500' },
-          { label: 'Con bot', value: chatStats.botOn, icon: Bot, accent: 'text-violet-500' },
+          {
+            label: 'Conversaciones',
+            value: chatStats.total,
+            icon: Users,
+            box: 'bg-[#EBF2FF] text-brand-500',
+          },
+          {
+            label: 'Activas',
+            value: chatStats.active,
+            icon: MessageSquare,
+            box: 'bg-[#ECFDF5] text-emerald-500',
+          },
+          {
+            label: 'Sin leer',
+            value: chatStats.unread,
+            icon: Bell,
+            box: 'bg-[#FFFBEB] text-amber-500',
+          },
+          {
+            label: 'Con bot',
+            value: chatStats.botOn,
+            icon: Bot,
+            box: 'bg-[#F5F3FF] text-violet-500',
+          },
         ].map((s) => (
           <div
             key={s.label}
-            className="rounded-ref border border-app-line bg-ref-card px-4 py-3 flex items-center gap-3 shadow-sm"
+            className="bg-white border border-[#E5E7EB] rounded-lg px-4 py-4 shadow-[0_1px_3px_rgba(0,0,0,.08),0_1px_2px_rgba(0,0,0,.05)] flex items-center gap-3.5 transition-shadow hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,.07),0_2px_4px_-1px_rgba(0,0,0,.05)]"
           >
-            <div className={`p-2 rounded-xl bg-app-field ${s.accent}`}>
-              <s.icon className="size-4" />
+            <div
+              className={`w-[42px] h-[42px] rounded-[10px] flex items-center justify-center shrink-0 ${s.box}`}
+            >
+              <s.icon className="size-5" strokeWidth={2} />
             </div>
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-app-muted">{s.label}</p>
-              <p className="text-lg font-bold text-app-ink tabular-nums font-professional">{s.value}</p>
+              <div className="text-[26px] font-extrabold text-[#1a1a1c] leading-none tabular-nums">{s.value}</div>
+              <div className="text-xs font-medium text-[#6D6D70] mt-0.5">{s.label}</div>
             </div>
           </div>
         ))}
       </motion.div>
 
-      {/* Contenedor principal */}
-      <div className="flex flex-1 min-h-0 min-w-0 rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm md:min-h-[560px]">
-        {/* Lista de chats — sidebar */}
+      {/* Contenedor principal — .crm-layout */}
+      <div className="flex flex-1 min-h-0 min-w-0 rounded-lg border border-[#E5E7EB] bg-white overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,.08),0_1px_2px_rgba(0,0,0,.05)] md:min-h-[560px]">
+        {/* Lista de chats — .crm-conversations */}
         <div
           className={`${
             showChatList ? 'flex' : 'hidden'
-          } md:flex w-full md:w-[360px] lg:w-[384px] md:max-w-[384px] flex-shrink-0 border-r border-app-line overflow-hidden`}
+          } md:flex w-full md:w-[260px] md:min-w-[260px] md:max-w-[260px] flex-shrink-0 border-r border-[#E5E7EB] overflow-hidden bg-white`}
         >
           <ChatList
             chats={chats}
@@ -223,7 +237,7 @@ export default function ChatsPage() {
         <div
           className={`${
             !showChatList && selectedChat ? 'flex' : 'hidden'
-          } ${selectedChat ? 'md:flex' : 'md:flex'} flex-1 min-w-0 flex-col lg:flex-row min-h-0 overflow-hidden bg-app-field/40`}
+          } ${selectedChat ? 'md:flex' : 'md:flex'} flex-1 min-w-0 flex-col lg:flex-row min-h-0 overflow-hidden bg-[#f9fafb]`}
         >
           <div className="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden">
             {selectedChat ? (
@@ -240,14 +254,9 @@ export default function ChatsPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="h-full w-full min-w-0 flex items-center justify-center"
               >
-                <div className="text-center max-w-sm px-8">
-                  <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-app-field border border-app-line flex items-center justify-center shadow-sm">
-                    <MessageSquare size={36} className="text-brand-500" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-app-ink font-professional mb-2">Selecciona una conversación</h3>
-                  <p className="text-sm text-app-muted leading-relaxed">
-                    Elige un chat en la lista para ver mensajes y responder a tus clientes.
-                  </p>
+                <div className="text-center max-w-sm px-8 text-[#9ca3af]">
+                  <MessageSquare size={48} className="mx-auto mb-2 opacity-80" strokeWidth={1.5} />
+                  <p className="text-[13px] text-[#6D6D70]">Selecciona una conversación</p>
                 </div>
               </motion.div>
             )}
@@ -258,7 +267,7 @@ export default function ChatsPage() {
               initial={{ opacity: 0, x: 16 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-              className="hidden lg:flex w-[300px] xl:w-[320px] flex-shrink-0 flex-col border-t lg:border-t-0 lg:border-l border-app-line bg-ref-card min-h-0 overflow-hidden"
+              className="hidden lg:flex w-[280px] min-w-[280px] flex-shrink-0 flex-col border-t lg:border-t-0 lg:border-l border-[#E5E7EB] bg-white min-h-0 overflow-hidden"
             >
               <ChatContactPanel
                 chat={selectedChat}

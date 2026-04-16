@@ -93,28 +93,29 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
     (platformFilter !== 'all' ? 1 : 0) + (statusFilter !== 'all' ? 1 : 0) + (onlyLeads ? 1 : 0);
 
   return (
-    <div className="h-full min-w-0 max-w-full w-full flex flex-col overflow-hidden bg-ref-list">
-      <div className="p-4 border-b border-app-line space-y-3 shrink-0 bg-ref-list min-w-0">
+    <div className="h-full min-w-0 max-w-full w-full flex flex-col overflow-hidden bg-white">
+      <div className="px-3.5 pt-3.5 pb-2 border-b border-[#E5E7EB] space-y-2.5 shrink-0 bg-white min-w-0">
+        <h3 className="text-sm font-bold text-[#3D3D40]">Conversaciones</h3>
         <div className="flex items-center gap-2 min-w-0">
           <div className="relative flex-1 min-w-0 group">
             <Search
-              size={16}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-app-muted group-focus-within:text-brand-500 transition-colors"
+              size={14}
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#6D6D70] group-focus-within:text-brand-500 transition-colors pointer-events-none"
             />
             <input
               type="text"
-              placeholder="Buscar conversaciones..."
+              placeholder="Buscar conversación..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full min-w-0 max-w-full pl-10 pr-9 py-2.5 bg-ref-muted border-0 rounded-full text-sm text-app-ink placeholder:text-app-muted focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-all shadow-inner shadow-black/[0.03]"
+              className="w-full min-w-0 max-w-full pl-8 pr-8 py-[7px] bg-white border border-[#E5E7EB] rounded-md text-xs text-[#3D3D40] placeholder:text-[#6D6D70] focus:outline-none focus:border-brand-500 font-professional"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-ref-muted transition-colors"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 rounded hover:bg-[#f3f4f6] transition-colors"
               >
-                <X size={14} className="text-app-muted" />
+                <X size={13} className="text-[#6D6D70]" />
               </button>
             )}
           </div>
@@ -122,10 +123,10 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
             type="button"
             onClick={() => setShowFilters(!showFilters)}
             whileTap={{ scale: 0.96 }}
-            className={`p-2.5 rounded-2xl transition-all relative border ${
+            className={`p-2 rounded-md transition-all relative border border-[#E5E7EB] ${
               showFilters || activeFiltersCount > 0
-                ? 'bg-brand-500 border-brand-500 text-white shadow-md shadow-brand-500/20'
-                : 'bg-app-field border-app-line text-app-muted hover:text-app-ink'
+                ? 'bg-brand-500 border-brand-500 text-white'
+                : 'bg-white text-[#6D6D70] hover:bg-[#f3f4f6]'
             }`}
             title="Filtros"
           >
@@ -147,7 +148,7 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
               transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
               className="overflow-hidden"
             >
-              <div className="rounded-2xl p-3.5 space-y-3.5 border border-app-line bg-app-field/70 backdrop-blur-sm">
+              <div className="rounded-lg p-3 space-y-3 border border-[#E5E7EB] bg-[#f9fafb]">
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-semibold text-app-muted uppercase tracking-[0.12em]">
                     Filtros
@@ -231,7 +232,7 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
         </AnimatePresence>
       </div>
 
-      <div className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden overscroll-contain bg-ref-list">
+      <div className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden overscroll-contain bg-white">
         {filteredChats.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.96 }}
@@ -249,7 +250,7 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
           </motion.div>
         ) : (
           <motion.div
-            className="py-2 px-2 min-w-0 max-w-full"
+            className="py-0 min-w-0 max-w-full"
             variants={listContainer}
             initial="hidden"
             animate="show"
@@ -264,39 +265,35 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
                   variants={listItem}
                   onClick={() => onSelectChat(chat.id)}
                   whileTap={{ scale: 0.995 }}
-                  className={`conversation-item-cmr mb-1 flex gap-3 items-start ${isActive ? 'active' : ''}`}
+                  className={`conversation-item-cmr flex gap-2.5 items-start ${isActive ? 'active' : ''}`}
                 >
                   <div className="relative flex-shrink-0">
+                    <img
+                      src={chat.customerAvatar}
+                      alt=""
+                      className="w-[38px] h-[38px] rounded-full object-cover bg-[#f3f4f6] border border-[#f3f4f6]"
+                    />
                     <div
-                      className={`rounded-full p-[2px] ${isActive ? 'bg-brand-500/15 ring-1 ring-brand-500/25' : 'bg-app-field border border-app-line'}`}
-                    >
-                      <img
-                        src={chat.customerAvatar}
-                        alt=""
-                        className="w-12 h-12 rounded-full object-cover bg-app-field"
-                      />
-                    </div>
-                    <div
-                      className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 ${isActive ? 'border-[hsl(218_100%_55%_/_0.12)]' : 'border-ref-list'} ${getStatusColor(chat.status)}`}
+                      className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${getStatusColor(chat.status)}`}
                     />
                   </div>
 
                   <div className="flex-1 min-w-0 pt-0.5 overflow-hidden">
                     <div className="flex items-center justify-between gap-2 mb-0.5 min-w-0">
                       <h3
-                        className={`truncate min-w-0 flex-1 text-[14px] leading-tight ${
-                          hasUnread ? 'font-semibold' : 'font-medium'
-                        } text-app-ink`}
+                        className={`truncate min-w-0 flex-1 text-[13px] leading-tight ${
+                          hasUnread ? 'font-semibold' : 'font-semibold'
+                        } text-[#3D3D40]`}
                       >
                         {chat.customerName}
                       </h3>
-                      <span className="text-[11px] flex-shrink-0 tabular-nums text-app-muted">
+                      <span className="text-[10px] flex-shrink-0 tabular-nums text-[#B8B8BB]">
                         {formatTime(chat.lastMessageTime)}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 mb-2 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-1.5 min-w-0">
                       {getPlatformIcon(chat.platform)}
-                      <p className="text-[12px] truncate min-w-0 flex-1 leading-snug text-app-muted">
+                      <p className="text-[11px] truncate min-w-0 flex-1 leading-snug text-[#6D6D70]">
                         {chat.lastMessage || 'Sin mensajes'}
                       </p>
                     </div>

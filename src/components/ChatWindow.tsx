@@ -378,7 +378,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
         initial={{ opacity: 0, y: -6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
-        className="px-4 md:px-6 min-h-[4rem] py-2 border-b border-app-line bg-ref-card flex items-center justify-between shrink-0"
+        className="px-4 min-h-[52px] py-2.5 border-b border-[#E5E7EB] bg-white flex items-center justify-between shrink-0"
       >
         <div className="flex items-center gap-3 min-w-0">
           <motion.button
@@ -408,8 +408,8 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
             />
           </div>
           <div className="min-w-0">
-            <h2 className="font-semibold text-app-ink text-[15px] leading-tight truncate font-professional">{displayName}</h2>
-            <p className="text-[12px] text-app-muted leading-tight mt-0.5 truncate">
+            <h2 className="font-bold text-[#3D3D40] text-sm leading-tight truncate font-professional">{displayName}</h2>
+            <p className="text-xs text-[#6D6D70] leading-tight mt-0.5 truncate">
               {chat.platform === 'whatsapp' && (whatsAppNumber ? `WhatsApp · ${whatsAppNumber}` : 'WhatsApp')}
               {chat.platform === 'facebook' && 'Facebook Messenger'}
               {chat.platform === 'web' && 'Chat Web'}
@@ -511,7 +511,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
       {/* Messages area */}
       <div
         ref={messagesScrollRef}
-        className="flex-1 overflow-y-auto px-3 md:px-8 py-5 space-y-1 min-h-0 bg-ref-thread"
+        className="flex-1 overflow-y-auto px-4 py-4 space-y-2.5 min-h-0 bg-[#f9fafb]"
       >
         {loading ? (
           <motion.div
@@ -544,7 +544,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
             </p>
           </motion.div>
         ) : (
-          <div className="max-w-3xl mx-auto w-full">
+          <div className="w-full max-w-3xl mx-auto">
             {messages.map((message, index) => {
               const isOwnMessage = message.sender === 'agent';
               const isBot = message.sender === 'bot';
@@ -580,7 +580,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                   <div
                     className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} ${showAvatar && index > 0 ? 'mt-2' : ''}`}
                   >
-                    <div className={`max-w-[85%] md:max-w-[58%]`}>
+                    <div className="max-w-[68%]">
                       <div
                         className={`relative px-3.5 py-2.5 shadow-sm ${
                           isOwnMessage
@@ -588,7 +588,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                             : 'chat-bubble-customer text-app-ink'
                         }`}
                       >
-                        <p className="text-[14px] leading-[1.5] whitespace-pre-wrap break-words">{message.text}</p>
+                        <p className="text-[13px] leading-[1.5] whitespace-pre-wrap break-words">{message.text}</p>
                         {message.image && (
                           <img
                             src={message.image}
@@ -599,7 +599,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                         <div
                           className={`flex items-center gap-1 mt-1 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
                         >
-                          <span className="text-[10px] leading-none select-none text-app-muted">
+                          <span className="text-[10px] leading-none select-none text-[#B8B8BB]">
                             {formatMessageTime(message.timestamp)}
                           </span>
                           {isOwnMessage && (
@@ -662,20 +662,20 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, delay: 0.05 }}
-        className="px-3 md:px-6 py-3 border-t border-app-line bg-ref-card shrink-0"
+        className="px-4 py-2.5 border-t border-[#E5E7EB] bg-white shrink-0"
       >
-        <div className="max-w-3xl mx-auto w-full flex items-end gap-2">
+        <div className="max-w-3xl mx-auto w-full flex items-center gap-2">
           <motion.button
             type="button"
             onClick={() => setShowFileModal(true)}
             disabled={sending}
             whileTap={{ scale: sending ? 1 : 0.94 }}
-            className="p-2.5 text-app-muted hover:text-brand-600 hover:bg-brand-500/10 rounded-2xl transition-colors disabled:opacity-40 flex-shrink-0 border border-transparent hover:border-brand-500/20"
+            className="p-2 text-[#6D6D70] hover:text-brand-600 hover:bg-[#EBF2FF] rounded-md transition-colors disabled:opacity-40 flex-shrink-0"
             title="Adjuntar"
           >
-            <Paperclip size={20} />
+            <Paperclip size={18} />
           </motion.button>
-          <div className="flex-1 min-w-0 rounded-full border border-app-line bg-ref-muted focus-within:border-brand-500/30 focus-within:ring-2 focus-within:ring-brand-500/15 transition-all duration-200 shadow-inner shadow-black/[0.04]">
+          <div className="flex-1 min-w-0 rounded-full border border-[#E5E7EB] bg-white focus-within:border-brand-500 transition-colors">
             <textarea
               ref={textareaRef}
               value={newMessage}
@@ -683,8 +683,8 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
               onKeyDown={handleKeyPress}
               placeholder="Escribe un mensaje…"
               rows={1}
-              className="w-full resize-none rounded-full px-5 py-3 bg-transparent focus:outline-none text-[14px] text-app-ink placeholder:text-app-muted leading-snug"
-              style={{ minHeight: '48px', maxHeight: '120px' }}
+              className="w-full resize-none rounded-full px-3.5 py-2 bg-transparent focus:outline-none text-[13px] text-[#3D3D40] placeholder:text-[#6D6D70] leading-snug font-professional"
+              style={{ minHeight: '40px', maxHeight: '120px' }}
             />
           </div>
           <motion.button
@@ -692,13 +692,13 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
             onClick={handleSendMessage}
             disabled={!newMessage.trim() || sending}
             whileTap={{ scale: newMessage.trim() && !sending ? 0.94 : 1 }}
-            className={`h-12 w-12 rounded-full flex-shrink-0 flex items-center justify-center transition-all duration-200 ${
+            className={`h-9 w-9 rounded-full flex-shrink-0 flex items-center justify-center transition-opacity ${
               newMessage.trim() && !sending
-                ? 'bg-brand-500 text-white shadow-md shadow-brand-500/25 hover:bg-brand-600'
-                : 'bg-app-field text-app-muted cursor-not-allowed border border-app-line'
+                ? 'bg-brand-500 text-white hover:opacity-[0.85]'
+                : 'bg-[#f3f4f6] text-[#9ca3af] cursor-not-allowed'
             }`}
           >
-            {sending ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} className="ml-0.5" />}
+            {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={16} className="ml-0.5" />}
           </motion.button>
         </div>
       </motion.div>

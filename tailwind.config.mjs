@@ -12,17 +12,17 @@ export default {
       },
       colors: {
         app: {
-          /** Alineado a diseñonuevo — canvas neutro */
-          shell: '#FAFAFA',
-          canvas: '#FAFAFA',
+          /** wazapp-standalone — canvas #F9FAFB */
+          shell: '#F9FAFB',
+          canvas: '#F9FAFB',
           raised: '#FFFFFF',
           card: '#FFFFFF',
           'card-hover': '#F3F4F6',
           line: 'rgba(15, 23, 42, 0.08)',
           'line-strong': 'rgba(15, 23, 42, 0.14)',
-          ink: '#3F3F42',
-          muted: '#737373',
-          charcoal: '#2b2c2f',
+          ink: '#3D3D40',
+          muted: '#6D6D70',
+          charcoal: '#1a1a1c',
           field: '#ECEEF2',
         },
         /**
@@ -96,7 +96,8 @@ export default {
         'nav-float': '0 12px 48px -16px rgba(15, 23, 42, 0.14), 0 0 0 1px rgba(15, 23, 42, 0.05)',
       },
       backgroundImage: {
-        'app-canvas': 'linear-gradient(180deg, hsl(0 0% 99%) 0%, hsl(220 9% 97%) 100%)',
+        /** Plano como wazapp (sin gradiente en panel) */
+        'app-canvas': 'linear-gradient(180deg, #f9fafb 0%, #f9fafb 100%)',
         /** Rejilla fina tipo sitios premium */
         'site-grid':
           'linear-gradient(to right, rgba(15, 23, 42, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(15, 23, 42, 0.05) 1px, transparent 1px)',

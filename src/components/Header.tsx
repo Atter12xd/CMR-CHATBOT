@@ -9,10 +9,11 @@ interface HeaderProps {
 }
 
 const breadcrumbMap: Record<string, string> = {
-  '/': 'Chats',
-  '/chats': 'Chats',
+  '/': 'WhatsApp CRM',
+  '/chats': 'WhatsApp CRM',
   '/dashboard': 'Dashboard',
   '/pedidos': 'Pedidos',
+  '/llamadas-ia': 'Llamadas IA',
   '/productos': 'Productos',
   '/entrenar-bot': 'Entrenar Bot',
   '/metodos-pago': 'Métodos de Pago',
@@ -77,28 +78,28 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const firstName = getUserName().split(/\s+/)[0] || getUserName();
 
   return (
-    <header className="bg-ref-card/90 backdrop-blur-xl border-b border-ref-border shadow-sm px-4 py-3 md:px-7 sticky top-0 z-30 font-professional supports-[backdrop-filter]:bg-ref-card/85">
+    <header className="bg-white border-b border-[#E5E7EB] shadow-[0_1px_3px_rgba(0,0,0,.08),0_1px_2px_rgba(0,0,0,.05)] px-4 py-3 md:px-7 sticky top-0 z-30 font-professional">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <motion.button
             type="button"
             onClick={onMenuClick}
             whileTap={{ scale: 0.94 }}
-            className="md:hidden p-2 hover:bg-ref-muted rounded-ref transition-colors text-app-muted hover:text-app-ink"
+            className="md:hidden p-2 hover:bg-[#f3f4f6] rounded-md transition-colors text-[#6D6D70] hover:text-[#3D3D40]"
           >
             <Menu size={22} />
           </motion.button>
 
           <div className="min-w-0 hidden sm:block">
-            <p className="text-[13px] text-app-muted font-medium">
-              Hola, <span className="text-app-ink font-semibold">{firstName}</span>
+            <p className="text-[13px] text-[#6D6D70] font-medium">
+              Hola, <span className="text-[#3D3D40] font-semibold">{firstName}</span>
             </p>
-            <h1 className="text-xl md:text-2xl font-semibold text-app-ink leading-tight tracking-tight truncate font-professional">
+            <h1 className="text-[22px] font-bold text-[#1a1a1c] leading-tight truncate font-professional">
               {getBreadcrumb()}
             </h1>
           </div>
           <div className="min-w-0 sm:hidden">
-            <h1 className="text-lg font-semibold text-app-ink leading-tight truncate font-professional">{getBreadcrumb()}</h1>
+            <h1 className="text-lg font-bold text-[#1a1a1c] leading-tight truncate font-professional">{getBreadcrumb()}</h1>
           </div>
         </div>
 
@@ -110,13 +111,13 @@ export default function Header({ onMenuClick }: HeaderProps) {
               placeholder="Buscar en el panel…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full min-w-0 pl-11 pr-10 py-3 text-sm bg-ref-muted border-0 rounded-full text-app-ink placeholder:text-app-muted focus:outline-none focus:ring-2 focus:ring-brand-500/25 transition-all shadow-inner shadow-black/[0.03]"
+              className="w-full min-w-0 pl-11 pr-10 py-2.5 text-[13px] bg-[#f9fafb] border border-[#E5E7EB] rounded-full text-[#3D3D40] placeholder:text-[#6D6D70] focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 transition-all"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-app-muted hover:text-app-ink transition-colors text-lg leading-none w-8 h-8 flex items-center justify-center rounded-full hover:bg-ref-muted"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6D6D70] hover:text-[#3D3D40] transition-colors text-lg leading-none w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#f3f4f6]"
               >
                 ×
               </button>
@@ -129,7 +130,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             type="button"
             onClick={toggleDarkMode}
             whileTap={{ scale: 0.95 }}
-            className="p-2.5 hover:bg-ref-muted rounded-full transition-colors text-app-muted hover:text-app-ink"
+            className="p-2.5 hover:bg-[#f3f4f6] rounded-full transition-colors text-[#6D6D70] hover:text-[#3D3D40]"
             title={darkMode ? 'Modo claro' : 'Modo oscuro'}
             aria-label={darkMode ? 'Activar modo claro' : 'Activar modo oscuro'}
           >
@@ -139,7 +140,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <motion.button
             type="button"
             whileTap={{ scale: 0.97 }}
-            className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 bg-brand-500 text-white text-[13px] font-semibold rounded-full hover:bg-brand-600 transition-colors shadow-md shadow-brand-500/20"
+            className="hidden md:inline-flex items-center gap-2 px-3.5 py-2 bg-brand-500 text-white text-[13px] font-semibold rounded-md hover:opacity-[0.87] transition-opacity shadow-[0_1px_3px_rgba(0,0,0,.08)]"
             onClick={() => (window.location.href = '/pedidos')}
           >
             <Plus size={16} strokeWidth={2.5} />
@@ -149,7 +150,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <motion.button
             type="button"
             whileTap={{ scale: 0.95 }}
-            className="p-2.5 hover:bg-ref-muted rounded-full relative transition-colors text-app-muted hover:text-app-ink"
+            className="p-2.5 hover:bg-[#f3f4f6] rounded-full relative transition-colors text-[#6D6D70] hover:text-[#3D3D40]"
           >
             <Bell size={19} />
             <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white dark:ring-ref-card" />
@@ -158,7 +159,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <motion.button
             type="button"
             whileTap={{ scale: 0.95 }}
-            className="hidden md:block p-2.5 hover:bg-ref-muted rounded-full transition-colors text-app-muted hover:text-app-ink"
+            className="hidden md:block p-2.5 hover:bg-[#f3f4f6] rounded-full transition-colors text-[#6D6D70] hover:text-[#3D3D40]"
           >
             <HelpCircle size={19} />
           </motion.button>
@@ -168,7 +169,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
               type="button"
               onClick={() => setShowUserMenu((o) => !o)}
               whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2 p-1 hover:bg-ref-muted rounded-full transition-colors"
+              className="flex items-center gap-2 p-1 hover:bg-[#f3f4f6] rounded-full transition-colors"
             >
               <div className="w-9 h-9 rounded-full bg-brand-500 flex items-center justify-center ring-2 ring-white dark:ring-ref-card shadow-md">
                 <span className="text-[11px] font-bold text-white">

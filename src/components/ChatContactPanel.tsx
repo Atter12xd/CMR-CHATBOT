@@ -1,4 +1,4 @@
-import { Mail, Phone, MessageSquare, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import type { Chat } from '../data/mockData';
 
 type Variant = 'modal' | 'sidebar';
@@ -13,92 +13,78 @@ interface ChatContactPanelProps {
 export default function ChatContactPanel({ chat, displayName, variant, onClose }: ChatContactPanelProps) {
   const isModal = variant === 'modal';
 
+  const platformLabel =
+    chat.platform === 'whatsapp'
+      ? 'WhatsApp'
+      : chat.platform === 'facebook'
+        ? 'Facebook Messenger'
+        : 'Chat Web';
+
   return (
     <div
       className={
         isModal
-          ? 'max-h-[90vh] flex flex-col overflow-hidden'
-          : 'flex flex-col h-full min-h-0 overflow-hidden bg-ref-card'
+          ? 'max-h-[90vh] flex flex-col overflow-hidden bg-white'
+          : 'flex flex-col h-full min-h-0 overflow-hidden bg-white'
       }
     >
-      <div className="p-6 bg-app-field/70 border-b border-app-line shrink-0">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-app-muted text-xs uppercase tracking-[0.12em]">
-            Ficha de contacto
-          </h3>
-          {isModal && onClose && (
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-2 hover:bg-ref-muted rounded-2xl transition-colors"
-            >
-              <X size={16} className="text-app-muted" />
+      {isModal && (
+        <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-[#E5E7EB] shrink-0">
+          <span className="text-sm font-bold text-[#3D3D40]">Contacto</span>
+          {onClose && (
+            <button type="button" onClick={onClose} className="p-1.5 hover:bg-[#f3f4f6] rounded-md transition-colors">
+              <X size={18} className="text-[#6D6D70]" />
             </button>
           )}
         </div>
-        <div className="flex flex-col items-center">
-          <div className="rounded-full p-[3px] bg-ref-card border border-app-line mb-3 shadow-sm">
-            <img
-              src={chat.customerAvatar}
-              alt={displayName}
-              className="w-20 h-20 rounded-full object-cover bg-app-field"
-            />
-          </div>
-          <h2 className="text-xl font-bold text-app-ink font-professional text-center">{displayName}</h2>
-          <p className="text-sm text-app-muted mt-1 flex items-center gap-1.5">
-            <span
-              className={`w-2 h-2 rounded-full ${
-                chat.platform === 'whatsapp'
-                  ? 'bg-emerald-500'
-                  : chat.platform === 'facebook'
-                    ? 'bg-brand-600'
-                    : 'bg-app-muted'
-              }`}
-            />
-            {chat.platform === 'whatsapp' && 'WhatsApp'}
-            {chat.platform === 'facebook' && 'Facebook'}
-            {chat.platform === 'web' && 'Web'}
+      )}
+
+      <div className={`overflow-y-auto flex-1 min-h-0 ${isModal ? 'p-4' : 'p-4'}`}>
+        <div className="text-center pb-4 mb-4 border-b border-[#E5E7EB]">
+          <img
+            src={chat.customerAvatar}
+            alt={displayName}
+            className="w-[60px] h-[60px] rounded-full object-cover bg-[#f3f4f6] mx-auto mb-2 border border-[#E5E7EB]"
+          />
+          <div className="text-[15px] font-bold text-[#3D3D40]">{displayName}</div>
+          <p className="text-xs text-[#6D6D70] mt-0.5">{platformLabel}</p>
+        </div>
+
+        <div>
+          <p className="text-[10px] font-bold text-[#6D6D70] uppercase tracking-[0.07em] mb-2 pb-1.5 border-b border-[#E5E7EB]">
+            Información de contacto
           </p>
-        </div>
-      </div>
-      <div className="p-5 space-y-4 overflow-y-auto flex-1 min-h-0 bg-ref-card">
-        <p className="text-[10px] font-bold text-app-muted uppercase tracking-[0.14em]">Información de contacto</p>
-        {chat.customerEmail && (
-          <div className="flex items-start gap-3 p-3 rounded-2xl bg-app-field/80 border border-app-line">
-            <Mail className="size-4 text-brand-500 mt-0.5 shrink-0" />
-            <div>
-              <p className="text-[11px] text-app-muted font-medium">Email</p>
-              <p className="text-sm text-app-ink break-all">{chat.customerEmail}</p>
+          <div className="space-y-2.5">
+            {chat.customerEmail && (
+              <div className="flex justify-between gap-2 text-xs">
+                <span className="text-[#6D6D70] shrink-0">Email</span>
+                <span className="text-[#3D3D40] font-medium text-right break-all">{chat.customerEmail}</span>
+              </div>
+            )}
+            {chat.customerPhone && (
+              <div className="flex justify-between gap-2 text-xs">
+                <span className="text-[#6D6D70] shrink-0">Teléfono</span>
+                <span className="text-[#3D3D40] font-medium">{chat.customerPhone}</span>
+              </div>
+            )}
+            <div className="flex justify-between gap-2 text-xs">
+              <span className="text-[#6D6D70] shrink-0">Canal</span>
+              <span className="text-[#3D3D40] font-medium">
+                {chat.platform === 'whatsapp' && 'WhatsApp Business'}
+                {chat.platform === 'facebook' && 'Facebook Messenger'}
+                {chat.platform === 'web' && 'Chat web'}
+              </span>
             </div>
-          </div>
-        )}
-        {chat.customerPhone && (
-          <div className="flex items-start gap-3 p-3 rounded-2xl bg-app-field/80 border border-app-line">
-            <Phone className="size-4 text-emerald-600 mt-0.5 shrink-0" />
-            <div>
-              <p className="text-[11px] text-app-muted font-medium">Teléfono</p>
-              <p className="text-sm text-app-ink">{chat.customerPhone}</p>
-            </div>
-          </div>
-        )}
-        <div className="flex items-start gap-3 p-3 rounded-2xl bg-app-field/80 border border-app-line">
-          <MessageSquare className="size-4 text-violet-500 mt-0.5 shrink-0" />
-          <div>
-            <p className="text-[11px] text-app-muted font-medium">Canal</p>
-            <p className="text-sm text-app-ink">
-              {chat.platform === 'whatsapp' && 'WhatsApp Business'}
-              {chat.platform === 'facebook' && 'Facebook Messenger'}
-              {chat.platform === 'web' && 'Chat web'}
-            </p>
           </div>
         </div>
       </div>
+
       {isModal && onClose && (
-        <div className="p-4 border-t border-app-line bg-app-field/40 shrink-0">
+        <div className="p-4 border-t border-[#E5E7EB] shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="w-full py-3 rounded-full border border-app-line bg-ref-card text-app-ink hover:bg-app-field text-sm font-semibold transition-colors"
+            className="w-full py-2.5 rounded-md border border-[#E5E7EB] bg-white text-[13px] font-semibold text-[#3D3D40] hover:bg-[#f9fafb] transition-colors"
           >
             Cerrar
           </button>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, type DragEvent } from 'react';
 import { motion } from 'framer-motion';
 import {
   Loader2,
@@ -11,7 +11,7 @@ import {
   LayoutGrid,
 } from 'lucide-react';
 import { useOrganization } from '../hooks/useOrganization';
-import { loadOrders } from '../services/orders';
+import { loadOrders, updateOrderStatus } from '../services/orders';
 import { loadPaymentsPending, verifyPayment, type PaymentWithOrder } from '../services/payments';
 import { sendTextMessage } from '../services/whatsapp-messages';
 import type { Order } from '../data/mockData';
@@ -59,23 +59,6 @@ const statsItem = {
   },
 };
 
-const cardGrid = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.05, delayChildren: 0.06 },
-  },
-};
-
-const cardItem = {
-  hidden: { opacity: 0, y: 12 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { type: 'spring', stiffness: 360, damping: 28 },
-  },
-};
-
 export default function OrdersPage() {
   const { organizationId, loading: orgLoading } = useOrganization();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -85,6 +68,8 @@ export default function OrdersPage() {
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [verifyAmount, setVerifyAmount] = useState<Record<string, string>>({});
   const [verifyName, setVerifyName] = useState<Record<string, string>>({});
+  const [viewMode, setViewMode] = useState<'pipeline' | 'tabla'>('pipeline');
+  const [draggingId, setDraggingId] = useState<string | null>(null);
 
   const fetchOrders = useCallback(async () => {
     if (!organizationId) return;
@@ -122,6 +107,16 @@ export default function OrdersPage() {
 
   const handleOpenChat = (chatId: string) => {
     window.location.href = `/chats?chat=${encodeURIComponent(chatId)}`;
+  };
+
+  const handleDropOnColumn = async (status: Order['status'], e: DragEvent) => {
+    e.preventDefault();
+    setDraggingId(null);
+    const orderId = e.dataTransfer.getData('orderId');
+    if (!orderId || !organizationId) return;
+    const res = await updateOrderStatus(organizationId, orderId, status);
+    if (res.success) await fetchOrders();
+    else alert(res.error || 'No se pudo actualizar el estado');
   };
 
   const handleVerifyPayment = async (p: PaymentWithOrder) => {
@@ -180,11 +175,7 @@ export default function OrdersPage() {
   if (!organizationId) {
     return (
       <div className="space-y-5 font-professional">
-        <PageHeader
-          eyebrow="Gestión"
-          title="Pedidos"
-          description="Gestiona y verifica todos tus pedidos."
-        />
+        <PageHeader title="Pedidos" description="Gestión y seguimiento de pedidos COD" />
         <div className="app-card p-5">
           <div className="flex items-start gap-2.5">
             <div className="w-2 h-2 rounded-full bg-amber-400 mt-1.5 shrink-0" />
@@ -201,25 +192,61 @@ export default function OrdersPage() {
     );
   }
 
+  const kanbanColumns: { status: Order['status']; title: string }[] = [
+    { status: 'pending', title: 'Pendiente' },
+    { status: 'processing', title: 'Procesando' },
+    { status: 'completed', title: 'Pago ok' },
+    { status: 'shipped', title: 'Enviado' },
+    { status: 'delivered', title: 'Entregado' },
+    { status: 'cancelled', title: 'Cancelado' },
+  ];
+
   return (
     <div className="space-y-5 font-professional">
-      <PageHeader
-        eyebrow="Gestión"
-        title="Pedidos"
-        description="Gestiona y verifica todos tus pedidos."
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-semibold text-app-muted bg-ref-card border border-app-line px-3 py-1.5 rounded-full tabular-nums">
-              {orders.length} total
-            </span>
-            {pendingPayments.length > 0 && (
-              <span className="text-[11px] font-semibold text-amber-700 bg-amber-500/12 border border-amber-500/25 px-3 py-1.5 rounded-full">
-                {pendingPayments.length} por verificar
-              </span>
-            )}
-          </div>
-        }
-      />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <PageHeader title="Pedidos" description="Gestión y seguimiento de pedidos COD" />
+        <div className="flex rounded-md border border-[#E5E7EB] bg-white p-0.5 shrink-0">
+          <button
+            type="button"
+            onClick={() => setViewMode('pipeline')}
+            className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-[5px] text-[12px] font-semibold transition-colors ${
+              viewMode === 'pipeline'
+                ? 'bg-brand-500 text-white'
+                : 'text-[#6D6D70] hover:bg-[#f9fafb]'
+            }`}
+          >
+            <LayoutGrid size={13} />
+            Pipeline
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode('tabla')}
+            className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-[5px] text-[12px] font-semibold transition-colors ${
+              viewMode === 'tabla'
+                ? 'bg-brand-500 text-white'
+                : 'text-[#6D6D70] hover:bg-[#f9fafb]'
+            }`}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="opacity-80" aria-hidden>
+              <rect x="3" y="3" width="18" height="4" rx="1" />
+              <rect x="3" y="10" width="18" height="4" rx="1" opacity=".6" />
+              <rect x="3" y="17" width="18" height="4" rx="1" opacity=".4" />
+            </svg>
+            Tabla
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 text-[11px]">
+        <span className="font-semibold text-[#6D6D70] bg-white border border-[#E5E7EB] px-2.5 py-1 rounded-full tabular-nums">
+          {orders.length} total
+        </span>
+        {pendingPayments.length > 0 && (
+          <span className="font-semibold text-amber-700 bg-[#FFFBEB] border border-amber-200 px-2.5 py-1 rounded-full">
+            {pendingPayments.length} por verificar
+          </span>
+        )}
+      </div>
 
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3" aria-busy="true" aria-label="Cargando métricas">
@@ -345,10 +372,10 @@ export default function OrdersPage() {
               type="button"
               onClick={() => setSelectedStatus(status)}
               whileTap={{ scale: 0.98 }}
-              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[13px] font-semibold whitespace-nowrap transition-all duration-200 border ${
+              className={`inline-flex items-center gap-2 px-3 py-2 rounded-md text-[12px] font-semibold whitespace-nowrap transition-all border ${
                 active
-                  ? 'bg-brand-500 text-white border-transparent shadow-md shadow-brand-500/20'
-                  : 'bg-app-field text-app-muted border-app-line hover:text-app-ink'
+                  ? 'bg-brand-500 text-white border-brand-500'
+                  : 'bg-white text-[#6D6D70] border-[#E5E7EB] hover:bg-[#f9fafb]'
               }`}
             >
               <span
@@ -368,42 +395,135 @@ export default function OrdersPage() {
             <div className="app-spinner">
               <Loader2 size={20} className="animate-spin text-brand-500" />
             </div>
-            <p className="text-[14px] text-app-muted">Cargando pedidos…</p>
+            <p className="text-[14px] text-[#6D6D70]">Cargando pedidos…</p>
           </div>
         </div>
-      ) : filteredOrders.length > 0 ? (
-        <motion.div
-          variants={cardGrid}
-          initial="hidden"
-          animate="show"
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
-        >
-          {filteredOrders.map((order) => (
-            <motion.div key={order.id} variants={cardItem} className="min-w-0">
-              <OrderCard order={order} onOpenChat={handleOpenChat} />
-            </motion.div>
-          ))}
-        </motion.div>
-      ) : (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="rounded-ref border border-app-line bg-ref-card shadow-sm overflow-hidden"
-        >
-          <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-app-field border border-app-line flex items-center justify-center mb-4">
-              <Package className="size-7 text-app-muted" />
-            </div>
-            <p className="text-[15px] font-medium text-app-ink">
-              {selectedStatus === 'all'
-                ? 'No hay pedidos aún'
-                : `No hay pedidos «${statusLabels[selectedStatus]}»`}
+      ) : viewMode === 'pipeline' ? (
+        filteredOrders.length === 0 ? (
+          <div className="bg-white border border-[#E5E7EB] rounded-lg py-16 text-center shadow-[0_1px_3px_rgba(0,0,0,.08)]">
+            <Package className="size-8 text-[#d1d5db] mx-auto mb-3" />
+            <p className="text-[15px] font-medium text-[#3D3D40]">
+              {selectedStatus === 'all' ? 'No hay pedidos aún' : `No hay pedidos «${statusLabels[selectedStatus]}»`}
             </p>
-            <p className="text-[13px] text-app-muted mt-1 max-w-sm">
-              Los pedidos aparecerán aquí cuando se generen desde el chat o el flujo de venta.
+            <p className="text-[13px] text-[#6D6D70] mt-1 px-6">
+              Los pedidos aparecerán aquí cuando se generen desde el chat.
             </p>
           </div>
-        </motion.div>
+        ) : (
+          <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
+            {kanbanColumns.map((col) => {
+              const colOrders = filteredOrders.filter((o) => o.status === col.status);
+              return (
+                <div
+                  key={col.status}
+                  className="flex flex-col min-w-[190px] w-[190px] shrink-0"
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => handleDropOnColumn(col.status, e)}
+                >
+                  <div className="rounded-t-lg px-3 py-2.5 bg-[#f9fafb] border border-b-0 border-[#E5E7EB] flex items-center justify-between">
+                    <span className="text-[12px] font-bold text-[#3D3D40]">{col.title}</span>
+                    <span className="text-[11px] font-bold text-[#6D6D70] bg-white/80 px-1.5 py-0.5 rounded-full">
+                      {colOrders.length}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-h-[200px] rounded-b-lg border border-[#E5E7EB] border-t-0 bg-[#f9fafb] p-2 space-y-2">
+                    {colOrders.map((order) => (
+                      <div
+                        key={order.id}
+                        draggable
+                        onDragStart={(e) => {
+                          e.dataTransfer.setData('orderId', order.id);
+                          e.dataTransfer.effectAllowed = 'move';
+                          setDraggingId(order.id);
+                        }}
+                        onDragEnd={() => setDraggingId(null)}
+                        className={`${draggingId === order.id ? 'opacity-50' : ''}`}
+                      >
+                        <OrderCard order={order} onOpenChat={handleOpenChat} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )
+      ) : filteredOrders.length === 0 ? (
+        <div className="bg-white border border-[#E5E7EB] rounded-lg py-16 text-center shadow-[0_1px_3px_rgba(0,0,0,.08)]">
+          <Package className="size-8 text-[#d1d5db] mx-auto mb-3" />
+          <p className="text-[15px] font-medium text-[#3D3D40]">
+            {selectedStatus === 'all' ? 'No hay pedidos aún' : `No hay pedidos «${statusLabels[selectedStatus]}»`}
+          </p>
+        </div>
+      ) : (
+        <div className="bg-white border border-[#E5E7EB] rounded-lg shadow-[0_1px_3px_rgba(0,0,0,.08)] overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-[13px]">
+              <thead>
+                <tr className="border-b border-[#E5E7EB]">
+                  <th className="text-left py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#6D6D70]">
+                    Pedido
+                  </th>
+                  <th className="text-left py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#6D6D70]">
+                    Cliente
+                  </th>
+                  <th className="text-left py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#6D6D70]">
+                    Teléfono
+                  </th>
+                  <th className="text-left py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#6D6D70]">
+                    Estado
+                  </th>
+                  <th className="text-left py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#6D6D70]">
+                    Total
+                  </th>
+                  <th className="text-left py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#6D6D70]">
+                    Ciudad
+                  </th>
+                  <th className="text-left py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#6D6D70]">
+                    Fecha
+                  </th>
+                  <th className="text-left py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#6D6D70]">
+                    Acción
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredOrders.map((order) => (
+                  <tr key={order.id} className="border-b border-[#f3f4f6] hover:bg-[#fafafa]">
+                    <td className="py-2.5 px-3 font-mono text-[12px] text-brand-600 font-bold">
+                      {order.code || order.id.slice(0, 8)}
+                    </td>
+                    <td className="py-2.5 px-3 text-[#3D3D40]">{order.customerName}</td>
+                    <td className="py-2.5 px-3 text-[#6D6D70]">{order.customerPhone || '—'}</td>
+                    <td className="py-2.5 px-3 text-[12px]">{statusLabels[order.status]}</td>
+                    <td className="py-2.5 px-3 font-semibold tabular-nums">S/ {order.total.toFixed(2)}</td>
+                    <td className="py-2.5 px-3 text-[#6D6D70] max-w-[140px] truncate" title={order.deliveryAddress}>
+                      {order.deliveryAddress
+                        ? order.deliveryAddress.split(',').pop()?.trim() || order.deliveryAddress
+                        : '—'}
+                    </td>
+                    <td className="py-2.5 px-3 text-[#6D6D70] text-[12px] whitespace-nowrap">
+                      {order.createdAt.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}
+                    </td>
+                    <td className="py-2.5 px-3">
+                      {order.chatId ? (
+                        <button
+                          type="button"
+                          onClick={() => handleOpenChat(order.chatId!)}
+                          className="text-[12px] font-semibold text-brand-500 hover:underline"
+                        >
+                          Chat
+                        </button>
+                      ) : (
+                        '—'
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
     </div>
   );

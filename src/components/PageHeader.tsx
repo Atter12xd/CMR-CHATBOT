@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
 
 interface PageHeaderProps {
-  eyebrow: string;
+  /** Opcional — el mock wazapp no usa subtítulo superior en varias vistas */
+  eyebrow?: string;
   title: string;
   description?: string;
   actions?: ReactNode;
@@ -20,16 +21,12 @@ export default function PageHeader({
       className={`flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between ${className}`}
     >
       <div className="min-w-0">
-        <p className="text-xs font-medium uppercase tracking-wider text-app-muted mb-1">
-          {eyebrow}
-        </p>
-        <h2 className="text-2xl sm:text-3xl font-semibold text-app-ink tracking-tight leading-tight font-professional">
-          {title}
-        </h2>
+        {eyebrow && (
+          <p className="text-xs font-medium uppercase tracking-wider text-[#6D6D70] mb-1">{eyebrow}</p>
+        )}
+        <h2 className="text-[22px] font-bold text-[#1a1a1c] leading-tight font-professional">{title}</h2>
         {description && (
-          <p className="text-app-muted text-sm mt-2 max-w-2xl leading-relaxed">
-            {description}
-          </p>
+          <p className="text-[13px] text-[#6D6D70] mt-0.5 max-w-2xl leading-snug">{description}</p>
         )}
       </div>
       {actions && (

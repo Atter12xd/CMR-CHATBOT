@@ -1,6 +1,6 @@
 import { useEffect, type ComponentType } from 'react';
 import { motion } from 'framer-motion';
-import { useAuth } from '../hooks/useAuth';
+import { AuthProvider, useAuth } from '../hooks/useAuth';
 import type { LucideProps } from 'lucide-react';
 import {
   MessageSquare,
@@ -77,7 +77,7 @@ function FeatureCard({
   );
 }
 
-export default function LandingPage() {
+function LandingPageInner() {
   const { user, loading } = useAuth();
 
   useEffect(() => {
@@ -586,5 +586,13 @@ export default function LandingPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function LandingPage() {
+  return (
+    <AuthProvider>
+      <LandingPageInner />
+    </AuthProvider>
   );
 }

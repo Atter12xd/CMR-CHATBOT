@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useAuth } from '../hooks/useAuth';
+import { AuthProvider, useAuth } from '../hooks/useAuth';
 import { Mail, Loader2, AlertCircle, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import LogoBrand from './landing/LogoBrand';
 
-export default function ForgotPasswordForm() {
+function ForgotPasswordFormInner() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -145,5 +145,13 @@ export default function ForgotPasswordForm() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ForgotPasswordForm() {
+  return (
+    <AuthProvider>
+      <ForgotPasswordFormInner />
+    </AuthProvider>
   );
 }

@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useAuth } from '../hooks/useAuth';
+import { AuthProvider, useAuth } from '../hooks/useAuth';
 import { Mail, Lock, Loader2, AlertCircle, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import LogoBrand from './landing/LogoBrand';
 
-export default function LoginForm() {
+function LoginFormInner() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -223,5 +223,13 @@ export default function LoginForm() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginForm() {
+  return (
+    <AuthProvider>
+      <LoginFormInner />
+    </AuthProvider>
   );
 }

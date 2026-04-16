@@ -67,10 +67,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     return () => window.removeEventListener('popstate', handleLocationChange);
   }, [onClose]);
 
-  const handleNavClick = (path: string) => {
-    window.location.href = path;
-  };
-
   const getUserName = () => {
     if (user?.user_metadata?.name) return user.user_metadata.name;
     if (user?.email) return user.email.split('@')[0];
@@ -121,10 +117,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           const Icon = item.icon;
           const active = isActive(item.path);
           return (
-            <button
+            <a
               key={item.path}
-              type="button"
-              onClick={() => handleNavClick(item.path)}
+              href={item.path}
+              data-astro-prefetch
+              onClick={() => onClose?.()}
               className={`w-full flex items-center gap-2.5 px-2.5 py-[9px] rounded-md text-left text-[13px] font-medium mb-0.5 transition-colors select-none ${
                 active
                   ? 'bg-brand-500 text-white'
@@ -133,7 +130,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             >
               <Icon size={16} className="shrink-0 opacity-90" strokeWidth={2} />
               <span className="truncate">{item.label}</span>
-            </button>
+            </a>
           );
         })}
       </nav>

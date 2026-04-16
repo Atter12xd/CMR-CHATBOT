@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
+import { AuthProvider } from '../hooks/useAuth';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import ProtectedRoute from './ProtectedRoute';
@@ -15,7 +16,8 @@ export default function Layout({ children }: LayoutProps) {
 
 
   return (
-    <ProtectedRoute>
+    <AuthProvider>
+      <ProtectedRoute>
       <div className="flex h-screen overflow-hidden bg-ref-bg font-professional text-sm text-[#3D3D40] antialiased">
         {/* Overlay para sidebar en móvil */}
         {isSidebarOpen && (
@@ -40,6 +42,7 @@ export default function Layout({ children }: LayoutProps) {
           </div>
         </main>
       </div>
-    </ProtectedRoute>
+      </ProtectedRoute>
+    </AuthProvider>
   );
 }

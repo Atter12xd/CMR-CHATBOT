@@ -8,6 +8,9 @@ export default defineConfig({
   output: 'hybrid', // Permite páginas estáticas y SSR
   adapter: vercel(),
   site: 'https://wazapp.ai',
+  prefetch: {
+    defaultStrategy: 'hover',
+  },
   integrations: [react(), tailwind(), fixVercelRuntime()],
   server: {
     port: 4321

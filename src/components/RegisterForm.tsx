@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useAuth } from '../hooks/useAuth';
+import { AuthProvider, useAuth } from '../hooks/useAuth';
 import { createClient } from '../lib/supabase';
 import { Mail, Lock, Loader2, AlertCircle, ArrowRight, User, CheckCircle2, Eye, EyeOff, Check, X, ShoppingCart } from 'lucide-react';
 import LogoBrand from './landing/LogoBrand';
@@ -30,7 +30,7 @@ type RegisterFormProps = {
   adminRegistration?: boolean;
 };
 
-export default function RegisterForm({ adminRegistration = false }: RegisterFormProps) {
+function RegisterFormInner({ adminRegistration = false }: RegisterFormProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -457,5 +457,13 @@ export default function RegisterForm({ adminRegistration = false }: RegisterForm
         </p>
       </div>
     </div>
+  );
+}
+
+export default function RegisterForm(props: RegisterFormProps) {
+  return (
+    <AuthProvider>
+      <RegisterFormInner {...props} />
+    </AuthProvider>
   );
 }

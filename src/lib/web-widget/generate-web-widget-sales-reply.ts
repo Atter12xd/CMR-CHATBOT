@@ -179,11 +179,11 @@ ${initialGreeting ? `- Después de presentarte, ofrece: "${initialGreeting}"` : 
       ? `- Frase o enlace de catálogo configurado por la tienda: "${catalogInvitePhrase}". Intégrala de forma natural al guiar al cliente.`
       : '- Si en el contexto entrenado hay PDF, Drive o catálogo online, menciónalo al cliente para que vea el surtido completo.';
     webCatalogBlock = `
-WEB / CATÁLOGO (prioridad sobre listar de memoria):
+WEB / CATÁLOGO (complemento a la lista interna):
 ${urlLine}
 ${inviteLine}
-- En "CONTEXTO DE LA EMPRESA" puede haber más enlaces o texto de catálogo: úsalo para dirigir al cliente al material oficial antes de inventar listados largos.
-- Después de indicar web o catálogo, pide que cuando quiera comprar te escriba el nombre del producto exactamente como aparece allí (y talla o variante si aplica); con eso lo cruzas con la lista interna de abajo y el precio queda alineado al pedido.
+- El enlace sirve para fotos, tallas y colección completa. No lo uses como única respuesta si en PRODUCTOS DISPONIBLES ya hay filas que encajan con lo que preguntó el cliente (ver reglas de palabra clave abajo).
+- Cuando convenga, pide el nombre exacto como en web o catálogo para el pedido (y talla si aplica).
 `;
   }
 
@@ -194,10 +194,21 @@ CONFIGURACIÓN INCOMPLETA EN CMR: Falta tanto la URL de web como el texto/enlace
     : '';
 
   const productDiscoveryBlock = `
-CONSULTAS ABIERTAS DE PRODUCTOS ("qué venden", "catálogo", "productos", "precios" en general):
-- En el CMR debe existir URL de web o invitación/catálogo (obligatorio al guardar). Usa siempre ese recurso primero; no abras solo con una lista larga del CRM. Como apoyo, como máximo 2–4 ejemplos breves y remite al enlace para ver variedades, fotos y detalle.
-- PRODUCTO CONCRETO (el cliente nombra un modelo o referencia): confirma si está en PRODUCTOS DISPONIBLES, precio en S/. y stock si consta. Si no está, dilo con claridad y ofrece alternativas o el catálogo/web.
-- Para el pedido, el nombre debe identificar un ítem de PRODUCTOS DISPONIBLES (mismo nombre o muy cercano). Si no coincide, pide el nombre exacto como en web/catálogo.
+PALABRAS CLAVE, TIPO O NOMBRE PARCIAL (ej.: "zapatilla", "zapatillas", "polo", "vestido", "yordan", una sola palabra o referencia corta):
+- Primero revisa PRODUCTOS DISPONIBLES: busca coincidencias en nombre, categoría o descripción (ignora mayúsculas; trata singular/plural como equivalentes razonables, ej. zapatilla/zapatillas).
+- Si hay una o más coincidencias: menciónalas con nombre exacto del listado y precio en S/. (hasta 8 si hace falta; si son muchas, las más relevantes y ofrece afinar). Pregunta cuál desea o si quiere más detalle.
+- Si solo hay una coincidencia clara: preséntala como la opción que encaja ("Tenemos … a S/…") y ofrece seguir con el pedido o ver la web para fotos/tallas.
+- Si no hay ninguna fila que encaje: entonces invita al catálogo/web con amabilidad y pide una referencia más concreta.
+- No respondas únicamente con el enlace de la web cuando el listado interno ya contesta la duda.
+
+CONSULTAS MUY ABIERTAS ("qué venden", "todo el catálogo", "qué productos tienen", "precios" sin tipo):
+- Combina enlace o invitación a web/catálogo con 2–4 ejemplos breves de PRODUCTOS DISPONIBLES (no listas enormes).
+
+PRODUCTO CONCRETO (nombre de modelo completo o casi):
+- Confirma precio en S/. y stock si consta; si no está en la lista, dilo y ofrece alternativas.
+
+PEDIDOS:
+- El nombre para create_order debe ser el de PRODUCTOS DISPONIBLES; si el cliente usó una variante, confirma el nombre exacto de la fila antes de registrar.
 `;
 
   const orderFlowBlock = `
@@ -232,7 +243,7 @@ CÓMO TOMAR PEDIDOS (elegante y claro):
         .join('\n') || productsContext;
 
     if (products && products.length >= MAX_PRODUCTS_IN_PROMPT) {
-      productsContext += `\n(Nota: hay al menos ${MAX_PRODUCTS_IN_PROMPT} productos en catálogo; prioriza coincidencias por nombre o categoría.)`;
+      productsContext += `\n(Nota: hay al menos ${MAX_PRODUCTS_IN_PROMPT} productos en catálogo; prioriza coincidencias por nombre, categoría, descripción y palabras clave del cliente.)`;
     }
   } catch {
     //

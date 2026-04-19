@@ -265,11 +265,11 @@ ${initialGreeting ? `- Después de presentarte, ofrece: "${initialGreeting}"` : 
       ? `- Frase o enlace de catálogo configurado por la tienda: "${catalogInvitePhrase}". Intégrala de forma natural al guiar al cliente.`
       : '- Si en el contexto entrenado hay PDF, Drive o catálogo online, menciónalo al cliente para que vea el surtido completo.';
     webCatalogBlock = `
-WEB / CATÁLOGO (prioridad sobre listar de memoria):
+WEB / CATÁLOGO (complemento a la lista interna):
 ${urlLine}
 ${inviteLine}
-- En "CONTEXTO DE LA EMPRESA" puede haber más enlaces o texto de catálogo: úsalo para dirigir al cliente al material oficial antes de inventar listados largos.
-- Después de indicar web o catálogo, pide que cuando quiera comprar te escriba el nombre del producto exactamente como aparece allí (y talla o variante si aplica); con eso lo cruzas con la lista interna de abajo y el precio queda alineado al pedido.
+- El enlace sirve para fotos, tallas y colección completa. No lo uses como única respuesta si en PRODUCTOS DISPONIBLES ya hay filas que encajan con lo que preguntó el cliente (ver reglas de palabra clave abajo).
+- Cuando convenga, pide el nombre exacto como en web o catálogo para el pedido (y talla si aplica).
 `;
   }
 
@@ -280,10 +280,21 @@ CONFIGURACIÓN INCOMPLETA EN CMR: Falta tanto la URL de web como el texto/enlace
     : '';
 
   const productDiscoveryBlock = `
-CONSULTAS ABIERTAS DE PRODUCTOS ("qué venden", "catálogo", "productos", "precios" en general):
-- En el CMR debe existir URL de web o invitación/catálogo (obligatorio al guardar). Usa siempre ese recurso primero; no abras solo con una lista larga del CRM. Como apoyo, como máximo 2–4 ejemplos breves y remite al enlace para ver variedades, fotos y detalle.
-- PRODUCTO CONCRETO (el cliente nombra un modelo o referencia): confirma si está en PRODUCTOS DISPONIBLES, precio en S/. y stock si consta. Si no está, dilo con claridad y ofrece alternativas o el catálogo/web.
-- Para el pedido, el nombre debe identificar un ítem de PRODUCTOS DISPONIBLES (mismo nombre o muy cercano). Si no coincide, pide el nombre exacto como en web/catálogo.
+PALABRAS CLAVE, TIPO O NOMBRE PARCIAL (ej.: "zapatilla", "zapatillas", "polo", "vestido", "yordan", una sola palabra o referencia corta):
+- Primero revisa PRODUCTOS DISPONIBLES: busca coincidencias en nombre, categoría o descripción (ignora mayúsculas; trata singular/plural como equivalentes razonables, ej. zapatilla/zapatillas).
+- Si hay una o más coincidencias: menciónalas con nombre exacto del listado y precio en S/. (hasta 8 si hace falta; si son muchas, las más relevantes y ofrece afinar). Pregunta cuál desea o si quiere más detalle.
+- Si solo hay una coincidencia clara: preséntala como la opción que encaja ("Tenemos … a S/…") y ofrece seguir con el pedido o ver la web para fotos/tallas.
+- Si no hay ninguna fila que encaje: entonces invita al catálogo/web con amabilidad y pide una referencia más concreta.
+- No respondas únicamente con el enlace de la web cuando el listado interno ya contesta la duda.
+
+CONSULTAS MUY ABIERTAS ("qué venden", "todo el catálogo", "qué productos tienen", "precios" sin tipo):
+- Combina enlace o invitación a web/catálogo con 2–4 ejemplos breves de PRODUCTOS DISPONIBLES (no listas enormes).
+
+PRODUCTO CONCRETO (nombre de modelo completo o casi):
+- Confirma precio en S/. y stock si consta; si no está en la lista, dilo y ofrece alternativas.
+
+PEDIDOS:
+- El nombre para create_order debe ser el de PRODUCTOS DISPONIBLES; si el cliente usó una variante, confirma el nombre exacto de la fila antes de registrar.
 `;
 
   const orderFlowBlock = `
@@ -318,7 +329,7 @@ CÓMO TOMAR PEDIDOS (elegante y claro):
       }).join('\n') || productsContext;
 
     if (products && products.length >= MAX_PRODUCTS_IN_PROMPT) {
-      productsContext += `\n(Nota: hay al menos ${MAX_PRODUCTS_IN_PROMPT} productos en catálogo; prioriza coincidencias por nombre o categoría.)`;
+      productsContext += `\n(Nota: hay al menos ${MAX_PRODUCTS_IN_PROMPT} productos en catálogo; prioriza coincidencias por nombre, categoría, descripción y palabras clave del cliente.)`;
     }
   } catch {
     //
@@ -585,14 +596,74 @@ async function updateChatIntentIfBuying(chatId: string, text: string): Promise<v
   }
 }
 
-/** Mensaje normalizado con espacios para detectar nombre de producto como token (evita falsos positivos cortos). */
+const PRODUCT_MATCH_STOPWORDS = new Set([
+  'para',
+  'talla',
+  'tallas',
+  'color',
+  'modelo',
+  'marca',
+  'nuevo',
+  'nueva',
+  'stock',
+  'unica',
+  'única',
+]);
+
+/** Mensaje en minúsculas con espacios; añade singular si la palabra del cliente termina en -s (p. ej. zapatillas → zapatilla). */
 function normalizeMessageForProductMatch(text: string): string {
-  return ` ${text.toLowerCase().replace(/\s+/g, ' ')} `;
+  const base = text.toLowerCase().replace(/\s+/g, ' ').trim();
+  const parts = base.split(/\s+/).filter(Boolean);
+  const extras: string[] = [];
+  for (const w of parts) {
+    if (w.length >= 5 && w.endsWith('s') && !w.endsWith('ss')) {
+      extras.push(w.slice(0, -1));
+    }
+  }
+  const joined = [base, ...extras].join(' ');
+  return ` ${joined.replace(/\s+/g, ' ')} `;
+}
+
+/** Tokens útiles del nombre de producto (≥4 letras) + variante sin -s final para cruzar con plural del cliente. */
+function productNameMatchTokens(productName: string): string[] {
+  const n = productName
+    .toLowerCase()
+    .replace(/[^a-z0-9áéíóúüñ]+/gi, ' ')
+    .trim();
+  const words = n.split(/\s+/).filter((w) => w.length >= 4 && !PRODUCT_MATCH_STOPWORDS.has(w));
+  const out: string[] = [];
+  for (const w of words) {
+    out.push(w);
+    if (w.length >= 5 && w.endsWith('s') && !w.endsWith('ss')) {
+      out.push(w.slice(0, -1));
+    }
+    if (w.length >= 5 && !w.endsWith('s')) {
+      out.push(`${w}s`);
+    }
+  }
+  return [...new Set(out)];
+}
+
+function scoreProductAgainstMessage(productName: string, hay: string): number {
+  const name = String(productName || '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (name.length < 2) return 0;
+  const n = name.toLowerCase();
+  if (hay.includes(` ${n} `)) {
+    return 5000 + n.length;
+  }
+  let best = 0;
+  for (const t of productNameMatchTokens(name)) {
+    if (hay.includes(` ${t} `)) {
+      best = Math.max(best, 200 + t.length);
+    }
+  }
+  return best;
 }
 
 /**
- * Coincidencia por nombre: solo cuando el texto del cliente contiene el nombre del producto
- * como frase (mín. 4 caracteres). Orden por nombre largo primero para favorecer coincidencias específicas.
+ * Productos cuya imagen enviar: nombre completo en el mensaje, o palabra clave del nombre (ej. "zapatilla" → "Zapatilla Yordan").
  */
 async function findProductsMentionedInMessage(
   organizationId: string,
@@ -608,25 +679,27 @@ async function findProductsMentionedInMessage(
   if (!products?.length) return [];
 
   const hay = normalizeMessageForProductMatch(text);
-  const sorted = [...products].sort(
-    (a, b) => (b.name?.length || 0) - (a.name?.length || 0)
-  );
+  const scored = products
+    .map((p) => {
+      const name = String(p.name || '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      const url = String((p as { image_url?: string }).image_url || '').trim();
+      if (!name || !url) return null;
+      const score = scoreProductAgainstMessage(name, hay);
+      if (score <= 0) return null;
+      return { name, price: Number(p.price) || 0, image_url: url, score };
+    })
+    .filter((x): x is { name: string; price: number; image_url: string; score: number } => x !== null)
+    .sort((a, b) => b.score - a.score || b.name.length - a.name.length);
+
   const out: { name: string; price: number; image_url: string }[] = [];
   const seen = new Set<string>();
-
-  for (const p of sorted) {
-    const name = String(p.name || '')
-      .replace(/\s+/g, ' ')
-      .trim();
-    if (name.length < 4) continue;
-    const n = name.toLowerCase();
-    const needle = ` ${n} `;
-    if (!hay.includes(needle)) continue;
-    const url = String((p as { image_url?: string }).image_url || '').trim();
-    if (!url) continue;
-    if (seen.has(n)) continue;
-    seen.add(n);
-    out.push({ name, price: Number(p.price) || 0, image_url: url });
+  for (const row of scored) {
+    const key = row.name.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({ name: row.name, price: row.price, image_url: row.image_url });
     if (out.length >= 5) break;
   }
   return out;

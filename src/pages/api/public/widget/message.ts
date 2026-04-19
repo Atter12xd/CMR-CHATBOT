@@ -89,17 +89,23 @@ export const POST: APIRoute = async ({ request }) => {
     return jsonResponse(request, { error: 'No autorizado' }, 403);
   }
 
-  const { error: userMsgErr } = await db.from('messages').insert({
-    chat_id: chatId,
-    sender: 'user',
-    text,
-    status: 'delivered',
-  });
+  const { data: userRow, error: userMsgErr } = await db
+    .from('messages')
+    .insert({
+      chat_id: chatId,
+      sender: 'user',
+      text,
+      status: 'delivered',
+    })
+    .select('id')
+    .single();
 
-  if (userMsgErr) {
+  if (userMsgErr || !userRow) {
     console.error('[widget/message] user insert', userMsgErr);
     return jsonResponse(request, { error: 'No se pudo guardar el mensaje' }, 500);
   }
+
+  const userMessageId = (userRow as { id: string }).id;
 
   const prevUnread = (chat as { unread_count?: number }).unread_count ?? 0;
   await db
@@ -112,7 +118,7 @@ export const POST: APIRoute = async ({ request }) => {
     .eq('id', chatId);
 
   if (chat.bot_active === false) {
-    return jsonResponse(request, { reply: null, botPaused: true });
+    return jsonResponse(request, { reply: null, botPaused: true, userMessageId });
   }
 
   let reply: string;
@@ -136,7 +142,7 @@ export const POST: APIRoute = async ({ request }) => {
       text: reply,
       status: 'sent',
     })
-    .select('created_at')
+    .select('id, created_at')
     .single();
 
   if (botErr) {
@@ -149,6 +155,8 @@ export const POST: APIRoute = async ({ request }) => {
     .update({ last_message_at: new Date().toISOString(), updated_at: new Date().toISOString() })
     .eq('id', chatId);
 
-  const cursor = (botRow as { created_at?: string } | null)?.created_at || '';
-  return jsonResponse(request, { reply, cursor });
+  const botTyped = botRow as { id?: string; created_at?: string } | null;
+  const cursor = botTyped?.created_at || '';
+  const botMessageId = botTyped?.id;
+  return jsonResponse(request, { reply, cursor, userMessageId, botMessageId });
 };

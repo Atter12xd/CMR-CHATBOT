@@ -3,6 +3,7 @@
 # shopify app deploy
 #
 api_version = "2024-10"
+uid = "d345cc3d-a1de-cc0a-b0f1-2456c33e7b56a2bdaa6d"
 
 [[extensions]]
 name = "Wazapp chat"

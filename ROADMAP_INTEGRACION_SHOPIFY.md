@@ -1,6 +1,6 @@
 # Roadmap: Integracion Shopify
 
-**Ultima actualizacion:** OAuth + sync + webhooks + widget storefront + extension de tema (abril 2026).
+**Ultima actualizacion:** 18 abril 2026 — App Partners **wazapp ai**, deploy Theme App Extension **wazapp-chat**, Vercel alineado; ver `SHOPIFY_WAZAPP_AI.md`. Siguiente foco sugerido: **mejorar prompts del bot**.
 
 ---
 
@@ -13,7 +13,7 @@
 | 3 Webhooks / sync automatico | **Hecho** | `products/create`, `update`, `delete` → upsert o borrar en CRM; registro al conectar + boton manual |
 | 4 Bot usa catalogo (WhatsApp) | **Parcial** | El worker Baileys ya arma el prompt con `products` (hasta 100, stock, orden por `updated_at`). Falta embeddings/RAG si el catalogo crece mucho más. |
 | 5 Widget en storefront Shopify | **Hecho (MVP)** | `widget.js?shop=...`, endpoint publico para resolver `siteKey`, validacion de origen `myshopify` conectado. |
-| 6 Theme App Extension (embed) | **Parcial** | Estructura creada en `extensions/wazapp-chat`; falta deploy definitivo por Shopify CLI y validacion final en tienda real. |
+| 6 Theme App Extension (embed) | **Hecho (abr 2026)** | Publicado con Shopify CLI en app **wazapp ai**; merchant activa **Wazapp chat** en App embeds. Detalle operativo: `SHOPIFY_WAZAPP_AI.md`. |
 | 7 Produccion (seguridad, metricas) | Parcial | Logs claros listos; token en claro; falta panel de salud y endurecimiento adicional. |
 
 ---
@@ -67,7 +67,7 @@
 - Una sola **variante** por producto (primera) en mapeo.
 - Sync masivo no borra productos locales que ya no existan en Shopify (los webhooks si borran al eliminar en Shopify).
 - Token en claro en BD.
-- Extension de tema creada pero pendiente de publicar/activar en una tienda real con flujo final de merchant.
+- Extension de tema publicada en app **wazapp ai**; activacion por tienda en el editor de tema (App embeds).
 
 ---
 
@@ -96,9 +96,10 @@
 
 ### Medio plazo (bot)
 
+- [ ] **Mejorar system prompts y reglas de respuesta** (tono, longitud, uso del catalogo, escalacion a humano; alinear criterios entre WhatsApp / Baileys y widget web / Shopify).
 - [ ] Pipeline conocimiento / embeddings desde `products`.
 - [ ] Re-indexacion al webhook (o cola).
-- [ ] Respuestas con datos de catalogo.
+- [ ] Respuestas con datos de catalogo (mas alla del prompt plano actual).
 
 ### Produccion
 
@@ -117,6 +118,12 @@
 - [x] Bot WhatsApp usa filas de `products` en el system prompt (incl. Shopify sync).
 - [ ] RAG / embeddings si el catalogo supera cómodamente el contexto del modelo.
 - [ ] Tokens y errores gestionados para operacion estable.
+
+---
+
+## Documento operativo (setup app wazapp ai)
+
+- `SHOPIFY_WAZAPP_AI.md` — contexto Partners, `shopify.app.wazapp-ai.toml`, variables Vercel, flujo comerciante y comandos CLI.
 
 ---
 

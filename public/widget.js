@@ -512,6 +512,17 @@
       var pollTimer = null;
       var typingRow = null;
       var seenMessageIds = Object.create(null);
+      /** Evita carrera: burbuja optimista del usuario + poll que ya ve el INSERT en BD antes de que termine POST /message. */
+      var sendRequestInFlight = false;
+
+      function setSendBusy(busy) {
+        sendRequestInFlight = !!busy;
+        if (sendBtn) {
+          sendBtn.disabled = !!busy;
+          sendBtn.style.opacity = busy ? '0.65' : '';
+          sendBtn.style.pointerEvents = busy ? 'none' : '';
+        }
+      }
 
       function applyBranding(d) {
         if (!d || typeof d !== 'object') return;
@@ -724,6 +735,7 @@
         if (pollTimer) clearInterval(pollTimer);
         pollTimer = setInterval(function () {
           if (!open || !chatId) return;
+          if (sendRequestInFlight) return;
           var q =
             '/api/public/widget/messages?siteKey=' +
             encodeURIComponent(siteKey) +
@@ -734,6 +746,7 @@
           if (lastCreatedAt) q += '&after=' + encodeURIComponent(lastCreatedAt);
           api(q)
             .then(function (data) {
+              if (sendRequestInFlight) return;
               var rows = data.messages || [];
               rows.forEach(function (m) {
                 if (m.id) {
@@ -751,6 +764,8 @@
       function send() {
         var text = (input.value || '').trim();
         if (!text || !chatId) return;
+        if (sendRequestInFlight) return;
+        setSendBusy(true);
         input.value = '';
         appendBubble(text, 'user');
         setTyping(true);
@@ -771,6 +786,8 @@
         })
           .then(function (data) {
             setTyping(false);
+            if (data.userMessageId) seenMessageIds[data.userMessageId] = true;
+            if (data.botMessageId) seenMessageIds[data.botMessageId] = true;
             if (data.cursor) lastCreatedAt = data.cursor;
             if (data.reply) appendBubble(data.reply, 'bot');
             else if (data.botPaused) appendBubble('Un agente te responderá pronto.', 'bot');
@@ -782,6 +799,9 @@
             }
             postToParent({ phase: 'send-failed', message: String(e.message || '') });
             appendBubble('Error al enviar: ' + (e.message || ''), 'bot');
+          })
+          .finally(function () {
+            setSendBusy(false);
           });
       }
 
@@ -814,6 +834,7 @@
         chatId = null;
         seenMessageIds = Object.create(null);
         lastCreatedAt = '';
+        setSendBusy(false);
         if (msgBox) msgBox.innerHTML = '';
         typingRow = null;
         if (input) input.value = '';

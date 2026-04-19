@@ -2,7 +2,7 @@
 
 **Propósito:** planificar el canal **web** (widget en páginas de clientes) y la capa **pro** de **Shopify**, partiendo del estado real del CMR/Wazapp que ya tenéis en el repo.
 
-**Última revisión:** abril 2026 (alineado con `ROADMAP_INTEGRACION_SHOPIFY.md`, `server/README.md`, `integracionwazapp.md`).
+**Última revisión:** 18 abril 2026 — Hito B (Theme App Extension) cerrado en producción inicial; ver `SHOPIFY_WAZAPP_AI.md`. Próximo foco sugerido: **mejorar prompts de respuesta del bot** (WhatsApp + web / Shopify).
 
 ### Estado abril 2026 — canal web (Hito A MVP)
 
@@ -14,7 +14,7 @@
 | Embed iframe + `frame-ancestors` + bypass origen desde página wazapp | **Hecho** |
 | Loader `wazapp-embed-loader.js` (hosts que borran `<iframe>` del HTML) | **Hecho** |
 | Bridge consola padre + `postMessage` para soporte | **Hecho** |
-| **Hito B Shopify** (Theme App Extension con mismo widget) | **En progreso** (scaffold extension + app embed + deep link listos; falta deploy/activacion final en tienda real). |
+| **Hito B Shopify** (Theme App Extension con mismo widget) | **Hecho (abr 2026)** — App Partners **wazapp ai**, `shopify app deploy`, embed **Wazapp chat** en tema; conexión + sync desde Configuración. Detalle: `SHOPIFY_WAZAPP_AI.md`. |
 | **A.2** rate limit, branding CSP guías, handoff explícito | **Pendiente / afinar** |
 
 ---
@@ -24,7 +24,7 @@
 | Dónde | Qué hace el comerciante | Qué obtiene |
 |--------|-------------------------|-------------|
 | **Cualquier web** | Copia y pega un **fragmento HTML** (en la práctica suele ser **una línea**: un `<script …>` que apunta a vuestro `widget.js`, más un `data-` con la clave de la org). Opcional: bloque “HTML personalizado” en WordPress, Webflow, etc. | Al publicar la página, aparece la **burbuja de chat** y el bot habla con el mismo backend que el panel CMR. |
-| **Tienda Shopify** | Con la **app Wazapp** ya instalada (OAuth que ya tenéis), entra al **editor de tema** y **activa el bloque / embed de la app** (Theme App Extension o *App embed* en Online Store 2.0). Sin pegar código en Liquid a mano. | El widget queda **visible en toda la tienda** (o solo donde configure el tema). Misma UI y misma API que el snippet web. |
+| **Tienda Shopify** | Con la app **wazapp ai** instalada (OAuth desde Configuración), en el **editor de tema** activa el **App embed** **Wazapp chat** (Theme App Extension). Sin pegar código en Liquid a mano. | El widget queda **visible en toda la tienda** (o solo donde configure el tema). Misma UI y misma API que el snippet web. |
 
 **Idea clave:** se construye **un solo widget** (JS + burbuja + conversación). La web lo carga con HTML/script; Shopify lo inyecta al **activar la extensión** en el tema. Así no mantenéis dos productos de chat distintos.
 
@@ -73,18 +73,19 @@
 | **9** | **CORS + prueba en sitio real** | **Hecho** (CORS en APIs públicas; probado en web de cliente). |
 | **10** | **Cierre MVP web** | **Hecho** — DoD cumplido. **Siguiente:** afinar (A.2) + Hito B Shopify. |
 
-### Bloque 2 — Shopify (Hito B, tras el MVP web) — **en progreso**
+### Bloque 2 — Shopify (Hito B, tras el MVP web) — **cerrado (abr 2026)**
 
 | Día | Enfoque | Resultado al cerrar el día |
 |-----|---------|-----------------------------|
 | **11** | **Theme App Extension — esqueleto** | **Hecho:** `extensions/wazapp-chat` + bloque embed `wazapp-chat-embed.liquid` + `shopify.extension.toml`. |
 | **12** | **Enlazar shop → org** | **Hecho (MVP):** `widget.js?shop=...` + `GET /api/public/widget/shopify-site-key` con lookup seguro sobre `shopify_integrations` conectada y `web_widget_public_key`. |
 | **13** | **Mismo `widget.js` en tema** | **Hecho:** storefront Shopify usa el mismo widget que web; solo cambia el bootstrap (`shop` en vez de `siteKey` manual). |
-| **14** | **Editor de tema + QA** | **Parcial:** deep link desde `ShopifyIntegration` para activar app embed; pendiente QA completo post-deploy en tienda real. |
-| **15** | **Cierre extensión** | Pendiente: publicar extension con Shopify CLI en la app final, verificar activacion merchant end-to-end y checklist de release. |
+| **14** | **Editor de tema + QA** | **Hecho:** app **wazapp ai** en Partners, deploy CLI, activación **App embeds → Wazapp chat** en tienda real. |
+| **15** | **Cierre extensión** | **Hecho:** versión publicada (`shopify app deploy`); checklist operativo en `SHOPIFY_WAZAPP_AI.md`. |
 
 ### Después del día 15
 
+- **Prioridad sugerida (producto):** mejorar **prompts / system prompt** del bot (coherencia canal web, Shopify storefront y WhatsApp / Baileys).
 - **A.2** (rate limit, branding, CSP) y **B.1** (deuda Shopify: token cifrado, webhooks salud) en paralelo según prioridad.
 - **B.4** RAG cuando el catálogo lo exija.
 
@@ -151,7 +152,7 @@ Partís de: OAuth, `shopify_integrations`, sync REST, webhooks `products/create|
 ### B.0 Experiencia objetivo en Shopify
 
 1. El comerciante **instala** vuestra app (flujo OAuth actual).
-2. En **Tienda online → Temas → Personalizar**, abre **App embeds** (o el bloque de app en el layout) y **activa “Chat Wazapp”**.
+2. En **Tienda online → Temas → Personalizar**, abre **App embeds** (o el bloque de app en el layout) y **activa “Wazapp chat”**.
 3. Opcional: arrastra el bloque si el tema lo permite; sin copiar/pegar script en Liquid.
 4. Al guardar, el **mismo `widget.js`** que en la web carga en la storefront, ya vinculado a la org/tienda correcta (shop domain o token derivado del install).
 
@@ -223,6 +224,7 @@ Detalle día a día: sección **Plan por días** arriba (~10 días web + ~5 día
 
 ## 8. Documentos relacionados
 
+- `SHOPIFY_WAZAPP_AI.md` — app **wazapp ai**, Vercel, deploy CLI, flujo comerciante.
 - `ROADMAP_INTEGRACION_SHOPIFY.md` — detalle técnico Shopify actual.
 - `ROADMAP_QR_CONEXION_WHATSAPP.md` — flujo QR / OAuth WhatsApp (referencia de estilo operativo).
 - `server/README.md` / `integracionwazapp.md` — arquitectura Baileys + Contabo.

@@ -167,8 +167,9 @@ ${initialGreeting ? `- Después de presentarte, ofrece: "${initialGreeting}"` : 
     //
   }
 
+  const hasCatalogOutreach = !!(companyWebsiteUrl || catalogInvitePhrase);
   const showWebCatalogHints =
-    contextText.trim().length > 50 || !!companyWebsiteUrl || !!catalogInvitePhrase;
+    hasCatalogOutreach || contextText.trim().length > 50;
   let webCatalogBlock = '';
   if (showWebCatalogHints) {
     const urlLine = companyWebsiteUrl
@@ -186,11 +187,17 @@ ${inviteLine}
 `;
   }
 
+  const catalogConfigMissingBlock = !hasCatalogOutreach
+    ? `
+CONFIGURACIÓN INCOMPLETA EN CMR: Falta tanto la URL de web como el texto/enlace de catálogo en la ficha del bot. No inventes enlaces. Pide disculpas breves y que un administrador complete «URL de tu web» o «Invitación a ver web o catálogo» en Entrenamiento del bot; ofrece hablar con un humano si necesita ayuda urgente.
+`
+    : '';
+
   const productDiscoveryBlock = `
 CONSULTAS ABIERTAS DE PRODUCTOS ("qué venden", "catálogo", "productos", "precios" en general):
-- Si hay web, invitación a catálogo o contexto entrenado con enlaces (sección anterior), responde primero guiando a ese recurso; no abras solo con una lista larga sacada del CRM. Como apoyo, como máximo 2–4 ejemplos breves y remite al enlace para ver variedades, fotos y detalle.
-- Si no hay web ni catálogo en entrenamiento, entonces sí orienta con ejemplos de PRODUCTOS DISPONIBLES.
-- Para armar el pedido, el nombre que diga el cliente debe identificar claramente un ítem de PRODUCTOS DISPONIBLES (mismo nombre o muy cercano). Si no coincide, pide el nombre exacto como en web/catálogo o sugiere opciones de la lista.
+- En el CMR debe existir URL de web o invitación/catálogo (obligatorio al guardar). Usa siempre ese recurso primero; no abras solo con una lista larga del CRM. Como apoyo, como máximo 2–4 ejemplos breves y remite al enlace para ver variedades, fotos y detalle.
+- PRODUCTO CONCRETO (el cliente nombra un modelo o referencia): confirma si está en PRODUCTOS DISPONIBLES, precio en S/. y stock si consta. Si no está, dilo con claridad y ofrece alternativas o el catálogo/web.
+- Para el pedido, el nombre debe identificar un ítem de PRODUCTOS DISPONIBLES (mismo nombre o muy cercano). Si no coincide, pide el nombre exacto como en web/catálogo.
 `;
 
   const orderFlowBlock = `
@@ -281,6 +288,7 @@ CONTEXTO DE LA EMPRESA (información de web o catálogo que entrenaron):
 ${contextText || '(Aún no hay web ni catálogo entrenado.)'}
 ${webCatalogBlock}
 ${productDiscoveryBlock}
+${catalogConfigMissingBlock}
 PRODUCTOS DISPONIBLES (listado interno del CRM / Shopify; fuente de verdad de precios y de create_order — cruza con el nombre exacto que el cliente copie de web o catálogo):
 ${productsContext}
 ${paymentMethodsContext ? `\n${paymentMethodsContext}\n` : ''}
@@ -288,7 +296,7 @@ ${orderFlowBlock}
 
 CÓMO HABLAR:
 - Tono: amable, claro, profesional y cercano.
-- Productos: precios solo según PRODUCTOS DISPONIBLES. Puedes compartir la URL de la web o del catálogo si figuran en la configuración o en el contexto entrenado (este chat no adjunta galería de fotos del CRM; para ver piezas, remite a web o catálogo).
+- Productos: precios solo según PRODUCTOS DISPONIBLES. Comparte la URL de la web o del catálogo según el CMR. En este chat web no se envían imágenes automáticas: ante consulta genérica remite a web/catálogo. Si el cliente pide un producto concreto que conste en la lista y la ficha incluya «Imagen:», puedes pegar **solo esa** URL de imagen en el mensaje para que la vea en el navegador (no uses URLs de imagen en preguntas amplias de catálogo).
 - Pagos: solo indica los métodos que aparecen en "MÉTODOS DE PAGO"; di el nombre y "a nombre de [nombre]". No inventes datos.
 
 REGLAS:

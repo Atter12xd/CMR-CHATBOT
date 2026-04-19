@@ -67,14 +67,22 @@ export async function saveOrganizationBotConfig(
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) throw new Error('No hay sesión activa');
 
+  const catalogInvite = config.catalogInvite.trim();
+  const companyWebsiteUrl = config.companyWebsiteUrl.trim();
+  if (!catalogInvite && !companyWebsiteUrl) {
+    throw new Error(
+      'Completa al menos uno: «URL de tu web» o «Invitación a ver web o catálogo» (enlace o texto). El bot los usa para responder cuando preguntan por productos.',
+    );
+  }
+
   const rowFull: Record<string, unknown> = {
     organization_id: organizationId,
     company_name: config.companyName.trim() || null,
     company_description: config.companyDescription.trim() || null,
     initial_greeting: config.initialGreeting.trim() || null,
     bot_name: config.botName.trim() || null,
-    catalog_invite: config.catalogInvite.trim() || null,
-    company_website_url: config.companyWebsiteUrl.trim() || null,
+    catalog_invite: catalogInvite || null,
+    company_website_url: companyWebsiteUrl || null,
     updated_at: new Date().toISOString(),
   };
 

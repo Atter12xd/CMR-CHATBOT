@@ -126,8 +126,17 @@ export default function BotTrainingPage() {
     return { total: trainingData.length, web, pdf, completed };
   }, [trainingData]);
 
+  const hasWebOrCatalogForSave =
+    !!(catalogInvite.trim() || companyWebsiteUrl.trim());
+
   const handleSaveBotConfig = async () => {
     if (!organizationId) return;
+    if (!hasWebOrCatalogForSave) {
+      alert(
+        'Completa al menos uno: «URL de tu web» o «Invitación a ver web o catálogo». El bot los necesita para guiar al cliente cuando pregunta por productos.',
+      );
+      return;
+    }
     setConfigSaving(true);
     try {
       await saveOrganizationBotConfig(organizationId, {
@@ -521,22 +530,22 @@ export default function BotTrainingPage() {
           </div>
           <div>
             <label className="block text-[12px] font-semibold text-app-muted mb-1.5 uppercase tracking-wide">
-              Invitación a ver web o catálogo (opcional)
+              Invitación a ver web o catálogo <span className="text-amber-700">(obligatorio si no pones URL)</span>
             </label>
             <input
               type="text"
               value={catalogInvite}
               onChange={(e) => setCatalogInvite(e.target.value)}
-              placeholder="Ej: Puede ver nuestra web o ¿Le paso el catálogo?"
+              placeholder="Ej: Catálogo: https://… o «¿Le paso el PDF?»"
               className={fieldClass}
             />
             <p className="text-[12px] text-app-muted mt-1.5 leading-relaxed">
-              El bot usará esto para invitar al cliente a ver tu web o catálogo (según lo que hayas entrenado abajo).
+              Texto o enlace que el bot ofrece cuando preguntan por productos o catálogo. Si ya tienes URL de web abajo, este campo puede ser un refuerzo breve.
             </p>
           </div>
           <div>
             <label className="block text-[12px] font-semibold text-app-muted mb-1.5 uppercase tracking-wide">
-              URL de tu web
+              URL de tu web <span className="text-amber-700">(obligatoria si no pones catálogo arriba)</span>
             </label>
             <input
               type="url"
@@ -546,14 +555,14 @@ export default function BotTrainingPage() {
               className={fieldClass}
             />
             <p className="text-[12px] text-app-muted mt-1.5 leading-relaxed">
-              La web que el bot estudia y puede ofrecer al cliente. También puedes extraerla abajo en «Extraer de página web».
+              Debes completar esta URL o la invitación/catálogo de arriba (al menos uno). El bot prioriza esto ante preguntas generales de productos. También puedes rellenarla desde «Extraer de página web».
             </p>
           </div>
           <div className="flex justify-end pt-1">
             <motion.button
               type="button"
               onClick={handleSaveBotConfig}
-              disabled={configSaving}
+              disabled={configSaving || !hasWebOrCatalogForSave}
               whileTap={{ scale: configSaving ? 1 : 0.98 }}
               className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-brand-500 text-white hover:bg-brand-600 shadow-md shadow-brand-500/20 disabled:opacity-50 transition-colors"
             >

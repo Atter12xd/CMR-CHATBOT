@@ -132,10 +132,6 @@ export async function handleIncomingMessage(
 
     const aiResponse = await generateAIResponse(clientConfig, chatId, messageText);
 
-    if (isProductQuestion(messageText)) {
-      await sendProductImages(socket, remoteJid, clientConfig.id, chatId);
-    }
-
     await socket.sendMessage(remoteJid, { text: aiResponse });
 
     if (isPaymentReportMessage(messageText) && !hasImage && !hasDocument) {
@@ -153,6 +149,11 @@ export async function handleIncomingMessage(
       text: aiResponse,
       status: 'sent'
     });
+
+    const imageMatches = await findProductsMentionedInMessage(clientConfig.id, messageText);
+    if (imageMatches.length) {
+      await sendProductImagesForProducts(socket, remoteJid, chatId, imageMatches);
+    }
 
     console.log(`[CHAT] Respuesta enviada a ${senderPhone} | ${aiResponse.length > 60 ? aiResponse.slice(0, 60) + '...' : aiResponse}`);
   } catch (error) {
@@ -252,8 +253,9 @@ ${initialGreeting ? `- Después de presentarte, ofrece: "${initialGreeting}"` : 
     // tabla puede no existir
   }
 
+  const hasCatalogOutreach = !!(companyWebsiteUrl || catalogInvitePhrase);
   const showWebCatalogHints =
-    contextText.trim().length > 50 || !!companyWebsiteUrl || !!catalogInvitePhrase;
+    hasCatalogOutreach || contextText.trim().length > 50;
   let webCatalogBlock = '';
   if (showWebCatalogHints) {
     const urlLine = companyWebsiteUrl
@@ -271,11 +273,17 @@ ${inviteLine}
 `;
   }
 
+  const catalogConfigMissingBlock = !hasCatalogOutreach
+    ? `
+CONFIGURACIÓN INCOMPLETA EN CMR: Falta tanto la URL de web como el texto/enlace de catálogo en la ficha del bot. No inventes enlaces. Pide disculpas breves y que un administrador complete «URL de tu web» o «Invitación a ver web o catálogo» en Entrenamiento del bot; ofrece hablar con un humano si necesita ayuda urgente.
+`
+    : '';
+
   const productDiscoveryBlock = `
 CONSULTAS ABIERTAS DE PRODUCTOS ("qué venden", "catálogo", "productos", "precios" en general):
-- Si hay web, invitación a catálogo o contexto entrenado con enlaces (sección anterior), responde primero guiando a ese recurso; no abras solo con una lista larga sacada del CRM. Como apoyo, como máximo 2–4 ejemplos breves y remite al enlace para ver variedades, fotos y detalle.
-- Si no hay web ni catálogo en entrenamiento, entonces sí orienta con ejemplos de PRODUCTOS DISPONIBLES.
-- Para armar el pedido, el nombre que diga el cliente debe identificar claramente un ítem de PRODUCTOS DISPONIBLES (mismo nombre o muy cercano). Si no coincide, pide el nombre exacto como en web/catálogo o sugiere opciones de la lista.
+- En el CMR debe existir URL de web o invitación/catálogo (obligatorio al guardar). Usa siempre ese recurso primero; no abras solo con una lista larga del CRM. Como apoyo, como máximo 2–4 ejemplos breves y remite al enlace para ver variedades, fotos y detalle.
+- PRODUCTO CONCRETO (el cliente nombra un modelo o referencia): confirma si está en PRODUCTOS DISPONIBLES, precio en S/. y stock si consta. Si no está, dilo con claridad y ofrece alternativas o el catálogo/web.
+- Para el pedido, el nombre debe identificar un ítem de PRODUCTOS DISPONIBLES (mismo nombre o muy cercano). Si no coincide, pide el nombre exacto como en web/catálogo.
 `;
 
   const orderFlowBlock = `
@@ -359,6 +367,7 @@ CONTEXTO DE LA EMPRESA (información de web o catálogo que entrenaron):
 ${contextText || '(Aún no hay web ni catálogo entrenado.)'}
 ${webCatalogBlock}
 ${productDiscoveryBlock}
+${catalogConfigMissingBlock}
 PRODUCTOS DISPONIBLES (listado interno del CRM / Shopify; fuente de verdad de precios y de create_order — cruza con el nombre exacto que el cliente copie de web o catálogo):
 ${productsContext}
 ${paymentMethodsContext ? `\n${paymentMethodsContext}\n` : ''}
@@ -366,7 +375,7 @@ ${orderFlowBlock}
 
 CÓMO HABLAR:
 - Tono: amable, claro, profesional y cercano.
-- Productos: precios solo según PRODUCTOS DISPONIBLES. Puedes compartir la URL de la web o del catálogo si figuran en la configuración o en el contexto entrenado. No pegues enlaces que sean solo archivos de imagen del inventario; en WhatsApp las fotos de producto se envían por otro canal cuando aplica.
+- Productos: precios solo según PRODUCTOS DISPONIBLES. Comparte la URL de la web o del catálogo según la configuración del CMR. No pegues en el texto URLs sueltas de solo imagen del inventario: en WhatsApp, si el cliente menciona un producto concreto que coincida con la lista y tenga imagen, el sistema envía la foto **después** de tu mensaje de texto; tú solo confirma disponibilidad y precio.
 - Pagos: solo indica los métodos que aparecen en "MÉTODOS DE PAGO"; di el nombre y "a nombre de [nombre]". No inventes datos.
 
 REGLAS:
@@ -576,36 +585,61 @@ async function updateChatIntentIfBuying(chatId: string, text: string): Promise<v
   }
 }
 
-const PRODUCT_QUESTION_KEYWORDS = [
-  'producto', 'productos', 'qué venden', 'que venden', 'catálogo', 'catalogo', 'qué tienen',
-  'que tienen', 'precio', 'precios', 'cuánto cuesta', 'cuanto cuesta', 'cuánto es', 'cuanto es',
-  'foto', 'fotos', 'imagen', 'ver', 'mostrar', 'tienen', 'venden', 'ofrecen', 'lista'
-];
-
-function isProductQuestion(text: string): boolean {
-  const lower = text.toLowerCase().trim();
-  if (lower.length < 2) return false;
-  return PRODUCT_QUESTION_KEYWORDS.some(k => lower.includes(k));
+/** Mensaje normalizado con espacios para detectar nombre de producto como token (evita falsos positivos cortos). */
+function normalizeMessageForProductMatch(text: string): string {
+  return ` ${text.toLowerCase().replace(/\s+/g, ' ')} `;
 }
 
-async function sendProductImages(
-  socket: WASocket,
-  remoteJid: string,
+/**
+ * Coincidencia por nombre: solo cuando el texto del cliente contiene el nombre del producto
+ * como frase (mín. 4 caracteres). Orden por nombre largo primero para favorecer coincidencias específicas.
+ */
+async function findProductsMentionedInMessage(
   organizationId: string,
-  chatId: string
-): Promise<void> {
+  text: string
+): Promise<{ name: string; price: number; image_url: string }[]> {
   const { data: products } = await supabase
     .from('products')
     .select('name, price, image_url')
     .eq('organization_id', organizationId)
     .not('image_url', 'is', null)
-    .order('updated_at', { ascending: false })
-    .limit(5);
+    .limit(300);
 
-  if (!products?.length) return;
+  if (!products?.length) return [];
 
+  const hay = normalizeMessageForProductMatch(text);
+  const sorted = [...products].sort(
+    (a, b) => (b.name?.length || 0) - (a.name?.length || 0)
+  );
+  const out: { name: string; price: number; image_url: string }[] = [];
+  const seen = new Set<string>();
+
+  for (const p of sorted) {
+    const name = String(p.name || '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (name.length < 4) continue;
+    const n = name.toLowerCase();
+    const needle = ` ${n} `;
+    if (!hay.includes(needle)) continue;
+    const url = String((p as { image_url?: string }).image_url || '').trim();
+    if (!url) continue;
+    if (seen.has(n)) continue;
+    seen.add(n);
+    out.push({ name, price: Number(p.price) || 0, image_url: url });
+    if (out.length >= 5) break;
+  }
+  return out;
+}
+
+async function sendProductImagesForProducts(
+  socket: WASocket,
+  remoteJid: string,
+  chatId: string,
+  products: { name: string; price: number; image_url: string }[]
+): Promise<void> {
   for (const p of products) {
-    const url = (p as { image_url: string }).image_url?.trim();
+    const url = p.image_url?.trim();
     if (!url) continue;
     try {
       const res = await fetch(url);

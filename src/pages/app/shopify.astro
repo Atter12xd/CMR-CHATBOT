@@ -1,0 +1,94 @@
+---
+/**
+ * Pantalla que Shopify abre al entrar a la app embebida (application_url).
+ * Sustituye la landing de marketing (/) por una vista clara para comerciantes.
+ */
+import LandingLayout from '../../layouts/LandingLayout.astro';
+
+const shopRaw = Astro.url.searchParams.get('shop') || '';
+const shop = shopRaw.replace(/^https?:\/\//, '').replace(/\/+$/, '').toLowerCase();
+const origin = Astro.url.origin;
+const panelLogin = `${origin}/login?next=${encodeURIComponent('/configuracion')}`;
+const panelDirect = `${origin}/configuracion`;
+---
+
+<LandingLayout
+  title="Wazapp para Shopify"
+  description="Sincroniza tu catálogo y activa el chat de tu tienda con Wazapp."
+>
+  <div class="relative min-h-screen flex flex-col bg-gradient-to-b from-slate-50 via-white to-emerald-50/40">
+    <header class="border-b border-slate-200/80 bg-white/90 backdrop-blur-sm">
+      <div class="mx-auto max-w-3xl px-4 py-4 flex items-center justify-between gap-4">
+        <a href={`${origin}/`} target="_top" rel="noopener noreferrer" class="flex items-center gap-2 shrink-0">
+          <img src="/logo.png" alt="Wazapp" class="h-9 w-9 rounded-lg" width="36" height="36" />
+          <span class="font-semibold text-slate-900 tracking-tight">Wazapp</span>
+        </a>
+        <a
+          href={`${origin}/contacto`}
+          target="_top"
+          rel="noopener noreferrer"
+          class="text-sm font-medium text-slate-600 hover:text-emerald-800"
+        >
+          Ayuda
+        </a>
+      </div>
+    </header>
+
+    <main class="flex-1 mx-auto max-w-3xl px-4 py-12 md:py-16 w-full">
+      <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700/90 mb-3">App instalada en Shopify</p>
+      <h1 class="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight mb-4">
+        Tu tienda y Wazapp
+      </h1>
+      <p class="text-lg text-slate-600 leading-relaxed mb-6">
+        Desde el <strong class="text-slate-800">panel de Wazapp</strong> conectas esta tienda, sincronizas productos y
+        activas el chat en la vitrina. Aquí no hace falta configurar nada técnico: solo entrar con tu cuenta.
+      </p>
+
+      {
+        shop ? (
+          <p class="rounded-xl border border-emerald-200/80 bg-emerald-50/90 px-4 py-3 text-sm text-emerald-900 mb-8">
+            Tienda que ve Shopify: <span class="font-mono font-semibold">{shop}</span>
+          </p>
+        ) : null
+      }
+
+      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-200/50 p-6 md:p-8 space-y-6">
+        <ol class="list-decimal list-inside space-y-3 text-slate-700 text-[15px] leading-relaxed">
+          <li>
+            Pulsa <strong>Ir al panel</strong> (se abre fuera del recuadro de Shopify si hace falta).
+          </li>
+          <li>Inicia sesión o crea tu cuenta en Wazapp.</li>
+          <li>
+            Ve a <strong>Configuración</strong> → <strong>Integración Shopify</strong>, escribe el dominio de tu tienda
+            (por ejemplo <span class="font-mono text-sm">tu-tienda.myshopify.com</span>) y conecta.
+          </li>
+          <li>Sincroniza productos y, si ya te lo indicamos, activa el chat en el diseño de tu tienda.</li>
+        </ol>
+
+        <div class="flex flex-col sm:flex-row gap-3 pt-2">
+          <a
+            href={panelLogin}
+            target="_top"
+            rel="noopener noreferrer"
+            class="inline-flex justify-center items-center px-6 py-3 rounded-full text-sm font-semibold bg-emerald-700 text-white hover:bg-emerald-800 shadow-md shadow-emerald-900/15"
+          >
+            Ir al panel de Wazapp
+          </a>
+          <a
+            href={panelDirect}
+            target="_top"
+            rel="noopener noreferrer"
+            class="inline-flex justify-center items-center px-6 py-3 rounded-full text-sm font-semibold border border-slate-300 text-slate-800 hover:bg-slate-50"
+          >
+            Ya tengo sesión — ir a configuración
+          </a>
+        </div>
+      </div>
+
+      <p class="mt-10 text-sm text-slate-500 leading-relaxed max-w-2xl">
+        La página principal de <a href={`${origin}/`} target="_top" class="text-emerald-800 underline font-medium">wazapp.ai</a> sigue
+        ahí si quieres conocer precios o funciones; esta pantalla es solo para quien entra desde la app en Shopify.
+      </p>
+    </main>
+  </div>
+</LandingLayout>

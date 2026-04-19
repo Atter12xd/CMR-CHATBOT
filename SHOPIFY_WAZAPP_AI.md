@@ -16,7 +16,7 @@ Para no mezclar con otras extensiones (p. ej. botón WhatsApp en la app históri
 
 Config local relevante en `shopify.app.wazapp-ai.toml`:
 
-- `application_url` → `https://wazapp.ai`
+- `application_url` → `https://wazapp.ai/app/shopify` (pantalla para comerciantes; la landing de marketing sigue en `/`)
 - `[auth] redirect_urls` → `https://wazapp.ai/api/shopify/callback`
 - Extensión publicada: **`wazapp-chat`** (nombre visible en el editor de tema: **Wazapp chat**)
 

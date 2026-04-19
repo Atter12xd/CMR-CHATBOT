@@ -9,7 +9,8 @@
 
 name = "Wazapp"
 client_id = "TU_CLIENT_ID_DE_SHOPIFY"
-application_url = "https://TU_DOMINIO_PUBLICO"
+# Ruta dedicada para quien abre la app desde Shopify (evita mostrar la landing /).
+application_url = "https://TU_DOMINIO_PUBLICO/app/shopify"
 embedded = true
 
 [build]

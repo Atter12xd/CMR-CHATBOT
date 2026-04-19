@@ -2,7 +2,8 @@
 
 client_id = "2a36a40cd7d71108680b16846b201d1f"
 name = "wazapp ai"
-application_url = "https://wazapp.ai"
+# Vista para comerciantes (no la landing de marketing). Tras deploy: Partners toma este valor al publicar con CLI.
+application_url = "https://wazapp.ai/app/shopify"
 embedded = true
 
 [build]

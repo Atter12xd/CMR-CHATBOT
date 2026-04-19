@@ -499,13 +499,11 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
 
       {status === 'connected' && (
         <div className="rounded-xl border border-app-line bg-ref-card/80 p-4 space-y-3">
-          <p className="text-[14px] font-semibold text-app-ink">Chat en la tienda (mismo widget que en web)</p>
-          <p className="text-[12px] text-app-muted leading-relaxed">
-            Opción recomendada: publica la <strong>extensión de tema</strong> del repo (
-            <code className="text-[11px]">extensions/wazapp-chat/</code>) con Shopify CLI (
-            <code className="text-[11px]">shopify app deploy</code>) vinculado a la misma app que{' '}
-            <code className="text-[11px]">SHOPIFY_API_KEY</code>. Luego el comerciante activa el embed «Wazapp chat» en el
-            editor del tema.
+          <p className="text-[14px] font-semibold text-app-ink">Chat en tu tienda online</p>
+          <p className="text-[13px] text-app-muted leading-relaxed">
+            Tus clientes pueden escribirte desde la tienda con el mismo chat que en tu web: las conversaciones llegan a
+            Wazapp como siempre. No hace falta copiar código raro: con el botón de abajo entras al diseño de tu tienda en
+            Shopify y solo activas el bloque de chat de Wazapp (como cuando enciendes una opción en el menú).
           </p>
           {themeEditorActivateUrl ? (
             <a
@@ -515,31 +513,21 @@ export default function ShopifyIntegration({ organizationId }: ShopifyIntegratio
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold bg-brand-500 text-white hover:bg-brand-600 w-fit"
             >
               <ExternalLink className="size-4" />
-              Abrir tema para activar el chat (App embed)
+              Abrir mi tienda para activar el chat
             </a>
           ) : (
-            <p className="text-[12px] text-amber-800 bg-amber-500/15 border border-amber-500/25 rounded-lg px-3 py-2">
-              No hay <code className="text-[11px]">SHOPIFY_API_KEY</code> en el servidor: no podemos armar el enlace
-              automático. Configura la variable en el hosting o pega el snippet Liquid desde Configuración → Widget (modo
-              Shopify).
+            <p className="text-[13px] text-amber-900 bg-amber-500/12 border border-amber-500/25 rounded-lg px-3 py-2.5 leading-relaxed">
+              Ahora mismo no podemos abrir el enlace automático al diseño de la tienda. Escríbenos por el canal de soporte
+              que uses con Wazapp y lo revisamos contigo en un momento.
             </p>
           )}
-          {themeEmbed?.publicBaseUrl ? (
-            <p className="text-[11px] text-app-muted leading-relaxed font-mono break-all">
-              Snippet manual (tema → Liquid):{' '}
-              <span className="text-app-ink">
-                &lt;script src=&quot;{themeEmbed.publicBaseUrl}/widget.js?shop=&#123;&#123; shop.permanent_domain
-                &#125;&#125;&quot; defer&gt;&lt;/script&gt;
-              </span>
-            </p>
-          ) : null}
         </div>
       )}
 
-      <p className="text-[12px] text-app-muted leading-relaxed">
-        Al sincronizar, tus productos de Shopify se copian aquí para usarlos en el CRM y el bot. El recuadro de arriba te
-        muestra cómo va el proceso. Si algo no sale bien, anota el mensaje que aparezca o la hora aproximada y escríbenos:
-        con eso podemos revisarlo contigo sin complicaciones.
+      <p className="text-[13px] text-app-muted leading-relaxed">
+        Cuando sincronizas, los productos de tu tienda se guardan aquí para el CRM y para que el bot los conozca. Arriba
+        ves cómo va la actualización. Si ves un error o algo no cuadra, anota el mensaje en pantalla o la hora aproximada
+        y cuéntanoslo: con eso te ayudamos rápido.
       </p>
 
     </div>

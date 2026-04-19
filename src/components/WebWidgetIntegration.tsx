@@ -15,7 +15,6 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
   const [publicKey, setPublicKey] = useState<string | null>(null);
   const [allowedText, setAllowedText] = useState('');
   const [snippet, setSnippet] = useState('');
-  const [snippetShopify, setSnippetShopify] = useState('');
   const [snippetIframe, setSnippetIframe] = useState('');
   const [snippetLoader, setSnippetLoader] = useState('');
   const [snippetConsoleBridge, setSnippetConsoleBridge] = useState('');
@@ -26,7 +25,6 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
   const [copiedBridge, setCopiedBridge] = useState(false);
   const [copiedOneLiner, setCopiedOneLiner] = useState(false);
   const [copiedKey, setCopiedKey] = useState(false);
-  const [copiedShopify, setCopiedShopify] = useState(false);
 
   const getToken = async () => {
     const {
@@ -54,7 +52,6 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
       const list = Array.isArray(data.allowedOrigins) ? data.allowedOrigins : [];
       setAllowedText(list.join('\n'));
       setSnippet(data.snippet || '');
-      setSnippetShopify(data.snippetShopify || '');
       setSnippetIframe(data.snippetIframe || '');
       setSnippetLoader(data.snippetLoader || '');
       setSnippetConsoleBridge(data.snippetConsoleBridge || '');
@@ -94,7 +91,6 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'No se pudo guardar');
       setSnippet(data.snippet || snippet);
-      setSnippetShopify(data.snippetShopify || '');
       setSnippetIframe(data.snippetIframe || '');
       setSnippetLoader(data.snippetLoader || '');
       setSnippetConsoleBridge(data.snippetConsoleBridge || '');
@@ -127,7 +123,6 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
       if (!res.ok) throw new Error(data.error || 'No se pudo generar la clave');
       setPublicKey(data.publicKey || null);
       setSnippet(data.snippet || '');
-      setSnippetShopify(data.snippetShopify || '');
       setSnippetIframe(data.snippetIframe || '');
       setSnippetLoader(data.snippetLoader || '');
       setSnippetConsoleBridge(data.snippetConsoleBridge || '');
@@ -136,17 +131,6 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
       setError(e instanceof Error ? e.message : 'Error');
     } finally {
       setGenerating(false);
-    }
-  };
-
-  const copySnippetShopify = async () => {
-    if (!snippetShopify) return;
-    try {
-      await navigator.clipboard.writeText(snippetShopify);
-      setCopiedShopify(true);
-      setTimeout(() => setCopiedShopify(false), 2000);
-    } catch {
-      setError('No se pudo copiar al portapapeles.');
     }
   };
 
@@ -216,10 +200,9 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
     }
   };
 
-  const hasAdvanced =
-    Boolean(
-      snippetShopify || snippetIframe || snippetLoader || snippetConsoleBridge || parentConsoleOneLiner || publicKey,
-    );
+  const hasAdvanced = Boolean(
+    snippetIframe || snippetLoader || snippetConsoleBridge || parentConsoleOneLiner || publicKey,
+  );
 
   if (loading) {
     return (
@@ -322,30 +305,6 @@ export default function WebWidgetIntegration({ organizationId }: WebWidgetIntegr
             Debe pegarse el <strong>bloque entero</strong> (desde <code className="text-[10px]">&lt;script</code> hasta{' '}
             <code className="text-[10px]">&lt;/script&gt;</code>). Si solo pegas un enlace suelto, no funcionará.
           </p>
-        </div>
-      )}
-
-      {snippetShopify && (
-        <div className="rounded-xl border border-app-line bg-app-field/30 p-4 space-y-3">
-          <div className="flex items-center justify-between gap-2 flex-wrap">
-            <span className="text-[14px] font-semibold text-app-ink">Shopify (tema Liquid)</span>
-            <button
-              type="button"
-              onClick={copySnippetShopify}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border border-app-line text-app-ink hover:bg-app-field/80"
-            >
-              <Copy className="size-4" />
-              {copiedShopify ? '¡Copiado!' : 'Copiar snippet'}
-            </button>
-          </div>
-          <p className="text-[12px] text-app-muted leading-relaxed">
-            Con la tienda conectada en Wazapp, no hace falta pegar la clave larga: el parámetro{' '}
-            <code className="text-[10px]">shop</code> basta. Si usas un dominio propio en el escaparate, añade ese
-            dominio en «¿En qué sitios puede usarse?» arriba.
-          </p>
-          <pre className="text-[11px] text-app-muted overflow-x-auto p-3 rounded-lg bg-ref-card border border-app-line whitespace-pre-wrap break-all">
-            {snippetShopify}
-          </pre>
         </div>
       )}
 

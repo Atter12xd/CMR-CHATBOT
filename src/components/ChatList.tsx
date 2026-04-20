@@ -1,16 +1,18 @@
 import { useState } from 'react';
-import { Search, MessageCircle, Filter, X, Users } from 'lucide-react';
+import { Search, MessageCircle, Filter, X, Users, ShoppingBag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Chat } from '../data/mockData';
 import { formatTime } from '../data/mockData';
+import type { InboxSection } from '../lib/inbox-section';
+import { chatMatchesInboxSection } from '../lib/inbox-section';
 
 interface ChatListProps {
   chats: Chat[];
   selectedChatId: string | null;
   onSelectChat: (chatId: string) => void;
+  inboxSection: InboxSection;
 }
 
-type PlatformFilter = 'all' | 'facebook' | 'whatsapp' | 'web';
 type StatusFilter = 'all' | 'active' | 'waiting' | 'resolved';
 
 const INTENT_LABELS: Record<string, string> = {
@@ -33,25 +35,52 @@ const listItem = {
   show: { opacity: 1, x: 0, transition: { type: 'spring', stiffness: 380, damping: 28 } },
 };
 
-export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatListProps) {
+const INBOX_LIST_TITLE: Record<InboxSection, string> = {
+  whatsapp: 'WhatsApp',
+  web: 'Tu web',
+  shopify: 'Shopify',
+};
+
+const INBOX_EMPTY: Record<InboxSection, { title: string; hint: string }> = {
+  whatsapp: {
+    title: 'No hay conversaciones de WhatsApp',
+    hint: 'Cuando escriban a tu número conectado, aparecerán aquí.',
+  },
+  web: {
+    title: 'No hay conversaciones de tu web',
+    hint: 'Incluye el widget en sitios permitidos y chats de Messenger.',
+  },
+  shopify: {
+    title: 'No hay conversaciones desde Shopify',
+    hint: 'Activa el embed del tema o escribe desde la tienda con el widget.',
+  },
+};
+
+export default function ChatList({ chats, selectedChatId, onSelectChat, inboxSection }: ChatListProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [platformFilter, setPlatformFilter] = useState<PlatformFilter>('all');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [onlyLeads, setOnlyLeads] = useState(false);
 
   const filteredChats = chats.filter((chat) => {
+    if (!chatMatchesInboxSection(chat, inboxSection)) return false;
     const matchesSearch =
       chat.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (chat.customerEmail && chat.customerEmail.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesPlatform = platformFilter === 'all' || chat.platform === platformFilter;
     const matchesStatus = statusFilter === 'all' || chat.status === statusFilter;
     const matchesLeads = !onlyLeads || chat.lastIntentAt != null;
-    return matchesSearch && matchesPlatform && matchesStatus && matchesLeads;
+    return matchesSearch && matchesStatus && matchesLeads;
   });
 
-  const getPlatformIcon = (platform: Chat['platform']) => {
+  const getPlatformIcon = (platform: Chat['platform'], webChannel: Chat['webChannel']) => {
+    if (platform === 'web' && webChannel === 'shopify') {
+      return (
+        <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[#96BF48]/25 shadow-sm shadow-black/10">
+          <ShoppingBag size={12} className="text-[#3d5220]" strokeWidth={2} />
+        </div>
+      );
+    }
     switch (platform) {
       case 'facebook':
         return (
@@ -89,13 +118,19 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
     }
   };
 
-  const activeFiltersCount =
-    (platformFilter !== 'all' ? 1 : 0) + (statusFilter !== 'all' ? 1 : 0) + (onlyLeads ? 1 : 0);
+  const activeFiltersCount = (statusFilter !== 'all' ? 1 : 0) + (onlyLeads ? 1 : 0);
 
   return (
     <div className="h-full min-w-0 max-w-full w-full flex flex-col overflow-hidden bg-white">
       <div className="px-3.5 pt-3.5 pb-2 border-b border-[#E5E7EB] space-y-2.5 shrink-0 bg-white min-w-0">
-        <h3 className="text-sm font-bold text-[#3D3D40]">Conversaciones</h3>
+        <div>
+          <h3 className="text-sm font-bold text-[#3D3D40]">{INBOX_LIST_TITLE[inboxSection]}</h3>
+          <p className="mt-0.5 text-[10px] font-medium leading-snug text-[#6D6D70]">
+            {inboxSection === 'whatsapp' && 'Solo este canal'}
+            {inboxSection === 'web' && 'Widget en tu dominio y Messenger'}
+            {inboxSection === 'shopify' && 'Solo conversaciones marcadas como tienda Shopify'}
+          </p>
+        </div>
         <div className="flex items-center gap-2 min-w-0">
           <div className="relative flex-1 min-w-0 group">
             <Search
@@ -157,7 +192,6 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
                     <button
                       type="button"
                       onClick={() => {
-                        setPlatformFilter('all');
                         setStatusFilter('all');
                         setOnlyLeads(false);
                       }}
@@ -166,27 +200,6 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
                       Limpiar
                     </button>
                   )}
-                </div>
-                <div>
-                  <label className="text-[10px] font-medium text-app-muted uppercase tracking-wider mb-2 block">
-                    Plataforma
-                  </label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {(['all', 'whatsapp', 'facebook', 'web'] as const).map((p) => (
-                      <button
-                        key={p}
-                        type="button"
-                        onClick={() => setPlatformFilter(p)}
-                        className={`px-3 py-1.5 text-[11px] rounded-full font-medium transition-all ${
-                          platformFilter === p
-                            ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20'
-                            : 'bg-ref-card text-app-muted border border-app-line hover:text-app-ink'
-                        }`}
-                      >
-                        {p === 'all' ? 'Todas' : p === 'whatsapp' ? 'WhatsApp' : p === 'facebook' ? 'Facebook' : 'Web'}
-                      </button>
-                    ))}
-                  </div>
                 </div>
                 <div>
                   <label className="text-[10px] font-medium text-app-muted uppercase tracking-wider mb-2 block">
@@ -243,10 +256,8 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
             <div className="w-16 h-16 rounded-ref bg-ref-card border border-app-line flex items-center justify-center mb-4 shadow-sm">
               <Users className="w-8 h-8 text-app-muted" />
             </div>
-            <p className="text-sm font-medium text-app-ink">No hay conversaciones</p>
-            <p className="text-xs text-app-muted mt-1 max-w-[220px]">
-              Prueba otro filtro o espera nuevos mensajes.
-            </p>
+            <p className="text-sm font-medium text-app-ink">{INBOX_EMPTY[inboxSection].title}</p>
+            <p className="text-xs text-app-muted mt-1 max-w-[240px]">{INBOX_EMPTY[inboxSection].hint}</p>
           </motion.div>
         ) : (
           <motion.div
@@ -292,7 +303,7 @@ export default function ChatList({ chats, selectedChatId, onSelectChat }: ChatLi
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 mb-1.5 min-w-0">
-                      {getPlatformIcon(chat.platform)}
+                      {getPlatformIcon(chat.platform, chat.webChannel)}
                       <p className="text-[11px] truncate min-w-0 flex-1 leading-snug text-[#6D6D70]">
                         {chat.lastMessage || 'Sin mensajes'}
                       </p>

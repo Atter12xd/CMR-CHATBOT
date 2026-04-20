@@ -1,5 +1,6 @@
 import { X } from 'lucide-react';
 import type { Chat } from '../data/mockData';
+import { inboxChannelSubtitle } from '../lib/inbox-section';
 
 type Variant = 'modal' | 'sidebar';
 
@@ -13,12 +14,7 @@ interface ChatContactPanelProps {
 export default function ChatContactPanel({ chat, displayName, variant, onClose }: ChatContactPanelProps) {
   const isModal = variant === 'modal';
 
-  const platformLabel =
-    chat.platform === 'whatsapp'
-      ? 'WhatsApp'
-      : chat.platform === 'facebook'
-        ? 'Facebook Messenger'
-        : 'Chat Web';
+  const platformLabel = inboxChannelSubtitle(chat);
 
   return (
     <div
@@ -72,7 +68,8 @@ export default function ChatContactPanel({ chat, displayName, variant, onClose }
               <span className="text-[#3D3D40] font-medium">
                 {chat.platform === 'whatsapp' && 'WhatsApp Business'}
                 {chat.platform === 'facebook' && 'Facebook Messenger'}
-                {chat.platform === 'web' && 'Chat web'}
+                {chat.platform === 'web' && chat.webChannel === 'shopify' && 'Widget Shopify'}
+                {chat.platform === 'web' && chat.webChannel !== 'shopify' && 'Widget en tu sitio'}
               </span>
             </div>
           </div>

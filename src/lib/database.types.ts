@@ -154,6 +154,7 @@ export interface Database {
           customer_phone: string | null
           customer_avatar: string | null
           platform: 'facebook' | 'whatsapp' | 'web'
+          web_channel: 'site' | 'shopify' | null
           platform_conversation_id: string | null
           status: 'active' | 'waiting' | 'resolved'
           bot_active: boolean
@@ -170,6 +171,7 @@ export interface Database {
           customer_phone?: string | null
           customer_avatar?: string | null
           platform: 'facebook' | 'whatsapp' | 'web'
+          web_channel?: 'site' | 'shopify' | null
           platform_conversation_id?: string | null
           status?: 'active' | 'waiting' | 'resolved'
           bot_active?: boolean
@@ -186,6 +188,7 @@ export interface Database {
           customer_phone?: string | null
           customer_avatar?: string | null
           platform?: 'facebook' | 'whatsapp' | 'web'
+          web_channel?: 'site' | 'shopify' | null
           platform_conversation_id?: string | null
           status?: 'active' | 'waiting' | 'resolved'
           bot_active?: boolean

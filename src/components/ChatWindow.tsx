@@ -21,6 +21,7 @@ import MessageStatusIndicator from './MessageStatusIndicator';
 import FileUploadModal from './FileUploadModal';
 import ChatContactPanel from './ChatContactPanel';
 import { useMediaQuery } from '../hooks/useMediaQuery';
+import { inboxChannelSubtitle } from '../lib/inbox-section';
 
 
 
@@ -410,9 +411,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
           <div className="min-w-0">
             <h2 className="font-bold text-[#3D3D40] text-sm leading-tight truncate font-professional">{displayName}</h2>
             <p className="text-xs text-[#6D6D70] leading-tight mt-0.5 truncate">
-              {chat.platform === 'whatsapp' && (whatsAppNumber ? `WhatsApp · ${whatsAppNumber}` : 'WhatsApp')}
-              {chat.platform === 'facebook' && 'Facebook Messenger'}
-              {chat.platform === 'web' && 'Chat Web'}
+              {inboxChannelSubtitle(chat, whatsAppNumber)}
             </p>
           </div>
         </div>

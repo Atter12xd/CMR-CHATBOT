@@ -166,6 +166,7 @@
   apiBase = apiBase.replace(/\/+$/, '');
 
   var shopAttempted = false;
+  var shopifySiteKeyResolved = false;
   var shopDom = shopFromScriptSrc(SCRIPT) || normKey(SCRIPT.getAttribute('data-shop') || '');
   if (!isHex64(siteKey) && isValidShopDomain(shopDom)) {
     shopAttempted = true;
@@ -196,6 +197,7 @@
       }
       if (_sr.ok && _sj && _sj.siteKey && isHex64(normKey(String(_sj.siteKey)))) {
         siteKey = normKey(String(_sj.siteKey));
+        shopifySiteKeyResolved = true;
         say('Modo Shopify: clave recibida correctamente (la conversación puede continuar).');
         log('Bootstrap Shopify OK; longitud clave', siteKey.length);
       } else if (_sj && Object.keys(_sj).length) {
@@ -675,7 +677,11 @@
         api('/api/public/widget/session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ siteKey: siteKey, visitorId: visitorId }),
+          body: JSON.stringify({
+            siteKey: siteKey,
+            visitorId: visitorId,
+            webChannel: shopifySiteKeyResolved ? 'shopify' : 'site',
+          }),
         })
           .then(function (data) {
             chatId = data.chatId;

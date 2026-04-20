@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, MessageSquare, Users, Bell, Bot } from 'lucide-react';
+import { Loader2, MessageSquare, Users, Bell, Bot, Globe, ShoppingBag } from 'lucide-react';
 import { createClient } from '../lib/supabase';
 import ChatList from './ChatList';
 import ChatWindow from './ChatWindow';
@@ -9,6 +9,11 @@ import type { Chat } from '../data/mockData';
 import { useOrganization } from '../hooks/useOrganization';
 import { loadChats, subscribeToChats } from '../services/chats';
 import PageHeader from './PageHeader';
+import {
+  type InboxSection,
+  chatMatchesInboxSection,
+  inboxSectionForChat,
+} from '../lib/inbox-section';
 
 
 
@@ -19,6 +24,7 @@ export default function ChatsPage() {
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [showChatList, setShowChatList] = useState(true);
   const [whatsAppNumber, setWhatsAppNumber] = useState<string | null>(null);
+  const [inboxSection, setInboxSection] = useState<InboxSection>('whatsapp');
 
 
 
@@ -107,16 +113,43 @@ export default function ChatsPage() {
     return { total: chats.length, unread, active, botOn };
   }, [chats]);
 
+  const inboxCounts = useMemo(() => {
+    const wa = chats.filter((c) => chatMatchesInboxSection(c, 'whatsapp')).length;
+    const web = chats.filter((c) => chatMatchesInboxSection(c, 'web')).length;
+    const shop = chats.filter((c) => chatMatchesInboxSection(c, 'shopify')).length;
+    const unreadWa = chats
+      .filter((c) => chatMatchesInboxSection(c, 'whatsapp'))
+      .reduce((a, c) => a + (c.unreadCount || 0), 0);
+    const unreadWeb = chats
+      .filter((c) => chatMatchesInboxSection(c, 'web'))
+      .reduce((a, c) => a + (c.unreadCount || 0), 0);
+    const unreadShop = chats
+      .filter((c) => chatMatchesInboxSection(c, 'shopify'))
+      .reduce((a, c) => a + (c.unreadCount || 0), 0);
+    return { wa, web, shop, unreadWa, unreadWeb, unreadShop };
+  }, [chats]);
+
   // Abrir chat desde URL (ej. /chats?chat=uuid desde Pedidos > Ir al chat)
   useEffect(() => {
     if (typeof window === 'undefined' || !chats.length) return;
     const params = new URLSearchParams(window.location.search);
     const chatId = params.get('chat');
     if (chatId && chats.some(c => c.id === chatId)) {
+      const row = chats.find(c => c.id === chatId);
+      if (row) setInboxSection(inboxSectionForChat(row));
       setSelectedChatId(chatId);
       setShowChatList(false);
     }
   }, [chats]);
+
+  useEffect(() => {
+    if (!selectedChatId) return;
+    const row = chats.find((c) => c.id === selectedChatId);
+    if (!row || !chatMatchesInboxSection(row, inboxSection)) {
+      setSelectedChatId(null);
+      setShowChatList(true);
+    }
+  }, [inboxSection, chats, selectedChatId]);
 
   const handleSelectChat = (chatId: string) => {
     setSelectedChatId(chatId);
@@ -147,7 +180,7 @@ export default function ChatsPage() {
   if (!organizationId) {
     return (
       <div className="space-y-5">
-        <PageHeader title="WhatsApp CRM" description="Gestión de conversaciones con clientes" />
+        <PageHeader title="WhatsApp CRM" description="WhatsApp, widget en tu web y tienda Shopify, cada uno en su bandeja." />
         <div className="app-card p-5">
           <div className="flex items-start gap-2.5">
             <div className="w-2 h-2 rounded-full bg-amber-400 mt-1.5 flex-shrink-0" />
@@ -165,7 +198,7 @@ export default function ChatsPage() {
   return (
     <div className="h-full min-h-0 flex flex-col gap-5">
       <div className={`${selectedChat ? 'hidden md:block' : 'block'}`}>
-        <PageHeader title="WhatsApp CRM" description="Gestión de conversaciones con clientes" />
+        <PageHeader title="WhatsApp CRM" description="WhatsApp, widget en tu web y tienda Shopify, cada uno en su bandeja." />
       </div>
 
       <motion.div
@@ -217,6 +250,80 @@ export default function ChatsPage() {
         ))}
       </motion.div>
 
+      <div
+        className={`rounded-xl border border-[#E5E7EB] bg-[#f3f4f6]/90 p-1.5 ${
+          selectedChat ? 'hidden md:block' : 'block'
+        }`}
+      >
+        <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-3">
+          {(
+            [
+              {
+                id: 'whatsapp' as const,
+                label: 'WhatsApp',
+                sub: 'Conversaciones del número conectado',
+                Icon: MessageSquare,
+                count: inboxCounts.wa,
+                unread: inboxCounts.unreadWa,
+                iconBg: 'bg-emerald-500/15 text-emerald-700',
+              },
+              {
+                id: 'web' as const,
+                label: 'Tu web',
+                sub: 'Widget en tu sitio y Facebook Messenger',
+                Icon: Globe,
+                count: inboxCounts.web,
+                unread: inboxCounts.unreadWeb,
+                iconBg: 'bg-sky-500/12 text-sky-700',
+              },
+              {
+                id: 'shopify' as const,
+                label: 'Shopify',
+                sub: 'Widget en la tienda enlazada por OAuth',
+                Icon: ShoppingBag,
+                count: inboxCounts.shop,
+                unread: inboxCounts.unreadShop,
+                iconBg: 'bg-[#96BF48]/22 text-[#3d5220]',
+              },
+            ] as const
+          ).map((tab) => {
+            const active = inboxSection === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setInboxSection(tab.id)}
+                className={`flex items-start gap-3 rounded-lg px-3 py-3 text-left transition-all outline-none focus-visible:ring-2 focus-visible:ring-brand-500/35 ${
+                  active
+                    ? 'border border-[#E5E7EB] bg-white shadow-[0_1px_3px_rgba(0,0,0,.08),0_1px_2px_rgba(0,0,0,.05)]'
+                    : 'border border-transparent hover:bg-white/75'
+                }`}
+              >
+                <div
+                  className={`mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg ${tab.iconBg}`}
+                >
+                  <tab.Icon className="size-[18px]" strokeWidth={2} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span
+                      className={`text-[13px] font-bold ${active ? 'text-[#1a1a1c]' : 'text-[#3D3D40]'}`}
+                    >
+                      {tab.label}
+                    </span>
+                    <span className="tabular-nums text-[15px] font-extrabold text-[#1a1a1c]">{tab.count}</span>
+                  </div>
+                  <p className="mt-0.5 text-[11px] leading-snug text-[#6D6D70]">{tab.sub}</p>
+                  {tab.unread > 0 ? (
+                    <p className="mt-1 text-[10px] font-semibold text-brand-600">{tab.unread} sin leer</p>
+                  ) : null}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Contenedor principal — .crm-layout */}
       <div className="flex flex-1 min-h-0 min-w-0 rounded-lg border border-[#E5E7EB] bg-white overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,.08),0_1px_2px_rgba(0,0,0,.05)] md:min-h-[560px]">
         {/* Lista de chats — .crm-conversations */}
@@ -229,6 +336,7 @@ export default function ChatsPage() {
             chats={chats}
             selectedChatId={selectedChatId}
             onSelectChat={handleSelectChat}
+            inboxSection={inboxSection}
           />
         </div>
 

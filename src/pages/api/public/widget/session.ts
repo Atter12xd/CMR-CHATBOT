@@ -16,7 +16,7 @@ export const OPTIONS: APIRoute = ({ request }) =>
   new Response(null, { status: 204, headers: widgetCorsHeaders(request) });
 
 export const POST: APIRoute = async ({ request }) => {
-  let body: { siteKey?: string; visitorId?: string };
+  let body: { siteKey?: string; visitorId?: string; webChannel?: string };
   try {
     body = await request.json();
   } catch {
@@ -76,6 +76,13 @@ export const POST: APIRoute = async ({ request }) => {
     return jsonResponse(request, { error: 'Origen no permitido para este widget' }, 403);
   }
 
+  const requestedChannel =
+    typeof body.webChannel === 'string' && body.webChannel.trim().toLowerCase() === 'shopify'
+      ? 'shopify'
+      : 'site';
+  const webChannel: 'site' | 'shopify' =
+    requestedChannel === 'shopify' && shopifyShop ? 'shopify' : 'site';
+
   const { data: botCfg } = await db
     .from('organization_bot_config')
     .select('bot_name, company_name, initial_greeting')
@@ -111,22 +118,28 @@ export const POST: APIRoute = async ({ request }) => {
     .maybeSingle();
 
   if (existing?.id) {
-    await db
-      .from('chats')
-      .update({ last_message_at: new Date().toISOString(), updated_at: new Date().toISOString() })
-      .eq('id', existing.id);
+    const touch: Record<string, string> = {
+      last_message_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    if (webChannel === 'shopify') {
+      touch.web_channel = 'shopify';
+    }
+    await db.from('chats').update(touch).eq('id', existing.id);
 
     return jsonResponse(request, { chatId: existing.id, ...widgetMeta });
   }
 
   const short = visitorId.replace(/-/g, '').slice(0, 8);
+  const visitorLabel = webChannel === 'shopify' ? `Visitante Shopify ${short}` : `Visitante web ${short}`;
   const { data: created, error: insErr } = await db
     .from('chats')
     .insert({
       organization_id: orgRow.id,
-      customer_name: `Visitante web ${short}`,
+      customer_name: visitorLabel,
       customer_phone: null,
       platform: 'web',
+      web_channel: webChannel,
       platform_conversation_id: visitorId,
       status: 'active',
       bot_active: true,

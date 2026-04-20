@@ -20,6 +20,8 @@ export interface Chat {
   unreadCount: number;
   status: 'active' | 'waiting' | 'resolved';
   platform: 'facebook' | 'whatsapp' | 'web';
+  /** Solo `platform === 'web'`: widget en tu sitio vs. tienda Shopify. */
+  webChannel?: 'site' | 'shopify' | null;
   messages: Message[];
   botActive: boolean;
   botTyping?: boolean;
@@ -103,6 +105,7 @@ export const mockChats: Chat[] = [
     unreadCount: 0,
     status: 'resolved',
     platform: 'web',
+    webChannel: 'site',
     botActive: false,
     messages: [
       {

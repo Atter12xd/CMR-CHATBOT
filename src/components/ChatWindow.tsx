@@ -375,6 +375,11 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
     return curr !== prev;
   };
 
+  const conversationStartedLabel = (d: Date) => {
+    const s = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+    return `Conversación iniciada el ${s}`;
+  };
+
 
 
   return (
@@ -414,11 +419,22 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
           <div className="min-w-0 flex-1">
             <h2 className="font-bold text-sm leading-tight text-[#3D3D40] truncate">{displayName}</h2>
             <p className="text-xs text-[#6D6D70] leading-tight mt-0.5 truncate">
-              {inboxChannelSubtitle(chat, whatsAppNumber)}
+              {[chat.customerPhone, inboxChannelSubtitle(chat, whatsAppNumber)].filter(Boolean).join(' · ')}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 flex-shrink-0">
+        <div className="flex items-center gap-1.5 flex-shrink-0 flex-wrap justify-end">
+          <span
+            className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border shrink-0 ${
+              chat.status === 'active'
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                : chat.status === 'waiting'
+                  ? 'bg-amber-50 text-amber-800 border-amber-200'
+                  : 'bg-[#f3f4f6] text-[#6D6D70] border-[#E5E7EB]'
+            }`}
+          >
+            {chat.status === 'active' ? 'Abierta' : chat.status === 'waiting' ? 'Esperando' : 'Resuelta'}
+          </span>
           <motion.button
             type="button"
             onClick={async () => {
@@ -548,10 +564,9 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
         ) : (
           <div className="w-full">
             {messages.map((message, index) => {
-              const isOwnMessage = message.sender === 'agent';
-              const isBot = message.sender === 'bot';
+              const isFromBusiness = message.sender === 'agent' || message.sender === 'bot';
               const prevMessage = index > 0 ? messages[index - 1] : null;
-              const showAvatar = !prevMessage || prevMessage.sender !== message.sender ||
+              const showGroupBreak = !prevMessage || prevMessage.sender !== message.sender ||
                 (new Date(message.timestamp).getTime() - new Date(prevMessage.timestamp).getTime()) > 300000;
               const showDateSep = shouldShowDateSeparator(index);
 
@@ -563,31 +578,29 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                   transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
                 >
                   {showDateSep && (
-                    <div className="flex justify-center my-4">
-                      <span className="text-[11px] font-semibold text-app-muted bg-ref-card border border-app-line px-3.5 py-1 rounded-full shadow-sm">
-                        {getDateLabel(message.timestamp)}
-                      </span>
-                    </div>
-                  )}
-
-                  {isBot && showAvatar && (
-                    <div className="flex items-center gap-1.5 mb-1.5 ml-1">
-                      <div className="w-1.5 h-1.5 rounded-full bg-brand-500 shadow-[0_0_8px_rgba(27,112,255,0.5)]" />
-                      <span className="text-[10px] font-bold text-brand-600 uppercase tracking-[0.15em]">
-                        Bot
+                    <div className="flex justify-center my-3">
+                      <span className="text-[11px] font-medium text-[#6D6D70] bg-white border border-[#E5E7EB] px-3.5 py-1.5 rounded-full">
+                        {index === 0 ? conversationStartedLabel(message.timestamp) : getDateLabel(message.timestamp)}
                       </span>
                     </div>
                   )}
 
                   <div
-                    className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} ${showAvatar && index > 0 ? 'mt-2' : ''}`}
+                    className={`flex ${isFromBusiness ? 'justify-end' : 'justify-start'} ${index > 0 ? (showDateSep ? 'mt-1.5' : showGroupBreak ? 'mt-2' : 'mt-0.5') : ''}`}
                   >
-                    <div className="max-w-[68%]">
+                    <div
+                      className={`max-w-[68%] flex flex-col gap-1 ${isFromBusiness ? 'items-end' : 'items-start'}`}
+                    >
+                      {isFromBusiness && showGroupBreak && (
+                        <span className="text-[10px] font-semibold text-[#6D6D70] uppercase tracking-wide pr-0.5">
+                          {message.sender === 'bot' ? 'Bot' : 'Tú'}
+                        </span>
+                      )}
                       <div
-                        className={`relative px-[13px] py-[9px] shadow-sm ${
-                          isOwnMessage
-                            ? 'chat-bubble-agent text-app-ink'
-                            : 'chat-bubble-customer text-app-ink'
+                        className={`px-[13px] py-[9px] shadow-none ${
+                          isFromBusiness
+                            ? 'chat-bubble-agent text-[#3D3D40]'
+                            : 'chat-bubble-customer text-[#3D3D40]'
                         }`}
                       >
                         <p className="text-[13px] leading-[1.5] whitespace-pre-wrap break-words">{message.text}</p>
@@ -598,20 +611,20 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
                             className="mt-2 rounded-xl max-w-[240px] cursor-pointer hover:opacity-95 transition-opacity ring-1 ring-black/5"
                           />
                         )}
-                        <div
-                          className={`flex items-center gap-1 mt-1 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
-                        >
-                          <span className="text-[10px] leading-none select-none text-[#B8B8BB]">
-                            {formatMessageTime(message.timestamp)}
-                          </span>
-                          {isOwnMessage && (
-                            <MessageStatusIndicator
-                              status={message.status || (message.read ? 'read' : 'sent')}
-                              className="flex-shrink-0"
-                              tone="light"
-                            />
-                          )}
-                        </div>
+                      </div>
+                      <div
+                        className={`flex items-center gap-1 px-0.5 min-h-[14px] ${isFromBusiness ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <span className="text-[10px] leading-none select-none text-[#B8B8BB] tabular-nums">
+                          {formatMessageTime(message.timestamp)}
+                        </span>
+                        {message.sender === 'agent' && (
+                          <MessageStatusIndicator
+                            status={message.status || (message.read ? 'read' : 'sent')}
+                            className="flex-shrink-0"
+                            tone="light"
+                          />
+                        )}
                       </div>
                     </div>
                   </div>
@@ -622,33 +635,36 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
               {chat.botTyping && (
                 <motion.div
                   key="bot-typing"
-                  className="flex justify-start mt-3 gap-2"
+                  className="flex justify-end mt-3 gap-2 items-end"
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 4 }}
                   transition={{ duration: 0.2 }}
                 >
+                  <div className="max-w-[68%] flex flex-col items-end gap-1">
+                    <span className="text-[10px] font-semibold text-[#6D6D70] uppercase tracking-wide">Bot</span>
+                    <div className="chat-bubble-agent px-4 py-3">
+                      <div className="flex gap-1.5 items-center h-4 justify-end">
+                        <motion.span
+                          className="w-2 h-2 rounded-full bg-brand-500/50"
+                          animate={{ y: [0, -5, 0] }}
+                          transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
+                        />
+                        <motion.span
+                          className="w-2 h-2 rounded-full bg-brand-500/50"
+                          animate={{ y: [0, -5, 0] }}
+                          transition={{ duration: 0.6, repeat: Infinity, delay: 0.15 }}
+                        />
+                        <motion.span
+                          className="w-2 h-2 rounded-full bg-brand-500/50"
+                          animate={{ y: [0, -5, 0] }}
+                          transition={{ duration: 0.6, repeat: Infinity, delay: 0.3 }}
+                        />
+                      </div>
+                    </div>
+                  </div>
                   <div className="w-8 h-8 rounded-full bg-brand-500 flex items-center justify-center shrink-0 shadow-md">
                     <Bot className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="chat-bubble-customer px-4 py-3 shadow-sm">
-                    <div className="flex gap-1.5 items-center h-4">
-                      <motion.span
-                        className="w-2 h-2 rounded-full bg-app-muted"
-                        animate={{ y: [0, -5, 0] }}
-                        transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
-                      />
-                      <motion.span
-                        className="w-2 h-2 rounded-full bg-app-muted"
-                        animate={{ y: [0, -5, 0] }}
-                        transition={{ duration: 0.6, repeat: Infinity, delay: 0.15 }}
-                      />
-                      <motion.span
-                        className="w-2 h-2 rounded-full bg-app-muted"
-                        animate={{ y: [0, -5, 0] }}
-                        transition={{ duration: 0.6, repeat: Infinity, delay: 0.3 }}
-                      />
-                    </div>
                   </div>
                 </motion.div>
               )}

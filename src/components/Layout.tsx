@@ -79,8 +79,10 @@ export default function Layout({ children, page }: LayoutProps) {
           <Header onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
 
           <div
-            className={`flex-1 min-h-0 px-5 py-5 md:px-7 md:pt-5 md:pb-7 bg-transparent ${
-              page === 'chats' ? 'flex flex-col overflow-hidden' : 'overflow-y-auto'
+            className={`flex-1 min-h-0 bg-transparent ${
+              page === 'chats'
+                ? 'flex flex-col overflow-hidden px-3 py-2 md:px-4 md:py-2.5'
+                : 'overflow-y-auto px-5 py-5 md:px-7 md:pt-5 md:pb-7'
             }`}
           >
             {content}

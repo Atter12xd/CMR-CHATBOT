@@ -189,13 +189,13 @@ export default function ChatsPage() {
 
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
+    <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-hidden">
       <div
-        className={`rounded-xl border border-[#E5E7EB] bg-[#f3f4f6]/90 p-1.5 ${
+        className={`rounded-lg border border-[#E5E7EB] bg-[#f3f4f6]/90 p-1 ${
           selectedChat ? 'hidden md:block' : 'block'
         }`}
       >
-        <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-1 sm:grid-cols-3">
           {(
             [
               {
@@ -233,7 +233,7 @@ export default function ChatsPage() {
                 key={tab.id}
                 type="button"
                 onClick={() => setInboxSection(tab.id)}
-                className={`flex items-start gap-3 rounded-lg px-3 py-3 text-left transition-all outline-none focus-visible:ring-2 focus-visible:ring-brand-500/35 ${
+                className={`flex items-start gap-2.5 rounded-md px-2.5 py-2 text-left transition-all outline-none focus-visible:ring-2 focus-visible:ring-brand-500/35 ${
                   active
                     ? 'border border-[#E5E7EB] bg-white shadow-[0_1px_3px_rgba(0,0,0,.08),0_1px_2px_rgba(0,0,0,.05)]'
                     : 'border border-transparent hover:bg-white/75'

@@ -23,13 +23,6 @@ import ChatContactPanel from './ChatContactPanel';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { inboxChannelSubtitle } from '../lib/inbox-section';
 
-const QUICK_REPLY_SNIPPETS = [
-  '¡Hola! ¿En qué le puedo ayudar?',
-  'Su pedido está confirmado',
-  'El envío demora 2-3 días',
-  'Gracias por contactarnos',
-];
-
 interface ChatWindowProps {
   chat: Chat;
   onBack: () => void;
@@ -553,7 +546,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
       <div
         ref={messagesScrollRef}
         onScroll={onMessagesScroll}
-        className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto overflow-x-hidden overscroll-y-contain bg-[#f9fafb] p-4"
+        className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden overscroll-y-contain bg-[#f9fafb] px-4 py-3"
       >
         {loading ? (
           <motion.div
@@ -699,31 +692,14 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
       </div>
 
 
-      {/* Quick replies + input — .quick-replies + .chat-input-area */}
+      {/* Input — .chat-input-area */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, delay: 0.05 }}
-        className="border-t border-[#E5E7EB] bg-white shrink-0"
+        className="shrink-0 border-t border-[#E5E7EB] bg-white"
       >
-        <div className="flex flex-wrap gap-1.5 px-4 pt-2.5 pb-1.5">
-          {QUICK_REPLY_SNIPPETS.map((text) => (
-            <button
-              key={text}
-              type="button"
-              onClick={() => {
-                pinToBottomRef.current = true;
-                setNewMessage(text);
-                requestAnimationFrame(() => textareaRef.current?.focus());
-              }}
-              title={text}
-              className="px-[11px] py-1 rounded-full border border-brand-500 text-brand-500 text-xs font-medium bg-white hover:bg-[#EBF2FF] transition-colors max-w-full text-left leading-snug"
-            >
-              {text}
-            </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-2 px-4 pt-1 pb-3.5">
+        <div className="flex items-center gap-2 px-4 py-2.5">
           <motion.button
             type="button"
             onClick={() => setShowFileModal(true)}

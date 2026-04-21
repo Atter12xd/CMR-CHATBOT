@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, MessageSquare, Users, Bell, Bot, Globe, ShoppingBag } from 'lucide-react';
+import { Loader2, MessageSquare, Globe, ShoppingBag } from 'lucide-react';
 import { createClient } from '../lib/supabase';
 import ChatList from './ChatList';
 import ChatWindow from './ChatWindow';
@@ -106,13 +106,6 @@ export default function ChatsPage() {
 
   const selectedChat = chats.find(chat => chat.id === selectedChatId) || null;
 
-  const chatStats = useMemo(() => {
-    const unread = chats.reduce((acc, c) => acc + (c.unreadCount || 0), 0);
-    const active = chats.filter((c) => c.status === 'active').length;
-    const botOn = chats.filter((c) => c.botActive).length;
-    return { total: chats.length, unread, active, botOn };
-  }, [chats]);
-
   const inboxCounts = useMemo(() => {
     const wa = chats.filter((c) => chatMatchesInboxSection(c, 'whatsapp')).length;
     const web = chats.filter((c) => chatMatchesInboxSection(c, 'web')).length;
@@ -196,60 +189,7 @@ export default function ChatsPage() {
 
 
   return (
-    <div className="h-full min-h-0 flex flex-col gap-5">
-      <div className={`${selectedChat ? 'hidden md:block' : 'block'}`}>
-        <PageHeader title="Inbox multicanal" description="WhatsApp, tu web y Shopify: cada canal con su propia bandeja." />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25 }}
-        className={`grid grid-cols-2 sm:grid-cols-4 gap-4 ${selectedChat ? 'hidden md:grid' : 'grid'}`}
-      >
-        {[
-          {
-            label: 'Conversaciones',
-            value: chatStats.total,
-            icon: Users,
-            box: 'bg-[#EBF2FF] text-brand-500',
-          },
-          {
-            label: 'Activas',
-            value: chatStats.active,
-            icon: MessageSquare,
-            box: 'bg-[#ECFDF5] text-emerald-500',
-          },
-          {
-            label: 'Sin leer',
-            value: chatStats.unread,
-            icon: Bell,
-            box: 'bg-[#FFFBEB] text-amber-500',
-          },
-          {
-            label: 'Con bot',
-            value: chatStats.botOn,
-            icon: Bot,
-            box: 'bg-[#F5F3FF] text-violet-500',
-          },
-        ].map((s) => (
-          <div
-            key={s.label}
-            className="bg-white border border-[#E5E7EB] rounded-lg px-4 py-4 shadow-[0_1px_3px_rgba(0,0,0,.08),0_1px_2px_rgba(0,0,0,.05)] flex items-center gap-3.5 transition-shadow hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,.07),0_2px_4px_-1px_rgba(0,0,0,.05)]"
-          >
-            <div
-              className={`w-[42px] h-[42px] rounded-[10px] flex items-center justify-center shrink-0 ${s.box}`}
-            >
-              <s.icon className="size-5" strokeWidth={2} />
-            </div>
-            <div>
-              <div className="text-[26px] font-extrabold text-[#1a1a1c] leading-none tabular-nums">{s.value}</div>
-              <div className="text-xs font-medium text-[#6D6D70] mt-0.5">{s.label}</div>
-            </div>
-          </div>
-        ))}
-      </motion.div>
-
+    <div className="flex min-h-[calc(100dvh-5.5rem)] flex-1 flex-col gap-2">
       <div
         className={`rounded-xl border border-[#E5E7EB] bg-[#f3f4f6]/90 p-1.5 ${
           selectedChat ? 'hidden md:block' : 'block'
@@ -325,12 +265,12 @@ export default function ChatsPage() {
       </div>
 
       {/* Contenedor principal — .crm-layout (wazapp-standalone) */}
-      <div className="flex flex-1 min-h-0 min-w-0 rounded-lg border border-[#E5E7EB] bg-white overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,.08),0_1px_2px_rgba(0,0,0,.05)] md:min-h-[min(560px,calc(100dvh-220px))]">
+      <div className="flex min-h-[calc(100dvh-10rem)] flex-1 min-w-0 overflow-hidden rounded-lg border border-[#E5E7EB] bg-white shadow-[0_1px_3px_rgba(0,0,0,.08),0_1px_2px_rgba(0,0,0,.05)] md:min-h-[calc(100dvh-7.75rem)]">
         {/* Lista de chats — .crm-conversations */}
         <div
           className={`${
             showChatList ? 'flex' : 'hidden'
-          } md:flex w-full md:w-[260px] md:min-w-[260px] md:max-w-[260px] flex-shrink-0 border-r border-[#E5E7EB] overflow-hidden bg-white`}
+          } md:flex min-h-0 w-full md:w-[260px] md:min-w-[260px] md:max-w-[260px] flex-shrink-0 border-r border-[#E5E7EB] overflow-hidden bg-white`}
         >
           <ChatList
             chats={chats}
@@ -345,9 +285,9 @@ export default function ChatsPage() {
         <div
           className={`${
             !showChatList && selectedChat ? 'flex' : 'hidden'
-          } ${selectedChat ? 'md:flex' : 'md:flex'} flex-1 min-w-0 flex-col lg:flex-row min-h-0 overflow-hidden bg-[#f9fafb]`}
+          } ${selectedChat ? 'md:flex' : 'md:flex'} min-h-0 flex-1 min-w-0 flex-col overflow-hidden bg-[#f9fafb] lg:flex-row`}
         >
-          <div className="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             {selectedChat ? (
               <ChatWindow
                 chat={selectedChat}

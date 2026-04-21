@@ -28,7 +28,7 @@ const navItems: NavItem[] = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
   { label: 'Pedidos', icon: ShoppingCart, path: '/pedidos' },
   { label: 'Llamadas IA', icon: Phone, path: '/llamadas-ia' },
-  { label: 'WhatsApp CRM', icon: MessageSquare, path: '/chats' },
+  { label: 'Inbox multicanal', icon: MessageSquare, path: '/chats' },
   { label: 'Productos', icon: Package, path: '/productos' },
   { label: 'Entrenar Bot', icon: Brain, path: '/entrenar-bot' },
   { label: 'Métodos de Pago', icon: CreditCard, path: '/metodos-pago' },

@@ -36,7 +36,7 @@ export default function ChatContactPanel({ chat, displayName, variant, onClose }
       )}
 
       <div className={`overflow-y-auto flex-1 min-h-0 ${isModal ? 'p-4' : 'p-4'}`}>
-        <div className="text-center pb-4 mb-4 border-b border-[#E5E7EB]">
+        <div className="text-center pt-2 pb-4 mb-4 border-b border-[#E5E7EB]">
           <img
             src={chat.customerAvatar}
             alt={displayName}
@@ -46,26 +46,26 @@ export default function ChatContactPanel({ chat, displayName, variant, onClose }
           <p className="text-xs text-[#6D6D70] mt-0.5">{platformLabel}</p>
         </div>
 
-        <div>
+        <div className="mb-4">
           <p className="text-[10px] font-bold text-[#6D6D70] uppercase tracking-[0.07em] mb-2 pb-1.5 border-b border-[#E5E7EB]">
-            Información de contacto
+            Detalles del contacto
           </p>
-          <div className="space-y-2.5">
+          <div className="space-y-1.5">
             {chat.customerEmail && (
-              <div className="flex justify-between gap-2 text-xs">
+              <div className="flex justify-between gap-2 text-xs leading-snug">
                 <span className="text-[#6D6D70] shrink-0">Email</span>
                 <span className="text-[#3D3D40] font-medium text-right break-all">{chat.customerEmail}</span>
               </div>
             )}
             {chat.customerPhone && (
-              <div className="flex justify-between gap-2 text-xs">
+              <div className="flex justify-between gap-2 text-xs leading-snug">
                 <span className="text-[#6D6D70] shrink-0">Teléfono</span>
                 <span className="text-[#3D3D40] font-medium">{chat.customerPhone}</span>
               </div>
             )}
-            <div className="flex justify-between gap-2 text-xs">
+            <div className="flex justify-between gap-2 text-xs leading-snug">
               <span className="text-[#6D6D70] shrink-0">Canal</span>
-              <span className="text-[#3D3D40] font-medium">
+              <span className="text-[#3D3D40] font-medium text-right">
                 {chat.platform === 'whatsapp' && 'WhatsApp Business'}
                 {chat.platform === 'facebook' && 'Facebook Messenger'}
                 {chat.platform === 'web' && chat.webChannel === 'shopify' && 'Widget Shopify'}

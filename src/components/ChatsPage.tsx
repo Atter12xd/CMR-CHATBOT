@@ -180,7 +180,7 @@ export default function ChatsPage() {
   if (!organizationId) {
     return (
       <div className="space-y-5">
-        <PageHeader title="WhatsApp CRM" description="WhatsApp, widget en tu web y tienda Shopify, cada uno en su bandeja." />
+        <PageHeader title="Inbox multicanal" description="WhatsApp, tu web y Shopify: cada canal con su propia bandeja." />
         <div className="app-card p-5">
           <div className="flex items-start gap-2.5">
             <div className="w-2 h-2 rounded-full bg-amber-400 mt-1.5 flex-shrink-0" />
@@ -198,7 +198,7 @@ export default function ChatsPage() {
   return (
     <div className="h-full min-h-0 flex flex-col gap-5">
       <div className={`${selectedChat ? 'hidden md:block' : 'block'}`}>
-        <PageHeader title="WhatsApp CRM" description="WhatsApp, widget en tu web y tienda Shopify, cada uno en su bandeja." />
+        <PageHeader title="Inbox multicanal" description="WhatsApp, tu web y Shopify: cada canal con su propia bandeja." />
       </div>
 
       <motion.div
@@ -324,8 +324,8 @@ export default function ChatsPage() {
         </div>
       </div>
 
-      {/* Contenedor principal — .crm-layout */}
-      <div className="flex flex-1 min-h-0 min-w-0 rounded-lg border border-[#E5E7EB] bg-white overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,.08),0_1px_2px_rgba(0,0,0,.05)] md:min-h-[560px]">
+      {/* Contenedor principal — .crm-layout (wazapp-standalone) */}
+      <div className="flex flex-1 min-h-0 min-w-0 rounded-lg border border-[#E5E7EB] bg-white overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,.08),0_1px_2px_rgba(0,0,0,.05)] md:min-h-[min(560px,calc(100dvh-220px))]">
         {/* Lista de chats — .crm-conversations */}
         <div
           className={`${
@@ -360,12 +360,10 @@ export default function ChatsPage() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="h-full w-full min-w-0 flex items-center justify-center"
+                className="chat-empty-cmr h-full w-full min-w-0"
               >
-                <div className="text-center max-w-sm px-8 text-[#9ca3af]">
-                  <MessageSquare size={48} className="mx-auto mb-2 opacity-80" strokeWidth={1.5} />
-                  <p className="text-[13px] text-[#6D6D70]">Selecciona una conversación</p>
-                </div>
+                <MessageSquare size={48} className="text-[#d1d5db]" strokeWidth={1.5} />
+                <p className="text-[13px] text-[#6D6D70]">Selecciona una conversación</p>
               </motion.div>
             )}
           </div>

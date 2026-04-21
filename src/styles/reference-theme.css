@@ -252,6 +252,39 @@
   background-color: #ebf2ff;
 }
 
+/* Pestañas de filtro inbox — .crm-tab (wazapp-standalone) */
+.crm-inbox-tab {
+  padding: 4px 9px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.25;
+  cursor: pointer;
+  color: #6d6d70;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  transition: background-color 0.12s ease;
+}
+.crm-inbox-tab:hover {
+  background-color: #f3f4f6;
+}
+.crm-inbox-tab-active {
+  background-color: #ebf2ff;
+  color: #1b70ff;
+}
+
+/* Estado vacío del panel central — .chat-empty */
+.chat-empty-cmr {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  color: #b8b8bb;
+}
+
 /* Detalle lateral */
 .detail-section {
   border-bottom-width: 1px;

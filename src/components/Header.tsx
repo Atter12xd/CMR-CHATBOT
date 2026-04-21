@@ -8,8 +8,8 @@ interface HeaderProps {
 }
 
 const breadcrumbMap: Record<string, string> = {
-  '/': 'WhatsApp CRM',
-  '/chats': 'WhatsApp CRM',
+  '/': 'Inbox multicanal',
+  '/chats': 'Inbox multicanal',
   '/dashboard': 'Dashboard',
   '/pedidos': 'Pedidos',
   '/llamadas-ia': 'Llamadas IA',

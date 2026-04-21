@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
@@ -61,8 +61,22 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const prevLoadingRef = useRef(loading);
+  /** Si true, nuevos mensajes / carga mantienen la vista al final; si el usuario sube, pasa a false. */
+  const pinToBottomRef = useRef(true);
   const isLg = useMediaQuery('(min-width: 1024px)');
+
+  const scrollMessagesToBottom = useCallback((behavior: ScrollBehavior = 'auto') => {
+    const el = messagesScrollRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior });
+  }, []);
+
+  const onMessagesScroll = useCallback(() => {
+    const el = messagesScrollRef.current;
+    if (!el) return;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    pinToBottomRef.current = distanceFromBottom < 100;
+  }, []);
 
 
 
@@ -81,6 +95,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
 
 
   useEffect(() => {
+    pinToBottomRef.current = true;
     setMessages([]);
     const loadMessages = async (showLoader = true) => {
       try {
@@ -122,33 +137,43 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
 
 
 
-  /** Al terminar la carga inicial (o al cambiar de chat), ir siempre al último mensaje. */
-  useEffect(() => {
-    const prev = prevLoadingRef.current;
-    prevLoadingRef.current = loading;
-    if (!prev || loading || messages.length === 0) return;
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const el = messagesScrollRef.current;
-        if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'auto' });
-      });
-    });
-  }, [loading, messages.length]);
-
-
-
-  /** Nuevos mensajes mientras chateas: solo auto-scroll si ya estabas abajo (no molestar si leyó arriba). */
-  useEffect(() => {
-    if (loading) return;
+  /**
+   * Tras pintar mensajes: bajar al final si toca (apertura de chat, carga lista, o usuario ya abajo).
+   * useLayoutEffect evita un frame visible arriba del todo antes del scroll (p. ej. con animaciones).
+   */
+  useLayoutEffect(() => {
     const el = messagesScrollRef.current;
-    if (!el || messages.length === 0) return;
-    const nearBottom = el.scrollHeight - el.scrollTop <= el.clientHeight + 220;
-    if (!nearBottom) return;
-    const t = window.setTimeout(() => {
-      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-    }, 60);
-    return () => window.clearTimeout(t);
-  }, [messages, loading]);
+    if (loading) return;
+    if (messages.length === 0) {
+      if (el) el.scrollTop = 0;
+      return;
+    }
+    if (!pinToBottomRef.current) return;
+    scrollMessagesToBottom('auto');
+    requestAnimationFrame(() => scrollMessagesToBottom('auto'));
+  }, [loading, messages, scrollMessagesToBottom]);
+
+  useLayoutEffect(() => {
+    if (!chat.botTyping || loading || !pinToBottomRef.current) return;
+    scrollMessagesToBottom('auto');
+    requestAnimationFrame(() => scrollMessagesToBottom('auto'));
+  }, [chat.botTyping, loading, scrollMessagesToBottom]);
+
+  /** Animaciones / imágenes pueden cambiar scrollHeight después del layout. */
+  useEffect(() => {
+    if (loading || messages.length === 0 || !pinToBottomRef.current) return;
+    let timeoutId: number | undefined;
+    const id = requestAnimationFrame(() => {
+      scrollMessagesToBottom('auto');
+      timeoutId = window.setTimeout(() => {
+        if (pinToBottomRef.current) scrollMessagesToBottom('auto');
+      }, 200);
+    });
+    return () => {
+      cancelAnimationFrame(id);
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+    };
+  }, [loading, messages, scrollMessagesToBottom]);
 
 
 
@@ -231,8 +256,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
     const messageText = newMessage.trim();
     setNewMessage('');
     setSending(true);
-
-
+    pinToBottomRef.current = true;
 
     const optimisticMessage: Message = {
       id: `temp-${Date.now()}`,
@@ -287,8 +311,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
   const handleSendFile = async (fileUrl: string, fileType: 'image' | 'document', caption?: string) => {
     try {
       setSending(true);
-
-
+      pinToBottomRef.current = true;
 
       const optimisticMessage: Message = {
         id: `temp-${Date.now()}`,
@@ -529,7 +552,8 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
       {/* Messages — .chat-messages */}
       <div
         ref={messagesScrollRef}
-        className="flex-1 overflow-y-auto p-4 flex flex-col gap-2.5 min-h-0 bg-[#f9fafb]"
+        onScroll={onMessagesScroll}
+        className="flex-1 overflow-y-auto overflow-x-hidden p-4 flex flex-col gap-2.5 min-h-0 bg-[#f9fafb]"
       >
         {loading ? (
           <motion.div
@@ -688,6 +712,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
               key={text}
               type="button"
               onClick={() => {
+                pinToBottomRef.current = true;
                 setNewMessage(text);
                 requestAnimationFrame(() => textareaRef.current?.focus());
               }}

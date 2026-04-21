@@ -189,7 +189,7 @@ export default function ChatsPage() {
 
 
   return (
-    <div className="flex min-h-[calc(100dvh-5.5rem)] flex-1 flex-col gap-2">
+    <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
       <div
         className={`rounded-xl border border-[#E5E7EB] bg-[#f3f4f6]/90 p-1.5 ${
           selectedChat ? 'hidden md:block' : 'block'
@@ -265,7 +265,7 @@ export default function ChatsPage() {
       </div>
 
       {/* Contenedor principal — .crm-layout (wazapp-standalone) */}
-      <div className="flex min-h-[calc(100dvh-10rem)] flex-1 min-w-0 overflow-hidden rounded-lg border border-[#E5E7EB] bg-white shadow-[0_1px_3px_rgba(0,0,0,.08),0_1px_2px_rgba(0,0,0,.05)] md:min-h-[calc(100dvh-7.75rem)]">
+      <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden rounded-lg border border-[#E5E7EB] bg-white shadow-[0_1px_3px_rgba(0,0,0,.08),0_1px_2px_rgba(0,0,0,.05)]">
         {/* Lista de chats — .crm-conversations */}
         <div
           className={`${

@@ -553,7 +553,7 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
       <div
         ref={messagesScrollRef}
         onScroll={onMessagesScroll}
-        className="flex-1 overflow-y-auto overflow-x-hidden p-4 flex flex-col gap-2.5 min-h-0 bg-[#f9fafb]"
+        className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto overflow-x-hidden overscroll-y-contain bg-[#f9fafb] p-4"
       >
         {loading ? (
           <motion.div

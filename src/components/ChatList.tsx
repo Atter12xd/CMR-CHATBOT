@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, MessageCircle, X, Users, ShoppingBag } from 'lucide-react';
+import { Search, X, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Chat } from '../data/mockData';
 import { formatTime } from '../data/mockData';
@@ -14,13 +14,6 @@ interface ChatListProps {
 }
 
 type StatusFilter = 'all' | 'active' | 'waiting' | 'resolved';
-
-const INTENT_LABELS: Record<string, string> = {
-  preguntando_precio: 'Preguntó precio',
-  quiero_comprar: 'Quiere comprar',
-  cómo_pago: 'Preguntó pago',
-  hacer_pedido: 'Quiere pedir',
-};
 
 const listContainer = {
   hidden: { opacity: 0 },
@@ -59,7 +52,6 @@ const INBOX_EMPTY: Record<InboxSection, { title: string; hint: string }> = {
 export default function ChatList({ chats, selectedChatId, onSelectChat, inboxSection }: ChatListProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
-  const [onlyLeads, setOnlyLeads] = useState(false);
 
   const filteredChats = chats.filter((chat) => {
     if (!chatMatchesInboxSection(chat, inboxSection)) return false;
@@ -68,41 +60,8 @@ export default function ChatList({ chats, selectedChatId, onSelectChat, inboxSec
       chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (chat.customerEmail && chat.customerEmail.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesStatus = statusFilter === 'all' || chat.status === statusFilter;
-    const matchesLeads = !onlyLeads || chat.lastIntentAt != null;
-    return matchesSearch && matchesStatus && matchesLeads;
+    return matchesSearch && matchesStatus;
   });
-
-  const getPlatformIcon = (platform: Chat['platform'], webChannel: Chat['webChannel']) => {
-    if (platform === 'web' && webChannel === 'shopify') {
-      return (
-        <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[#96BF48]/25 shadow-sm shadow-black/10">
-          <ShoppingBag size={12} className="text-[#3d5220]" strokeWidth={2} />
-        </div>
-      );
-    }
-    switch (platform) {
-      case 'facebook':
-        return (
-          <div className="w-5 h-5 bg-[#1877F2] rounded-md flex items-center justify-center flex-shrink-0 shadow-sm shadow-black/15">
-            <span className="text-white text-[9px] font-bold leading-none">f</span>
-          </div>
-        );
-      case 'whatsapp':
-        return (
-          <div className="w-5 h-5 bg-[#25D366] rounded-md flex items-center justify-center flex-shrink-0 shadow-sm shadow-emerald-900/20">
-            <span className="text-white text-[9px] font-bold leading-none">W</span>
-          </div>
-        );
-      case 'web':
-        return (
-          <div className="w-5 h-5 rounded-md bg-app-field border border-app-line flex items-center justify-center flex-shrink-0">
-            <MessageCircle size={12} className="text-app-muted" />
-          </div>
-        );
-      default:
-        return <MessageCircle size={12} className="text-app-muted flex-shrink-0" />;
-    }
-  };
 
   const getStatusColor = (status: Chat['status']) => {
     switch (status) {
@@ -119,9 +78,9 @@ export default function ChatList({ chats, selectedChatId, onSelectChat, inboxSec
 
   const STATUS_TABS: { id: StatusFilter; label: string }[] = [
     { id: 'all', label: 'Todas' },
-    { id: 'active', label: 'Activos' },
-    { id: 'waiting', label: 'Esperando' },
-    { id: 'resolved', label: 'Resueltos' },
+    { id: 'active', label: 'Abiertas' },
+    { id: 'resolved', label: 'Resueltas' },
+    { id: 'waiting', label: 'Pendientes' },
   ];
 
   return (
@@ -161,13 +120,6 @@ export default function ChatList({ chats, selectedChatId, onSelectChat, inboxSec
               {t.label}
             </button>
           ))}
-          <button
-            type="button"
-            onClick={() => setOnlyLeads((v) => !v)}
-            className={`crm-inbox-tab ${onlyLeads ? 'crm-inbox-tab-active' : ''}`}
-          >
-            Por cerrar
-          </button>
         </div>
       </div>
 
@@ -219,49 +171,9 @@ export default function ChatList({ chats, selectedChatId, onSelectChat, inboxSec
                     <div className="text-[13px] font-semibold text-[#3D3D40] truncate leading-tight">
                       {chat.customerName}
                     </div>
-                    <div className="flex items-center gap-1.5 min-w-0 mt-px">
-                      {getPlatformIcon(chat.platform, chat.webChannel)}
-                      <p className="text-[11px] text-[#6D6D70] truncate leading-snug">
-                        {chat.lastMessage || 'Sin mensajes'}
-                      </p>
-                    </div>
-                    {(chat.lastIntentAt != null || chat.botActive || chat.status === 'waiting') && (
-                      <div className="flex flex-wrap items-center gap-1 mt-1.5">
-                        {chat.lastIntentAt != null && (
-                          <span
-                            className={`text-[10px] px-2 py-0.5 rounded-full font-semibold border ${
-                              isActive
-                                ? 'bg-emerald-500/15 text-emerald-800 border-emerald-500/30'
-                                : 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20'
-                            }`}
-                          >
-                            {INTENT_LABELS[chat.lastIntent || ''] || 'Por cerrar'}
-                          </span>
-                        )}
-                        {chat.botActive && (
-                          <span
-                            className={`text-[10px] px-2 py-0.5 rounded-full font-semibold border ${
-                              isActive
-                                ? 'bg-brand-500/15 text-brand-800 border-brand-500/35'
-                                : 'bg-brand-500/10 text-brand-700 border-brand-500/20'
-                            }`}
-                          >
-                            Bot
-                          </span>
-                        )}
-                        {chat.status === 'waiting' && (
-                          <span
-                            className={`text-[10px] px-2 py-0.5 rounded-full font-semibold border ${
-                              isActive
-                                ? 'bg-amber-500/15 text-amber-800 border-amber-500/30'
-                                : 'bg-amber-500/10 text-amber-700 border-amber-500/20'
-                            }`}
-                          >
-                            Esperando
-                          </span>
-                        )}
-                      </div>
-                    )}
+                    <p className="text-[11px] text-[#6D6D70] truncate leading-snug mt-0.5">
+                      {chat.lastMessage || 'Sin mensajes'}
+                    </p>
                   </div>
 
                   <div className="flex flex-col items-end gap-1 shrink-0 pt-0.5">

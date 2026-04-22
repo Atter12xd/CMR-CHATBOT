@@ -190,6 +190,7 @@ export default function ChatsPage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-hidden">
+      <PageHeader title="WhatsApp CRM" description="Gestión de conversaciones con clientes" />
       <div
         className={`rounded-lg border border-[#E5E7EB] bg-[#f3f4f6]/90 p-1 ${
           selectedChat ? 'hidden md:block' : 'block'

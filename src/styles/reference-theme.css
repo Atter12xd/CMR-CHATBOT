@@ -230,10 +230,10 @@
 .conversation-item-cmr {
   display: flex;
   align-items: flex-start;
-  gap: 0.625rem;
+  gap: 0.45rem;
   width: 100%;
   border-left: 3px solid transparent;
-  padding: 11px 14px;
+  padding: 7px 8px;
   border-radius: 0;
   border-bottom: 1px solid #f3f4f6;
   text-align: left;

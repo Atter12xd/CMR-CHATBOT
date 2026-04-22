@@ -75,13 +75,19 @@ export default function Layout({ children, page }: LayoutProps) {
 
         {/* Contenido principal */}
         <main className="flex-1 flex flex-col overflow-hidden md:ml-0">
-          {/* Header */}
-          <Header onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
+          {/* Header global: en chats desktop se oculta para maximizar altura útil */}
+          {page === 'chats' ? (
+            <div className="md:hidden">
+              <Header onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
+            </div>
+          ) : (
+            <Header onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
+          )}
 
           <div
             className={`flex-1 min-h-0 bg-transparent ${
               page === 'chats'
-                ? 'flex flex-col overflow-hidden px-3 py-2 md:px-4 md:py-2.5'
+                ? 'flex flex-col overflow-hidden px-2 py-1.5 md:px-3 md:py-2'
                 : 'overflow-y-auto px-5 py-5 md:px-7 md:pt-5 md:pb-7'
             }`}
           >

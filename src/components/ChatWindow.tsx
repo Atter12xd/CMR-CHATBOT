@@ -23,13 +23,6 @@ import ChatContactPanel from './ChatContactPanel';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { inboxChannelSubtitle } from '../lib/inbox-section';
 
-const QUICK_REPLY_SNIPPETS = [
-  '¡Hola! ¿En qué le puedo ayudar?',
-  'Su pedido está confirmado',
-  'El envío demora 2-3 días',
-  'Gracias por contactarnos',
-];
-
 interface ChatWindowProps {
   chat: Chat;
   onBack: () => void;
@@ -699,31 +692,14 @@ export default function ChatWindow({ chat, onBack, whatsAppNumber, onRefetchChat
       </div>
 
 
-      {/* Quick replies + input — .quick-replies + .chat-input-area */}
+      {/* Input — .chat-input-area */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, delay: 0.05 }}
         className="shrink-0 border-t border-[#E5E7EB] bg-white"
       >
-        <div className="flex flex-wrap gap-1.5 px-4 pt-2 pb-1">
-          {QUICK_REPLY_SNIPPETS.map((text) => (
-            <button
-              key={text}
-              type="button"
-              onClick={() => {
-                pinToBottomRef.current = true;
-                setNewMessage(text);
-                requestAnimationFrame(() => textareaRef.current?.focus());
-              }}
-              title={text}
-              className="px-[11px] py-1 rounded-full border border-brand-500 text-brand-500 text-[12px] font-medium bg-white hover:bg-[#EBF2FF] transition-colors max-w-full text-left leading-snug"
-            >
-              {text}
-            </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-2 px-4 pt-1 pb-2.5">
+        <div className="flex items-center gap-2 px-4 py-2.5">
           <motion.button
             type="button"
             onClick={() => setShowFileModal(true)}

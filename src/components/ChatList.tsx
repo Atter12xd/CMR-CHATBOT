@@ -85,8 +85,8 @@ export default function ChatList({ chats, selectedChatId, onSelectChat, inboxSec
 
   return (
     <div className="h-full min-w-0 max-w-full w-full flex flex-col overflow-hidden bg-white">
-      <div className="pt-[14px] px-[14px] pb-2.5 border-b border-[#E5E7EB] shrink-0 bg-white min-w-0">
-        <h3 className="text-sm font-bold text-[#3D3D40] mb-2.5">{INBOX_LIST_TITLE[inboxSection]}</h3>
+      <div className="pt-2 px-2.5 pb-1 border-b border-[#E5E7EB] shrink-0 bg-white min-w-0">
+        <h3 className="text-sm font-bold text-[#3D3D40] mb-1">{INBOX_LIST_TITLE[inboxSection]}</h3>
         <div className="relative group">
           <Search
             size={14}
@@ -97,7 +97,7 @@ export default function ChatList({ chats, selectedChatId, onSelectChat, inboxSec
             placeholder="Buscar conversación..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full min-w-0 py-[7px] pl-8 pr-8 border border-[#E5E7EB] rounded-md text-xs text-[#3D3D40] placeholder:text-[#6D6D70] focus:outline-none focus:border-brand-500 font-professional bg-white"
+            className="w-full min-w-0 py-1 pl-8 pr-8 border border-[#E5E7EB] rounded-md text-xs text-[#3D3D40] placeholder:text-[#6D6D70] focus:outline-none focus:border-brand-500 font-professional bg-white"
           />
           {searchQuery && (
             <button
@@ -109,7 +109,7 @@ export default function ChatList({ chats, selectedChatId, onSelectChat, inboxSec
             </button>
           )}
         </div>
-        <div className="flex flex-wrap gap-0.5 pt-2 pb-1.5 -mx-0.5">
+        <div className="flex flex-wrap gap-0.5 pt-0.5 pb-0.5 -mx-0.5">
           {STATUS_TABS.map((t) => (
             <button
               key={t.id}
@@ -154,34 +154,34 @@ export default function ChatList({ chats, selectedChatId, onSelectChat, inboxSec
                   variants={listItem}
                   onClick={() => onSelectChat(chat.id)}
                   whileTap={{ scale: 0.995 }}
-                  className={`conversation-item-cmr items-start gap-2.5 ${isActive ? 'active' : ''}`}
+                  className={`conversation-item-cmr items-start ${isActive ? 'active' : ''}`}
                 >
                   <div className="relative flex-shrink-0">
                     <img
                       src={chat.customerAvatar}
                       alt=""
-                      className="w-[38px] h-[38px] rounded-full object-cover bg-[#f3f4f6] border border-[#f3f4f6]"
+                      className="w-8 h-8 rounded-full object-cover bg-[#f3f4f6] border border-[#f3f4f6]"
                     />
                     <div
-                      className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${getStatusColor(chat.status)}`}
+                      className={`absolute bottom-0 right-0 w-[7px] h-[7px] rounded-full border border-white ${getStatusColor(chat.status)}`}
                     />
                   </div>
 
-                  <div className="flex-1 min-w-0 overflow-hidden pt-0.5">
-                    <div className="text-[13px] font-semibold text-[#3D3D40] truncate leading-tight">
+                  <div className="flex-1 min-w-0 overflow-hidden pt-px">
+                    <div className="text-[12px] font-semibold text-[#3D3D40] truncate leading-tight">
                       {chat.customerName}
                     </div>
-                    <p className="text-[11px] text-[#6D6D70] truncate leading-snug mt-0.5">
+                    <p className="text-[10px] text-[#6D6D70] truncate leading-snug mt-px">
                       {chat.lastMessage || 'Sin mensajes'}
                     </p>
                   </div>
 
-                  <div className="flex flex-col items-end gap-1 shrink-0 pt-0.5">
-                    <span className="text-[10px] tabular-nums text-[#B8B8BB] leading-none">
+                  <div className="flex flex-col items-end gap-0.5 shrink-0 pt-px">
+                    <span className="text-[9px] tabular-nums text-[#B8B8BB] leading-none">
                       {formatTime(chat.lastMessageTime)}
                     </span>
                     {hasUnread && (
-                      <span className="min-h-[18px] min-w-[18px] px-1 flex items-center justify-center bg-emerald-500 text-white text-[10px] font-bold rounded-full">
+                      <span className="h-[15px] min-w-[15px] px-1 flex items-center justify-center bg-emerald-500 text-white text-[8px] font-bold rounded-full">
                         {chat.unreadCount > 9 ? '9+' : chat.unreadCount}
                       </span>
                     )}

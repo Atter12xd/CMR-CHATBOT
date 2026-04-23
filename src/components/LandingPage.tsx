@@ -30,17 +30,20 @@ const WHATSAPP_SOPORTE = '51933484150';
 const plans = [
   {
     name: 'Starter',
-    description: 'Para negocios que quieren automatizar su atencion',
+    description: 'CRM completo para vender por chat: inbox, pedidos, catálogo y bot',
     price: { monthly: 50, yearly: 40 },
     priceBefore: 70,
-    trial: '14 dias de prueba gratis',
+    trial: '14 días de prueba gratis',
     features: [
-      'Conversaciones ilimitadas',
-      '1 numero de WhatsApp',
+      'Inbox multicanal (WhatsApp + web + Shopify)',
+      'Dashboard con chats y pedidos',
+      'Pedidos con estados y seguimiento',
+      'Hasta 300 productos en catálogo',
       'Entrenar bot con texto, URLs y PDFs',
-      'Catalogo de hasta 300 productos',
-      'Gestion de pedidos',
-      'Modo bot y modo humano',
+      'Métodos de pago configurables',
+      '1 número WhatsApp (conexión QR)',
+      'Modo bot y modo humano por conversación',
+      'Widget web desde Configuración',
       'Soporte por email',
     ],
     cta: 'Empezar ahora',
@@ -51,19 +54,17 @@ const plans = [
   },
   {
     name: 'Pro',
-    description: 'Plan personalizado para vender mas por WhatsApp',
+    description: 'Más volumen: varios números y catálogo sin tope en todos los canales',
     price: { monthly: 99, yearly: 79 },
     priceBefore: null as number | null,
     trial: null as string | null,
     features: [
-      'Conversaciones ilimitadas',
-      'Hasta 3 numeros WhatsApp',
-      'Entrenar bot con texto, PDFs y URLs',
-      'Catalogo ilimitado de productos',
-      'Bot envia fotos y catalogos',
-      'Metodos de pago configurables',
-      'Dashboard de metricas en tiempo real',
-      'Deteccion de intencion de compra',
+      'Todo lo del plan Starter, ampliado',
+      'Hasta 3 números de WhatsApp',
+      'Catálogo ilimitado (Shopify, web y CMR sin tope de productos)',
+      'Bot envía fotos y catálogos en el chat',
+      'Detección de intención de compra y alertas',
+      'Dashboard y embudo con más carga operativa',
       'Soporte prioritario 24/7',
     ],
     cta: 'Contactar soporte',
@@ -74,19 +75,19 @@ const plans = [
   },
   {
     name: 'Business',
-    description: 'Plan personalizado para equipos con control total',
+    description: 'Equipos y marcas que necesitan escala, API y varias organizaciones',
     price: { monthly: 150, yearly: 120 },
     priceBefore: null as number | null,
     trial: null as string | null,
     features: [
-      'Todo lo de Pro',
-      'Numeros WhatsApp ilimitados',
-      'Multiples agentes por cuenta',
-      'Multi-organizacion',
+      'Todo lo del plan Pro',
+      'Números WhatsApp ilimitados',
+      'Múltiples agentes por cuenta',
+      'Multi-organización',
       'API y webhooks',
-      'Integraciones personalizadas',
+      'Integraciones personalizadas (CRM, ERP, data)',
       'Gestor de cuenta dedicado',
-      'SLA 99.9%',
+      'SLA 99.9 %',
     ],
     cta: 'Contactar soporte',
     ctaLink: `https://wa.me/${WHATSAPP_SOPORTE}?text=${encodeURIComponent('Hola, me interesa el plan de 150 dolares.')}`,
@@ -101,27 +102,27 @@ const steps = [
     num: '01',
     icon: QrCode,
     title: 'Conecta tu WhatsApp',
-    desc: 'Escanea un codigo QR desde tu celular. Sin APIs complicadas, sin otro numero. Listo en 30 segundos.',
+    desc: 'Escanea un código QR desde tu celular. Sin APIs complicadas, sin otro número. Listo en 30 segundos.',
   },
   {
     num: '02',
     icon: Brain,
     title: 'Entrena tu bot',
-    desc: 'Sube PDFs, pega URLs o escribe informacion. El bot aprende todo sobre tu negocio y productos.',
+    desc: 'Sube PDFs, pega URLs o escribe información. El bot aprende todo sobre tu negocio y productos.',
   },
   {
     num: '03',
     icon: ShoppingBag,
-    title: 'Vende en automatico',
-    desc: 'El bot responde, envia fotos, detecta intencion de compra y registra pedidos. Tu vendes mientras duermes.',
+    title: 'Vende en automático',
+    desc: 'Desde el CMR ves pedidos y el bot responde en el inbox: fotos, catálogo y registro de pedidos cuando el cliente confirma.',
   },
 ];
 
 const perks = [
-  { title: 'Soporte 24/7', text: 'Atencion continua para resolver dudas de ventas y operaciones.', icon: Headphones },
-  { title: 'Comunidad', text: 'Aprende con otros equipos que venden por WhatsApp todos los dias.', icon: Sparkles },
-  { title: 'Academia', text: 'Guias practicas para mejorar conversion, respuesta y cierre.', icon: Rocket },
-  { title: 'Integracion rapida', text: 'Conecta con Shopify, pasarelas de pago y CRMs en minutos.', icon: Zap },
+  { title: 'Soporte 24/7', text: 'Atención continua para resolver dudas de ventas y operaciones.', icon: Headphones },
+  { title: 'Comunidad', text: 'Aprende con otros equipos que venden por WhatsApp todos los días.', icon: Sparkles },
+  { title: 'Academia', text: 'Guías prácticas para mejorar conversión, respuesta y cierre.', icon: Rocket },
+  { title: 'Integración rápida', text: 'En Configuración: widget web, Shopify y métodos de pago enlazados al mismo CMR.', icon: Zap },
 ];
 
 const faqs = [
@@ -235,7 +236,7 @@ function LandingPageInner() {
                 <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
               </span>
-              <span className="text-[13px] text-app-muted font-medium">14 dias de prueba gratis</span>
+              <span className="text-[13px] text-app-muted font-medium">14 días de prueba gratis</span>
             </div>
 
             <h1 className="text-[2.5rem] sm:text-[3.5rem] lg:text-[4.25rem] font-bold tracking-[-0.04em] leading-[1.02]">
@@ -243,7 +244,7 @@ function LandingPageInner() {
               <span className="block text-gradient-brand mt-1">activo 24/7</span>
             </h1>
             <p className="mt-7 text-lg text-app-muted max-w-lg leading-relaxed">
-              Conecta tu WhatsApp con QR, entrena el bot con tu informacion y empieza a vender en automatico desde el dia uno.
+              Conecta tu WhatsApp con QR, entrena el bot con tu información y empieza a vender en automático desde el día uno.
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row gap-3.5">
@@ -386,7 +387,7 @@ function LandingPageInner() {
               Planes para cada etapa de tu negocio
             </h2>
             <p className="text-base text-app-muted max-w-xl mx-auto leading-relaxed">
-              Conecta tu WhatsApp con QR, entrena el bot y empieza a vender en automatico.
+              Los mismos módulos que ves dentro del producto: inbox, pedidos, productos, bot y pagos — con límites claros por plan.
             </p>
           </div>
 
@@ -416,7 +417,7 @@ function LandingPageInner() {
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-7 items-start">
+          <div className="grid lg:grid-cols-3 gap-7 items-start lg:py-3">
             {plans.map((plan, idx) => {
               const price = billing === 'monthly' ? plan.price.monthly : plan.price.yearly;
               return (
@@ -432,17 +433,21 @@ function LandingPageInner() {
                       : 'bg-white border border-app-line hover:border-brand-500/20 shadow-sm hover:shadow-lg'
                   }`}
                 >
-                  <div className="relative h-full rounded-[25px] bg-white overflow-hidden">
+                  <div
+                    className={`relative h-full rounded-[25px] bg-white ${
+                      plan.highlighted ? 'overflow-visible' : 'overflow-hidden'
+                    }`}
+                  >
                     {plan.highlighted && <div className="h-1 bg-gradient-to-r from-brand-700 via-brand-500 to-brand-300" />}
-                    {plan.highlighted && (
-                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-                        <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold bg-brand-500 text-white shadow-md shadow-brand-500/25">
-                          Recomendado
-                        </span>
-                      </div>
-                    )}
 
                     <div className="p-8 lg:p-9">
+                      {plan.highlighted && (
+                        <div className="flex justify-center mb-5 -mt-2">
+                          <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold bg-brand-500 text-white shadow-md shadow-brand-500/25 ring-1 ring-white/30">
+                            Recomendado
+                          </span>
+                        </div>
+                      )}
                       <h3 className="text-xl font-bold mb-1.5 text-app-ink">{plan.name}</h3>
                       <p className="text-sm mb-7 text-app-muted leading-relaxed">{plan.description}</p>
 
@@ -460,7 +465,7 @@ function LandingPageInner() {
                         {billing === 'yearly' ? (
                           <p className="text-xs mt-2 text-app-muted"><span className="line-through">${plan.price.monthly}/mes</span> facturado anual</p>
                         ) : (
-                          <p className="text-xs mt-2 text-app-muted">Facturacion mensual</p>
+                          <p className="text-xs mt-2 text-app-muted">Facturación mensual</p>
                         )}
                         {plan.highlighted && countdown && (
                           <div className="mt-3 flex items-center gap-2 text-xs text-app-muted">
@@ -519,10 +524,10 @@ function LandingPageInner() {
           </div>
 
           <p className="mt-10 text-center text-sm text-app-muted max-w-lg mx-auto">
-            14 dias de prueba gratis. Despues $50/mes automatico. Cancela en cualquier momento.
+            14 días de prueba gratis en Starter. Después $50/mes con Stripe. Cancela cuando quieras.
           </p>
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-[13px] text-app-muted">
-            {['14 dias gratis', 'Cancela cuando quieras', 'Soporte en espanol'].map((t) => (
+            {['14 días gratis', 'Cancela cuando quieras', 'Soporte en español'].map((t) => (
               <div key={t} className="flex items-center gap-2">
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/12 ring-1 ring-emerald-500/20">
                   <Check className="w-3 h-3 text-emerald-600" strokeWidth={2.5} />
@@ -550,9 +555,18 @@ function LandingPageInner() {
             </h2>
             <div className="space-y-5">
               {[
-                ['Bot de WhatsApp con IA', 'Responde, vende y recupera clientes en automatico, 24/7.'],
-                ['Bot web para tu sitio', 'Captura leads desde tu pagina web en segundos, sin desarrollo.'],
-                ['CRM completo', 'Pedidos, pagos, metricas y seguimiento comercial en una sola vista.'],
+                [
+                  'Inbox multicanal y bot',
+                  'Misma bandeja para WhatsApp, web y Shopify: el bot responde y tú tomas el control en un clic.',
+                ],
+                [
+                  'CRM de pedidos y catálogo',
+                  'Productos, estados de pedido y seguimiento alineados con lo que negocias en el chat.',
+                ],
+                [
+                  'Dashboard y configuración',
+                  'Métricas resumidas, métodos de pago, entrenamiento del bot y widget web desde un solo panel.',
+                ],
               ].map(([title, desc]) => (
                 <div key={title} className="flex items-start gap-4">
                   <span className="w-10 h-10 rounded-xl bg-brand-50 border border-brand-200 flex items-center justify-center shrink-0 mt-0.5">
@@ -611,13 +625,13 @@ function LandingPageInner() {
               Crea tu sistema de ventas omnicanal hoy
             </h2>
             <p className="text-lg text-app-muted mb-10 leading-relaxed">
-              Disenado para marcas que venden por chat y necesitan automatizacion, control y crecimiento continuo.
+              Diseñado para equipos que viven en el chat: el CMR refleja pedidos, productos y conversaciones en vivo.
             </p>
             <div className="space-y-1">
               {[
-                ['Bot de WhatsApp con IA', MessageSquare],
-                ['Bot web para captacion 24/7', Globe],
-                ['Metricas y conversion en tiempo real', BarChart3],
+                ['Inbox, pedidos y productos conectados', MessageSquare],
+                ['Entrenar bot y métodos de pago en el mismo flujo', Globe],
+                ['Dashboard con visión de embudo y operación', BarChart3],
               ].map(([label, Icon]) => (
                 <div key={label as string} className="flex items-center justify-between border-b border-app-line py-5">
                   <div className="flex items-center gap-4">
@@ -721,7 +735,7 @@ function LandingPageInner() {
             </a>
           </div>
           <div className="mt-12 flex flex-wrap items-center justify-center gap-5 sm:gap-6 text-sm text-app-muted">
-            {['14 dias gratis', 'Sin compromisos', '100% seguro'].map((t) => (
+            {['14 días gratis', 'Sin compromisos', '100% seguro'].map((t) => (
               <span key={t} className="inline-flex items-center gap-2">
                 <Check className="w-4 h-4 text-emerald-600" />
                 {t}
@@ -744,7 +758,7 @@ function LandingPageInner() {
             <div className="rounded-[25px] bg-white p-7 sm:p-8">
               <h3 className="text-lg font-semibold text-app-ink mb-2">Introduce tu correo</h3>
               <p className="text-sm text-app-muted mb-5 leading-relaxed">
-                Lo usamos para tu cuenta y facturacion. Si ya cancelaste antes, no tendras 14 dias gratis de nuevo.
+                Lo usamos para tu cuenta y facturación. Si ya cancelaste antes, no tendrás 14 días gratis de nuevo.
               </p>
               <input
                 type="email"

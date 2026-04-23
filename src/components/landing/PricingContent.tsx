@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Check, ArrowRight, MessageSquare, Brain, ShoppingBag, BarChart3, CreditCard, QrCode, Zap, Shield, Loader2, Clock } from 'lucide-react';
+import { Check, ArrowRight, MessageSquare, Brain, ShoppingBag, BarChart3, CreditCard, QrCode, Shield, Loader2, Clock, Phone } from 'lucide-react';
 import MarketingHero from './MarketingHero';
 import SectionLabel from './SectionLabel';
 
@@ -11,17 +11,20 @@ const WHATSAPP_SOPORTE = '51933484150';
 const plans = [
   {
     name: 'Starter',
-    description: 'Para negocios que quieren automatizar su atención',
+    description: 'CRM completo para vender por chat: inbox, pedidos, catálogo y bot',
     price: { monthly: 50, yearly: 40 },
     priceBefore: 70,
     trial: '14 días de prueba gratis',
     features: [
-      'Conversaciones ilimitadas',
-      '1 número de WhatsApp',
+      'Inbox multicanal (WhatsApp + web + Shopify)',
+      'Dashboard con chats y pedidos',
+      'Pedidos con estados y seguimiento',
+      'Hasta 300 productos en catálogo',
       'Entrenar bot con texto, URLs y PDFs',
-      'Catálogo de hasta 300 productos',
-      'Gestión de pedidos',
-      'Modo bot y modo humano',
+      'Métodos de pago configurables',
+      '1 número WhatsApp (conexión QR)',
+      'Modo bot y modo humano por conversación',
+      'Widget web desde Configuración',
       'Soporte por email',
     ],
     cta: 'Empezar ahora',
@@ -32,18 +35,16 @@ const plans = [
   },
   {
     name: 'Pro',
-    description: 'Plan personalizado para vender más por WhatsApp',
+    description: 'Más volumen: varios números y catálogo sin tope en todos los canales',
     price: { monthly: 99, yearly: 79 },
     trial: null,
     features: [
-      'Conversaciones ilimitadas',
-      'Hasta 3 números WhatsApp',
-      'Entrenar bot con texto, PDFs y URLs',
-      'Catálogo ilimitado de productos',
-      'Bot envía fotos y catálogos',
-      'Métodos de pago configurables',
-      'Dashboard de métricas en tiempo real',
-      'Detección de intención de compra',
+      'Todo lo del plan Starter, ampliado',
+      'Hasta 3 números de WhatsApp',
+      'Catálogo ilimitado (Shopify, web y CMR sin tope de productos)',
+      'Bot envía fotos y catálogos en el chat',
+      'Detección de intención de compra y alertas',
+      'Dashboard y embudo con más carga operativa',
       'Soporte prioritario 24/7',
     ],
     cta: 'Contactar soporte',
@@ -54,18 +55,18 @@ const plans = [
   },
   {
     name: 'Business',
-    description: 'Plan personalizado para equipos con control total',
+    description: 'Equipos y marcas que necesitan escala, API y varias organizaciones',
     price: { monthly: 150, yearly: 120 },
     trial: null,
     features: [
-      'Todo lo de Pro',
+      'Todo lo del plan Pro',
       'Números WhatsApp ilimitados',
       'Múltiples agentes por cuenta',
       'Multi-organización',
       'API y webhooks',
-      'Integraciones personalizadas',
+      'Integraciones personalizadas (CRM, ERP, data)',
       'Gestor de cuenta dedicado',
-      'SLA 99.9%',
+      'SLA 99.9 %',
     ],
     cta: 'Contactar soporte',
     ctaLink: `https://wa.me/${WHATSAPP_SOPORTE}?text=${encodeURIComponent('Hola, me interesa el plan de 150 dólares.')}`,
@@ -81,37 +82,43 @@ const features = [
   {
     icon: QrCode,
     title: 'Conexión con QR',
-    description: 'Escanea el código QR desde tu WhatsApp y listo. Sin eliminar tu número, sin configuraciones técnicas.',
+    description: 'Enlaza tu WhatsApp desde el CMR escaneando un código. Tu número sigue siendo el mismo.',
     accent: 'brand' as const,
   },
   {
-    icon: Brain,
-    title: 'Bot que aprende tu negocio',
-    description: 'Entrénalo con palabras, PDFs o la URL de tu web. En minutos sabe todo sobre tu empresa y productos.',
+    icon: MessageSquare,
+    title: 'Inbox multicanal',
+    description: 'WhatsApp, conversaciones desde tu web y canal Shopify: cada uno con su bandeja, como en el producto.',
+    accent: 'brand' as const,
+  },
+  {
+    icon: BarChart3,
+    title: 'Dashboard',
+    description: 'Resumen de actividad, pedidos y chats para ver de un vistazo cómo va tu operación.',
     accent: 'emerald' as const,
   },
   {
     icon: ShoppingBag,
-    title: 'Catálogo y pedidos',
-    description: 'Sube tus productos al sistema. El bot los muestra, detecta intención de compra y registra pedidos automáticamente.',
+    title: 'Productos y pedidos',
+    description: 'Catálogo en Productos, seguimiento en Pedidos y creación de pedidos desde el hilo de chat.',
     accent: 'amber' as const,
   },
   {
-    icon: MessageSquare,
-    title: 'Chat en vivo',
-    description: 'Ve todos los mensajes en tiempo real. Cambia entre modo bot y modo humano en cada conversación.',
-    accent: 'brand' as const,
+    icon: Brain,
+    title: 'Entrenar bot',
+    description: 'Desde Entrenar bot: texto, PDFs y URLs para que las respuestas reflejen tu negocio real.',
+    accent: 'emerald' as const,
   },
   {
     icon: CreditCard,
     title: 'Métodos de pago',
-    description: 'Configura tus métodos de pago y el bot los comparte con tus clientes cuando pregunten cómo pagar.',
+    description: 'En Métodos de pago defines cómo cobrar; el asistente las comunica cuando el cliente pregunta.',
     accent: 'emerald' as const,
   },
   {
-    icon: Zap,
-    title: 'Fotos y catálogos',
-    description: 'El bot envía imágenes de productos, catálogos completos y toda la información que tus clientes necesitan.',
+    icon: Phone,
+    title: 'Llamadas IA',
+    description: 'Sección en el panel para llamadas automatizadas; el equipo la va activando de forma progresiva.',
     accent: 'amber' as const,
   },
 ];
@@ -295,7 +302,7 @@ export default function PricingContent() {
       {/* Pricing Cards */}
       <section className="pb-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
-          <div className="grid lg:grid-cols-3 gap-6 items-start">
+          <div className="grid lg:grid-cols-3 gap-6 items-start lg:py-3">
             {plans.map((plan) => {
               const price = billing === 'monthly' ? plan.price.monthly : plan.price.yearly;
               return (
@@ -308,24 +315,22 @@ export default function PricingContent() {
                   }`}
                 >
                   <div
-                    className={`relative h-full rounded-[25px] bg-white dark:bg-ref-card overflow-hidden ${
-                      plan.highlighted ? '' : ''
+                    className={`relative h-full rounded-[25px] bg-white dark:bg-ref-card ${
+                      plan.highlighted ? 'overflow-visible' : 'overflow-hidden'
                     }`}
                   >
                   {plan.highlighted && (
                     <div className="h-1 bg-gradient-to-r from-brand-800 via-brand-500 to-brand-400" />
                   )}
 
-                  {/* Badge */}
-                  {plan.highlighted && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-                      <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold bg-brand-500 text-white shadow-md shadow-brand-500/20 ring-1 ring-white/20">
-                        Recomendado
-                      </span>
-                    </div>
-                  )}
-
                   <div className="p-7 lg:p-8">
+                    {plan.highlighted && (
+                      <div className="flex justify-center mb-5 -mt-2">
+                        <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold bg-brand-500 text-white shadow-md shadow-brand-500/20 ring-1 ring-white/30">
+                          Recomendado
+                        </span>
+                      </div>
+                    )}
                     {/* Header */}
                     <h2 className="text-xl font-bold mb-1 text-app-ink">
                       {plan.name}
@@ -352,7 +357,7 @@ export default function PricingContent() {
                       </div>
                       {billing === 'yearly' ? (
                         <p className="text-xs mt-1.5 text-app-muted">
-                          <span className="line-through">${plan.price.monthly}/mes</span> facturado mensual
+                          <span className="line-through">${plan.price.monthly}/mes</span> equivalente con facturación anual
                         </p>
                       ) : (
                         <p className="text-xs mt-1.5 text-app-muted">

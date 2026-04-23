@@ -12,6 +12,7 @@ import BotTrainingPage from './BotTrainingPage';
 import PaymentMethodsConfig from './PaymentMethodsConfig';
 import ConfigPage from './ConfigPage';
 import AiCallsPage from './AiCallsPage';
+import OrderTrackingPage from './OrderTrackingPage';
 
 
 interface LayoutProps {
@@ -24,6 +25,7 @@ interface LayoutProps {
     | 'entrenar-bot'
     | 'metodos-pago'
     | 'configuracion'
+    | 'seguimiento'
     | 'llamadas-ia';
 }
 
@@ -44,6 +46,8 @@ function renderPage(page: LayoutProps['page'], children?: ReactNode) {
       return <PaymentMethodsConfig />;
     case 'configuracion':
       return <ConfigPage />;
+    case 'seguimiento':
+      return <OrderTrackingPage />;
     case 'llamadas-ia':
       return <AiCallsPage />;
     default:

@@ -12,6 +12,7 @@ const breadcrumbMap: Record<string, string> = {
   '/chats': 'Inbox multicanal',
   '/dashboard': 'Dashboard',
   '/pedidos': 'Pedidos',
+  '/seguimiento-pedidos': 'Seguimiento de pedidos',
   '/llamadas-ia': 'Llamadas IA',
   '/productos': 'Productos',
   '/entrenar-bot': 'Entrenar Bot',

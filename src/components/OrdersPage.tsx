@@ -224,15 +224,7 @@ export default function OrdersPage() {
   }, [getTrackingPublicUrl]);
 
   const openTrackingEditor = useCallback((order: Order) => {
-    setViewMode('seguimiento');
-    setActiveTrackingOrderId(order.id);
-    setTrackingForm({
-      courier: order.courier || '',
-      trackingCode: order.trackingCode || '',
-      trackingUrl: order.trackingUrl || '',
-      shippingStatus: order.shippingStatus || 'pending',
-      shippingLastEvent: order.shippingLastEvent || '',
-    });
+    window.location.href = `/seguimiento-pedidos?order=${encodeURIComponent(order.id)}`;
   }, []);
 
   const handleSaveTracking = useCallback(async () => {
@@ -433,18 +425,6 @@ export default function OrdersPage() {
               <rect x="3" y="17" width="18" height="4" rx="1" opacity=".4" />
             </svg>
             Tabla
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode('seguimiento')}
-            className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-[5px] text-[12px] font-semibold transition-colors ${
-              viewMode === 'seguimiento'
-                ? 'bg-brand-500 text-white'
-                : 'text-[#6D6D70] hover:bg-[#f9fafb]'
-            }`}
-          >
-            <Truck size={13} />
-            Seguimiento
           </button>
         </div>
       </div>

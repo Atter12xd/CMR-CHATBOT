@@ -3,6 +3,7 @@ import {
   MessageSquare,
   LayoutDashboard,
   ShoppingCart,
+  Truck,
   Phone,
   Package,
   Brain,
@@ -27,6 +28,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
   { label: 'Pedidos', icon: ShoppingCart, path: '/pedidos' },
+  { label: 'Seguimiento', icon: Truck, path: '/seguimiento-pedidos' },
   { label: 'Llamadas IA', icon: Phone, path: '/llamadas-ia' },
   { label: 'Inbox multicanal', icon: MessageSquare, path: '/chats' },
   { label: 'Productos', icon: Package, path: '/productos' },

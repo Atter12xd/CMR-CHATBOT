@@ -22,6 +22,7 @@ import {
   logOrderNotification,
   type OrderNotificationItem,
 } from '../services/order-notifications';
+import { getActiveDraftByChat, type OrderDraft } from '../services/order-drafts';
 import PageHeader from './PageHeader';
 
 const shippingStatusLabels: Record<NonNullable<Order['shippingStatus']>, string> = {
@@ -106,6 +107,8 @@ export default function OrderTrackingPage() {
   const [notifications, setNotifications] = useState<OrderNotificationItem[]>([]);
   const [notificationsFilter, setNotificationsFilter] = useState<'all' | 'sent' | 'failed'>('all');
   const [retryingNotificationId, setRetryingNotificationId] = useState<string | null>(null);
+  const [activeDraft, setActiveDraft] = useState<OrderDraft | null>(null);
+  const [draftLoading, setDraftLoading] = useState(false);
   const [highlightEditor, setHighlightEditor] = useState(false);
   const [autoEventPrefill, setAutoEventPrefill] = useState<string | null>(null);
   const [form, setForm] = useState({
@@ -222,6 +225,29 @@ export default function OrderTrackingPage() {
       cancelled = true;
     };
   }, [organizationId, activeOrder?.id]);
+
+  useEffect(() => {
+    if (!organizationId || !activeOrder?.chatId) {
+      setActiveDraft(null);
+      return;
+    }
+    let cancelled = false;
+    setDraftLoading(true);
+    getActiveDraftByChat(organizationId, activeOrder.chatId)
+      .then((draft) => {
+        if (!cancelled) setActiveDraft(draft);
+      })
+      .catch((err) => {
+        console.error('Error cargando borrador de carrito:', err);
+        if (!cancelled) setActiveDraft(null);
+      })
+      .finally(() => {
+        if (!cancelled) setDraftLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [organizationId, activeOrder?.id, activeOrder?.chatId]);
 
   const getTrackingPublicUrl = useCallback((token?: string) => {
     if (!token) return '';
@@ -470,6 +496,13 @@ export default function OrderTrackingPage() {
     return notifications.filter((n) => n.status === notificationsFilter);
   }, [notifications, notificationsFilter]);
 
+  const confirmedItemsSummary = useMemo(() => {
+    if (!activeOrder) return { units: 0, subtotal: 0 };
+    const units = activeOrder.items.reduce((sum, item) => sum + item.quantity, 0);
+    const subtotal = activeOrder.items.reduce((sum, item) => sum + item.quantity * item.price, 0);
+    return { units, subtotal };
+  }, [activeOrder?.id, activeOrder?.items]);
+
   if (orgLoading) {
     return (
       <div className="flex items-center justify-center min-h-[360px]">
@@ -480,7 +513,7 @@ export default function OrderTrackingPage() {
 
   return (
     <div className="space-y-5 font-professional">
-      <PageHeader title="Seguimiento de pedidos" description="Guías, estados, links y mensajes al cliente final" />
+      <PageHeader title="Seguimiento de pedidos" description="Guías, estados, carrito y mensajes al cliente final" />
 
       <div className="rounded-ref border border-app-line bg-ref-card px-4 py-3 shadow-sm flex flex-wrap items-center justify-between gap-3">
         <div className="text-[12px] text-app-muted">
@@ -732,6 +765,69 @@ export default function OrderTrackingPage() {
                 {form.shippingStatus === 'exception' && (
                   <p className="text-[11px] text-rose-600 mt-2">Este envío está marcado con incidencia.</p>
                 )}
+              </div>
+
+              <div className="grid xl:grid-cols-2 gap-3">
+                <div className="rounded-xl border border-app-line bg-white p-3">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <p className="text-xs text-app-muted font-medium">Carrito confirmado del pedido</p>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full border border-app-line text-app-muted">
+                      {confirmedItemsSummary.units} und.
+                    </span>
+                  </div>
+                  {activeOrder.items.length === 0 ? (
+                    <p className="text-[12px] text-app-muted">Este pedido no tiene items cargados.</p>
+                  ) : (
+                    <div className="space-y-1.5 max-h-[170px] overflow-y-auto pr-1">
+                      {activeOrder.items.map((item) => (
+                        <div key={item.id} className="rounded-lg border border-app-line bg-app-field/40 px-2.5 py-2">
+                          <p className="text-[12px] font-semibold text-app-ink">{item.name}</p>
+                          <p className="text-[11px] text-app-muted">
+                            {item.quantity} x S/ {item.price.toFixed(2)} = S/ {(item.quantity * item.price).toFixed(2)}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="mt-2 pt-2 border-t border-app-line text-[12px] text-app-ink font-semibold">
+                    Subtotal items: S/ {confirmedItemsSummary.subtotal.toFixed(2)}
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-app-line bg-white p-3">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <p className="text-xs text-app-muted font-medium">Borrador de carrito del chat</p>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full border border-app-line text-app-muted">
+                      {activeDraft ? (activeDraft.status === 'ready' ? 'Listo' : 'En progreso') : 'Sin borrador'}
+                    </span>
+                  </div>
+                  {draftLoading ? (
+                    <p className="text-[12px] text-app-muted">Cargando borrador...</p>
+                  ) : !activeOrder.chatId ? (
+                    <p className="text-[12px] text-app-muted">Este pedido no está vinculado a un chat.</p>
+                  ) : !activeDraft ? (
+                    <p className="text-[12px] text-app-muted">No hay carrito pendiente para este chat.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      <p className="text-[11px] text-app-muted">
+                        Última actualización: {activeDraft.updatedAt.toLocaleString('es-PE')}
+                      </p>
+                      <div className="space-y-1.5 max-h-[120px] overflow-y-auto pr-1">
+                        {activeDraft.items.map((item) => (
+                          <div key={item.id} className="rounded-lg border border-app-line bg-app-field/40 px-2.5 py-2">
+                            <p className="text-[12px] font-semibold text-app-ink">{item.productName}</p>
+                            <p className="text-[11px] text-app-muted">
+                              {item.quantity} x S/ {item.price.toFixed(2)} = S/ {(item.quantity * item.price).toFixed(2)}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-[12px] font-semibold text-app-ink">
+                        Subtotal borrador: S/ {activeDraft.subtotal.toFixed(2)}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="grid sm:grid-cols-2 gap-3">

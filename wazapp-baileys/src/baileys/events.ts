@@ -393,7 +393,8 @@ REGLAS:
 - Responde solo en español. Máximo 2-4 oraciones salvo listas de productos o métodos de pago.
 - Si no sabes algo, ofrece contactar con un agente.
 - Pedidos: pide nombre completo, DNI, dirección de entrega y productos con cantidades. Si aún faltan datos, guarda avance con upsert_order_draft. Si el cliente pide retomar, usa recover_order_draft. Cuando tengas todo, usa create_order. IMPORTANTE: Después de create_order NO digas "pedido registrado" ni "listo tu pedido está confirmado". Solo indica cómo debe pagar (Yape/Plin/BCP con nombre y número de la lista) y que al enviar el comprobante lo verificaremos y entonces le confirmaremos el pedido.
-- Si el cliente dice que ya pagó o enviará comprobante, agradece y confirma que lo verificarán.`;
+- Si el cliente dice que ya pagó o enviará comprobante, agradece y confirma que lo verificarán.
+- Si el cliente responde a recordatorio de carrito ("sí, comprar"), usa recover_order_draft para retomarlo y cerrar datos. Si responde "no, cancelar", confirma amablemente que no insistiremos.`;
 
   const openai = new OpenAI({
     apiKey: clientConfig.openai_api_key || process.env.OPENAI_API_KEY || ''
@@ -645,6 +646,7 @@ async function upsertOrderDraftInDb(
         source: 'whatsapp',
         subtotal,
         currency: 'PEN',
+        last_customer_message_at: new Date().toISOString(),
         last_agent_action_at: new Date().toISOString(),
         expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       })
@@ -660,6 +662,7 @@ async function upsertOrderDraftInDb(
         address_or_reference: payload.address_or_reference || null,
         status,
         subtotal,
+        last_customer_message_at: new Date().toISOString(),
         last_agent_action_at: new Date().toISOString(),
       })
       .eq('id', draftId);

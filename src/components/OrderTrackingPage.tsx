@@ -192,6 +192,13 @@ export default function OrderTrackingPage() {
   );
 
   useEffect(() => {
+    if (activeOrderId) return;
+    if (filteredOrders.length > 0) {
+      setActiveOrderId(filteredOrders[0].id);
+    }
+  }, [activeOrderId, filteredOrders]);
+
+  useEffect(() => {
     if (!activeOrder) return;
     setForm({
       courier: activeOrder.courier || '',
@@ -515,6 +522,11 @@ export default function OrderTrackingPage() {
     <div className="space-y-5 font-professional">
       <PageHeader title="Seguimiento de pedidos" description="Guías, estados, carrito y mensajes al cliente final" />
 
+      <div className="rounded-ref border border-brand-200 bg-brand-50/70 px-4 py-2.5 text-[12px] text-brand-800">
+        Vista rápida: al seleccionar un pedido, verás su <span className="font-semibold">Carrito confirmado</span> y,
+        si existe, el <span className="font-semibold">Borrador de carrito del chat</span>.
+      </div>
+
       <div className="rounded-ref border border-app-line bg-ref-card px-4 py-3 shadow-sm flex flex-wrap items-center justify-between gap-3">
         <div className="text-[12px] text-app-muted">
           Última actualización: <span className="font-semibold text-app-ink">{lastRefreshAt ? lastRefreshAt.toLocaleTimeString('es-PE') : '—'}</span>
@@ -694,6 +706,9 @@ export default function OrderTrackingPage() {
                     <p className="text-[12px] text-app-muted truncate">{order.customerName}</p>
                     <p className="text-[11px] text-app-muted mt-1">
                       {order.shippingStatus ? shippingStatusLabels[order.shippingStatus] : 'Pendiente'}
+                    </p>
+                    <p className="text-[10px] text-app-muted mt-1">
+                      {order.items.reduce((sum, item) => sum + item.quantity, 0)} und. · S/ {order.total.toFixed(2)}
                     </p>
                   </button>
                 );

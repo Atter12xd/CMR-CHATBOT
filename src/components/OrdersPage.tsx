@@ -11,12 +11,18 @@ import {
   LayoutGrid,
   LayoutList,
   Search,
-  Zap,
+  RefreshCw,
+  Sparkles,
+  CheckCircle2,
+  PackageCheck,
+  XCircle,
+  Inbox,
   ExternalLink,
   Copy,
   Send,
   X,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useOrganization } from '../hooks/useOrganization';
 import { loadOrders, updateOrderShipping, updateOrderStatus } from '../services/orders';
 import { loadPaymentsPending, verifyPayment, type PaymentWithOrder } from '../services/payments';
@@ -371,13 +377,76 @@ export default function OrdersPage() {
   );
 
   const kanbanBoard = useMemo(() => {
-    const cols: { status: Order['status']; title: string; accent: string }[] = [
-      { status: 'pending', title: 'Nuevo', accent: '#5DADE2' },
-      { status: 'processing', title: 'Confirmando', accent: '#F4D03F' },
-      { status: 'completed', title: 'Confirmado', accent: '#F39C12' },
-      { status: 'shipped', title: 'En envío', accent: '#E5989B' },
-      { status: 'delivered', title: 'Entregado', accent: '#48C9B0' },
-      { status: 'cancelled', title: 'Rechazado', accent: '#E74C3C' },
+    const cols: {
+      status: Order['status'];
+      title: string;
+      hint: string;
+      icon: LucideIcon;
+      accent: string;
+      tint: string;
+      iconBg: string;
+      iconColor: string;
+    }[] = [
+      {
+        status: 'pending',
+        title: 'Nuevo',
+        hint: 'Pedido recién recibido',
+        icon: Inbox,
+        accent: '#3B82F6',
+        tint: 'rgba(59,130,246,0.06)',
+        iconBg: '#EFF6FF',
+        iconColor: '#1D4ED8',
+      },
+      {
+        status: 'processing',
+        title: 'Confirmando',
+        hint: 'Validando datos / pago',
+        icon: Clock,
+        accent: '#F59E0B',
+        tint: 'rgba(245,158,11,0.06)',
+        iconBg: '#FEF3C7',
+        iconColor: '#B45309',
+      },
+      {
+        status: 'completed',
+        title: 'Confirmado',
+        hint: 'Listo para preparar',
+        icon: CheckCircle2,
+        accent: '#10B981',
+        tint: 'rgba(16,185,129,0.06)',
+        iconBg: '#ECFDF5',
+        iconColor: '#047857',
+      },
+      {
+        status: 'shipped',
+        title: 'En envío',
+        hint: 'Camino al cliente',
+        icon: Truck,
+        accent: '#8B5CF6',
+        tint: 'rgba(139,92,246,0.06)',
+        iconBg: '#F5F3FF',
+        iconColor: '#6D28D9',
+      },
+      {
+        status: 'delivered',
+        title: 'Entregado',
+        hint: 'Cerrado con éxito',
+        icon: PackageCheck,
+        accent: '#14B8A6',
+        tint: 'rgba(20,184,166,0.06)',
+        iconBg: '#CCFBF1',
+        iconColor: '#0F766E',
+      },
+      {
+        status: 'cancelled',
+        title: 'Rechazado',
+        hint: 'Cliente no aceptó',
+        icon: XCircle,
+        accent: '#EF4444',
+        tint: 'rgba(239,68,68,0.06)',
+        iconBg: '#FEE2E2',
+        iconColor: '#B91C1C',
+      },
     ];
     return cols.map((col) => {
       const list = visibleOrders.filter((o) => o.status === col.status);
@@ -643,18 +712,22 @@ export default function OrdersPage() {
           </div>
         )
       ) : viewMode === 'pipeline' || viewMode === 'tabla' ? (
-        <div className="rounded-xl border border-[#E2E2E8] bg-[#EFEFF1] shadow-[0_1px_3px_rgba(15,23,42,0.06)] overflow-hidden">
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between px-4 py-3 bg-white border-b border-[#E8E8ED]">
-            <div className="flex flex-wrap items-center gap-3 min-w-0">
-              <span className="text-[11px] font-bold tracking-[0.14em] text-[#2B2B2F] select-none">PEDIDOS</span>
-              <div className="inline-flex rounded-lg border border-[#DCDCE2] bg-[#F4F4F6] p-0.5 shadow-[inset_0_1px_0_rgba(255,255,255,.6)]">
+        <div className="rounded-2xl border border-[#E6E6EC] bg-white shadow-[0_1px_3px_rgba(15,23,42,0.04)] overflow-hidden">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between px-4 py-3 border-b border-[#EEEEF2] bg-gradient-to-b from-white to-[#FAFAFB]">
+            <div className="flex flex-wrap items-center gap-2 min-w-0">
+              <div
+                className="inline-flex rounded-xl border border-[#E4E4E9] bg-white p-1 shadow-[0_1px_1px_rgba(15,23,42,0.04)]"
+                role="tablist"
+                aria-label="Vista de pedidos"
+              >
                 <button
                   type="button"
+                  role="tab"
                   onClick={() => setViewMode('pipeline')}
-                  className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wide transition-colors ${
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-all ${
                     viewMode === 'pipeline'
-                      ? 'bg-white text-[#1a1a1c] shadow-sm border border-[#E4E4E9]'
-                      : 'text-[#6D6D70] hover:text-[#3D3D40]'
+                      ? 'bg-[#1B70FF] text-white shadow-[0_1px_2px_rgba(27,112,255,0.4)]'
+                      : 'text-[#5C5C63] hover:text-[#1F1F23] hover:bg-[#F4F4F6]'
                   }`}
                   aria-pressed={viewMode === 'pipeline'}
                 >
@@ -663,11 +736,12 @@ export default function OrdersPage() {
                 </button>
                 <button
                   type="button"
+                  role="tab"
                   onClick={() => setViewMode('tabla')}
-                  className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wide transition-colors ${
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-all ${
                     viewMode === 'tabla'
-                      ? 'bg-white text-[#1a1a1c] shadow-sm border border-[#E4E4E9]'
-                      : 'text-[#6D6D70] hover:text-[#3D3D40]'
+                      ? 'bg-[#1B70FF] text-white shadow-[0_1px_2px_rgba(27,112,255,0.4)]'
+                      : 'text-[#5C5C63] hover:text-[#1F1F23] hover:bg-[#F4F4F6]'
                   }`}
                   aria-pressed={viewMode === 'tabla'}
                 >
@@ -675,117 +749,182 @@ export default function OrdersPage() {
                   Lista
                 </button>
               </div>
+              <div className="hidden md:flex items-center gap-1.5 ml-1 px-2.5 py-1.5 rounded-lg bg-[#F4F4F6] text-[11.5px] font-semibold text-[#5C5C63] tabular-nums">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden />
+                {pipelineToolbarTotals.count} {pipelineToolbarTotals.count === 1 ? 'pedido' : 'pedidos'}
+                <span className="text-[#C4C4CC]">·</span>
+                <span className="text-[#1F1F23]">S/ {pipelineToolbarTotals.sum.toFixed(2)}</span>
+              </div>
             </div>
-            <div className="flex flex-1 min-w-0 w-full xl:max-w-md xl:mx-4">
-              <label className="relative flex w-full items-center gap-2 rounded-lg border border-[#E4E4E9] bg-[#FAFAFB] px-3 py-2 shadow-[inset_0_1px_2px_rgba(0,0,0,.02)] focus-within:border-[#1B70FF]/35 focus-within:ring-2 focus-within:ring-[#1B70FF]/12 transition-[border-color,box-shadow]">
+
+            <div className="flex flex-1 min-w-0 w-full lg:max-w-md lg:mx-3">
+              <label className="relative flex w-full items-center gap-2 rounded-xl border border-[#E4E4E9] bg-white px-3 py-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)] focus-within:border-[#1B70FF]/45 focus-within:ring-2 focus-within:ring-[#1B70FF]/12 transition-[border-color,box-shadow]">
                 <Search className="w-4 h-4 text-[#9B9BA3] shrink-0" strokeWidth={2} aria-hidden />
                 <input
                   type="search"
                   value={orderSearchQuery}
                   onChange={(e) => setOrderSearchQuery(e.target.value)}
-                  placeholder="Pedidos abiertos — buscar por cliente, código o teléfono"
+                  placeholder="Buscar por cliente, código, teléfono o producto…"
                   className="w-full min-w-0 bg-transparent text-[13px] text-[#1a1a1c] placeholder:text-[#9B9BA3] outline-none"
                   autoComplete="off"
                 />
+                {orderSearchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setOrderSearchQuery('')}
+                    className="shrink-0 grid place-items-center w-5 h-5 rounded-full text-[#9B9BA3] hover:bg-[#F4F4F6] hover:text-[#3D3D40]"
+                    aria-label="Limpiar búsqueda"
+                  >
+                    <X size={12} strokeWidth={2.5} />
+                  </button>
+                )}
               </label>
             </div>
-            <div className="flex flex-wrap items-center justify-end gap-3 shrink-0">
-              <span className="text-[12px] font-semibold text-[#5C5C63] tabular-nums whitespace-nowrap">
-                {pipelineToolbarTotals.count} pedidos: S/ {pipelineToolbarTotals.sum.toFixed(2)}
-              </span>
-              <a
-                href="/configuracion"
-                className="inline-flex items-center gap-1.5 rounded-md bg-[#FF7A2F] px-3.5 py-2 text-[11px] font-bold uppercase tracking-wide text-white shadow-[0_1px_2px_rgba(0,0,0,.12)] hover:bg-[#FF6A18] transition-colors"
+
+            <div className="flex items-center justify-end gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => void fetchOrders()}
+                disabled={loading}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[12px] font-semibold text-[#5C5C63] hover:text-[#1F1F23] hover:bg-[#F4F4F6] border border-transparent hover:border-[#E4E4E9] disabled:opacity-50 transition-colors"
+                title="Refrescar"
               >
-                <Zap className="w-3.5 h-3.5" strokeWidth={2.5} aria-hidden />
-                Automatizar
+                <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} strokeWidth={2.25} />
+                Refrescar
+              </button>
+              <a
+                href="/entrenar-bot"
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-semibold text-[#6D28D9] bg-[#F5F3FF] hover:bg-[#EDE9FE] ring-1 ring-[#DDD6FE] transition-colors"
+                title="Entrena al bot para confirmar pedidos automáticamente"
+              >
+                <Sparkles className="w-3.5 h-3.5" strokeWidth={2.25} aria-hidden />
+                Bot IA
               </a>
             </div>
           </div>
 
-          {orderSearchQuery.trim() && visibleOrders.length === 0 && orders.length > 0 ? (
-            <div className="px-4 py-2.5 bg-amber-50 border-b border-amber-100 text-center text-[12px] font-medium text-amber-950">
-              Ningún pedido coincide con la búsqueda en este filtro.
-            </div>
-          ) : null}
-
           {viewMode === 'pipeline' ? (
             <>
-              {orders.length === 0 ? (
-                <div className="px-4 py-2.5 bg-[#EEF6FF] border-b border-[#D8E6FF] text-center text-[12px] text-[#1B4F91] leading-relaxed">
-                  Los pedidos aparecen aquí al crearlos desde el chat. Usa{' '}
-                  <span className="font-semibold">Pedido rápido</span> en la primera columna para ir a conversaciones.
+              {orderSearchQuery.trim() && visibleOrders.length === 0 && orders.length > 0 ? (
+                <div className="px-4 py-2 bg-amber-50/70 border-b border-amber-100 text-center text-[12px] font-medium text-amber-900">
+                  Ningún pedido coincide con «{orderSearchQuery}»
                 </div>
               ) : null}
-              <div className="overflow-x-auto px-3 py-4">
-                <div className="flex gap-3 items-stretch min-h-[min(440px,62vh)]">
-                  {kanbanBoard.map((col) => (
-                    <div
-                      key={col.status}
-                      className="flex flex-col w-[min(100%,272px)] min-w-[252px] shrink-0 rounded-lg border border-[#DCDCE2] bg-white overflow-hidden shadow-[0_1px_2px_rgba(15,23,42,0.05)]"
-                    >
-                      <div className="h-1 shrink-0" style={{ background: col.accent }} aria-hidden />
-                      <div className="px-3.5 pt-3 pb-2.5 border-b border-[#EFEFEF] bg-white">
-                        <div className="text-[11px] font-bold uppercase tracking-[0.06em] text-[#1F1F23] leading-tight">
-                          {col.title}
-                        </div>
-                        <div className="text-[11px] text-[#6D6D70] mt-1.5 tabular-nums leading-snug">
-                          {col.list.length} {col.list.length === 1 ? 'pedido' : 'pedidos'} · S/ {col.sum.toFixed(2)}
-                        </div>
-                      </div>
+              <div className="overflow-x-auto bg-[#FAFAFB] px-3 py-4">
+                <div className="flex gap-3 items-stretch min-h-[min(520px,68vh)]">
+                  {kanbanBoard.map((col) => {
+                    const Icon = col.icon;
+                    const isOver = dragOverStatus === col.status;
+                    const isEmpty = col.list.length === 0;
+                    return (
                       <div
-                        className={`flex-1 flex flex-col gap-2 p-2.5 bg-[#F4F4F6] min-h-[260px] transition-[background-color,box-shadow] ${
-                          dragOverStatus === col.status ? 'bg-[#E8F1FF] ring-2 ring-inset ring-[#1B70FF]/22' : ''
+                        key={col.status}
+                        className={`flex flex-col w-[min(100%,288px)] min-w-[268px] shrink-0 rounded-xl border bg-white overflow-hidden transition-[box-shadow,border-color] ${
+                          isOver
+                            ? 'border-[#1B70FF]/45 shadow-[0_8px_24px_-8px_rgba(27,112,255,0.25)]'
+                            : 'border-[#E6E6EC] shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
                         }`}
-                        onDragOver={(e) => {
-                          e.preventDefault();
-                          e.dataTransfer.dropEffect = 'move';
-                          setDragOverStatus(col.status);
-                        }}
-                        onDragLeave={(e) => {
-                          if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverStatus(null);
-                        }}
-                        onDrop={(e) => {
-                          setDragOverStatus(null);
-                          void handleDropOnColumn(col.status, e);
-                        }}
                       >
-                        {col.status === 'pending' ? (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              window.location.href = '/chats';
-                            }}
-                            className="w-full rounded-lg border border-dashed border-[#C4C4CC] bg-white/90 py-2.5 px-2 text-[11px] font-semibold text-[#5C5C63] hover:border-[#5DADE2] hover:text-[#1565A8] hover:bg-[#F7FBFF] transition-colors"
-                          >
-                            + Pedido rápido
-                          </button>
-                        ) : null}
-                        {col.list.map((order) => (
-                          <div
-                            key={order.id}
-                            draggable
-                            onDragStart={(e) => {
-                              e.dataTransfer.setData('orderId', order.id);
-                              e.dataTransfer.effectAllowed = 'move';
-                              setDraggingId(order.id);
-                            }}
-                            onDragEnd={() => {
-                              setDraggingId(null);
-                              setDragOverStatus(null);
-                            }}
-                            className={draggingId === order.id ? 'opacity-40' : ''}
-                          >
-                            <KanbanOrderCard
-                              order={order}
-                              onOpenChat={handleOpenChat}
-                              onOpenTracking={openTrackingEditor}
-                            />
+                        <div className="h-[3px] shrink-0" style={{ background: col.accent }} aria-hidden />
+                        <div className="px-3.5 pt-3 pb-3 border-b border-[#F0F0F4] bg-white">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div
+                                className="w-7 h-7 rounded-lg grid place-items-center shrink-0"
+                                style={{ background: col.iconBg, color: col.iconColor }}
+                                aria-hidden
+                              >
+                                <Icon size={14} strokeWidth={2.25} />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="text-[12.5px] font-bold text-[#1F1F23] leading-tight truncate">
+                                  {col.title}
+                                </div>
+                                <div className="text-[10.5px] text-[#9B9BA3] truncate leading-tight mt-0.5">
+                                  {col.hint}
+                                </div>
+                              </div>
+                            </div>
+                            <span
+                              className="shrink-0 inline-flex items-center justify-center min-w-[22px] h-[20px] px-1.5 rounded-full text-[10.5px] font-bold tabular-nums"
+                              style={{ background: col.tint, color: col.iconColor }}
+                            >
+                              {col.list.length}
+                            </span>
                           </div>
-                        ))}
+                          <div className="mt-2.5 flex items-baseline gap-1.5">
+                            <span className="text-[15px] font-bold text-[#1F1F23] tabular-nums leading-none">
+                              S/ {col.sum.toFixed(2)}
+                            </span>
+                            <span className="text-[10px] text-[#9B9BA3] leading-none">
+                              {col.list.length === 0 ? 'sin pedidos' : 'en esta etapa'}
+                            </span>
+                          </div>
+                        </div>
+                        <div
+                          className={`flex-1 flex flex-col gap-2 p-2.5 min-h-[280px] transition-colors relative ${
+                            isOver ? 'bg-[#EFF6FF]' : 'bg-[#F7F7F9]'
+                          }`}
+                          style={isOver ? undefined : { backgroundColor: col.tint }}
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            e.dataTransfer.dropEffect = 'move';
+                            setDragOverStatus(col.status);
+                          }}
+                          onDragLeave={(e) => {
+                            if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverStatus(null);
+                          }}
+                          onDrop={(e) => {
+                            setDragOverStatus(null);
+                            void handleDropOnColumn(col.status, e);
+                          }}
+                        >
+                          {isOver && (
+                            <div className="absolute inset-1 rounded-lg border-2 border-dashed border-[#1B70FF]/45 pointer-events-none" />
+                          )}
+                          {col.list.map((order) => (
+                            <div
+                              key={order.id}
+                              draggable
+                              onDragStart={(e) => {
+                                e.dataTransfer.setData('orderId', order.id);
+                                e.dataTransfer.effectAllowed = 'move';
+                                setDraggingId(order.id);
+                              }}
+                              onDragEnd={() => {
+                                setDraggingId(null);
+                                setDragOverStatus(null);
+                              }}
+                              className={draggingId === order.id ? 'opacity-40' : ''}
+                            >
+                              <KanbanOrderCard
+                                order={order}
+                                onOpenChat={handleOpenChat}
+                                onOpenTracking={openTrackingEditor}
+                              />
+                            </div>
+                          ))}
+                          {isEmpty && !isOver && (
+                            <div className="flex-1 flex flex-col items-center justify-center text-center px-3 py-6 select-none">
+                              <div
+                                className="w-9 h-9 rounded-full grid place-items-center mb-2"
+                                style={{ background: 'rgba(255,255,255,0.6)', color: col.iconColor }}
+                                aria-hidden
+                              >
+                                <Icon size={16} strokeWidth={2} />
+                              </div>
+                              <p className="text-[11px] font-semibold text-[#5C5C63] leading-snug">
+                                Sin pedidos
+                              </p>
+                              <p className="text-[10.5px] text-[#9B9BA3] leading-snug mt-0.5">
+                                Arrastra una tarjeta aquí
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </>

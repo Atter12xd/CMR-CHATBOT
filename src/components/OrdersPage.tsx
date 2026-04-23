@@ -131,7 +131,7 @@ export default function OrdersPage() {
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [verifyAmount, setVerifyAmount] = useState<Record<string, string>>({});
   const [verifyName, setVerifyName] = useState<Record<string, string>>({});
-  const [viewMode, setViewMode] = useState<'pipeline' | 'tabla'>('pipeline');
+  const [viewMode, setViewMode] = useState<'pipeline' | 'tabla' | 'seguimiento'>('pipeline');
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverStatus, setDragOverStatus] = useState<Order['status'] | null>(null);
   const [activeTrackingOrderId, setActiveTrackingOrderId] = useState<string | null>(null);
@@ -224,6 +224,7 @@ export default function OrdersPage() {
   }, [getTrackingPublicUrl]);
 
   const openTrackingEditor = useCallback((order: Order) => {
+    setViewMode('seguimiento');
     setActiveTrackingOrderId(order.id);
     setTrackingForm({
       courier: order.courier || '',
@@ -433,6 +434,18 @@ export default function OrdersPage() {
             </svg>
             Tabla
           </button>
+          <button
+            type="button"
+            onClick={() => setViewMode('seguimiento')}
+            className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-[5px] text-[12px] font-semibold transition-colors ${
+              viewMode === 'seguimiento'
+                ? 'bg-brand-500 text-white'
+                : 'text-[#6D6D70] hover:bg-[#f9fafb]'
+            }`}
+          >
+            <Truck size={13} />
+            Seguimiento
+          </button>
         </div>
       </div>
 
@@ -597,6 +610,59 @@ export default function OrdersPage() {
             <p className="text-[14px] text-[#6D6D70]">Cargando pedidos…</p>
           </div>
         </div>
+      ) : viewMode === 'seguimiento' ? (
+        filteredOrders.length === 0 ? (
+          <div className="bg-white border border-[#E5E7EB] rounded-lg py-16 text-center shadow-[0_1px_3px_rgba(0,0,0,.08)]">
+            <Truck className="size-8 text-[#d1d5db] mx-auto mb-3" />
+            <p className="text-[15px] font-medium text-[#3D3D40]">
+              {selectedStatus === 'all' ? 'No hay pedidos aún' : `No hay pedidos «${statusLabels[selectedStatus]}»`}
+            </p>
+            <p className="text-[13px] text-[#6D6D70] mt-1 px-6">
+              Cuando tengas pedidos, podrás gestionar su seguimiento aquí.
+            </p>
+          </div>
+        ) : (
+          <div className="grid lg:grid-cols-[320px,1fr] gap-4 items-start">
+            <div className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm">
+              <div className="px-4 py-3 border-b border-app-line">
+                <h3 className="text-[14px] font-semibold text-app-ink">Seguimiento de pedidos</h3>
+                <p className="text-[12px] text-app-muted mt-0.5">
+                  Elige un pedido para actualizar guía, estado y mensaje al cliente.
+                </p>
+              </div>
+              <div className="max-h-[520px] overflow-y-auto divide-y divide-app-line">
+                {filteredOrders.map((order) => {
+                  const active = order.id === activeTrackingOrderId;
+                  return (
+                    <button
+                      key={order.id}
+                      type="button"
+                      onClick={() => openTrackingEditor(order)}
+                      className={`w-full text-left px-4 py-3 transition-colors ${
+                        active ? 'bg-brand-50 border-l-2 border-brand-500' : 'hover:bg-app-field/50'
+                      }`}
+                    >
+                      <p className="text-[13px] font-semibold text-app-ink">{order.code || order.id.slice(0, 8)}</p>
+                      <p className="text-[12px] text-app-muted truncate">{order.customerName}</p>
+                      <p className="text-[11px] text-app-muted mt-1">
+                        {order.shippingStatus ? shippingStatusLabels[order.shippingStatus] : 'Pendiente'}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {!activeTrackingOrder && (
+              <div className="rounded-ref border border-app-line bg-ref-card p-6 shadow-sm">
+                <p className="text-[14px] font-semibold text-app-ink">Selecciona un pedido</p>
+                <p className="text-[13px] text-app-muted mt-1">
+                  Abre un pedido de la izquierda para editar courier, guía, estado y enviar el link al cliente.
+                </p>
+              </div>
+            )}
+          </div>
+        )
       ) : viewMode === 'pipeline' ? (
         orders.length === 0 ? (
           <div className="bg-white border border-[#E5E7EB] rounded-lg py-16 text-center shadow-[0_1px_3px_rgba(0,0,0,.08)]">
@@ -765,193 +831,192 @@ export default function OrdersPage() {
         </div>
       )}
 
-      {activeTrackingOrder && (
-        <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm p-4 flex items-center justify-center">
-          <div className="w-full max-w-2xl rounded-2xl border border-app-line bg-white shadow-xl">
-            <div className="px-5 py-4 border-b border-app-line flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-app-muted">Seguimiento</p>
-                <h3 className="text-base font-semibold text-app-ink">
-                  Pedido {activeTrackingOrder.code || activeTrackingOrder.id.slice(0, 8)}
-                </h3>
+      {viewMode === 'seguimiento' && activeTrackingOrder && (
+        <div className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm">
+          <div className="px-5 py-4 border-b border-app-line flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-app-muted">Sección separada</p>
+              <h3 className="text-[15px] font-semibold text-app-ink">
+                Seguimiento de envíos · Pedido {activeTrackingOrder.code || activeTrackingOrder.id.slice(0, 8)}
+              </h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => setActiveTrackingOrderId(null)}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg border border-app-line hover:bg-app-field"
+            >
+              <X size={13} />
+              Cerrar sección
+            </button>
+          </div>
+
+          <div className="p-5 space-y-4">
+            <div className="grid sm:grid-cols-2 gap-3">
+              <label className="text-sm text-app-muted">
+                Courier
+                <input
+                  type="text"
+                  list="courier-suggestions"
+                  value={trackingForm.courier}
+                  onChange={(e) => setTrackingForm((p) => ({ ...p, courier: e.target.value }))}
+                  placeholder="Ej: Shalom"
+                  className="mt-1 w-full px-3 py-2.5 text-sm bg-ref-muted border border-app-line rounded-xl text-app-ink"
+                />
+                <datalist id="courier-suggestions">
+                  {courierSuggestions.map((courier) => (
+                    <option key={courier} value={courier} />
+                  ))}
+                </datalist>
+              </label>
+              <label className="text-sm text-app-muted">
+                N° guía
+                <input
+                  type="text"
+                  value={trackingForm.trackingCode}
+                  onChange={(e) => setTrackingForm((p) => ({ ...p, trackingCode: e.target.value }))}
+                  placeholder="Ej: SHA-12345678"
+                  className="mt-1 w-full px-3 py-2.5 text-sm bg-ref-muted border border-app-line rounded-xl text-app-ink"
+                />
+              </label>
+              <label className="text-sm text-app-muted sm:col-span-2">
+                Link rastreo courier (opcional)
+                <div className="mt-1 flex gap-2">
+                  <input
+                    type="url"
+                    value={trackingForm.trackingUrl}
+                    onChange={(e) => setTrackingForm((p) => ({ ...p, trackingUrl: e.target.value }))}
+                    placeholder="https://..."
+                    className="flex-1 px-3 py-2.5 text-sm bg-ref-muted border border-app-line rounded-xl text-app-ink"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const suggested = getSuggestedTrackingUrl(
+                        trackingForm.courier,
+                        trackingForm.trackingCode
+                      );
+                      if (!suggested) {
+                        alert('Primero ingresa courier y número de guía.');
+                        return;
+                      }
+                      setTrackingForm((p) => ({ ...p, trackingUrl: suggested }));
+                    }}
+                    className="px-3 py-2.5 text-xs font-semibold rounded-xl border border-app-line bg-white hover:bg-app-field whitespace-nowrap"
+                  >
+                    Sugerir link
+                  </button>
+                </div>
+              </label>
+              <label className="text-sm text-app-muted">
+                Estado de envío
+                <select
+                  value={trackingForm.shippingStatus}
+                  onChange={(e) =>
+                    setTrackingForm((p) => ({
+                      ...p,
+                      shippingStatus: e.target.value as NonNullable<Order['shippingStatus']>,
+                    }))
+                  }
+                  className="mt-1 w-full px-3 py-2.5 text-sm bg-ref-muted border border-app-line rounded-xl text-app-ink"
+                >
+                  {shippingStatusOptions.map((status) => (
+                    <option key={status} value={status}>
+                      {shippingStatusLabels[status]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-sm text-app-muted sm:col-span-2">
+                Último evento
+                <textarea
+                  value={trackingForm.shippingLastEvent}
+                  onChange={(e) => setTrackingForm((p) => ({ ...p, shippingLastEvent: e.target.value }))}
+                  rows={2}
+                  placeholder="Ej: Llegó a agencia de Trujillo, listo para recojo."
+                  className="mt-1 w-full px-3 py-2.5 text-sm bg-ref-muted border border-app-line rounded-xl text-app-ink resize-none"
+                />
+              </label>
+            </div>
+
+            <div className="rounded-xl border border-app-line bg-app-field/50 p-3">
+              <p className="text-xs text-app-muted font-medium mb-2">Link público para cliente</p>
+              <div className="flex flex-wrap items-center gap-2">
+                <code className="text-xs text-app-ink bg-white border border-app-line px-2 py-1 rounded-md">
+                  {activeTrackingOrder.trackingToken
+                    ? getTrackingPublicUrl(activeTrackingOrder.trackingToken)
+                    : 'Se genera al guardar'}
+                </code>
+                {activeTrackingOrder.trackingToken && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(
+                          getTrackingPublicUrl(activeTrackingOrder.trackingToken || '')
+                        );
+                        alert('Link copiado');
+                      } catch {
+                        alert('No se pudo copiar');
+                      }
+                    }}
+                    className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-md border border-app-line bg-white hover:bg-app-field"
+                  >
+                    <Copy size={13} />
+                    Copiar link
+                  </button>
+                )}
               </div>
+            </div>
+          </div>
+
+          <div className="px-5 py-4 border-t border-app-line flex flex-wrap justify-between gap-2">
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleCopyTrackingMessage}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg border border-app-line hover:bg-app-field"
+              >
+                <Copy size={13} />
+                Copiar mensaje
+              </button>
+              <button
+                type="button"
+                onClick={handleSendTrackingToClient}
+                disabled={trackingSending}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-500 disabled:opacity-60"
+              >
+                {trackingSending ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
+                Enviar al cliente
+              </button>
+              {activeTrackingOrder.trackingUrl && (
+                <a
+                  href={activeTrackingOrder.trackingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg border border-app-line hover:bg-app-field"
+                >
+                  <ExternalLink size={13} />
+                  Courier
+                </a>
+              )}
+            </div>
+            <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => setActiveTrackingOrderId(null)}
-                className="p-2 rounded-lg text-app-muted hover:bg-app-field"
+                className="text-xs font-semibold px-3 py-2 rounded-lg border border-app-line hover:bg-app-field"
               >
-                <X size={16} />
+                Cancelar
               </button>
-            </div>
-
-            <div className="p-5 space-y-4">
-              <div className="grid sm:grid-cols-2 gap-3">
-                <label className="text-sm text-app-muted">
-                  Courier
-                  <input
-                    type="text"
-                    list="courier-suggestions"
-                    value={trackingForm.courier}
-                    onChange={(e) => setTrackingForm((p) => ({ ...p, courier: e.target.value }))}
-                    placeholder="Ej: Shalom"
-                    className="mt-1 w-full px-3 py-2.5 text-sm bg-ref-muted border border-app-line rounded-xl text-app-ink"
-                  />
-                  <datalist id="courier-suggestions">
-                    {courierSuggestions.map((courier) => (
-                      <option key={courier} value={courier} />
-                    ))}
-                  </datalist>
-                </label>
-                <label className="text-sm text-app-muted">
-                  N° guía
-                  <input
-                    type="text"
-                    value={trackingForm.trackingCode}
-                    onChange={(e) => setTrackingForm((p) => ({ ...p, trackingCode: e.target.value }))}
-                    placeholder="Ej: SHA-12345678"
-                    className="mt-1 w-full px-3 py-2.5 text-sm bg-ref-muted border border-app-line rounded-xl text-app-ink"
-                  />
-                </label>
-                <label className="text-sm text-app-muted sm:col-span-2">
-                  Link rastreo courier (opcional)
-                  <div className="mt-1 flex gap-2">
-                    <input
-                      type="url"
-                      value={trackingForm.trackingUrl}
-                      onChange={(e) => setTrackingForm((p) => ({ ...p, trackingUrl: e.target.value }))}
-                      placeholder="https://..."
-                      className="flex-1 px-3 py-2.5 text-sm bg-ref-muted border border-app-line rounded-xl text-app-ink"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const suggested = getSuggestedTrackingUrl(
-                          trackingForm.courier,
-                          trackingForm.trackingCode
-                        );
-                        if (!suggested) {
-                          alert('Primero ingresa courier y número de guía.');
-                          return;
-                        }
-                        setTrackingForm((p) => ({ ...p, trackingUrl: suggested }));
-                      }}
-                      className="px-3 py-2.5 text-xs font-semibold rounded-xl border border-app-line bg-white hover:bg-app-field whitespace-nowrap"
-                    >
-                      Sugerir link
-                    </button>
-                  </div>
-                </label>
-                <label className="text-sm text-app-muted">
-                  Estado de envío
-                  <select
-                    value={trackingForm.shippingStatus}
-                    onChange={(e) =>
-                      setTrackingForm((p) => ({
-                        ...p,
-                        shippingStatus: e.target.value as NonNullable<Order['shippingStatus']>,
-                      }))
-                    }
-                    className="mt-1 w-full px-3 py-2.5 text-sm bg-ref-muted border border-app-line rounded-xl text-app-ink"
-                  >
-                    {shippingStatusOptions.map((status) => (
-                      <option key={status} value={status}>
-                        {shippingStatusLabels[status]}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="text-sm text-app-muted sm:col-span-2">
-                  Último evento
-                  <textarea
-                    value={trackingForm.shippingLastEvent}
-                    onChange={(e) => setTrackingForm((p) => ({ ...p, shippingLastEvent: e.target.value }))}
-                    rows={2}
-                    placeholder="Ej: Llegó a agencia de Trujillo, listo para recojo."
-                    className="mt-1 w-full px-3 py-2.5 text-sm bg-ref-muted border border-app-line rounded-xl text-app-ink resize-none"
-                  />
-                </label>
-              </div>
-
-              <div className="rounded-xl border border-app-line bg-app-field/50 p-3">
-                <p className="text-xs text-app-muted font-medium mb-2">Link público para cliente</p>
-                <div className="flex flex-wrap items-center gap-2">
-                  <code className="text-xs text-app-ink bg-white border border-app-line px-2 py-1 rounded-md">
-                    {activeTrackingOrder.trackingToken
-                      ? getTrackingPublicUrl(activeTrackingOrder.trackingToken)
-                      : 'Se genera al guardar'}
-                  </code>
-                  {activeTrackingOrder.trackingToken && (
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        try {
-                          await navigator.clipboard.writeText(
-                            getTrackingPublicUrl(activeTrackingOrder.trackingToken || '')
-                          );
-                          alert('Link copiado');
-                        } catch {
-                          alert('No se pudo copiar');
-                        }
-                      }}
-                      className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-md border border-app-line bg-white hover:bg-app-field"
-                    >
-                      <Copy size={13} />
-                      Copiar link
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="px-5 py-4 border-t border-app-line flex flex-wrap justify-between gap-2">
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={handleCopyTrackingMessage}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg border border-app-line hover:bg-app-field"
-                >
-                  <Copy size={13} />
-                  Copiar mensaje
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSendTrackingToClient}
-                  disabled={trackingSending}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-500 disabled:opacity-60"
-                >
-                  {trackingSending ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
-                  Enviar al cliente
-                </button>
-                {activeTrackingOrder.trackingUrl && (
-                  <a
-                    href={activeTrackingOrder.trackingUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg border border-app-line hover:bg-app-field"
-                  >
-                    <ExternalLink size={13} />
-                    Courier
-                  </a>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setActiveTrackingOrderId(null)}
-                  className="text-xs font-semibold px-3 py-2 rounded-lg border border-app-line hover:bg-app-field"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveTracking}
-                  disabled={trackingSaving}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-60"
-                >
-                  {trackingSaving ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
-                  Guardar seguimiento
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={handleSaveTracking}
+                disabled={trackingSaving}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-60"
+              >
+                {trackingSaving ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
+                Guardar seguimiento
+              </button>
             </div>
           </div>
         </div>

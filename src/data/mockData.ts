@@ -41,6 +41,13 @@ export interface Order {
   items: OrderItem[];
   total: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'completed';
+  courier?: string;
+  trackingCode?: string;
+  trackingUrl?: string;
+  trackingToken?: string;
+  shippingStatus?: 'pending' | 'in_transit' | 'at_agency' | 'out_for_delivery' | 'delivered' | 'exception';
+  shippingLastEvent?: string;
+  shippingUpdatedAt?: Date;
   createdAt: Date;
   chatId?: string;
 }

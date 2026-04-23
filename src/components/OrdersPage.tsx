@@ -9,9 +9,13 @@ import {
   Clock,
   Truck,
   LayoutGrid,
+  ExternalLink,
+  Copy,
+  Send,
+  X,
 } from 'lucide-react';
 import { useOrganization } from '../hooks/useOrganization';
-import { loadOrders, updateOrderStatus } from '../services/orders';
+import { loadOrders, updateOrderShipping, updateOrderStatus } from '../services/orders';
 import { loadPaymentsPending, verifyPayment, type PaymentWithOrder } from '../services/payments';
 import { sendTextMessage } from '../services/whatsapp-messages';
 import type { Order } from '../data/mockData';
@@ -42,6 +46,65 @@ const statusDots: Record<string, string> = {
   cancelled: 'bg-rose-400',
 };
 
+const shippingStatusLabels: Record<NonNullable<Order['shippingStatus']>, string> = {
+  pending: 'Pendiente',
+  in_transit: 'En tránsito',
+  at_agency: 'En agencia destino',
+  out_for_delivery: 'En reparto',
+  delivered: 'Entregado',
+  exception: 'Incidencia',
+};
+
+const shippingStatusOptions: NonNullable<Order['shippingStatus']>[] = [
+  'pending',
+  'in_transit',
+  'at_agency',
+  'out_for_delivery',
+  'delivered',
+  'exception',
+];
+
+const courierSuggestions = [
+  'Shalom',
+  'Olva',
+  'Marvisur',
+  'Flores',
+  'Civa',
+  'Cruz del Sur Cargo',
+  'Recojo en tienda',
+];
+
+function normalizeCourier(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
+function getSuggestedTrackingUrl(courier: string, trackingCode: string): string {
+  const code = trackingCode.trim();
+  if (!code) return '';
+  const c = normalizeCourier(courier);
+
+  if (c.includes('shalom')) {
+    return `https://rastrea.shalom.pe/?guia=${encodeURIComponent(code)}`;
+  }
+  if (c.includes('olva')) {
+    return `https://www.olvacourier.com/rastreo-de-envio/?tracking=${encodeURIComponent(code)}`;
+  }
+  if (c.includes('marvisur')) {
+    return `https://marvisur.com/seguimiento/?guia=${encodeURIComponent(code)}`;
+  }
+
+  if (courier.trim()) {
+    return `https://www.google.com/search?q=${encodeURIComponent(
+      `${courier} seguimiento ${code}`
+    )}`;
+  }
+  return '';
+}
+
 const statsContainer = {
   hidden: { opacity: 0 },
   show: {
@@ -71,6 +134,22 @@ export default function OrdersPage() {
   const [viewMode, setViewMode] = useState<'pipeline' | 'tabla'>('pipeline');
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverStatus, setDragOverStatus] = useState<Order['status'] | null>(null);
+  const [activeTrackingOrderId, setActiveTrackingOrderId] = useState<string | null>(null);
+  const [trackingSaving, setTrackingSaving] = useState(false);
+  const [trackingSending, setTrackingSending] = useState(false);
+  const [trackingForm, setTrackingForm] = useState<{
+    courier: string;
+    trackingCode: string;
+    trackingUrl: string;
+    shippingStatus: NonNullable<Order['shippingStatus']>;
+    shippingLastEvent: string;
+  }>({
+    courier: '',
+    trackingCode: '',
+    trackingUrl: '',
+    shippingStatus: 'pending',
+    shippingLastEvent: '',
+  });
 
   const fetchOrders = useCallback(async () => {
     if (!organizationId) return;
@@ -109,6 +188,118 @@ export default function OrdersPage() {
   const handleOpenChat = (chatId: string) => {
     window.location.href = `/chats?chat=${encodeURIComponent(chatId)}`;
   };
+
+  const activeTrackingOrder = useMemo(
+    () => orders.find((o) => o.id === activeTrackingOrderId) || null,
+    [orders, activeTrackingOrderId]
+  );
+
+  const getTrackingPublicUrl = useCallback((token?: string) => {
+    if (!token) return '';
+    if (typeof window === 'undefined') return '';
+    return `${window.location.origin}/seguimiento?token=${encodeURIComponent(token)}`;
+  }, []);
+
+  const buildTrackingMessage = useCallback((order: Order, draft?: typeof trackingForm) => {
+    const payload = draft || {
+      courier: order.courier || '',
+      trackingCode: order.trackingCode || '',
+      trackingUrl: order.trackingUrl || '',
+      shippingStatus: order.shippingStatus || 'pending',
+      shippingLastEvent: order.shippingLastEvent || '',
+    };
+    const link = getTrackingPublicUrl(order.trackingToken);
+    const code = order.code || order.id.slice(0, 8);
+    const shippingLabel = shippingStatusLabels[payload.shippingStatus];
+    const lines = [
+      `Hola ${order.customerName}, tu pedido ${code} ya tiene actualización de envío.`,
+      `Estado: ${shippingLabel}`,
+    ];
+    if (payload.courier) lines.push(`Courier: ${payload.courier}`);
+    if (payload.trackingCode) lines.push(`Guía: ${payload.trackingCode}`);
+    if (payload.shippingLastEvent) lines.push(`Detalle: ${payload.shippingLastEvent}`);
+    if (payload.trackingUrl) lines.push(`Rastreo courier: ${payload.trackingUrl}`);
+    if (link) lines.push(`Seguimiento: ${link}`);
+    return lines.join('\n');
+  }, [getTrackingPublicUrl]);
+
+  const openTrackingEditor = useCallback((order: Order) => {
+    setActiveTrackingOrderId(order.id);
+    setTrackingForm({
+      courier: order.courier || '',
+      trackingCode: order.trackingCode || '',
+      trackingUrl: order.trackingUrl || '',
+      shippingStatus: order.shippingStatus || 'pending',
+      shippingLastEvent: order.shippingLastEvent || '',
+    });
+  }, []);
+
+  const handleSaveTracking = useCallback(async () => {
+    if (!organizationId || !activeTrackingOrder) return;
+    setTrackingSaving(true);
+    try {
+      const token = activeTrackingOrder.trackingToken || crypto.randomUUID();
+      const resolvedTrackingUrl =
+        trackingForm.trackingUrl.trim() ||
+        getSuggestedTrackingUrl(trackingForm.courier, trackingForm.trackingCode);
+      const result = await updateOrderShipping(organizationId, activeTrackingOrder.id, {
+        courier: trackingForm.courier || null,
+        trackingCode: trackingForm.trackingCode || null,
+        trackingUrl: resolvedTrackingUrl || null,
+        shippingStatus: trackingForm.shippingStatus,
+        shippingLastEvent: trackingForm.shippingLastEvent || null,
+        trackingToken: token,
+      });
+      if (!result.success) {
+        alert(result.error || 'No se pudo guardar seguimiento');
+        return;
+      }
+      await fetchOrders();
+      alert('Seguimiento guardado');
+      setActiveTrackingOrderId(null);
+    } finally {
+      setTrackingSaving(false);
+    }
+  }, [organizationId, activeTrackingOrder, trackingForm, fetchOrders]);
+
+  const handleSendTrackingToClient = useCallback(async () => {
+    if (!organizationId || !activeTrackingOrder) return;
+    if (!activeTrackingOrder.trackingToken) {
+      alert('Primero guarda el seguimiento para generar el link público.');
+      return;
+    }
+    if (!activeTrackingOrder.chatId || !activeTrackingOrder.customerPhone) {
+      alert('Este pedido no tiene chat o teléfono para enviar el seguimiento.');
+      return;
+    }
+    setTrackingSending(true);
+    try {
+      const message = buildTrackingMessage(activeTrackingOrder, trackingForm);
+      const sent = await sendTextMessage({
+        chatId: activeTrackingOrder.chatId,
+        text: message,
+        baileysClientId: organizationId,
+        baileysTo: activeTrackingOrder.customerPhone,
+      });
+      if (!sent.success) {
+        alert(sent.error || 'No se pudo enviar el mensaje');
+        return;
+      }
+      alert('Seguimiento enviado al cliente');
+    } finally {
+      setTrackingSending(false);
+    }
+  }, [organizationId, activeTrackingOrder, buildTrackingMessage, trackingForm]);
+
+  const handleCopyTrackingMessage = useCallback(async () => {
+    if (!activeTrackingOrder) return;
+    try {
+      await navigator.clipboard.writeText(buildTrackingMessage(activeTrackingOrder, trackingForm));
+      alert('Mensaje copiado');
+    } catch {
+      alert('No se pudo copiar el mensaje');
+    }
+  }, [activeTrackingOrder, buildTrackingMessage, trackingForm]);
 
   const handleDropOnColumn = async (status: Order['status'], e: DragEvent) => {
     e.preventDefault();
@@ -471,7 +662,11 @@ export default function OrdersPage() {
                       }}
                       className={draggingId === order.id ? 'opacity-40' : ''}
                     >
-                      <KanbanOrderCard order={order} onOpenChat={handleOpenChat} />
+                      <KanbanOrderCard
+                        order={order}
+                        onOpenChat={handleOpenChat}
+                        onOpenTracking={openTrackingEditor}
+                      />
                     </div>
                   ))}
                 </div>
@@ -505,6 +700,9 @@ export default function OrdersPage() {
                     Estado
                   </th>
                   <th className="text-left py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#6D6D70]">
+                    Envío
+                  </th>
+                  <th className="text-left py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#6D6D70]">
                     Total
                   </th>
                   <th className="text-left py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#6D6D70]">
@@ -527,6 +725,9 @@ export default function OrdersPage() {
                     <td className="py-2.5 px-3 text-[#3D3D40]">{order.customerName}</td>
                     <td className="py-2.5 px-3 text-[#6D6D70]">{order.customerPhone || '—'}</td>
                     <td className="py-2.5 px-3 text-[12px]">{statusLabels[order.status]}</td>
+                    <td className="py-2.5 px-3 text-[12px] text-[#6D6D70] whitespace-nowrap">
+                      {order.shippingStatus ? shippingStatusLabels[order.shippingStatus] : 'Pendiente'}
+                    </td>
                     <td className="py-2.5 px-3 font-semibold tabular-nums">S/ {order.total.toFixed(2)}</td>
                     <td className="py-2.5 px-3 text-[#6D6D70] max-w-[140px] truncate" title={order.deliveryAddress}>
                       {order.deliveryAddress
@@ -537,22 +738,221 @@ export default function OrdersPage() {
                       {order.createdAt.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}
                     </td>
                     <td className="py-2.5 px-3">
-                      {order.chatId ? (
+                      <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          onClick={() => handleOpenChat(order.chatId!)}
-                          className="text-[12px] font-semibold text-brand-500 hover:underline"
+                          onClick={() => openTrackingEditor(order)}
+                          className="text-[12px] font-semibold text-violet-600 hover:underline"
                         >
-                          Chat
+                          Seguimiento
                         </button>
-                      ) : (
-                        '—'
-                      )}
+                        {order.chatId ? (
+                          <button
+                            type="button"
+                            onClick={() => handleOpenChat(order.chatId!)}
+                            className="text-[12px] font-semibold text-brand-500 hover:underline"
+                          >
+                            Chat
+                          </button>
+                        ) : null}
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {activeTrackingOrder && (
+        <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm p-4 flex items-center justify-center">
+          <div className="w-full max-w-2xl rounded-2xl border border-app-line bg-white shadow-xl">
+            <div className="px-5 py-4 border-b border-app-line flex items-center justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-app-muted">Seguimiento</p>
+                <h3 className="text-base font-semibold text-app-ink">
+                  Pedido {activeTrackingOrder.code || activeTrackingOrder.id.slice(0, 8)}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTrackingOrderId(null)}
+                className="p-2 rounded-lg text-app-muted hover:bg-app-field"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-4">
+              <div className="grid sm:grid-cols-2 gap-3">
+                <label className="text-sm text-app-muted">
+                  Courier
+                  <input
+                    type="text"
+                    list="courier-suggestions"
+                    value={trackingForm.courier}
+                    onChange={(e) => setTrackingForm((p) => ({ ...p, courier: e.target.value }))}
+                    placeholder="Ej: Shalom"
+                    className="mt-1 w-full px-3 py-2.5 text-sm bg-ref-muted border border-app-line rounded-xl text-app-ink"
+                  />
+                  <datalist id="courier-suggestions">
+                    {courierSuggestions.map((courier) => (
+                      <option key={courier} value={courier} />
+                    ))}
+                  </datalist>
+                </label>
+                <label className="text-sm text-app-muted">
+                  N° guía
+                  <input
+                    type="text"
+                    value={trackingForm.trackingCode}
+                    onChange={(e) => setTrackingForm((p) => ({ ...p, trackingCode: e.target.value }))}
+                    placeholder="Ej: SHA-12345678"
+                    className="mt-1 w-full px-3 py-2.5 text-sm bg-ref-muted border border-app-line rounded-xl text-app-ink"
+                  />
+                </label>
+                <label className="text-sm text-app-muted sm:col-span-2">
+                  Link rastreo courier (opcional)
+                  <div className="mt-1 flex gap-2">
+                    <input
+                      type="url"
+                      value={trackingForm.trackingUrl}
+                      onChange={(e) => setTrackingForm((p) => ({ ...p, trackingUrl: e.target.value }))}
+                      placeholder="https://..."
+                      className="flex-1 px-3 py-2.5 text-sm bg-ref-muted border border-app-line rounded-xl text-app-ink"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const suggested = getSuggestedTrackingUrl(
+                          trackingForm.courier,
+                          trackingForm.trackingCode
+                        );
+                        if (!suggested) {
+                          alert('Primero ingresa courier y número de guía.');
+                          return;
+                        }
+                        setTrackingForm((p) => ({ ...p, trackingUrl: suggested }));
+                      }}
+                      className="px-3 py-2.5 text-xs font-semibold rounded-xl border border-app-line bg-white hover:bg-app-field whitespace-nowrap"
+                    >
+                      Sugerir link
+                    </button>
+                  </div>
+                </label>
+                <label className="text-sm text-app-muted">
+                  Estado de envío
+                  <select
+                    value={trackingForm.shippingStatus}
+                    onChange={(e) =>
+                      setTrackingForm((p) => ({
+                        ...p,
+                        shippingStatus: e.target.value as NonNullable<Order['shippingStatus']>,
+                      }))
+                    }
+                    className="mt-1 w-full px-3 py-2.5 text-sm bg-ref-muted border border-app-line rounded-xl text-app-ink"
+                  >
+                    {shippingStatusOptions.map((status) => (
+                      <option key={status} value={status}>
+                        {shippingStatusLabels[status]}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="text-sm text-app-muted sm:col-span-2">
+                  Último evento
+                  <textarea
+                    value={trackingForm.shippingLastEvent}
+                    onChange={(e) => setTrackingForm((p) => ({ ...p, shippingLastEvent: e.target.value }))}
+                    rows={2}
+                    placeholder="Ej: Llegó a agencia de Trujillo, listo para recojo."
+                    className="mt-1 w-full px-3 py-2.5 text-sm bg-ref-muted border border-app-line rounded-xl text-app-ink resize-none"
+                  />
+                </label>
+              </div>
+
+              <div className="rounded-xl border border-app-line bg-app-field/50 p-3">
+                <p className="text-xs text-app-muted font-medium mb-2">Link público para cliente</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <code className="text-xs text-app-ink bg-white border border-app-line px-2 py-1 rounded-md">
+                    {activeTrackingOrder.trackingToken
+                      ? getTrackingPublicUrl(activeTrackingOrder.trackingToken)
+                      : 'Se genera al guardar'}
+                  </code>
+                  {activeTrackingOrder.trackingToken && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(
+                            getTrackingPublicUrl(activeTrackingOrder.trackingToken || '')
+                          );
+                          alert('Link copiado');
+                        } catch {
+                          alert('No se pudo copiar');
+                        }
+                      }}
+                      className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-md border border-app-line bg-white hover:bg-app-field"
+                    >
+                      <Copy size={13} />
+                      Copiar link
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="px-5 py-4 border-t border-app-line flex flex-wrap justify-between gap-2">
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleCopyTrackingMessage}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg border border-app-line hover:bg-app-field"
+                >
+                  <Copy size={13} />
+                  Copiar mensaje
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSendTrackingToClient}
+                  disabled={trackingSending}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-500 disabled:opacity-60"
+                >
+                  {trackingSending ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
+                  Enviar al cliente
+                </button>
+                {activeTrackingOrder.trackingUrl && (
+                  <a
+                    href={activeTrackingOrder.trackingUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg border border-app-line hover:bg-app-field"
+                  >
+                    <ExternalLink size={13} />
+                    Courier
+                  </a>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveTrackingOrderId(null)}
+                  className="text-xs font-semibold px-3 py-2 rounded-lg border border-app-line hover:bg-app-field"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveTracking}
+                  disabled={trackingSaving}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-60"
+                >
+                  {trackingSaving ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
+                  Guardar seguimiento
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

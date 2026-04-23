@@ -1,0 +1,169 @@
+---
+export const prerender = false;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seguimiento de pedido | Wazapp</title>
+    <style>
+      :root {
+        color-scheme: light;
+      }
+      body {
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        background: #f8fafc;
+        margin: 0;
+        color: #0f172a;
+      }
+      .wrap {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+      .card {
+        width: min(700px, 100%);
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        overflow: hidden;
+      }
+      .head {
+        padding: 18px 20px;
+        background: linear-gradient(135deg, #1b70ff, #4f46e5);
+        color: #fff;
+      }
+      .body {
+        padding: 20px;
+      }
+      .muted {
+        color: #64748b;
+      }
+      .status {
+        display: inline-flex;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        background: #e0e7ff;
+        color: #4338ca;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+        margin-top: 14px;
+      }
+      .item {
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px;
+      }
+      .item p {
+        margin: 0;
+      }
+      .item .k {
+        font-size: 12px;
+        color: #64748b;
+      }
+      .item .v {
+        margin-top: 6px;
+        font-weight: 600;
+        word-break: break-word;
+      }
+      .link {
+        color: #1d4ed8;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .link:hover {
+        text-decoration: underline;
+      }
+      .error {
+        border: 1px solid #fecaca;
+        background: #fef2f2;
+        color: #b91c1c;
+        padding: 12px;
+        border-radius: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <section class="card">
+        <header class="head">
+          <h1 style="margin: 0; font-size: 1.1rem">Seguimiento de pedido</h1>
+          <p style="margin: 4px 0 0; opacity: 0.9; font-size: 0.92rem">
+            Consulta rápida de estado logístico
+          </p>
+        </header>
+        <div class="body">
+          <div id="content" class="muted">Cargando seguimiento...</div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const statusLabel = {
+        pending: 'Pendiente',
+        in_transit: 'En tránsito',
+        at_agency: 'En agencia destino',
+        out_for_delivery: 'En reparto',
+        delivered: 'Entregado',
+        exception: 'Incidencia',
+      };
+
+      async function run() {
+        const el = document.getElementById('content');
+        const params = new URLSearchParams(window.location.search);
+        const token = (params.get('token') || '').trim();
+        if (!token) {
+          el.innerHTML = '<div class="error">Falta el token de seguimiento.</div>';
+          return;
+        }
+
+        const res = await fetch(`/api/public/tracking?token=${encodeURIComponent(token)}`);
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          el.innerHTML = `<div class="error">${data.error || 'No se pudo cargar el seguimiento.'}</div>`;
+          return;
+        }
+
+        const shipping = statusLabel[data.shippingStatus] || 'Pendiente';
+        const updated = data.shippingUpdatedAt
+          ? new Date(data.shippingUpdatedAt).toLocaleString('es-PE')
+          : 'Sin actualizar';
+        const created = data.createdAt
+          ? new Date(data.createdAt).toLocaleDateString('es-PE')
+          : '—';
+
+        el.innerHTML = `
+          <div>
+            <p class="muted" style="margin:0 0 6px">Pedido <strong>${data.orderCode}</strong></p>
+            <span class="status">${shipping}</span>
+          </div>
+          <div class="grid">
+            <div class="item"><p class="k">Cliente</p><p class="v">${data.customerName || '—'}</p></div>
+            <div class="item"><p class="k">Total</p><p class="v">S/ ${Number(data.total || 0).toFixed(2)}</p></div>
+            <div class="item"><p class="k">Courier</p><p class="v">${data.courier || '—'}</p></div>
+            <div class="item"><p class="k">Guía</p><p class="v">${data.trackingCode || '—'}</p></div>
+            <div class="item"><p class="k">Último evento</p><p class="v">${data.shippingLastEvent || 'Sin detalle'}</p></div>
+            <div class="item"><p class="k">Actualizado</p><p class="v">${updated}</p></div>
+            <div class="item"><p class="k">Fecha pedido</p><p class="v">${created}</p></div>
+            <div class="item"><p class="k">Rastreo courier</p><p class="v">${
+              data.trackingUrl
+                ? `<a class="link" target="_blank" rel="noopener noreferrer" href="${data.trackingUrl}">Abrir enlace</a>`
+                : '—'
+            }</p></div>
+          </div>
+        `;
+      }
+
+      run();
+    </script>
+  </body>
+</html>

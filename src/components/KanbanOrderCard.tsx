@@ -1,5 +1,5 @@
 import type { Order } from '../data/mockData';
-import { MapPin, MessageSquare } from 'lucide-react';
+import { MapPin, MessageSquare, Truck } from 'lucide-react';
 
 function formatRelativeOrderEs(date: Date): string {
   const diff = Date.now() - date.getTime();
@@ -21,10 +21,11 @@ function cityFromAddress(addr?: string): string {
 interface KanbanOrderCardProps {
   order: Order;
   onOpenChat?: (chatId: string) => void;
+  onOpenTracking?: (order: Order) => void;
 }
 
 /** Tarjeta alineada con `wazapp-standalone.html` `.order-card` */
-export default function KanbanOrderCard({ order, onOpenChat }: KanbanOrderCardProps) {
+export default function KanbanOrderCard({ order, onOpenChat, onOpenTracking }: KanbanOrderCardProps) {
   const code = order.code || `#${order.id.slice(0, 8)}`;
   const first = order.items[0];
   const productLine =
@@ -52,6 +53,19 @@ export default function KanbanOrderCard({ order, onOpenChat }: KanbanOrderCardPr
             title="Abrir chat"
           >
             <MessageSquare className="w-3.5 h-3.5" strokeWidth={2} />
+          </button>
+        )}
+        {onOpenTracking && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenTracking(order);
+            }}
+            className="shrink-0 p-1 rounded-md text-[#8B5CF6] hover:bg-[#F5F3FF] border border-transparent hover:border-[#8B5CF6]/15"
+            title="Seguimiento"
+          >
+            <Truck className="w-3.5 h-3.5" strokeWidth={2} />
           </button>
         )}
       </div>

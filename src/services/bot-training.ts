@@ -19,6 +19,7 @@ function rowToTraining(row: {
     type: row.type as 'web' | 'pdf' | 'manual',
     source: row.source,
     content: row.content || '',
+    fileUrl: row.file_url ?? null,
     extractedAt: row.extracted_at ? new Date(row.extracted_at) : new Date(),
     status: row.status as BotTrainingData['status'],
   };

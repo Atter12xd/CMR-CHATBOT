@@ -398,9 +398,9 @@ export default function ProductsPage() {
               <Sparkles className="size-[18px]" strokeWidth={2} />
             </div>
             <div className="min-w-0">
-              <h3 className="text-[15px] font-semibold text-app-ink tracking-tight">Sugeridos desde web</h3>
+              <h3 className="text-[15px] font-semibold text-app-ink tracking-tight">Sugeridos (web o catálogo)</h3>
               <p className="text-[12px] text-app-muted mt-0.5 font-medium">
-                Productos detectados por IA. Aprueba para añadirlos al catálogo.
+                Detectados por IA desde tu sitio o PDFs de entrenamiento. Aprueba para añadirlos al catálogo.
               </p>
             </div>
           </div>

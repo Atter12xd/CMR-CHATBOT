@@ -12,6 +12,7 @@ import {
   Layers,
   CheckCircle2,
   Sparkles,
+  ExternalLink,
 } from 'lucide-react';
 import type { BotTrainingData } from '../data/botTraining';
 import { extractWebInfo, extractPDFInfo } from '../data/botTraining';
@@ -51,6 +52,30 @@ const listRow = {
     transition: { delay: i * 0.04, type: 'spring', stiffness: 400, damping: 32 },
   }),
 };
+
+const TRAINING_CONTENT_PREVIEW = 600;
+
+function TrainingSourceContent({ content }: { content: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const long = content.length > TRAINING_CONTENT_PREVIEW;
+  const display =
+    !long || expanded ? content : `${content.slice(0, TRAINING_CONTENT_PREVIEW)}…`;
+
+  return (
+    <div>
+      <p className="text-[13px] text-app-muted whitespace-pre-line leading-relaxed">{display}</p>
+      {long && (
+        <button
+          type="button"
+          onClick={() => setExpanded((e) => !e)}
+          className="mt-2 text-[12px] font-semibold text-brand-600 hover:text-brand-700"
+        >
+          {expanded ? 'Ver menos' : 'Ver más'}
+        </button>
+      )}
+    </div>
+  );
+}
 
 export default function BotTrainingPage() {
   const { organizationId, loading: orgLoading } = useOrganization();
@@ -192,7 +217,9 @@ export default function BotTrainingPage() {
       setWebUrl('');
       if (
         content.length > 200 &&
-        confirm('¿Extraer también productos de este contenido? Los verás en Productos > Sugeridos desde web.')
+        confirm(
+          '¿Extraer también productos de este contenido? Los verás en Productos → Sugeridos (web o catálogo) para aprobar.',
+        )
       ) {
         await extractProductsFromContent(organizationId, content, 'Web');
       }
@@ -225,7 +252,10 @@ export default function BotTrainingPage() {
       const data = await res.json().catch(() => ({}));
       if (data.error) alert(data.error);
       else if (data.count > 0)
-        alert(data.message || `Se encontraron ${data.count} productos. Revísalos en Productos > Sugeridos desde web.`);
+        alert(
+          data.message ||
+            `Se encontraron ${data.count} productos. Revísalos en Productos → Sugeridos (web o catálogo).`,
+        );
       else alert(data.message || 'No se encontraron productos en el texto.');
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'Error al extraer productos');
@@ -269,7 +299,9 @@ export default function BotTrainingPage() {
       alert(data.pagesUsed ? `Listo. Se estudiaron ${data.pagesUsed} páginas.` : 'Listo. Sitio guardado.');
       if (
         data.content?.length > 200 &&
-        confirm('¿Extraer también productos de este contenido? Los verás en Productos > Sugeridos desde web.')
+        confirm(
+          '¿Extraer también productos de este contenido? Los verás en Productos → Sugeridos (web o catálogo) para aprobar.',
+        )
       ) {
         await extractProductsFromContent(organizationId, data.content, `Sitio: ${urlToUse}`);
       }
@@ -293,6 +325,7 @@ export default function BotTrainingPage() {
       return;
     }
 
+    const fileName = file.name;
     setIsProcessing(true);
     e.target.value = '';
 
@@ -306,11 +339,19 @@ export default function BotTrainingPage() {
       }
       await saveTrainingItem(organizationId, {
         type: 'pdf',
-        source: file.name,
+        source: fileName,
         content,
         fileUrl,
       });
       await fetchTraining();
+      if (
+        content.length > 200 &&
+        confirm(
+          '¿Extraer también productos de este PDF? Aparecerán en Productos → Sugeridos (web o catálogo) para aprobar.',
+        )
+      ) {
+        await extractProductsFromContent(organizationId, content, `PDF: ${fileName}`);
+      }
     } catch (err: any) {
       console.error('Error procesando PDF:', err);
       alert(err.message || 'Error al procesar el PDF');
@@ -787,9 +828,22 @@ export default function BotTrainingPage() {
                       {getStatusBadge(item.status)}
                     </div>
                     <p className="text-[13px] text-app-muted truncate ml-11 sm:ml-11">{item.source}</p>
+                    {item.type === 'pdf' && item.fileUrl && (
+                      <p className="text-[12px] mt-1.5 ml-0 sm:ml-11">
+                        <a
+                          href={item.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 font-medium text-brand-600 hover:text-brand-700"
+                        >
+                          <ExternalLink className="size-3.5 shrink-0" />
+                          Abrir PDF original
+                        </a>
+                      </p>
+                    )}
                     {item.status === 'completed' && item.content && (
                       <div className="mt-3 ml-0 sm:ml-11 p-3.5 rounded-xl bg-app-field/70 border border-app-line">
-                        <p className="text-[13px] text-app-muted whitespace-pre-line leading-relaxed">{item.content}</p>
+                        <TrainingSourceContent content={item.content} />
                       </div>
                     )}
                     <p className="text-[12px] text-app-muted mt-2 ml-0 sm:ml-11 tabular-nums">

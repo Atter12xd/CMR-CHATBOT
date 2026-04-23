@@ -3,6 +3,8 @@ export interface BotTrainingData {
   type: 'web' | 'pdf' | 'manual';
   source: string;
   content: string;
+  /** URL pública en Storage si se subió el archivo (p. ej. PDF) */
+  fileUrl?: string | null;
   extractedAt: Date;
   status: 'pending' | 'processing' | 'completed' | 'error';
 }

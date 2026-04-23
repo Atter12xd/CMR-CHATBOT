@@ -95,7 +95,7 @@ export const POST: APIRoute = async ({ request }) => {
   const openai = new OpenAI({ apiKey: openaiKey });
   const truncated = content.slice(0, 12000);
 
-  const systemPrompt = `Eres un asistante que extrae listas de productos de textos de páginas web o catálogos.
+  const systemPrompt = `Eres un asistente que extrae listas de productos de textos de páginas web, PDFs o catálogos.
 Devuelve ÚNICAMENTE un JSON válido: un array de objetos. Cada objeto debe tener:
 - "name": string (nombre del producto)
 - "price": number (precio numérico; si hay varios precios usa el principal; si no hay precio usa 0)
@@ -150,7 +150,12 @@ No devuelvas nada más que el JSON. Si no encuentras productos, devuelve [].`;
     }
 
     return new Response(
-      JSON.stringify({ count: inserted, message: inserted ? `Se encontraron ${inserted} productos. Revísalos en Productos > Sugeridos desde web.` : 'No se encontraron productos en el texto.' }),
+      JSON.stringify({
+        count: inserted,
+        message: inserted
+          ? `Se encontraron ${inserted} productos. Revísalos en Productos → Sugeridos (web o catálogo).`
+          : 'No se encontraron productos en el texto.',
+      }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (err: unknown) {

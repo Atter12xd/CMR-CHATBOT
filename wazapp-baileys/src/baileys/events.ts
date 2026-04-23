@@ -392,7 +392,7 @@ CÓMO HABLAR:
 REGLAS:
 - Responde solo en español. Máximo 2-4 oraciones salvo listas de productos o métodos de pago.
 - Si no sabes algo, ofrece contactar con un agente.
-- Pedidos: pide nombre completo, DNI, dirección de entrega y productos con cantidades. Cuando tengas todo, usa create_order. IMPORTANTE: Después de create_order NO digas "pedido registrado" ni "listo tu pedido está confirmado". Solo indica cómo debe pagar (Yape/Plin/BCP con nombre y número de la lista) y que al enviar el comprobante lo verificaremos y entonces le confirmaremos el pedido.
+- Pedidos: pide nombre completo, DNI, dirección de entrega y productos con cantidades. Si aún faltan datos, guarda avance con upsert_order_draft. Si el cliente pide retomar, usa recover_order_draft. Cuando tengas todo, usa create_order. IMPORTANTE: Después de create_order NO digas "pedido registrado" ni "listo tu pedido está confirmado". Solo indica cómo debe pagar (Yape/Plin/BCP con nombre y número de la lista) y que al enviar el comprobante lo verificaremos y entonces le confirmaremos el pedido.
 - Si el cliente dice que ya pagó o enviará comprobante, agradece y confirma que lo verificarán.`;
 
   const openai = new OpenAI({
@@ -427,6 +427,41 @@ REGLAS:
           required: ['customer_name', 'items']
         }
       }
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'upsert_order_draft',
+        description: 'Guarda/actualiza carrito en borrador cuando faltan datos para cerrar el pedido.',
+        parameters: {
+          type: 'object',
+          properties: {
+            customer_name: { type: 'string' },
+            customer_dni: { type: 'string' },
+            address_or_reference: { type: 'string' },
+            items: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  product_name: { type: 'string' },
+                  quantity: { type: 'integer' },
+                  price: { type: 'number' }
+                },
+                required: ['product_name', 'quantity', 'price']
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'recover_order_draft',
+        description: 'Recupera el borrador de pedido activo de este chat para continuar.',
+        parameters: { type: 'object', properties: {} }
+      }
     }
   ];
 
@@ -455,21 +490,46 @@ REGLAS:
   const toolCalls = msg.tool_calls;
   if (toolCalls?.length) {
     for (const tc of toolCalls) {
-      if (tc.function?.name === 'create_order') {
+      if (tc.type !== 'function') continue;
+      const fn = tc.function;
+      if (fn?.name === 'create_order') {
         let args: { customer_name: string; customer_dni?: string; address_or_reference?: string; items: { product_name: string; quantity: number; price: number }[] };
         try {
-          args = JSON.parse(tc.function.arguments);
+          args = JSON.parse(fn.arguments);
         } catch {
           continue;
         }
         const orderCode = await createOrderInDb(clientConfig.id, chatId, args.customer_name, args.address_or_reference || '', args.items, args.customer_dni || '');
         if (orderCode) {
+          await supabase
+            .from('order_drafts')
+            .update({ status: 'converted', updated_at: new Date().toISOString() })
+            .eq('organization_id', clientConfig.id)
+            .eq('chat_id', chatId)
+            .in('status', ['draft', 'ready']);
           const paymentText = await getPaymentInstructionsForClient(clientConfig.id);
           const extra = paymentText
             ? `\n\nListo, ya tenemos tu pedido. Para confirmarlo realiza el pago por:\n\n${paymentText}\n\nCuando envíes el comprobante lo verificaremos y te confirmaremos. Tu código de pedido es **${orderCode}** (guárdalo).`
             : `\n\nListo, ya tenemos tu pedido. Cuando envíes el comprobante de pago lo verificaremos y te confirmaremos. Tu código de pedido es **${orderCode}** (guárdalo).`;
           return (msg.content || '').trim() + extra;
         }
+      } else if (fn?.name === 'upsert_order_draft') {
+        let args: { customer_name?: string; customer_dni?: string; address_or_reference?: string; items?: { product_name: string; quantity: number; price: number }[] };
+        try {
+          args = JSON.parse(fn.arguments || '{}');
+        } catch {
+          continue;
+        }
+        const saved = await upsertOrderDraftInDb(clientConfig.id, chatId, args);
+        if (saved.ok) {
+          return 'Perfecto, dejé guardado tu carrito en borrador. Cuando quieras seguimos y lo cerramos en un minuto.';
+        }
+      } else if (fn?.name === 'recover_order_draft') {
+        const draft = await getLatestDraftSummary(clientConfig.id, chatId);
+        if (!draft.hasDraft) {
+          return 'No encuentro un carrito pendiente en este chat. Si quieres, armamos uno nuevo ahora.';
+        }
+        return `Te comparto tu borrador guardado:\n\n${draft.summary}\n\n¿Confirmamos estos datos o deseas ajustar algo?`;
       }
     }
   }
@@ -542,6 +602,115 @@ async function createOrderInDb(
   }
 
   return code;
+}
+
+async function upsertOrderDraftInDb(
+  organizationId: string,
+  chatId: string,
+  payload: {
+    customer_name?: string;
+    customer_dni?: string;
+    address_or_reference?: string;
+    items?: { product_name: string; quantity: number; price: number }[];
+  }
+): Promise<{ ok: boolean; status: 'draft' | 'ready'; draftId?: string }> {
+  const items = (payload.items || [])
+    .filter((i) => i.product_name && i.quantity > 0)
+    .map((i) => ({ product_name: i.product_name, quantity: i.quantity, price: i.price }));
+  const subtotal = items.reduce((sum, i) => sum + i.quantity * i.price, 0);
+  const status: 'draft' | 'ready' =
+    (payload.customer_name || '').trim().length > 0 && items.length > 0 ? 'ready' : 'draft';
+
+  const { data: existing } = await supabase
+    .from('order_drafts')
+    .select('id')
+    .eq('organization_id', organizationId)
+    .eq('chat_id', chatId)
+    .in('status', ['draft', 'ready'])
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  let draftId = existing?.id as string | undefined;
+  if (!draftId) {
+    const { data: created } = await supabase
+      .from('order_drafts')
+      .insert({
+        organization_id: organizationId,
+        chat_id: chatId,
+        customer_name: payload.customer_name || null,
+        customer_dni: payload.customer_dni || null,
+        address_or_reference: payload.address_or_reference || null,
+        status,
+        source: 'whatsapp',
+        subtotal,
+        currency: 'PEN',
+        last_agent_action_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      })
+      .select('id')
+      .single();
+    draftId = created?.id;
+  } else {
+    await supabase
+      .from('order_drafts')
+      .update({
+        customer_name: payload.customer_name || null,
+        customer_dni: payload.customer_dni || null,
+        address_or_reference: payload.address_or_reference || null,
+        status,
+        subtotal,
+        last_agent_action_at: new Date().toISOString(),
+      })
+      .eq('id', draftId);
+  }
+
+  if (!draftId) return { ok: false, status };
+  if (items.length > 0) {
+    await supabase.from('order_draft_items').delete().eq('draft_id', draftId);
+    await supabase.from('order_draft_items').insert(
+      items.map((i) => ({
+        draft_id: draftId,
+        product_name: i.product_name,
+        quantity: i.quantity,
+        price: i.price,
+      }))
+    );
+  }
+  return { ok: true, status, draftId };
+}
+
+async function getLatestDraftSummary(
+  organizationId: string,
+  chatId: string
+): Promise<{ hasDraft: boolean; summary: string }> {
+  const { data: draft } = await supabase
+    .from('order_drafts')
+    .select('id, customer_name, customer_dni, address_or_reference, status, subtotal')
+    .eq('organization_id', organizationId)
+    .eq('chat_id', chatId)
+    .in('status', ['draft', 'ready'])
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!draft) return { hasDraft: false, summary: 'No hay borrador activo.' };
+  const { data: items } = await supabase
+    .from('order_draft_items')
+    .select('product_name, quantity, price')
+    .eq('draft_id', draft.id)
+    .limit(20);
+  const lines = (items || []).map((i) => `- ${i.product_name} x${i.quantity} (S/ ${Number(i.price).toFixed(2)})`);
+  const summary = [
+    `Estado: ${draft.status === 'ready' ? 'listo para confirmar' : 'en progreso'}`,
+    `Cliente: ${draft.customer_name || 'pendiente'}`,
+    `DNI: ${draft.customer_dni || 'pendiente'}`,
+    `Dirección: ${draft.address_or_reference || 'pendiente'}`,
+    `Subtotal: S/ ${Number(draft.subtotal || 0).toFixed(2)}`,
+    lines.length ? `Items:\n${lines.join('\n')}` : 'Items: pendientes',
+  ].join('\n');
+
+  return { hasDraft: true, summary };
 }
 
 async function getPaymentInstructionsForClient(organizationId: string): Promise<string> {

@@ -15,6 +15,13 @@ import { useOrganization } from '../hooks/useOrganization';
 import type { Order } from '../data/mockData';
 import { loadOrders, updateOrderShipping } from '../services/orders';
 import { sendTextMessage } from '../services/whatsapp-messages';
+import {
+  buildOrderTemplateMessage,
+  getOrderNotifications,
+  getTemplateKeyForOrder,
+  logOrderNotification,
+  type OrderNotificationItem,
+} from '../services/order-notifications';
 import PageHeader from './PageHeader';
 
 const shippingStatusLabels: Record<NonNullable<Order['shippingStatus']>, string> = {
@@ -94,6 +101,11 @@ export default function OrderTrackingPage() {
   const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [sending, setSending] = useState(false);
+  const [sendOnSave, setSendOnSave] = useState(false);
+  const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const [notifications, setNotifications] = useState<OrderNotificationItem[]>([]);
+  const [notificationsFilter, setNotificationsFilter] = useState<'all' | 'sent' | 'failed'>('all');
+  const [retryingNotificationId, setRetryingNotificationId] = useState<string | null>(null);
   const [highlightEditor, setHighlightEditor] = useState(false);
   const [autoEventPrefill, setAutoEventPrefill] = useState<string | null>(null);
   const [form, setForm] = useState({
@@ -188,6 +200,29 @@ export default function OrderTrackingPage() {
     if (autoEventPrefill) setAutoEventPrefill(null);
   }, [activeOrder?.id, autoEventPrefill]);
 
+  useEffect(() => {
+    if (!organizationId || !activeOrder) {
+      setNotifications([]);
+      return;
+    }
+    let cancelled = false;
+    setNotificationsLoading(true);
+    getOrderNotifications(organizationId, activeOrder.id)
+      .then((items) => {
+        if (!cancelled) setNotifications(items);
+      })
+      .catch((err) => {
+        console.error('Error cargando notificaciones de pedido:', err);
+        if (!cancelled) setNotifications([]);
+      })
+      .finally(() => {
+        if (!cancelled) setNotificationsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [organizationId, activeOrder?.id]);
+
   const getTrackingPublicUrl = useCallback((token?: string) => {
     if (!token) return '';
     return `${window.location.origin}/seguimiento?token=${encodeURIComponent(token)}`;
@@ -195,17 +230,15 @@ export default function OrderTrackingPage() {
 
   const buildTrackingMessage = useCallback((order: Order) => {
     const link = getTrackingPublicUrl(order.trackingToken);
-    const code = order.code || order.id.slice(0, 8);
-    const lines = [
-      `Hola ${order.customerName}, tu pedido ${code} ya tiene actualización de envío.`,
-      `Estado: ${shippingStatusLabels[form.shippingStatus]}`,
-    ];
-    if (form.courier) lines.push(`Courier: ${form.courier}`);
-    if (form.trackingCode) lines.push(`Guía: ${form.trackingCode}`);
-    if (form.shippingLastEvent) lines.push(`Detalle: ${form.shippingLastEvent}`);
-    if (form.trackingUrl) lines.push(`Rastreo courier: ${form.trackingUrl}`);
-    if (link) lines.push(`Seguimiento: ${link}`);
-    return lines.join('\n');
+    return buildOrderTemplateMessage({
+      order,
+      shippingStatus: form.shippingStatus,
+      shippingLastEvent: form.shippingLastEvent,
+      courier: form.courier,
+      trackingCode: form.trackingCode,
+      trackingUrl: form.trackingUrl,
+      trackingPublicUrl: link || undefined,
+    });
   }, [form, getTrackingPublicUrl]);
 
   const activeTimelineIndex = useMemo(() => {
@@ -287,6 +320,7 @@ export default function OrderTrackingPage() {
     try {
       const token = activeOrder.trackingToken || crypto.randomUUID();
       const resolvedTrackingUrl = form.trackingUrl.trim() || getSuggestedTrackingUrl(form.courier, form.trackingCode);
+      const statusChanged = (activeOrder.shippingStatus || 'pending') !== form.shippingStatus;
       const result = await updateOrderShipping(organizationId, activeOrder.id, {
         courier: form.courier || null,
         trackingCode: form.trackingCode || null,
@@ -299,12 +333,52 @@ export default function OrderTrackingPage() {
         alert(result.error || 'No se pudo guardar seguimiento');
         return;
       }
+
+      if (sendOnSave && statusChanged && activeOrder.chatId && activeOrder.customerPhone) {
+        const orderForMessage: Order = {
+          ...activeOrder,
+          trackingToken: token,
+          courier: form.courier || undefined,
+          trackingCode: form.trackingCode || undefined,
+          trackingUrl: resolvedTrackingUrl || undefined,
+          shippingStatus: form.shippingStatus,
+          shippingLastEvent: form.shippingLastEvent || undefined,
+        };
+        const message = buildTrackingMessage(orderForMessage);
+        const sent = await sendTextMessage({
+          chatId: activeOrder.chatId,
+          text: message,
+          baileysClientId: organizationId,
+          baileysTo: activeOrder.customerPhone,
+        });
+        const templateKey = getTemplateKeyForOrder(orderForMessage, form.shippingStatus);
+        await logOrderNotification({
+          organizationId,
+          orderId: activeOrder.id,
+          chatId: activeOrder.chatId,
+          templateKey,
+          status: sent.success ? 'sent' : 'failed',
+          payload: {
+            shippingStatus: form.shippingStatus,
+            trackingCode: form.trackingCode || null,
+            trackingUrl: resolvedTrackingUrl || null,
+            message,
+            error: sent.error || null,
+            trigger: 'save_status_change',
+          },
+        }).catch((e) => console.error('No se pudo registrar notificación:', e));
+      }
+
       await fetchOrders();
+      if (organizationId) {
+        const items = await getOrderNotifications(organizationId, activeOrder.id).catch(() => []);
+        setNotifications(items);
+      }
       alert('Seguimiento guardado');
     } finally {
       setSaving(false);
     }
-  }, [organizationId, activeOrder, form, fetchOrders]);
+  }, [organizationId, activeOrder, form, fetchOrders, sendOnSave, buildTrackingMessage]);
 
   const handleSend = useCallback(async () => {
     if (!organizationId || !activeOrder) return;
@@ -318,21 +392,83 @@ export default function OrderTrackingPage() {
     }
     setSending(true);
     try {
+      const message = buildTrackingMessage(activeOrder);
       const sent = await sendTextMessage({
         chatId: activeOrder.chatId,
-        text: buildTrackingMessage(activeOrder),
+        text: message,
         baileysClientId: organizationId,
         baileysTo: activeOrder.customerPhone,
       });
       if (!sent.success) {
+        await logOrderNotification({
+          organizationId,
+          orderId: activeOrder.id,
+          chatId: activeOrder.chatId,
+          templateKey: getTemplateKeyForOrder(activeOrder, form.shippingStatus),
+          status: 'failed',
+          payload: { message, error: sent.error || null, trigger: 'manual_send' },
+        }).catch(() => null);
         alert(sent.error || 'No se pudo enviar');
         return;
       }
+      await logOrderNotification({
+        organizationId,
+        orderId: activeOrder.id,
+        chatId: activeOrder.chatId,
+        templateKey: getTemplateKeyForOrder(activeOrder, form.shippingStatus),
+        status: 'sent',
+        payload: { message, trigger: 'manual_send' },
+      }).catch(() => null);
+      const items = await getOrderNotifications(organizationId, activeOrder.id).catch(() => []);
+      setNotifications(items);
       alert('Seguimiento enviado al cliente');
     } finally {
       setSending(false);
     }
+  }, [organizationId, activeOrder, buildTrackingMessage, form.shippingStatus]);
+
+  const retryNotification = useCallback(async (notification: OrderNotificationItem) => {
+    if (!organizationId || !activeOrder?.chatId || !activeOrder.customerPhone) {
+      alert('Este pedido no tiene chat o teléfono para reintento automático.');
+      return;
+    }
+    setRetryingNotificationId(notification.id);
+    try {
+      const message =
+        typeof notification.payload.message === 'string' && notification.payload.message.trim()
+          ? notification.payload.message
+          : buildTrackingMessage(activeOrder);
+      const sent = await sendTextMessage({
+        chatId: activeOrder.chatId,
+        text: message,
+        baileysClientId: organizationId,
+        baileysTo: activeOrder.customerPhone,
+      });
+      await logOrderNotification({
+        organizationId,
+        orderId: activeOrder.id,
+        chatId: activeOrder.chatId,
+        templateKey: notification.templateKey,
+        status: sent.success ? 'sent' : 'failed',
+        payload: {
+          message,
+          trigger: 'retry_failed',
+          retryOfNotificationId: notification.id,
+          error: sent.error || null,
+        },
+      }).catch(() => null);
+      const items = await getOrderNotifications(organizationId, activeOrder.id).catch(() => []);
+      setNotifications(items);
+      alert(sent.success ? 'Reintento enviado correctamente.' : sent.error || 'No se pudo reenviar.');
+    } finally {
+      setRetryingNotificationId(null);
+    }
   }, [organizationId, activeOrder, buildTrackingMessage]);
+
+  const filteredNotifications = useMemo(() => {
+    if (notificationsFilter === 'all') return notifications;
+    return notifications.filter((n) => n.status === notificationsFilter);
+  }, [notifications, notificationsFilter]);
 
   if (orgLoading) {
     return (
@@ -733,6 +869,100 @@ export default function OrderTrackingPage() {
                   {buildTrackingMessage(activeOrder)}
                 </pre>
               </div>
+
+              <div className="rounded-xl border border-app-line bg-white p-3">
+                <p className="text-xs text-app-muted font-medium mb-2">Historial de notificaciones</p>
+                <div className="mb-2 flex flex-wrap gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setNotificationsFilter('all')}
+                    className={`px-2 py-1 rounded-full text-[10px] font-semibold border ${
+                      notificationsFilter === 'all'
+                        ? 'bg-brand-500 text-white border-brand-500'
+                        : 'bg-white text-app-muted border-app-line hover:bg-app-field'
+                    }`}
+                  >
+                    Todos ({notifications.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNotificationsFilter('sent')}
+                    className={`px-2 py-1 rounded-full text-[10px] font-semibold border ${
+                      notificationsFilter === 'sent'
+                        ? 'bg-emerald-600 text-white border-emerald-600'
+                        : 'bg-white text-app-muted border-app-line hover:bg-app-field'
+                    }`}
+                  >
+                    Enviados ({notifications.filter((n) => n.status === 'sent').length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNotificationsFilter('failed')}
+                    className={`px-2 py-1 rounded-full text-[10px] font-semibold border ${
+                      notificationsFilter === 'failed'
+                        ? 'bg-rose-600 text-white border-rose-600'
+                        : 'bg-white text-app-muted border-app-line hover:bg-app-field'
+                    }`}
+                  >
+                    Fallidos ({notifications.filter((n) => n.status === 'failed').length})
+                  </button>
+                </div>
+                {notificationsLoading ? (
+                  <p className="text-[12px] text-app-muted">Cargando historial...</p>
+                ) : filteredNotifications.length === 0 ? (
+                  <p className="text-[12px] text-app-muted">Sin envíos registrados para este pedido.</p>
+                ) : (
+                  <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                    {filteredNotifications.map((n) => {
+                      const toneClass =
+                        n.status === 'sent'
+                          ? 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20'
+                          : n.status === 'failed'
+                            ? 'bg-rose-500/10 text-rose-700 border-rose-500/20'
+                            : 'bg-amber-500/10 text-amber-700 border-amber-500/20';
+                      const trigger = typeof n.payload.trigger === 'string' ? n.payload.trigger : 'manual';
+                      const triggerLabel =
+                        trigger === 'save_status_change'
+                          ? 'Auto al guardar'
+                          : trigger === 'retry_failed'
+                            ? 'Reintento'
+                            : 'Envío manual';
+                      const detail = typeof n.payload.error === 'string' ? n.payload.error : '';
+                      return (
+                        <div key={n.id} className="rounded-lg border border-app-line bg-app-field/40 p-2.5">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold ${toneClass}`}>
+                              {n.status === 'sent' ? 'Enviado' : n.status === 'failed' ? 'Fallido' : 'En cola'}
+                            </span>
+                            <span className="text-[10px] text-app-muted">
+                              {(n.sentAt || n.createdAt).toLocaleString('es-PE')}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-[11px] text-app-ink">
+                            Plantilla: <span className="font-semibold">{n.templateKey}</span>
+                          </p>
+                          <p className="text-[11px] text-app-muted">
+                            Origen: {triggerLabel}
+                          </p>
+                          {detail && <p className="text-[11px] text-rose-600 mt-0.5">{detail}</p>}
+                          {n.status === 'failed' && (
+                            <div className="mt-2">
+                              <button
+                                type="button"
+                                onClick={() => void retryNotification(n)}
+                                disabled={retryingNotificationId === n.id}
+                                className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border border-app-line bg-white hover:bg-app-field disabled:opacity-60"
+                              >
+                                {retryingNotificationId === n.id ? 'Reintentando...' : 'Reintentar envío'}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="px-5 py-4 border-t border-app-line flex flex-wrap justify-between gap-2">
@@ -773,6 +1003,15 @@ export default function OrderTrackingPage() {
                   </a>
                 )}
               </div>
+              <label className="inline-flex items-center gap-2 text-[12px] text-app-muted">
+                <input
+                  type="checkbox"
+                  checked={sendOnSave}
+                  onChange={(e) => setSendOnSave(e.target.checked)}
+                  className="rounded border-app-line"
+                />
+                Enviar automático al guardar si cambia el estado
+              </label>
               <button
                 type="button"
                 onClick={handleSave}

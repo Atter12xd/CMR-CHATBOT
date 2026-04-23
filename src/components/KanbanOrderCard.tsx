@@ -36,7 +36,7 @@ export default function KanbanOrderCard({ order, onOpenChat, onOpenTracking }: K
         : `${first.name} +${order.items.length - 1} más`;
 
   return (
-    <div className="bg-white border border-[#E5E7EB] rounded-[6px] px-[11px] py-2.5 shadow-[0_1px_3px_rgba(0,0,0,.08),0_1px_2px_rgba(0,0,0,.05)] hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,.07)] transition-[box-shadow,opacity] cursor-grab active:cursor-grabbing font-professional select-none">
+    <div className="bg-white border border-[#E4E4E9] rounded-lg px-3 py-2.5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:shadow-[0_4px_12px_rgba(15,23,42,0.07)] hover:border-[#D8D8DF] transition-[box-shadow,border-color,opacity] cursor-grab active:cursor-grabbing font-professional select-none">
       <div className="flex items-start justify-between gap-1 mb-0.5 min-w-0">
         <div className="min-w-0 flex-1">
           <div className="text-[11px] font-bold text-[#1B70FF] leading-tight">{code}</div>

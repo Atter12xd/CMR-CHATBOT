@@ -9,6 +9,9 @@ import {
   Clock,
   Truck,
   LayoutGrid,
+  LayoutList,
+  Search,
+  Zap,
   ExternalLink,
   Copy,
   Send,
@@ -82,6 +85,23 @@ function normalizeCourier(value: string): string {
     .trim();
 }
 
+function orderMatchesSearch(order: Order, q: string): boolean {
+  const s = q.trim().toLowerCase();
+  if (!s) return true;
+  const hay = [
+    order.code,
+    order.id,
+    order.customerName,
+    order.customerPhone,
+    order.deliveryAddress,
+    ...order.items.map((i) => i.name),
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+  return hay.includes(s);
+}
+
 function getSuggestedTrackingUrl(courier: string, trackingCode: string): string {
   const code = trackingCode.trim();
   if (!code) return '';
@@ -132,6 +152,7 @@ export default function OrdersPage() {
   const [verifyAmount, setVerifyAmount] = useState<Record<string, string>>({});
   const [verifyName, setVerifyName] = useState<Record<string, string>>({});
   const [viewMode, setViewMode] = useState<'pipeline' | 'tabla' | 'seguimiento'>('pipeline');
+  const [orderSearchQuery, setOrderSearchQuery] = useState('');
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverStatus, setDragOverStatus] = useState<Order['status'] | null>(null);
   const [activeTrackingOrderId, setActiveTrackingOrderId] = useState<string | null>(null);
@@ -344,21 +365,31 @@ export default function OrdersPage() {
   const filteredOrders =
     selectedStatus === 'all' ? orders : orders.filter((order) => order.status === selectedStatus);
 
+  const visibleOrders = useMemo(
+    () => filteredOrders.filter((o) => orderMatchesSearch(o, orderSearchQuery)),
+    [filteredOrders, orderSearchQuery]
+  );
+
   const kanbanBoard = useMemo(() => {
-    const cols: { status: Order['status']; title: string; headerBg: string; headerColor: string }[] = [
-      { status: 'pending', title: 'Nuevo', headerBg: '#F59E0B', headerColor: '#fff' },
-      { status: 'processing', title: 'Confirmando', headerBg: '#1B70FF', headerColor: '#fff' },
-      { status: 'completed', title: 'Confirmado', headerBg: '#10B981', headerColor: '#fff' },
-      { status: 'shipped', title: 'En Envío', headerBg: '#8B5CF6', headerColor: '#fff' },
-      { status: 'delivered', title: 'Entregado', headerBg: '#14B8A6', headerColor: '#fff' },
-      { status: 'cancelled', title: 'Rechazado', headerBg: '#EF4444', headerColor: '#fff' },
+    const cols: { status: Order['status']; title: string; accent: string }[] = [
+      { status: 'pending', title: 'Nuevo', accent: '#5DADE2' },
+      { status: 'processing', title: 'Confirmando', accent: '#F4D03F' },
+      { status: 'completed', title: 'Confirmado', accent: '#F39C12' },
+      { status: 'shipped', title: 'En envío', accent: '#E5989B' },
+      { status: 'delivered', title: 'Entregado', accent: '#48C9B0' },
+      { status: 'cancelled', title: 'Rechazado', accent: '#E74C3C' },
     ];
     return cols.map((col) => {
-      const list = filteredOrders.filter((o) => o.status === col.status);
+      const list = visibleOrders.filter((o) => o.status === col.status);
       const sum = list.reduce((s, o) => s + o.total, 0);
       return { ...col, list, sum };
     });
-  }, [filteredOrders]);
+  }, [visibleOrders]);
+
+  const pipelineToolbarTotals = useMemo(() => {
+    const sum = visibleOrders.reduce((s, o) => s + o.total, 0);
+    return { count: visibleOrders.length, sum };
+  }, [visibleOrders]);
 
   if (orgLoading) {
     return (
@@ -395,39 +426,7 @@ export default function OrdersPage() {
 
   return (
     <div className="space-y-5 font-professional">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <PageHeader title="Pedidos" description="Gestión y seguimiento de pedidos COD" />
-        <div className="flex rounded-md border border-[#E5E7EB] bg-white p-0.5 shrink-0">
-          <button
-            type="button"
-            onClick={() => setViewMode('pipeline')}
-            className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-[5px] text-[12px] font-semibold transition-colors ${
-              viewMode === 'pipeline'
-                ? 'bg-brand-500 text-white'
-                : 'text-[#6D6D70] hover:bg-[#f9fafb]'
-            }`}
-          >
-            <LayoutGrid size={13} />
-            Pipeline
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode('tabla')}
-            className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-[5px] text-[12px] font-semibold transition-colors ${
-              viewMode === 'tabla'
-                ? 'bg-brand-500 text-white'
-                : 'text-[#6D6D70] hover:bg-[#f9fafb]'
-            }`}
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="opacity-80" aria-hidden>
-              <rect x="3" y="3" width="18" height="4" rx="1" />
-              <rect x="3" y="10" width="18" height="4" rx="1" opacity=".6" />
-              <rect x="3" y="17" width="18" height="4" rx="1" opacity=".4" />
-            </svg>
-            Tabla
-          </button>
-        </div>
-      </div>
+      <PageHeader title="Pedidos" description="Gestión y seguimiento de pedidos COD" />
 
       <div className="flex flex-wrap items-center gap-2 text-[11px]">
         <span className="font-semibold text-[#6D6D70] bg-white border border-[#E5E7EB] px-2.5 py-1 rounded-full tabular-nums">
@@ -591,7 +590,7 @@ export default function OrdersPage() {
           </div>
         </div>
       ) : viewMode === 'seguimiento' ? (
-        filteredOrders.length === 0 ? (
+        visibleOrders.length === 0 ? (
           <div className="bg-white border border-[#E5E7EB] rounded-lg py-16 text-center shadow-[0_1px_3px_rgba(0,0,0,.08)]">
             <Truck className="size-8 text-[#d1d5db] mx-auto mb-3" />
             <p className="text-[15px] font-medium text-[#3D3D40]">
@@ -611,7 +610,7 @@ export default function OrdersPage() {
                 </p>
               </div>
               <div className="max-h-[520px] overflow-y-auto divide-y divide-app-line">
-                {filteredOrders.map((order) => {
+                {visibleOrders.map((order) => {
                   const active = order.id === activeTrackingOrderId;
                   return (
                     <button
@@ -643,173 +642,251 @@ export default function OrdersPage() {
             )}
           </div>
         )
-      ) : viewMode === 'pipeline' ? (
-        orders.length === 0 ? (
-          <div className="bg-white border border-[#E5E7EB] rounded-lg py-16 text-center shadow-[0_1px_3px_rgba(0,0,0,.08)]">
-            <Package className="size-8 text-[#d1d5db] mx-auto mb-3" />
-            <p className="text-[15px] font-medium text-[#3D3D40]">
-              {selectedStatus === 'all' ? 'No hay pedidos aún' : `No hay pedidos «${statusLabels[selectedStatus]}»`}
-            </p>
-            <p className="text-[13px] text-[#6D6D70] mt-1 px-6">
-              Los pedidos aparecerán aquí cuando se generen desde el chat.
-            </p>
-          </div>
-        ) : (
-          <div className="flex gap-3 overflow-x-auto pb-3 -mx-1 px-1">
-            {kanbanBoard.map((col) => (
-              <div key={col.status} className="flex flex-col min-w-[190px] w-[190px] shrink-0">
-                <div
-                  className="px-3 py-2.5 rounded-t-[10px] flex items-center justify-between"
-                  style={{ background: col.headerBg, color: col.headerColor }}
-                >
-                  <span className="text-[12px] font-bold leading-none">{col.title}</span>
-                  <span
-                    className="text-[11px] font-bold px-[7px] py-px rounded-full tabular-nums leading-none"
-                    style={{ background: 'rgba(255,255,255,0.25)' }}
-                  >
-                    {col.list.length}
-                  </span>
-                </div>
-                <div
-                  className="text-[11px] font-semibold px-3 pt-1 pb-2 bg-white border-x border-[#E5E7EB]"
-                  style={{ color: col.headerBg }}
-                >
-                  S/ {col.sum.toFixed(2)}
-                </div>
-                <div
-                  className={`flex-1 min-h-[200px] border border-t-0 border-[#E5E7EB] rounded-b-[10px] bg-[#f9fafb] p-2 flex flex-col gap-2 transition-[background-color,box-shadow] ${
-                    dragOverStatus === col.status ? 'bg-[#f0f7ff] ring-2 ring-inset ring-[#1B70FF]/25' : ''
+      ) : viewMode === 'pipeline' || viewMode === 'tabla' ? (
+        <div className="rounded-xl border border-[#E2E2E8] bg-[#EFEFF1] shadow-[0_1px_3px_rgba(15,23,42,0.06)] overflow-hidden">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between px-4 py-3 bg-white border-b border-[#E8E8ED]">
+            <div className="flex flex-wrap items-center gap-3 min-w-0">
+              <span className="text-[11px] font-bold tracking-[0.14em] text-[#2B2B2F] select-none">PEDIDOS</span>
+              <div className="inline-flex rounded-lg border border-[#DCDCE2] bg-[#F4F4F6] p-0.5 shadow-[inset_0_1px_0_rgba(255,255,255,.6)]">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('pipeline')}
+                  className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wide transition-colors ${
+                    viewMode === 'pipeline'
+                      ? 'bg-white text-[#1a1a1c] shadow-sm border border-[#E4E4E9]'
+                      : 'text-[#6D6D70] hover:text-[#3D3D40]'
                   }`}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = 'move';
-                    setDragOverStatus(col.status);
-                  }}
-                  onDragLeave={(e) => {
-                    if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverStatus(null);
-                  }}
-                  onDrop={(e) => {
-                    setDragOverStatus(null);
-                    void handleDropOnColumn(col.status, e);
-                  }}
+                  aria-pressed={viewMode === 'pipeline'}
                 >
-                  {col.list.map((order) => (
+                  <LayoutGrid size={14} strokeWidth={2.25} />
+                  Tablero
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('tabla')}
+                  className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wide transition-colors ${
+                    viewMode === 'tabla'
+                      ? 'bg-white text-[#1a1a1c] shadow-sm border border-[#E4E4E9]'
+                      : 'text-[#6D6D70] hover:text-[#3D3D40]'
+                  }`}
+                  aria-pressed={viewMode === 'tabla'}
+                >
+                  <LayoutList size={14} strokeWidth={2.25} />
+                  Lista
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-1 min-w-0 w-full xl:max-w-md xl:mx-4">
+              <label className="relative flex w-full items-center gap-2 rounded-lg border border-[#E4E4E9] bg-[#FAFAFB] px-3 py-2 shadow-[inset_0_1px_2px_rgba(0,0,0,.02)] focus-within:border-[#1B70FF]/35 focus-within:ring-2 focus-within:ring-[#1B70FF]/12 transition-[border-color,box-shadow]">
+                <Search className="w-4 h-4 text-[#9B9BA3] shrink-0" strokeWidth={2} aria-hidden />
+                <input
+                  type="search"
+                  value={orderSearchQuery}
+                  onChange={(e) => setOrderSearchQuery(e.target.value)}
+                  placeholder="Pedidos abiertos — buscar por cliente, código o teléfono"
+                  className="w-full min-w-0 bg-transparent text-[13px] text-[#1a1a1c] placeholder:text-[#9B9BA3] outline-none"
+                  autoComplete="off"
+                />
+              </label>
+            </div>
+            <div className="flex flex-wrap items-center justify-end gap-3 shrink-0">
+              <span className="text-[12px] font-semibold text-[#5C5C63] tabular-nums whitespace-nowrap">
+                {pipelineToolbarTotals.count} pedidos: S/ {pipelineToolbarTotals.sum.toFixed(2)}
+              </span>
+              <a
+                href="/configuracion"
+                className="inline-flex items-center gap-1.5 rounded-md bg-[#FF7A2F] px-3.5 py-2 text-[11px] font-bold uppercase tracking-wide text-white shadow-[0_1px_2px_rgba(0,0,0,.12)] hover:bg-[#FF6A18] transition-colors"
+              >
+                <Zap className="w-3.5 h-3.5" strokeWidth={2.5} aria-hidden />
+                Automatizar
+              </a>
+            </div>
+          </div>
+
+          {orderSearchQuery.trim() && visibleOrders.length === 0 && orders.length > 0 ? (
+            <div className="px-4 py-2.5 bg-amber-50 border-b border-amber-100 text-center text-[12px] font-medium text-amber-950">
+              Ningún pedido coincide con la búsqueda en este filtro.
+            </div>
+          ) : null}
+
+          {viewMode === 'pipeline' ? (
+            <>
+              {orders.length === 0 ? (
+                <div className="px-4 py-2.5 bg-[#EEF6FF] border-b border-[#D8E6FF] text-center text-[12px] text-[#1B4F91] leading-relaxed">
+                  Los pedidos aparecen aquí al crearlos desde el chat. Usa{' '}
+                  <span className="font-semibold">Pedido rápido</span> en la primera columna para ir a conversaciones.
+                </div>
+              ) : null}
+              <div className="overflow-x-auto px-3 py-4">
+                <div className="flex gap-3 items-stretch min-h-[min(440px,62vh)]">
+                  {kanbanBoard.map((col) => (
                     <div
-                      key={order.id}
-                      draggable
-                      onDragStart={(e) => {
-                        e.dataTransfer.setData('orderId', order.id);
-                        e.dataTransfer.effectAllowed = 'move';
-                        setDraggingId(order.id);
-                      }}
-                      onDragEnd={() => {
-                        setDraggingId(null);
-                        setDragOverStatus(null);
-                      }}
-                      className={draggingId === order.id ? 'opacity-40' : ''}
+                      key={col.status}
+                      className="flex flex-col w-[min(100%,272px)] min-w-[252px] shrink-0 rounded-lg border border-[#DCDCE2] bg-white overflow-hidden shadow-[0_1px_2px_rgba(15,23,42,0.05)]"
                     >
-                      <KanbanOrderCard
-                        order={order}
-                        onOpenChat={handleOpenChat}
-                        onOpenTracking={openTrackingEditor}
-                      />
+                      <div className="h-1 shrink-0" style={{ background: col.accent }} aria-hidden />
+                      <div className="px-3.5 pt-3 pb-2.5 border-b border-[#EFEFEF] bg-white">
+                        <div className="text-[11px] font-bold uppercase tracking-[0.06em] text-[#1F1F23] leading-tight">
+                          {col.title}
+                        </div>
+                        <div className="text-[11px] text-[#6D6D70] mt-1.5 tabular-nums leading-snug">
+                          {col.list.length} {col.list.length === 1 ? 'pedido' : 'pedidos'} · S/ {col.sum.toFixed(2)}
+                        </div>
+                      </div>
+                      <div
+                        className={`flex-1 flex flex-col gap-2 p-2.5 bg-[#F4F4F6] min-h-[260px] transition-[background-color,box-shadow] ${
+                          dragOverStatus === col.status ? 'bg-[#E8F1FF] ring-2 ring-inset ring-[#1B70FF]/22' : ''
+                        }`}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          e.dataTransfer.dropEffect = 'move';
+                          setDragOverStatus(col.status);
+                        }}
+                        onDragLeave={(e) => {
+                          if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverStatus(null);
+                        }}
+                        onDrop={(e) => {
+                          setDragOverStatus(null);
+                          void handleDropOnColumn(col.status, e);
+                        }}
+                      >
+                        {col.status === 'pending' ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              window.location.href = '/chats';
+                            }}
+                            className="w-full rounded-lg border border-dashed border-[#C4C4CC] bg-white/90 py-2.5 px-2 text-[11px] font-semibold text-[#5C5C63] hover:border-[#5DADE2] hover:text-[#1565A8] hover:bg-[#F7FBFF] transition-colors"
+                          >
+                            + Pedido rápido
+                          </button>
+                        ) : null}
+                        {col.list.map((order) => (
+                          <div
+                            key={order.id}
+                            draggable
+                            onDragStart={(e) => {
+                              e.dataTransfer.setData('orderId', order.id);
+                              e.dataTransfer.effectAllowed = 'move';
+                              setDraggingId(order.id);
+                            }}
+                            onDragEnd={() => {
+                              setDraggingId(null);
+                              setDragOverStatus(null);
+                            }}
+                            className={draggingId === order.id ? 'opacity-40' : ''}
+                          >
+                            <KanbanOrderCard
+                              order={order}
+                              onOpenChat={handleOpenChat}
+                              onOpenTracking={openTrackingEditor}
+                            />
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
-            ))}
-          </div>
-        )
-      ) : filteredOrders.length === 0 ? (
-        <div className="bg-white border border-[#E5E7EB] rounded-lg py-16 text-center shadow-[0_1px_3px_rgba(0,0,0,.08)]">
-          <Package className="size-8 text-[#d1d5db] mx-auto mb-3" />
-          <p className="text-[15px] font-medium text-[#3D3D40]">
-            {selectedStatus === 'all' ? 'No hay pedidos aún' : `No hay pedidos «${statusLabels[selectedStatus]}»`}
-          </p>
+            </>
+          ) : filteredOrders.length === 0 ? (
+            <div className="bg-white m-3 rounded-lg border border-[#E8E8ED] py-14 text-center shadow-sm">
+              <Package className="size-8 text-[#d1d5db] mx-auto mb-3" />
+              <p className="text-[15px] font-medium text-[#3D3D40]">
+                {selectedStatus === 'all' ? 'No hay pedidos aún' : `No hay pedidos «${statusLabels[selectedStatus]}»`}
+              </p>
+            </div>
+          ) : visibleOrders.length === 0 ? (
+            <div className="bg-white m-3 rounded-lg border border-amber-100 py-14 text-center shadow-sm">
+              <Package className="size-8 text-amber-200 mx-auto mb-3" />
+              <p className="text-[15px] font-medium text-[#3D3D40]">Sin resultados de búsqueda</p>
+              <p className="text-[13px] text-[#6D6D70] mt-1 px-6">Prueba otro término o limpia el buscador.</p>
+            </div>
+          ) : (
+            <div className="m-3 rounded-lg border border-[#E4E4E9] bg-white shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-[13px]">
+                  <thead>
+                    <tr className="border-b border-[#ECECEF] bg-[#FAFAFB]">
+                      <th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-[#6D6D70]">
+                        Pedido
+                      </th>
+                      <th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-[#6D6D70]">
+                        Cliente
+                      </th>
+                      <th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-[#6D6D70]">
+                        Teléfono
+                      </th>
+                      <th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-[#6D6D70]">
+                        Estado
+                      </th>
+                      <th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-[#6D6D70]">
+                        Envío
+                      </th>
+                      <th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-[#6D6D70]">
+                        Total
+                      </th>
+                      <th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-[#6D6D70]">
+                        Ciudad
+                      </th>
+                      <th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-[#6D6D70]">
+                        Fecha
+                      </th>
+                      <th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-[#6D6D70]">
+                        Acción
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visibleOrders.map((order) => (
+                      <tr key={order.id} className="border-b border-[#f0f0f2] hover:bg-[#FAFAFB] transition-colors">
+                        <td className="py-2.5 px-3 font-mono text-[12px] text-brand-600 font-bold">
+                          {order.code || order.id.slice(0, 8)}
+                        </td>
+                        <td className="py-2.5 px-3 text-[#3D3D40]">{order.customerName}</td>
+                        <td className="py-2.5 px-3 text-[#6D6D70]">{order.customerPhone || '—'}</td>
+                        <td className="py-2.5 px-3 text-[12px]">{statusLabels[order.status]}</td>
+                        <td className="py-2.5 px-3 text-[12px] text-[#6D6D70] whitespace-nowrap">
+                          {order.shippingStatus ? shippingStatusLabels[order.shippingStatus] : 'Pendiente'}
+                        </td>
+                        <td className="py-2.5 px-3 font-semibold tabular-nums">S/ {order.total.toFixed(2)}</td>
+                        <td className="py-2.5 px-3 text-[#6D6D70] max-w-[140px] truncate" title={order.deliveryAddress}>
+                          {order.deliveryAddress
+                            ? order.deliveryAddress.split(',').pop()?.trim() || order.deliveryAddress
+                            : '—'}
+                        </td>
+                        <td className="py-2.5 px-3 text-[#6D6D70] text-[12px] whitespace-nowrap">
+                          {order.createdAt.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => openTrackingEditor(order)}
+                              className="text-[12px] font-semibold text-violet-600 hover:underline"
+                            >
+                              Seguimiento
+                            </button>
+                            {order.chatId ? (
+                              <button
+                                type="button"
+                                onClick={() => handleOpenChat(order.chatId!)}
+                                className="text-[12px] font-semibold text-brand-500 hover:underline"
+                              >
+                                Chat
+                              </button>
+                            ) : null}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="bg-white border border-[#E5E7EB] rounded-lg shadow-[0_1px_3px_rgba(0,0,0,.08)] overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-[13px]">
-              <thead>
-                <tr className="border-b border-[#E5E7EB]">
-                  <th className="text-left py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#6D6D70]">
-                    Pedido
-                  </th>
-                  <th className="text-left py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#6D6D70]">
-                    Cliente
-                  </th>
-                  <th className="text-left py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#6D6D70]">
-                    Teléfono
-                  </th>
-                  <th className="text-left py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#6D6D70]">
-                    Estado
-                  </th>
-                  <th className="text-left py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#6D6D70]">
-                    Envío
-                  </th>
-                  <th className="text-left py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#6D6D70]">
-                    Total
-                  </th>
-                  <th className="text-left py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#6D6D70]">
-                    Ciudad
-                  </th>
-                  <th className="text-left py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#6D6D70]">
-                    Fecha
-                  </th>
-                  <th className="text-left py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#6D6D70]">
-                    Acción
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredOrders.map((order) => (
-                  <tr key={order.id} className="border-b border-[#f3f4f6] hover:bg-[#fafafa]">
-                    <td className="py-2.5 px-3 font-mono text-[12px] text-brand-600 font-bold">
-                      {order.code || order.id.slice(0, 8)}
-                    </td>
-                    <td className="py-2.5 px-3 text-[#3D3D40]">{order.customerName}</td>
-                    <td className="py-2.5 px-3 text-[#6D6D70]">{order.customerPhone || '—'}</td>
-                    <td className="py-2.5 px-3 text-[12px]">{statusLabels[order.status]}</td>
-                    <td className="py-2.5 px-3 text-[12px] text-[#6D6D70] whitespace-nowrap">
-                      {order.shippingStatus ? shippingStatusLabels[order.shippingStatus] : 'Pendiente'}
-                    </td>
-                    <td className="py-2.5 px-3 font-semibold tabular-nums">S/ {order.total.toFixed(2)}</td>
-                    <td className="py-2.5 px-3 text-[#6D6D70] max-w-[140px] truncate" title={order.deliveryAddress}>
-                      {order.deliveryAddress
-                        ? order.deliveryAddress.split(',').pop()?.trim() || order.deliveryAddress
-                        : '—'}
-                    </td>
-                    <td className="py-2.5 px-3 text-[#6D6D70] text-[12px] whitespace-nowrap">
-                      {order.createdAt.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}
-                    </td>
-                    <td className="py-2.5 px-3">
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => openTrackingEditor(order)}
-                          className="text-[12px] font-semibold text-violet-600 hover:underline"
-                        >
-                          Seguimiento
-                        </button>
-                        {order.chatId ? (
-                          <button
-                            type="button"
-                            onClick={() => handleOpenChat(order.chatId!)}
-                            className="text-[12px] font-semibold text-brand-500 hover:underline"
-                          >
-                            Chat
-                          </button>
-                        ) : null}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      ) : null}
 
       {viewMode === 'seguimiento' && activeTrackingOrder && (
         <div className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm">

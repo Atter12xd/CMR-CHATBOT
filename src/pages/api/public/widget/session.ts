@@ -109,23 +109,27 @@ export const POST: APIRoute = async ({ request }) => {
     greeting,
   };
 
-  const { data: existing } = await db
+  let existingQuery = db
     .from('chats')
     .select('id')
     .eq('organization_id', orgRow.id)
     .eq('platform', 'web')
-    .eq('platform_conversation_id', visitorId)
-    .maybeSingle();
+    .eq('platform_conversation_id', visitorId);
+  if (webChannel === 'shopify') {
+    existingQuery = existingQuery.eq('web_channel', 'shopify');
+  } else {
+    existingQuery = existingQuery.or('web_channel.eq.site,web_channel.is.null');
+  }
+  const { data: existing } = await existingQuery.maybeSingle();
 
   if (existing?.id) {
-    const touch: Record<string, string> = {
-      last_message_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-    if (webChannel === 'shopify') {
-      touch.web_channel = 'shopify';
-    }
-    await db.from('chats').update(touch).eq('id', existing.id);
+    await db
+      .from('chats')
+      .update({
+        last_message_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', existing.id);
 
     return jsonResponse(request, { chatId: existing.id, ...widgetMeta });
   }

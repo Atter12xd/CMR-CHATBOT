@@ -1,6 +1,7 @@
 /* Wazapp widget — recomendado (CMS no trunca la URL):
  *   <script src="https://wazapp.ai/widget.js?siteKey=TU_CLAVE_64_HEX" defer></script>
  * Shopify (tienda conectada en Wazapp): ?shop=tu-tienda.myshopify.com en la URL del script (o data-shop); el .js pide la clave al servidor.
+ * Misma clave ?siteKey= en la tienda: el canal Shopify se detecta por host *.myshopify.com, ?shop= o data-web-channel="shopify" (dominio propio).
  * Muchos editores truncan data-site-key a ~16 caracteres; por eso la clave va en ?siteKey=.
  * Opcional: data-debug="true" en el <script> (más detalle en consola).
  * Siempre verás líneas [Wazapp] en consola (info/error) para diagnosticar embeds en webs de clientes.
@@ -324,10 +325,26 @@
     }
   } catch (e) {}
 
+  function wazappPageIsShopifyHost() {
+    try {
+      return /\.myshopify\.com$/i.test(String(location.hostname || ''));
+    } catch (e) {
+      return false;
+    }
+  }
+  var dataWebChannelAttr = (SCRIPT.getAttribute('data-web-channel') || '').trim().toLowerCase();
+  var widgetWebChannelIsShopify =
+    !!shopifySiteKeyResolved ||
+    isValidShopDomain(shopDom) ||
+    wazappPageIsShopifyHost() ||
+    dataWebChannelAttr === 'shopify';
+
   var STORAGE_V = 'wazapp_v1_';
   var memStore = {};
+  /** Separa localStorage por canal para no reutilizar chatId de la web en la tienda (mismo navegador / pruebas). */
+  var channelBucket = widgetWebChannelIsShopify ? 'spf' : 'web';
   function storageKey(k) {
-    return STORAGE_V + k + '_' + siteKey.slice(0, 12);
+    return STORAGE_V + channelBucket + '_' + k + '_' + siteKey.slice(0, 12);
   }
   function lsGet(k) {
     var key = storageKey(k);
@@ -680,7 +697,7 @@
           body: JSON.stringify({
             siteKey: siteKey,
             visitorId: visitorId,
-            webChannel: shopifySiteKeyResolved ? 'shopify' : 'site',
+            webChannel: widgetWebChannelIsShopify ? 'shopify' : 'site',
           }),
         })
           .then(function (data) {

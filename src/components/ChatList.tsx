@@ -41,7 +41,7 @@ const INBOX_EMPTY: Record<InboxSection, { title: string; hint: string }> = {
   },
   web: {
     title: 'No hay conversaciones de tu web',
-    hint: 'Incluye el widget en sitios permitidos y chats de Messenger.',
+    hint: 'Incluye el widget en dominios permitidos en Configuración.',
   },
   shopify: {
     title: 'No hay conversaciones desde Shopify',

@@ -214,7 +214,7 @@ export default function ChatsPage() {
               {
                 id: 'web' as const,
                 label: 'Tu web',
-                sub: 'Widget en tu sitio y Facebook Messenger',
+                sub: 'Widget en tu sitio web',
                 Icon: Globe,
                 count: inboxCounts.web,
                 unread: inboxCounts.unreadWeb,

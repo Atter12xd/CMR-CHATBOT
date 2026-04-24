@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS payments (
   customer_name TEXT NOT NULL,
   customer_email TEXT,
   amount DECIMAL(10, 2) NOT NULL CHECK (amount >= 0),
-  method TEXT NOT NULL CHECK (method IN ('yape', 'plin', 'bcp', 'otro')),
+  method TEXT NOT NULL CHECK (method IN ('yape', 'plin', 'bcp', 'interbank', 'otro')),
   receipt_image_url TEXT,
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'verified', 'rejected')),
   notes TEXT,
@@ -122,11 +122,12 @@ CREATE TABLE IF NOT EXISTS payments (
 CREATE TABLE IF NOT EXISTS payment_methods_config (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
-  method TEXT NOT NULL CHECK (method IN ('yape', 'plin', 'bcp')),
+  method TEXT NOT NULL CHECK (method IN ('yape', 'plin', 'bcp', 'interbank')),
   enabled BOOLEAN DEFAULT false,
   account_name TEXT,
-  account_number TEXT, -- Para BCP
-  account_type TEXT, -- Para BCP (ahorro/corriente)
+  account_number TEXT, -- Cuenta de ahorros (BCP / Interbank)
+  account_number_corriente TEXT, -- Cuenta corriente (BCP / Interbank)
+  account_type TEXT, -- Legado (ahorro/corriente en un solo campo)
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(organization_id, method)

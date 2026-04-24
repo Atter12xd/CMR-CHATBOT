@@ -31,6 +31,45 @@ function hasImageOrDocument(m: proto.IMessage | null): { hasImage: boolean; hasD
   return { hasImage, hasDocument, caption };
 }
 
+type PaymentConfigRowLite = {
+  method: string;
+  account_name?: string | null;
+  account_number?: string | null;
+  account_number_corriente?: string | null;
+  account_type?: string | null;
+};
+
+/** Alineado con `src/lib/payment-config-display.ts` (Baileys compila aparte). */
+function linesFromPaymentConfigRowBaileys(p: PaymentConfigRowLite, style: 'bullet' | 'dash'): string[] {
+  const prefix = style === 'bullet' ? '•' : '-';
+  const name = (p.account_name || 'N/A').trim() || 'N/A';
+
+  if (p.method === 'yape' || p.method === 'plin') {
+    const num = p.account_number?.trim();
+    const numText = num ? ` al número ${num}` : '';
+    const label = p.method === 'yape' ? 'Yape' : 'Plin';
+    return [`${prefix} ${label}${numText}: A nombre de ${name}`];
+  }
+
+  if (p.method === 'bcp' || p.method === 'interbank') {
+    const label = p.method === 'bcp' ? 'BCP' : 'Interbank';
+    let ah = (p.account_number || '').trim();
+    let cc = (p.account_number_corriente || '').trim();
+    const tipo = (p.account_type || '').trim();
+    if (!cc && ah && (tipo === 'Corriente' || tipo.toLowerCase().includes('corriente'))) {
+      cc = ah;
+      ah = '';
+    }
+    const out: string[] = [];
+    if (ah) out.push(`${prefix} ${label} (cuenta de ahorros): ${ah} — A nombre de ${name}`);
+    if (cc) out.push(`${prefix} ${label} (cuenta corriente): ${cc} — A nombre de ${name}`);
+    if (!out.length) out.push(`${prefix} ${label}: (sin número de cuenta configurado) — A nombre de ${name}`);
+    return out;
+  }
+
+  return [];
+}
+
 export async function handleIncomingMessage(
   socket: WASocket,
   msg: proto.IWebMessageInfo,
@@ -300,7 +339,7 @@ PEDIDOS:
   const orderFlowBlock = `
 CÓMO TOMAR PEDIDOS (elegante y claro):
 - Pide al cliente el nombre del producto tal como en web o catálogo (o el de PRODUCTOS DISPONIBLES) y la talla o variante si aplica. Luego pide nombre completo, DNI y dirección de entrega.
-- Cuando tengas nombre, DNI, dirección y productos, usa create_order. Tras crear el pedido, indica al cliente que debe realizar el pago (con los métodos de la lista: Yape/Plin/BCP, nombre y número) y que cuando envíe el comprobante lo verificaremos y le confirmaremos. No digas que el pedido ya está registrado/confirmado hasta que el cliente haya pagado y nosotros lo verifiquemos.
+- Cuando tengas nombre, DNI, dirección y productos, usa create_order. Tras crear el pedido, indica al cliente que debe realizar el pago (con los métodos de la lista: Yape/Plin/BCP/Interbank, nombres y números que figuran) y que cuando envíe el comprobante lo verificaremos y le confirmaremos. No digas que el pedido ya está registrado/confirmado hasta que el cliente haya pagado y nosotros lo verifiquemos.
 - Mantén un tono cercano pero profesional. No inventes productos ni precios; usa solo la lista de PRODUCTOS DISPONIBLES.
 `;
 
@@ -339,22 +378,13 @@ CÓMO TOMAR PEDIDOS (elegante y claro):
   try {
     const { data: paymentMethods } = await supabase
       .from('payment_methods_config')
-      .select('method, enabled, account_name, account_number, account_type')
+      .select('method, enabled, account_name, account_number, account_number_corriente, account_type')
       .eq('organization_id', clientConfig.id)
       .eq('enabled', true);
     if (paymentMethods?.length) {
-      paymentMethodsContext = 'MÉTODOS DE PAGO que debes ofrecer al cliente:\n' + paymentMethods.map(p => {
-        if (p.method === 'yape' || p.method === 'plin') {
-          const num = p.account_number?.trim();
-          const name = p.account_name || 'N/A';
-          const numText = num ? ` al número ${num}` : '';
-          return `- ${p.method === 'yape' ? 'Yape' : 'Plin'}${numText}: A nombre de ${name}`;
-        }
-        if (p.method === 'bcp') {
-          return `- BCP ${p.account_type || ''}: cuenta ${p.account_number || 'N/A'} - A nombre de ${p.account_name || 'N/A'}`;
-        }
-        return '';
-      }).filter(Boolean).join('\n');
+      paymentMethodsContext =
+        'MÉTODOS DE PAGO que debes ofrecer al cliente:\n' +
+        paymentMethods.flatMap((p) => linesFromPaymentConfigRowBaileys(p as PaymentConfigRowLite, 'dash')).join('\n');
     }
   } catch {
     //
@@ -392,7 +422,7 @@ CÓMO HABLAR:
 REGLAS:
 - Responde solo en español. Máximo 2-4 oraciones salvo listas de productos o métodos de pago.
 - Si no sabes algo, ofrece contactar con un agente.
-- Pedidos: pide nombre completo, DNI, dirección de entrega y productos con cantidades. Si aún faltan datos, guarda avance con upsert_order_draft. Si el cliente pide retomar, usa recover_order_draft. Cuando tengas todo, usa create_order. IMPORTANTE: Después de create_order NO digas "pedido registrado" ni "listo tu pedido está confirmado". Solo indica cómo debe pagar (Yape/Plin/BCP con nombre y número de la lista) y que al enviar el comprobante lo verificaremos y entonces le confirmaremos el pedido.
+- Pedidos: pide nombre completo, DNI, dirección de entrega y productos con cantidades. Si aún faltan datos, guarda avance con upsert_order_draft. Si el cliente pide retomar, usa recover_order_draft. Cuando tengas todo, usa create_order. IMPORTANTE: Después de create_order NO digas "pedido registrado" ni "listo tu pedido está confirmado". Solo indica cómo debe pagar (Yape/Plin/BCP/Interbank según la lista, con nombre y números que figuran) y que al enviar el comprobante lo verificaremos y entonces le confirmaremos el pedido.
 - Si el cliente dice que ya pagó o enviará comprobante, agradece y confirma que lo verificarán.
 - Si el cliente responde a recordatorio de carrito ("sí, comprar"), usa recover_order_draft para retomarlo y cerrar datos. Si responde "no, cancelar", confirma amablemente que no insistiremos.`;
 
@@ -720,23 +750,13 @@ async function getPaymentInstructionsForClient(organizationId: string): Promise<
   try {
     const { data: paymentMethods } = await supabase
       .from('payment_methods_config')
-      .select('method, account_name, account_number, account_type')
+      .select('method, account_name, account_number, account_number_corriente, account_type')
       .eq('organization_id', organizationId)
       .eq('enabled', true);
     if (!paymentMethods?.length) return '';
-    const lines = paymentMethods.map(p => {
-      if (p.method === 'yape' || p.method === 'plin') {
-        const num = p.account_number?.trim();
-        const name = p.account_name || 'N/A';
-        const numText = num ? ` al número ${num}` : '';
-        return `• ${p.method === 'yape' ? 'Yape' : 'Plin'}${numText}: a nombre de ${name}`;
-      }
-      if (p.method === 'bcp') {
-        return `• BCP ${p.account_type || ''}: cuenta ${p.account_number || 'N/A'} - a nombre de ${p.account_name || 'N/A'}`;
-      }
-      return '';
-    }).filter(Boolean);
-    return lines.join('\n');
+    return paymentMethods
+      .flatMap((p) => linesFromPaymentConfigRowBaileys(p as PaymentConfigRowLite, 'bullet'))
+      .join('\n');
   } catch {
     return '';
   }

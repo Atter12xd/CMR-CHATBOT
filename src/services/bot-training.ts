@@ -4,6 +4,12 @@ import type { BotTrainingData } from '../data/botTraining';
 const supabase = createClient();
 const BUCKET = 'bot-training';
 
+/** Ruta dentro del bucket `bot-training` desde URL pública o firmada de Supabase Storage */
+function pathInBotTrainingBucket(fileUrl: string): string | null {
+  const m = fileUrl.match(/\/object\/(?:public|sign)\/bot-training\/([^?]+)/);
+  return m ? decodeURIComponent(m[1].replace(/\/$/, '')) : null;
+}
+
 function rowToTraining(row: {
   id: string;
   type: string;
@@ -99,10 +105,32 @@ export async function deleteTrainingItem(id: string): Promise<void> {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) throw new Error('No hay sesión activa');
 
+  const { data: row, error: fetchError } = await supabase
+    .from('bot_training_data')
+    .select('file_url, type')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (fetchError) throw fetchError;
+
+  const { error: ctxError } = await supabase
+    .from('bot_context')
+    .delete()
+    .eq('source_id', id)
+    .eq('source_type', 'training');
+  if (ctxError) throw ctxError;
+
   const { error: delError } = await supabase.from('bot_training_data').delete().eq('id', id);
   if (delError) throw delError;
 
-  await supabase.from('bot_context').delete().eq('source_id', id);
+  const url = row?.file_url?.trim();
+  if (row?.type === 'pdf' && url) {
+    const path = pathInBotTrainingBucket(url);
+    if (path) {
+      const { error: rmError } = await supabase.storage.from(BUCKET).remove([path]);
+      if (rmError) console.warn('No se pudo borrar el PDF en storage:', rmError.message);
+    }
+  }
 }
 
 export async function uploadTrainingFile(file: File): Promise<string> {

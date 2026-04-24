@@ -310,10 +310,11 @@ export interface Database {
         Row: {
           id: string
           organization_id: string
-          type: 'yape' | 'plin' | 'bcp'
+          type: 'yape' | 'plin' | 'bcp' | 'interbank'
           enabled: boolean
           account_name: string | null
           account_number: string | null
+          account_number_corriente?: string | null
           account_type: string | null
           created_at: string | null
           updated_at: string | null
@@ -321,10 +322,11 @@ export interface Database {
         Insert: {
           id?: string
           organization_id: string
-          type: 'yape' | 'plin' | 'bcp'
+          type: 'yape' | 'plin' | 'bcp' | 'interbank'
           enabled: boolean
           account_name?: string | null
           account_number?: string | null
+          account_number_corriente?: string | null
           account_type?: string | null
           created_at?: string | null
           updated_at?: string | null
@@ -332,10 +334,11 @@ export interface Database {
         Update: {
           id?: string
           organization_id?: string
-          type?: 'yape' | 'plin' | 'bcp'
+          type?: 'yape' | 'plin' | 'bcp' | 'interbank'
           enabled?: boolean
           account_name?: string | null
           account_number?: string | null
+          account_number_corriente?: string | null
           account_type?: string | null
           created_at?: string | null
           updated_at?: string | null

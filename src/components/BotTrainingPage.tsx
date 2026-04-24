@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Globe,
   FileText,
@@ -13,6 +13,8 @@ import {
   CheckCircle2,
   Sparkles,
   ExternalLink,
+  Plus,
+  Upload,
 } from 'lucide-react';
 import type { BotTrainingData } from '../data/botTraining';
 import { extractWebInfo, extractPDFInfo } from '../data/botTraining';
@@ -96,6 +98,19 @@ export default function BotTrainingPage() {
   const [companyWebsiteUrl, setCompanyWebsiteUrl] = useState('');
   const [configSaving, setConfigSaving] = useState(false);
 
+  const pdfFileInputRef = useRef<HTMLInputElement>(null);
+  const [pdfUploadProgress, setPdfUploadProgress] = useState<{
+    current: number;
+    total: number;
+    name: string;
+  } | null>(null);
+  const [pdfFeedback, setPdfFeedback] = useState<
+    | { status: 'success'; files: string[] }
+    | { status: 'error'; message: string }
+    | null
+  >(null);
+  const [pdfHighlightIds, setPdfHighlightIds] = useState<string[]>([]);
+
   const fetchTraining = useCallback(async () => {
     if (!organizationId) return;
     try {
@@ -143,6 +158,19 @@ export default function BotTrainingPage() {
     fetchTraining();
     fetchBotConfig();
   }, [organizationId, fetchTraining, fetchBotConfig]);
+
+  useEffect(() => {
+    if (!pdfFeedback) return;
+    const ms = pdfFeedback.status === 'success' ? 8000 : 12000;
+    const t = window.setTimeout(() => setPdfFeedback(null), ms);
+    return () => window.clearTimeout(t);
+  }, [pdfFeedback]);
+
+  useEffect(() => {
+    if (!pdfHighlightIds.length) return;
+    const t = window.setTimeout(() => setPdfHighlightIds([]), 10000);
+    return () => window.clearTimeout(t);
+  }, [pdfHighlightIds]);
 
   const trainingStats = useMemo(() => {
     const web = trainingData.filter((t) => t.type === 'web').length;
@@ -314,59 +342,104 @@ export default function BotTrainingPage() {
   };
 
   const handlePDFUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.type !== 'application/pdf') {
-      alert('Por favor selecciona un archivo PDF');
-      return;
-    }
+    const list = e.target.files;
+    if (!list?.length) return;
     if (!organizationId) {
       alert('No hay organización seleccionada');
       return;
     }
 
-    const fileName = file.name;
-    setIsProcessing(true);
+    const all = Array.from(list);
+    const pdfFiles = all.filter(
+      (f) => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'),
+    );
+    const skipped = all.length - pdfFiles.length;
+    if (skipped > 0) {
+      alert(`${skipped} archivo(s) no son PDF y se omitieron.`);
+    }
+    if (!pdfFiles.length) {
+      e.target.value = '';
+      return;
+    }
+
     e.target.value = '';
+    setPdfFeedback(null);
+    setIsProcessing(true);
+    setPdfUploadProgress(null);
+    const uploadedForProducts: { name: string; content: string }[] = [];
+    const newRowIds: string[] = [];
 
     try {
-      const content = await extractPDFInfo(file);
-      let fileUrl: string | null = null;
-      try {
-        fileUrl = await uploadTrainingFile(file);
-      } catch {
-        // opcional: guardar igual sin URL
+      for (let i = 0; i < pdfFiles.length; i++) {
+        const file = pdfFiles[i];
+        const fileName = file.name;
+        setPdfUploadProgress({ current: i + 1, total: pdfFiles.length, name: fileName });
+        const content = await extractPDFInfo(file);
+        let fileUrl: string | null = null;
+        try {
+          fileUrl = await uploadTrainingFile(file);
+        } catch {
+          // opcional: guardar igual sin URL
+        }
+        const saved = await saveTrainingItem(organizationId, {
+          type: 'pdf',
+          source: fileName,
+          content,
+          fileUrl,
+        });
+        newRowIds.push(saved.id);
+        uploadedForProducts.push({ name: fileName, content });
       }
-      await saveTrainingItem(organizationId, {
-        type: 'pdf',
-        source: fileName,
-        content,
-        fileUrl,
-      });
+
+      setPdfUploadProgress(null);
       await fetchTraining();
+      setPdfHighlightIds(newRowIds);
+      setPdfFeedback({
+        status: 'success',
+        files: uploadedForProducts.map((u) => u.name),
+      });
+
+      const anyLong = uploadedForProducts.some((u) => u.content.length > 200);
       if (
-        content.length > 200 &&
+        anyLong &&
         confirm(
-          '¿Extraer también productos de este PDF? Aparecerán en Productos → Sugeridos (web o catálogo) para aprobar.',
+          pdfFiles.length > 1
+            ? '¿Extraer también productos de los PDF subidos? Aparecerán en Productos → Sugeridos (web o catálogo) para aprobar.'
+            : '¿Extraer también productos de este PDF? Aparecerán en Productos → Sugeridos (web o catálogo) para aprobar.',
         )
       ) {
-        await extractProductsFromContent(organizationId, content, `PDF: ${fileName}`);
+        const combined = uploadedForProducts
+          .map((u) => `=== ${u.name} ===\n${u.content}`)
+          .join('\n\n');
+        await extractProductsFromContent(
+          organizationId,
+          combined,
+          pdfFiles.length > 1 ? `PDFs (${pdfFiles.length} archivos)` : `PDF: ${pdfFiles[0].name}`,
+        );
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error procesando PDF:', err);
-      alert(err.message || 'Error al procesar el PDF');
+      const msg = err instanceof Error ? err.message : 'Error al procesar el PDF';
+      setPdfUploadProgress(null);
+      setPdfFeedback({ status: 'error', message: msg });
+      alert(msg);
     } finally {
       setIsProcessing(false);
+      setPdfUploadProgress(null);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('¿Estás seguro de eliminar este entrenamiento?')) return;
+  const handleDelete = async (item: BotTrainingData) => {
+    const isPdf = item.type === 'pdf';
+    const msg = isPdf
+      ? `¿Eliminar «${item.source}»?\n\nSe quitará el texto que el bot aprendió de este PDF, su entrada en el contexto y el archivo en la nube (si existe).`
+      : `¿Eliminar esta fuente (${item.source})?\n\nSe quitará el texto entrenado y su contexto asociado.`;
+    if (!confirm(msg)) return;
     try {
-      await deleteTrainingItem(id);
+      await deleteTrainingItem(item.id);
       await fetchTraining();
-    } catch (err: any) {
-      alert(err.message || 'Error al eliminar');
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Error al eliminar');
     }
   };
 
@@ -724,38 +797,160 @@ export default function BotTrainingPage() {
         </motion.div>
 
         <motion.div
-          whileHover={{ y: -2 }}
+          whileHover={isProcessing ? undefined : { y: -2 }}
           transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-          className="rounded-ref border border-app-line bg-ref-card overflow-hidden shadow-sm flex flex-col"
+          className={`rounded-ref border bg-ref-card overflow-hidden shadow-sm flex flex-col transition-[box-shadow,border-color] duration-300 ${
+            pdfFeedback?.status === 'success'
+              ? 'border-emerald-500/35 shadow-[0_0_0_1px_rgba(16,185,129,0.12),0_8px_24px_-8px_rgba(16,185,129,0.15)]'
+              : pdfFeedback?.status === 'error'
+                ? 'border-rose-400/40 shadow-[0_0_0_1px_rgba(244,63,94,0.12)]'
+                : 'border-app-line'
+          }`}
         >
           <div className="h-1 bg-gradient-to-r from-purple-500/50 via-brand-500/40 to-purple-400/50 shrink-0" />
           <div className="p-5 flex-1 flex flex-col">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 rounded-2xl bg-ref-card border border-app-line text-violet-600 shrink-0 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <motion.div
+                animate={isProcessing ? { scale: [1, 1.06, 1] } : { scale: 1 }}
+                transition={{ repeat: isProcessing ? Infinity : 0, duration: 1.2 }}
+                className="p-2.5 rounded-2xl bg-ref-card border border-app-line text-violet-600 shrink-0 shadow-sm"
+              >
                 <FileText className="size-[18px]" />
-              </div>
+              </motion.div>
               <div className="min-w-0">
                 <h3 className="text-[15px] font-semibold text-app-ink leading-snug">Subir PDF</h3>
-                <p className="text-[12px] text-app-muted mt-0.5">Catálogos y documentos</p>
+                <p className="text-[12px] text-app-muted mt-0.5">
+                  Varios a la vez o de uno en uno; abajo verás confirmación y podrás añadir otro.
+                </p>
               </div>
             </div>
-            <label className="mt-auto w-full cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-[14px] font-semibold bg-app-field text-app-ink border border-app-line hover:bg-app-field/80 transition-colors">
-              <input
-                type="file"
-                accept=".pdf"
-                onChange={handlePDFUpload}
-                className="hidden"
-                disabled={isProcessing}
-              />
-              {isProcessing ? (
-                <>
-                  <Loader2 size={16} className="animate-spin" />
-                  Procesando…
-                </>
-              ) : (
-                'Seleccionar PDF'
+
+            <AnimatePresence initial={false}>
+              {isProcessing && pdfUploadProgress && (
+                <motion.div
+                  key="pdf-progress"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mb-3 overflow-hidden"
+                >
+                  <div className="rounded-xl border border-violet-500/20 bg-violet-500/[0.07] px-3 py-2.5">
+                    <div className="h-1.5 rounded-full bg-white/60 overflow-hidden mb-2">
+                      <motion.div
+                        className="h-full rounded-full bg-gradient-to-r from-violet-500 to-brand-500"
+                        initial={{ width: 0 }}
+                        animate={{
+                          width: `${(pdfUploadProgress.current / pdfUploadProgress.total) * 100}%`,
+                        }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+                      />
+                    </div>
+                    <p className="text-[11px] font-semibold text-app-muted uppercase tracking-wide">
+                      Procesando {pdfUploadProgress.current} de {pdfUploadProgress.total}
+                    </p>
+                    <p className="text-[12px] font-medium text-app-ink truncate mt-0.5" title={pdfUploadProgress.name}>
+                      {pdfUploadProgress.name}
+                    </p>
+                  </div>
+                </motion.div>
               )}
-            </label>
+            </AnimatePresence>
+
+            <AnimatePresence initial={false}>
+              {pdfFeedback?.status === 'success' && (
+                <motion.div
+                  key="pdf-ok"
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                  className="mb-3 rounded-xl border border-emerald-500/25 bg-gradient-to-br from-emerald-500/10 to-teal-500/5 px-3.5 py-3"
+                >
+                  <div className="flex gap-2.5">
+                    <div className="shrink-0 w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/20 flex items-center justify-center">
+                      <CheckCircle2 className="size-[18px] text-emerald-600" strokeWidth={2.25} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13px] font-bold text-emerald-950 leading-snug">
+                        {pdfFeedback.files.length === 1
+                          ? 'PDF agregado al entrenamiento'
+                          : `${pdfFeedback.files.length} PDF agregados`}
+                      </p>
+                      <p className="text-[11.5px] text-emerald-900/85 mt-1 leading-relaxed break-words">
+                        {pdfFeedback.files.length === 1
+                          ? `«${pdfFeedback.files[0]}» ya forma parte del contexto del bot.`
+                          : `${pdfFeedback.files.map((n) => `«${n}»`).join(' · ')}`}
+                      </p>
+                      <p className="text-[11px] text-emerald-800/75 mt-1.5">
+                        Aparecen en «Información entrenada» abajo. ¿Otro documento?
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => pdfFileInputRef.current?.click()}
+                        className="mt-2.5 inline-flex items-center justify-center gap-1.5 w-full sm:w-auto px-3.5 py-2 rounded-full text-[12px] font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/25 transition-colors"
+                      >
+                        <Plus size={15} strokeWidth={2.5} />
+                        Agregar otro PDF
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+              {pdfFeedback?.status === 'error' && (
+                <motion.div
+                  key="pdf-err"
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="mb-3 rounded-xl border border-rose-500/25 bg-rose-500/[0.08] px-3.5 py-2.5"
+                >
+                  <p className="text-[12px] font-semibold text-rose-900">No se pudo completar la subida</p>
+                  <p className="text-[11.5px] text-rose-800/90 mt-1">{pdfFeedback.message}</p>
+                  <button
+                    type="button"
+                    onClick={() => pdfFileInputRef.current?.click()}
+                    className="mt-2 text-[11.5px] font-bold text-rose-700 hover:text-rose-900 underline underline-offset-2"
+                  >
+                    Reintentar con otro archivo
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <input
+              ref={pdfFileInputRef}
+              type="file"
+              accept=".pdf,application/pdf"
+              multiple
+              onChange={handlePDFUpload}
+              className="hidden"
+              disabled={isProcessing}
+            />
+            <div className="mt-auto flex flex-col gap-2">
+              <button
+                type="button"
+                disabled={isProcessing}
+                onClick={() => pdfFileInputRef.current?.click()}
+                className="w-full cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-[14px] font-semibold bg-gradient-to-r from-violet-600 to-brand-600 text-white hover:from-violet-500 hover:to-brand-500 shadow-md shadow-violet-500/20 disabled:opacity-55 disabled:cursor-not-allowed transition-all"
+              >
+                {isProcessing ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin shrink-0" />
+                    Procesando…
+                  </>
+                ) : (
+                  <>
+                    <Upload size={16} className="shrink-0 opacity-95" strokeWidth={2.25} />
+                    Elegir PDF (uno o varios)
+                  </>
+                )}
+              </button>
+              {!isProcessing && trainingStats.pdf > 0 && !pdfFeedback && (
+                <p className="text-center text-[11px] text-app-muted">
+                  Ya tienes {trainingStats.pdf} PDF{trainingStats.pdf === 1 ? '' : 's'} · puedes seguir añadiendo
+                </p>
+              )}
+            </div>
           </div>
         </motion.div>
       </div>
@@ -798,19 +993,25 @@ export default function BotTrainingPage() {
             </div>
             <p className="text-[15px] font-medium text-app-ink">Aún no hay fuentes entrenadas</p>
             <p className="text-[13px] text-app-muted mt-1 max-w-md leading-relaxed">
-              Agrega una página web, estudia tu sitio completo o sube un PDF para que el bot aprenda de tu negocio.
+              Agrega una página web, estudia tu sitio completo o sube uno o más PDF para que el bot aprenda de tu negocio.
             </p>
           </div>
         ) : (
           <div className="divide-y divide-app-line">
-            {trainingData.map((item, index) => (
-              <motion.div
+            {trainingData.map((item, index) => {
+              const isNewPdf = item.type === 'pdf' && pdfHighlightIds.includes(item.id);
+              return (
+                <motion.div
                 key={item.id}
                 custom={index}
                 variants={listRow}
                 initial="hidden"
                 animate="show"
-                className="p-4 sm:p-5 hover:bg-app-field/40 transition-colors"
+                className={`p-4 sm:p-5 hover:bg-app-field/40 transition-colors ${
+                  isNewPdf
+                    ? 'bg-emerald-500/[0.07] ring-1 ring-inset ring-emerald-500/20'
+                    : ''
+                }`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
@@ -825,6 +1026,11 @@ export default function BotTrainingPage() {
                       <span className="text-[14px] font-semibold text-app-ink">
                         {item.type === 'web' ? 'Página web' : 'PDF'}
                       </span>
+                      {isNewPdf && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide bg-emerald-500/15 text-emerald-700 border border-emerald-500/25">
+                          Recién agregado
+                        </span>
+                      )}
                       {getStatusBadge(item.status)}
                     </div>
                     <p className="text-[13px] text-app-muted truncate ml-11 sm:ml-11">{item.source}</p>
@@ -852,15 +1058,16 @@ export default function BotTrainingPage() {
                   </div>
                   <motion.button
                     type="button"
-                    onClick={() => handleDelete(item.id)}
+                    onClick={() => handleDelete(item)}
                     whileTap={{ scale: 0.95 }}
                     className="p-2.5 text-rose-600 hover:bg-rose-500/12 rounded-xl border border-transparent hover:border-rose-500/20 transition-colors shrink-0"
                   >
                     <X size={17} />
                   </motion.button>
                 </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
         )}
       </div>
@@ -894,7 +1101,7 @@ export default function BotTrainingPage() {
                 <strong className="text-app-ink">Sitio completo:</strong> hasta 20 páginas vía sitemap.
               </li>
               <li>
-                <strong className="text-app-ink">PDF:</strong> catálogos, precios o políticas.
+                <strong className="text-app-ink">PDF:</strong> catálogos, precios o políticas; puedes subir varios a la vez. Si quitas una fila de la lista, el bot deja de usar ese texto y se borra el archivo del almacén.
               </li>
             </ul>
           </div>

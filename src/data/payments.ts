@@ -6,7 +6,7 @@ export interface Payment {
   customerEmail?: string;
   customerId?: string; // ID del chat asociado
   amount: number;
-  method: 'yape' | 'plin' | 'bcp' | 'otro';
+  method: 'yape' | 'plin' | 'bcp' | 'interbank' | 'otro';
   receiptImage?: string; // URL o base64 de la imagen del comprobante
   timestamp: Date;
   status: 'pending' | 'verified' | 'rejected';
@@ -107,6 +107,7 @@ export function getPaymentMethodText(method: Payment['method']): string {
     yape: 'Yape',
     plin: 'Plin',
     bcp: 'BCP',
+    interbank: 'Interbank',
     otro: 'Otro',
   };
   return methods[method];

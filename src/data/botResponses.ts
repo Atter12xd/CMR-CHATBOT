@@ -54,7 +54,7 @@ export const botResponses: { keywords: string[]; response: string | ((products: 
     response: 'Puedo ayudarte a cancelar tu pedido. ¿Cuál es el número de orden que deseas cancelar?'
   },
   {
-    keywords: ['pago', 'pagar', 'comprar', 'realizar pago', 'método de pago', 'yape', 'plin', 'bcp', 'transferencia'],
+    keywords: ['pago', 'pagar', 'comprar', 'realizar pago', 'método de pago', 'yape', 'plin', 'bcp', 'interbank', 'transferencia'],
     response: (products: Product[], paymentMethods: PaymentMethod[]) => {
       const paymentText = getPaymentMethodsText(paymentMethods);
       return `Para realizar tu pago, puedes usar los siguientes métodos:\n\n${paymentText}\n\n` +

@@ -5,6 +5,7 @@ import {
   CreditCard,
   Smartphone,
   Building2,
+  Landmark,
   Info,
   Loader2,
   CheckCircle2,
@@ -121,6 +122,22 @@ export default function PaymentMethodsConfig({
   };
 
   const handleSave = async () => {
+    for (const m of paymentMethods) {
+      if (!m.active) continue;
+      if (!m.accountName?.trim()) {
+        alert(`Completa «A nombre de» en ${m.name}.`);
+        return;
+      }
+      if (m.type === 'bcp' || m.type === 'interbank') {
+        const hasAhorros = Boolean(m.accountNumber?.trim());
+        const hasCorriente = Boolean(m.accountNumberCorriente?.trim());
+        if (!hasAhorros && !hasCorriente) {
+          alert(`${m.name}: indica al menos un número de cuenta (ahorros y/o corriente).`);
+          return;
+        }
+      }
+    }
+
     if (propsOnSave) {
       propsOnSave(paymentMethods);
       alert('Métodos de pago guardados exitosamente');
@@ -149,6 +166,8 @@ export default function PaymentMethodsConfig({
         return <Smartphone className="size-[18px] text-brand-500" />;
       case 'bcp':
         return <Building2 className="size-[18px] text-brand-600" />;
+      case 'interbank':
+        return <Landmark className="size-[18px] text-sky-600" />;
       default:
         return <CreditCard className="size-[18px] text-violet-500" />;
     }
@@ -214,8 +233,12 @@ export default function PaymentMethodsConfig({
       />
 
       {loading && !propsMethods?.length ? (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3" aria-busy="true" aria-label="Cargando métricas">
-          {[0, 1, 2].map((k) => (
+        <div
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"
+          aria-busy="true"
+          aria-label="Cargando métricas"
+        >
+          {[0, 1, 2, 3, 4].map((k) => (
             <StatsCardSkeleton key={k} />
           ))}
         </div>
@@ -224,7 +247,7 @@ export default function PaymentMethodsConfig({
           variants={statsContainer}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-1 sm:grid-cols-3 gap-3"
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"
         >
           <motion.div variants={statsItem} className="min-w-0">
             <StatsCard title="Métodos en lista" value={payStats.total} icon={Wallet} accentClassName="text-brand-500" />
@@ -251,7 +274,7 @@ export default function PaymentMethodsConfig({
       <div className="space-y-3">
         {loading && !propsMethods?.length ? (
           <div className="space-y-3" aria-label="Cargando métodos">
-            {[0, 1, 2, 3].map((k) => (
+            {[0, 1, 2, 3, 4].map((k) => (
               <PaymentMethodCardSkeleton key={k} />
             ))}
           </div>
@@ -336,33 +359,40 @@ export default function PaymentMethodsConfig({
                           </div>
                         )}
 
-                        {method.type === 'bcp' && (
+                        {(method.type === 'bcp' || method.type === 'interbank') && (
                           <>
+                            <p className="text-[12px] text-app-muted leading-relaxed">
+                              Puedes configurar <strong className="text-app-ink">cuenta de ahorros</strong>,{' '}
+                              <strong className="text-app-ink">cuenta corriente</strong> o ambas. El bot mostrará
+                              solo las que completes.
+                            </p>
                             <div>
                               <label className="block text-[12px] font-semibold text-app-muted mb-1.5 uppercase tracking-wide">
-                                Número de cuenta <span className="text-rose-600">*</span>
+                                Cuenta de ahorros
                               </label>
                               <input
                                 type="text"
+                                inputMode="numeric"
+                                autoComplete="off"
                                 value={method.accountNumber || ''}
                                 onChange={(e) => handleChange(method.id, 'accountNumber', e.target.value)}
-                                required={method.active}
-                                placeholder="Ej: 1234567890123456"
+                                placeholder="Número CCI o cuenta de ahorros (opcional si hay corriente)"
                                 className={fieldClass}
                               />
                             </div>
                             <div>
                               <label className="block text-[12px] font-semibold text-app-muted mb-1.5 uppercase tracking-wide">
-                                Tipo de cuenta
+                                Cuenta corriente
                               </label>
-                              <select
-                                value={method.accountType || 'Ahorros'}
-                                onChange={(e) => handleChange(method.id, 'accountType', e.target.value)}
+                              <input
+                                type="text"
+                                inputMode="numeric"
+                                autoComplete="off"
+                                value={method.accountNumberCorriente || ''}
+                                onChange={(e) => handleChange(method.id, 'accountNumberCorriente', e.target.value)}
+                                placeholder="Número de cuenta corriente (opcional si hay ahorros)"
                                 className={fieldClass}
-                              >
-                                <option value="Ahorros">Ahorros</option>
-                                <option value="Corriente">Corriente</option>
-                              </select>
+                              />
                             </div>
                           </>
                         )}
@@ -386,7 +416,7 @@ export default function PaymentMethodsConfig({
             <Info className="size-[18px]" />
           </div>
           <p className="text-[13px] text-app-muted leading-relaxed min-w-0">
-            Cuando un cliente quiera pagar, el bot mostrará automáticamente los métodos <strong className="text-app-ink">activos</strong> con los datos que configures aquí.
+            Cuando un cliente quiera pagar, el bot mostrará automáticamente los métodos <strong className="text-app-ink">activos</strong> con los datos que configures aquí. En BCP e Interbank puedes publicar cuenta de ahorros, corriente o ambas.
           </p>
         </div>
       </motion.div>

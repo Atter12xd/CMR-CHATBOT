@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { Order } from '../data/mockData';
 import { MapPin, MessageSquare, Truck, ShoppingBag, Clock, AlertCircle } from 'lucide-react';
 
@@ -47,7 +48,7 @@ interface KanbanOrderCardProps {
   onOpenTracking?: (order: Order) => void;
 }
 
-export default function KanbanOrderCard({ order, onOpenChat, onOpenTracking }: KanbanOrderCardProps) {
+function KanbanOrderCard({ order, onOpenChat, onOpenTracking }: KanbanOrderCardProps) {
   const code = order.code || `#${order.id.slice(0, 8).toUpperCase()}`;
   const first = order.items[0];
   const productLine =
@@ -171,3 +172,5 @@ export default function KanbanOrderCard({ order, onOpenChat, onOpenTracking }: K
     </div>
   );
 }
+
+export default memo(KanbanOrderCard);

@@ -153,6 +153,8 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [pendingPayments, setPendingPayments] = useState<PaymentWithOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  /** Solo para el botón «Refrescar»; no bloquea el tablero. */
+  const [refreshing, setRefreshing] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<OrderStatus>('all');
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [verifyAmount, setVerifyAmount] = useState<Record<string, string>>({});
@@ -178,10 +180,11 @@ export default function OrdersPage() {
     shippingLastEvent: '',
   });
 
-  const fetchOrders = useCallback(async () => {
+  const fetchOrders = useCallback(async (opts?: { silent?: boolean }) => {
     if (!organizationId) return;
+    const silent = opts?.silent === true;
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const [list, payments] = await Promise.all([
         loadOrders(organizationId),
         loadPaymentsPending(organizationId).catch(() => []),
@@ -191,7 +194,7 @@ export default function OrdersPage() {
     } catch (err) {
       console.error('Error cargando pedidos:', err);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [organizationId]);
 
@@ -274,7 +277,7 @@ export default function OrdersPage() {
         alert(result.error || 'No se pudo guardar seguimiento');
         return;
       }
-      await fetchOrders();
+      await fetchOrders({ silent: true });
       alert('Seguimiento guardado');
       setActiveTrackingOrderId(null);
     } finally {
@@ -326,9 +329,20 @@ export default function OrdersPage() {
     setDraggingId(null);
     const orderId = e.dataTransfer.getData('orderId');
     if (!orderId || !organizationId) return;
+
+    const previous = orders.find((o) => o.id === orderId);
+    if (!previous || previous.status === status) return;
+
+    // Actualización optimista: el tablero no desaparece (evita “pantalla blanca” al recargar).
+    setOrders((list) => list.map((o) => (o.id === orderId ? { ...o, status } : o)));
+
     const res = await updateOrderStatus(organizationId, orderId, status);
-    if (res.success) await fetchOrders();
-    else alert(res.error || 'No se pudo actualizar el estado');
+    if (res.success) {
+      await fetchOrders({ silent: true });
+    } else {
+      setOrders((list) => list.map((o) => (o.id === orderId ? previous : o)));
+      alert(res.error || 'No se pudo actualizar el estado');
+    }
   };
 
   const handleVerifyPayment = async (p: PaymentWithOrder) => {
@@ -351,7 +365,7 @@ export default function OrdersPage() {
         });
       }
       alert(result.success ? 'Pago verificado. Se envió el mensaje al cliente y el chat pasó a modo humano.' : 'El monto o nombre no coinciden. Se notificó al cliente.');
-      await fetchOrders();
+      await fetchOrders({ silent: true });
     } catch (e) {
       alert(e instanceof Error ? e.message : 'Error al verificar');
     } finally {
@@ -784,12 +798,22 @@ export default function OrdersPage() {
             <div className="flex items-center justify-end gap-2 shrink-0">
               <button
                 type="button"
-                onClick={() => void fetchOrders()}
-                disabled={loading}
+                onClick={async () => {
+                  setRefreshing(true);
+                  try {
+                    await fetchOrders({ silent: true });
+                  } finally {
+                    setRefreshing(false);
+                  }
+                }}
+                disabled={loading || refreshing}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[12px] font-semibold text-[#5C5C63] hover:text-[#1F1F23] hover:bg-[#F4F4F6] border border-transparent hover:border-[#E4E4E9] disabled:opacity-50 transition-colors"
                 title="Refrescar"
               >
-                <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} strokeWidth={2.25} />
+                <RefreshCw
+                  className={`w-3.5 h-3.5 ${loading || refreshing ? 'animate-spin' : ''}`}
+                  strokeWidth={2.25}
+                />
                 Refrescar
               </button>
               <a

@@ -1,3 +1,6 @@
+/** Worker de pdfjs-dist: Vite emite URL absoluta válida en dev y en deploy (Vercel, etc.) */
+import pdfjsWorkerSrc from 'pdfjs-dist/build/pdf.worker.mjs?url';
+
 export interface BotTrainingData {
   id: string;
   type: 'web' | 'pdf' | 'manual';
@@ -81,32 +84,29 @@ export async function extractWebInfo(url: string): Promise<string> {
 }
 
 /**
- * Extrae texto de un archivo PDF (usa pdfjs-dist si está disponible)
+ * Extrae texto de un archivo PDF (pdfjs-dist + worker empaquetado por Vite).
  */
 export async function extractPDFInfo(file: File): Promise<string> {
+  let pdfjsLib: typeof import('pdfjs-dist');
   try {
-    const pdfjsLib = await import('pdfjs-dist');
-    if (typeof (pdfjsLib as any).GlobalWorkerOptions?.workerSrc === 'undefined') {
-      (pdfjsLib as any).GlobalWorkerOptions = (pdfjsLib as any).GlobalWorkerOptions || {};
-      (pdfjsLib as any).GlobalWorkerOptions.workerSrc = new URL(
-        'pdfjs-dist/build/pdf.worker.mjs',
-        import.meta.url
-      ).toString();
-    }
+    pdfjsLib = await import('pdfjs-dist');
   } catch {
-    return `Documento PDF: ${file.name}. (Para extraer texto, instala: npm install pdfjs-dist)`;
+    return `Documento PDF: ${file.name}. (No se pudo cargar el lector PDF.)`;
   }
 
-  const pdfjsLib = await import('pdfjs-dist');
+  pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerSrc;
+
   const arrayBuffer = await file.arrayBuffer();
-  const doc = await (pdfjsLib as any).getDocument({ data: arrayBuffer }).promise;
+  const doc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
   const numPages = doc.numPages;
   const parts: string[] = [];
 
   for (let i = 1; i <= numPages; i++) {
     const page = await doc.getPage(i);
     const content = await page.getTextContent();
-    const text = content.items.map((it: { str?: string }) => it.str || '').join(' ');
+    const text = content.items
+      .map((it) => ('str' in it && typeof (it as { str?: string }).str === 'string' ? (it as { str: string }).str : ''))
+      .join(' ');
     if (text.trim()) parts.push(text);
   }
 
